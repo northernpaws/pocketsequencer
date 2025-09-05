@@ -1,0 +1,48 @@
+*.*bak
+*.*lcks
+fp-info-cache
+
+# ====================
+# For PCBs designed using KiCad: https://www.kicad.org/
+# Format documentation: https://kicad.org/help/file-formats/
+#
+# These ignores are defined here to avoid having
+# to repeat them in multiple board directories.
+
+# Temporary files
+boards/**/*.000
+boards/**/*.bak
+boards/**/*.bck
+boards/**/*.kicad_pcb-bak
+boards/**/*.kicad_sch-bak
+boards/**/*-backups
+boards/**/*-cache*
+boards/**/*-bak
+boards/**/*-bak*
+boards/**/*~
+boards/**/~*
+boards/**/_autosave-*
+boards/**/\#auto_saved_files\#
+boards/**/*.tmp
+boards/**/*-save.pro
+boards/**/*-save.kicad_pcb
+boards/**/fp-info-cache
+boards/**/~*.lck
+boards/**/\#auto_saved_files#
+
+# Netlist files (exported from Eeschema)
+boards/**/*.net
+
+# Autorouter files (exported from Pcbnew)
+boards/**/*.dsn
+boards/**/*.ses
+
+# Exported BOM files
+boards/**/*.xml
+boards/**/*.csv
+
+# Archived Backups (KiCad 6.0)
+boards/**/**/*-backups/*.zip
+
+# Local project settings
+boards/**/*.kicad_prl
