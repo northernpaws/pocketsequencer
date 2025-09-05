@@ -1,0 +1,75 @@
+[package]
+name = "firmware"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+name = "app"
+test = false
+bench = false
+
+# cargo build/run
+[profile.dev]
+codegen-units = 1
+debug = 2
+debug-assertions = true # <-
+incremental = false
+opt-level = 3 # <-
+overflow-checks = true # <-
+
+# cargo test
+[profile.test]
+codegen-units = 1
+debug = 2
+debug-assertions = true # <-
+incremental = false
+opt-level = 3 # <-
+overflow-checks = true # <-
+
+# cargo build/run --release
+[profile.release]
+codegen-units = 1
+debug = 2
+debug-assertions = false # <-
+incremental = false
+lto = 'fat'
+opt-level = 3 # <-
+overflow-checks = false # <-
+
+# cargo test --release
+[profile.bench]
+codegen-units = 1
+debug = 2
+debug-assertions = false # <-
+incremental = false
+lto = 'fat'
+opt-level = 3 # <-
+overflow-checks = false # <-
+
+[dependencies]
+# Debug logging from the firmware by defmt via an RTT channel.
+defmt = "1.0.1"
+defmt-rtt = "1.0.0"
+
+# Provides a panic handler for `probe-run`.
+#
+# The `print-defmt` feature prints panic messages via defmt.
+panic-probe = { version = "1.0.0", features = ["print-defmt"] }
+
+# Static friendly data structures for avoiding dnymaic memory allocation.
+heapless = { version = "0.9.1", default-features = false }
+
+# ARM Cortex support.
+cortex-m = { version = "0.7.6", features = ["inline-asm", "critical-section-single-core"] }
+cortex-m-rt = "0.7.0"
+
+# Rust embedded crates
+embedded-hal = "1.0.0"
+
+# Embassy HAL
+embassy-stm32 = { version = "0.4.0", features = ["defmt", "stm32h743zi", "time-driver-tim2", "exti", "memory-x", "unstable-pac", "chrono"] }
+embassy-embedded-hal = { version = "0.5.0" }
+embassy-executor = { version = "0.9.0", features = ["arch-cortex-m", "executor-thread", "executor-interrupt", "defmt"] }
+embassy-time = { version = "0.5.0", features = ["defmt", "defmt-timestamp-uptime", "tick-hz-32_768"] }
+embassy-futures = { version = "0.1.2" }
+embassy-usb = { version = "0.5.1", features = ["defmt"] }
