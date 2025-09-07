@@ -206,8 +206,8 @@
 		(uuid "cecacb71-aa52-4695-a978-95f286897ddc")
 	)
 	(fp_rect
-		(start -17.15 -25.1)
-		(end 52.15 25.1)
+		(start -19.65 -25.1)
+		(end 49.65 25.1)
 		(stroke
 			(width 0.1)
 			(type solid)
@@ -12682,7 +12682,7 @@
 	)
 	(model "kicad-embed://ER-TFT028-4.2.stp"
 		(offset
-			(xyz 17.5 0 5)
+			(xyz 14.5 0 5)
 		)
 		(scale
 			(xyz 1 1 1)

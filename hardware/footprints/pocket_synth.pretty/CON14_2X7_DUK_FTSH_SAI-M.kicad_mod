@@ -53,55 +53,16 @@
 		)
 	)
 	(attr smd)
-	(fp_line
-		(start -4.572 2.667)
-		(end -4.572 -2.667)
+	(fp_circle
+		(center -4.9 3)
+		(end -4.6 3)
 		(stroke
-			(width 0.1524)
+			(width 0.25)
 			(type solid)
 		)
+		(fill no)
 		(layer "F.SilkS")
-		(uuid "50a662d4-c825-4376-a2c5-c46c0430582b")
-	)
-	(fp_line
-		(start -4.445 5.08254)
-		(end -3.81 3.81254)
-		(stroke
-			(width 0.1524)
-			(type solid)
-		)
-		(layer "F.SilkS")
-		(uuid "65217008-a08b-4952-8529-5383e912ef9e")
-	)
-	(fp_line
-		(start -3.81 3.81254)
-		(end -3.175 5.08254)
-		(stroke
-			(width 0.1524)
-			(type solid)
-		)
-		(layer "F.SilkS")
-		(uuid "6e985003-213b-4d23-bc40-39215a98cd57")
-	)
-	(fp_line
-		(start -3.175 5.08254)
-		(end -4.445 5.08254)
-		(stroke
-			(width 0.1524)
-			(type solid)
-		)
-		(layer "F.SilkS")
-		(uuid "0a0aca2e-ee00-4814-ba94-04e498ceb19d")
-	)
-	(fp_line
-		(start 4.572 -2.667)
-		(end 4.572 2.667)
-		(stroke
-			(width 0.1524)
-			(type solid)
-		)
-		(layer "F.SilkS")
-		(uuid "655ce5c5-9efb-486a-8f8d-aa8201567b67")
+		(uuid "4eff1b8a-a89a-4e14-ab38-7ade41ffebca")
 	)
 	(fp_poly
 		(pts
@@ -256,36 +217,6 @@
 		(uuid "0ac2da79-4976-4d15-af34-64989d0311b9")
 	)
 	(fp_line
-		(start -4.445 5.08254)
-		(end -3.81 3.81254)
-		(stroke
-			(width 0.0254)
-			(type solid)
-		)
-		(layer "F.Fab")
-		(uuid "6a73f247-6dc3-4a2b-b56c-55a73f726d03")
-	)
-	(fp_line
-		(start -3.81 3.81254)
-		(end -3.175 5.08254)
-		(stroke
-			(width 0.0254)
-			(type solid)
-		)
-		(layer "F.Fab")
-		(uuid "22f8d318-573b-4644-a767-f46eaadc1888")
-	)
-	(fp_line
-		(start -3.175 5.08254)
-		(end -4.445 5.08254)
-		(stroke
-			(width 0.0254)
-			(type solid)
-		)
-		(layer "F.Fab")
-		(uuid "9f78c25f-e528-40b2-9e5b-9adb06b5ae00")
-	)
-	(fp_line
 		(start 4.445 -2.54)
 		(end 4.445 2.54)
 		(stroke
@@ -304,6 +235,17 @@
 		)
 		(layer "F.Fab")
 		(uuid "0d416ccf-48cb-4af3-9014-a737e44f24e5")
+	)
+	(fp_circle
+		(center -4.9 3)
+		(end -4.6 3)
+		(stroke
+			(width 0.25)
+			(type solid)
+		)
+		(fill no)
+		(layer "F.Fab")
+		(uuid "5786ebbf-60e9-451a-967d-f363b28403d6")
 	)
 	(fp_text user "14"
 		(at -4.953 -2.0828 0)

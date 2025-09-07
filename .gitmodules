@@ -1,0 +1,3 @@
+[submodule "hardware/footprints/rhais_connector-lumberg.pretty"]
+	path = hardware/footprints/rhais_connector-lumberg.pretty
+	url = https://github.com/dragonmux/rhais_connector-lumberg.pretty.git

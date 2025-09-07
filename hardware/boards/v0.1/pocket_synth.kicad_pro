@@ -60,6 +60,14 @@
       ],
       "drc_exclusions": [
         [
+          "clearance|51300000|48500000|f6fcbd76-70e0-47cc-81c3-a89cf438f016|dc20ccdf-5ef9-4319-8a7c-49fae5f650aa",
+          ""
+        ],
+        [
+          "clearance|51300000|76399994|e09563ce-c6cb-491c-bfb2-9f8db5673878|7a9335ab-aa2c-4fef-a59e-f0b0351acd25",
+          ""
+        ],
+        [
           "lib_footprint_mismatch|39062500|107338500|058000c2-8477-4f2c-a6e5-65c6840b61df|00000000-0000-0000-0000-000000000000",
           ""
         ],
@@ -125,6 +133,14 @@
         ],
         [
           "nonmirrored_text_on_back_layer|88175000|166875000|2149646a-21fd-4a6b-9f12-35ec52ff2a9a|00000000-0000-0000-0000-000000000000",
+          ""
+        ],
+        [
+          "solder_mask_bridge|51300000|48500000|dc20ccdf-5ef9-4319-8a7c-49fae5f650aa|f6fcbd76-70e0-47cc-81c3-a89cf438f016",
+          ""
+        ],
+        [
+          "solder_mask_bridge|51300000|76399994|7a9335ab-aa2c-4fef-a59e-f0b0351acd25|e09563ce-c6cb-491c-bfb2-9f8db5673878",
           ""
         ]
       ],
@@ -194,7 +210,7 @@
         "max_error": 0.005,
         "min_clearance": 0.1,
         "min_connection": 0.0,
-        "min_copper_edge_clearance": 0.5,
+        "min_copper_edge_clearance": 0.2,
         "min_groove_width": 0.0,
         "min_hole_clearance": 0.1,
         "min_hole_to_hole": 0.25,
@@ -207,7 +223,7 @@
         "min_through_hole_diameter": 0.15,
         "min_track_width": 0.1,
         "min_via_annular_width": 0.1,
-        "min_via_diameter": 0.25,
+        "min_via_diameter": 0.3,
         "solder_mask_to_copper_clearance": 0.0,
         "use_height_for_length_calcs": true
       },

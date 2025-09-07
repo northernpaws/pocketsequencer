@@ -1,4 +1,5 @@
 (fp_lib_table
   (version 7)
   (lib (name "pocket_synth")(type "KiCad")(uri "${KIPRJMOD}/../../footprints/pocket_synth.pretty")(options "")(descr ""))
+  (lib (name "rhais_connector-lumberg")(type "KiCad")(uri "${KIPRJMOD}/../../footprints/rhais_connector-lumberg.pretty")(options "")(descr ""))
 )
