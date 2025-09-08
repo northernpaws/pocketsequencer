@@ -2613,17 +2613,18 @@
 		)
 		(uuid "867a9f41-affc-4f0b-a5ae-898cbe586d11")
 	)
-	(text "MIDI OUT port can fucntion as MIDI OUT, or as a\nCV and/or SYNC signals for eurorack-style gear."
+	(text "(CA-033) MIDI 1.0 Electrical Specification Update [2014]\nhttps://midi.org/5-pin-din-electrical-specs\n\nrp54 Specification for Use of TRS Connectors with MIDI Devices\nhttps://midi.org/specification-for-use-of-trs-connectors-with-midi-devices"
 		(exclude_from_sim no)
-		(at 206.756 104.14 0)
+		(at 178.308 3.048 0)
 		(effects
 			(font
 				(size 1.27 1.27)
+				(thickness 0.1588)
 				(color 132 132 132 1)
 			)
-			(justify left top)
+			(justify left)
 		)
-		(uuid "8d0b01ce-32e2-4a95-b07b-05055ad3776e")
+		(uuid "b8503f43-3a6c-4479-9c24-18f51b1325df")
 	)
 	(text "ADC is recorded at 24-bit for a better noise\nfloor then recording at 16-bit would provide. \n\nPlayback is done at 24-bit due to CODEC\nrestrictions, however the internal audio\nengine runs in 16-bit as you cannot tell\nthe difference in the vast majority of \nlistening cases."
 		(exclude_from_sim no)
@@ -2660,18 +2661,6 @@
 			)
 		)
 		(uuid "d63684c2-c13a-4966-b0bc-42e95c21dab8")
-	)
-	(text "MIDI IN port can function as either a MIDI IN TRS port, or as \na SYNC and CV input for compatibility with eurorack-style gear. "
-		(exclude_from_sim no)
-		(at 185.42 22.352 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-				(color 132 132 132 1)
-			)
-			(justify left top)
-		)
-		(uuid "d76f1f68-291a-4b49-91ac-90c2f02479d2")
 	)
 	(junction
 		(at 73.66 39.37)
@@ -2969,6 +2958,16 @@
 			(type default)
 		)
 		(uuid "1685585d-c3ed-4da2-97a6-00dec45fbed7")
+	)
+	(polyline
+		(pts
+			(xy 177.165 12.065) (xy 177.165 165.735)
+		)
+		(stroke
+			(width 0.127)
+			(type dash)
+		)
+		(uuid "16c2f631-f268-4a8d-b124-6f578c56febb")
 	)
 	(wire
 		(pts
@@ -3970,16 +3969,6 @@
 		)
 		(uuid "b42e8f75-829e-4ade-beda-0b371443fd3d")
 	)
-	(polyline
-		(pts
-			(xy 177.8 93.98) (xy 284.48 93.98)
-		)
-		(stroke
-			(width 0.127)
-			(type dash)
-		)
-		(uuid "b62a1ca4-e211-4071-a9d8-9373f1f27fa8")
-	)
 	(wire
 		(pts
 			(xy 63.5 130.81) (xy 87.63 130.81)
@@ -4249,16 +4238,6 @@
 			(type default)
 		)
 		(uuid "f25a2945-91a3-4102-b533-747d4fe75365")
-	)
-	(polyline
-		(pts
-			(xy 177.038 12.192) (xy 177.038 165.862)
-		)
-		(stroke
-			(width 0.127)
-			(type dash)
-		)
-		(uuid "f6361469-3bf3-44dc-a528-38b1ed8298a9")
 	)
 	(wire
 		(pts
@@ -5751,134 +5730,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Connector_Audio:AudioJack3")
-		(at 189.23 127 0)
-		(mirror x)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "414c6f43-f55a-4840-8b46-d87686211bc8")
-		(property "Reference" "J11"
-			(at 187.96 120.396 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "MIDI_OUT"
-			(at 187.96 132.588 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "rhais_connector-lumberg:1503-02"
-			(at 189.23 127 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 189.23 127 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Audio Jack, 3 Poles (Stereo / TRS)"
-			(at 189.23 127 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "JLC" "C4991872"
-			(at 189.23 127 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Arrow Part Number" ""
-			(at 189.23 127 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Arrow Price/Stock" ""
-			(at 189.23 127 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "MANUFACTURER" ""
-			(at 189.23 127 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "MAXIMUM_PACKAGE_HEIGHT" ""
-			(at 189.23 127 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "PARTREV" ""
-			(at 189.23 127 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "STANDARD" ""
-			(at 189.23 127 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "T"
-			(uuid "b82d9f27-2242-4f14-abcd-f792a4dd8f3c")
-		)
-		(pin "R"
-			(uuid "682aa1a0-e0ad-408e-b814-7249cbab1019")
-		)
-		(pin "S"
-			(uuid "d5af9bf6-a763-4db4-b14a-94a7cde87efd")
-		)
-		(instances
-			(project "pocket_synth"
-				(path "/485383b8-00f4-4405-b270-de249939cff4/ac7a2cd5-8a17-4132-a50f-a1edfbc58e6d"
-					(reference "J11")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Analog_Switch:TS5A23159RSE")
 		(at 130.81 161.29 0)
 		(unit 1)
@@ -5886,10 +5737,9 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "4707a89b-3bf3-4cbd-99e2-dbfec5c2ab70")
 		(property "Reference" "U28"
-			(at 130.81 152.4 0)
+			(at 130.81 151.892 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5897,7 +5747,7 @@
 			)
 		)
 		(property "Value" "TS5A23159RSE"
-			(at 130.81 154.94 0)
+			(at 130.81 154.432 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6931,134 +6781,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Connector_Audio:AudioJack3")
-		(at 208.28 48.26 0)
-		(mirror x)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "739e5127-b604-4bae-82f2-a39da6d812da")
-		(property "Reference" "J10"
-			(at 207.01 41.656 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "MIDI_IN"
-			(at 207.01 53.848 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "rhais_connector-lumberg:1503-02"
-			(at 208.28 48.26 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 208.28 48.26 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Audio Jack, 3 Poles (Stereo / TRS)"
-			(at 208.28 48.26 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "JLC" "C4991872"
-			(at 208.28 48.26 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Arrow Part Number" ""
-			(at 208.28 48.26 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Arrow Price/Stock" ""
-			(at 208.28 48.26 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "MANUFACTURER" ""
-			(at 208.28 48.26 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "MAXIMUM_PACKAGE_HEIGHT" ""
-			(at 208.28 48.26 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "PARTREV" ""
-			(at 208.28 48.26 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "STANDARD" ""
-			(at 208.28 48.26 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "T"
-			(uuid "e41c27af-b970-4b72-bab2-c3c4ad0f886e")
-		)
-		(pin "R"
-			(uuid "b4b795b7-6b77-4a0a-a6d1-c1ea836dfb95")
-		)
-		(pin "S"
-			(uuid "44a52a8d-7e87-479e-82cb-df23a8bbbaf8")
-		)
-		(instances
-			(project "pocket_synth"
-				(path "/485383b8-00f4-4405-b270-de249939cff4/ac7a2cd5-8a17-4132-a50f-a1edfbc58e6d"
-					(reference "J10")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:C_Small")
 		(at 60.96 100.33 90)
 		(unit 1)
@@ -7604,34 +7326,34 @@
 			)
 		)
 		(pin "10"
-			(uuid "5cb0ad57-484b-41b2-95f4-d3666561b71a")
+			(uuid "5cb0ad57-484b-41b2-95f4-d3666561b71b")
 		)
 		(pin "1"
-			(uuid "eaf03a87-34b7-40f9-832f-c4489173b40a")
+			(uuid "eaf03a87-34b7-40f9-832f-c4489173b40b")
 		)
 		(pin "9"
-			(uuid "bfa574ca-c4e0-445e-8a71-b2d713445aa1")
+			(uuid "bfa574ca-c4e0-445e-8a71-b2d713445aa2")
 		)
 		(pin "3"
-			(uuid "2969c7ea-5fc0-414c-afe2-b90495640291")
+			(uuid "2969c7ea-5fc0-414c-afe2-b90495640293")
 		)
 		(pin "2"
-			(uuid "9efa430e-7629-41e5-80d0-e2da1697c43e")
+			(uuid "9efa430e-7629-41e5-80d0-e2da1697c43f")
 		)
 		(pin "6"
-			(uuid "25f87798-ca1b-45e7-b633-441a18bd4e6e")
+			(uuid "25f87798-ca1b-45e7-b633-441a18bd4e6f")
 		)
 		(pin "5"
-			(uuid "7eeebe39-9220-4fed-b187-0d480759e433")
+			(uuid "7eeebe39-9220-4fed-b187-0d480759e434")
 		)
 		(pin "7"
-			(uuid "f96917da-0f95-47bc-8f5f-bc36af93d46d")
+			(uuid "f96917da-0f95-47bc-8f5f-bc36af93d46e")
 		)
 		(pin "4"
-			(uuid "461573a3-381a-4cba-aecc-7b2f691fc1d0")
+			(uuid "461573a3-381a-4cba-aecc-7b2f691fc1d1")
 		)
 		(pin "8"
-			(uuid "30463e25-a08c-47bb-96f8-0d4d4e9076df")
+			(uuid "30463e25-a08c-47bb-96f8-0d4d4e9076e1")
 		)
 		(instances
 			(project ""
@@ -8526,34 +8248,34 @@
 			)
 		)
 		(pin "10"
-			(uuid "5cb0ad57-484b-41b2-95f4-d3666561b71b")
+			(uuid "5cb0ad57-484b-41b2-95f4-d3666561b71d")
 		)
 		(pin "1"
-			(uuid "eaf03a87-34b7-40f9-832f-c4489173b40b")
+			(uuid "eaf03a87-34b7-40f9-832f-c4489173b40d")
 		)
 		(pin "9"
-			(uuid "bfa574ca-c4e0-445e-8a71-b2d713445aa2")
+			(uuid "bfa574ca-c4e0-445e-8a71-b2d713445aa4")
 		)
 		(pin "3"
-			(uuid "2969c7ea-5fc0-414c-afe2-b90495640292")
+			(uuid "2969c7ea-5fc0-414c-afe2-b90495640294")
 		)
 		(pin "2"
-			(uuid "9efa430e-7629-41e5-80d0-e2da1697c43f")
+			(uuid "9efa430e-7629-41e5-80d0-e2da1697c441")
 		)
 		(pin "6"
-			(uuid "25f87798-ca1b-45e7-b633-441a18bd4e6f")
+			(uuid "25f87798-ca1b-45e7-b633-441a18bd4e71")
 		)
 		(pin "5"
-			(uuid "7eeebe39-9220-4fed-b187-0d480759e434")
+			(uuid "7eeebe39-9220-4fed-b187-0d480759e436")
 		)
 		(pin "7"
-			(uuid "f96917da-0f95-47bc-8f5f-bc36af93d46e")
+			(uuid "f96917da-0f95-47bc-8f5f-bc36af93d470")
 		)
 		(pin "4"
-			(uuid "461573a3-381a-4cba-aecc-7b2f691fc1d1")
+			(uuid "461573a3-381a-4cba-aecc-7b2f691fc1d3")
 		)
 		(pin "8"
-			(uuid "30463e25-a08c-47bb-96f8-0d4d4e9076e0")
+			(uuid "30463e25-a08c-47bb-96f8-0d4d4e9076e2")
 		)
 		(instances
 			(project ""

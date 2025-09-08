@@ -923,6 +923,10 @@
     [
       "7e9f39e0-07aa-49bf-8354-e1f007de5af0",
       "RF"
+    ],
+    [
+      "161a99fc-6043-4112-9f9d-22adc5c14b53",
+      "MIDI&CV"
     ]
   ],
   "text_variables": {}
