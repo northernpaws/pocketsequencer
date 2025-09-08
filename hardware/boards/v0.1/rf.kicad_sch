@@ -3878,24 +3878,21 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "58f47426-8835-4300-ba5e-ed725038dc74")
 		(property "Reference" "PS1"
-			(at 97.3933 184.15 0)
+			(at 95.25 115.57 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
 			)
 		)
 		(property "Value" "NORA-B100-00B"
-			(at 97.3933 186.69 0)
+			(at 95.25 118.11 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
 			)
 		)
 		(property "Footprint" "pocket_synth:NORAB10000B"

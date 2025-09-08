@@ -2613,6 +2613,18 @@
 		)
 		(uuid "867a9f41-affc-4f0b-a5ae-898cbe586d11")
 	)
+	(text "MIDI OUT port can fucntion as MIDI OUT, or as a\nCV and/or SYNC signals for eurorack-style gear."
+		(exclude_from_sim no)
+		(at 206.756 104.14 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+				(color 132 132 132 1)
+			)
+			(justify left top)
+		)
+		(uuid "8d0b01ce-32e2-4a95-b07b-05055ad3776e")
+	)
 	(text "ADC is recorded at 24-bit for a better noise\nfloor then recording at 16-bit would provide. \n\nPlayback is done at 24-bit due to CODEC\nrestrictions, however the internal audio\nengine runs in 16-bit as you cannot tell\nthe difference in the vast majority of \nlistening cases."
 		(exclude_from_sim no)
 		(at 175.768 13.462 0)
@@ -2648,6 +2660,18 @@
 			)
 		)
 		(uuid "d63684c2-c13a-4966-b0bc-42e95c21dab8")
+	)
+	(text "MIDI IN port can function as either a MIDI IN TRS port, or as \na SYNC and CV input for compatibility with eurorack-style gear. "
+		(exclude_from_sim no)
+		(at 185.42 22.352 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+				(color 132 132 132 1)
+			)
+			(justify left top)
+		)
+		(uuid "d76f1f68-291a-4b49-91ac-90c2f02479d2")
 	)
 	(junction
 		(at 73.66 39.37)
@@ -6908,7 +6932,7 @@
 	)
 	(symbol
 		(lib_id "Connector_Audio:AudioJack3")
-		(at 189.23 110.49 0)
+		(at 208.28 48.26 0)
 		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
@@ -6917,7 +6941,7 @@
 		(dnp no)
 		(uuid "739e5127-b604-4bae-82f2-a39da6d812da")
 		(property "Reference" "J10"
-			(at 187.96 103.886 0)
+			(at 207.01 41.656 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6925,7 +6949,7 @@
 			)
 		)
 		(property "Value" "MIDI_IN"
-			(at 187.96 116.078 0)
+			(at 207.01 53.848 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6933,7 +6957,7 @@
 			)
 		)
 		(property "Footprint" "rhais_connector-lumberg:1503-02"
-			(at 189.23 110.49 0)
+			(at 208.28 48.26 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6942,7 +6966,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 189.23 110.49 0)
+			(at 208.28 48.26 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6951,7 +6975,7 @@
 			)
 		)
 		(property "Description" "Audio Jack, 3 Poles (Stereo / TRS)"
-			(at 189.23 110.49 0)
+			(at 208.28 48.26 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6960,7 +6984,7 @@
 			)
 		)
 		(property "JLC" "C4991872"
-			(at 189.23 110.49 0)
+			(at 208.28 48.26 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6969,7 +6993,7 @@
 			)
 		)
 		(property "Arrow Part Number" ""
-			(at 189.23 110.49 0)
+			(at 208.28 48.26 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6977,7 +7001,7 @@
 			)
 		)
 		(property "Arrow Price/Stock" ""
-			(at 189.23 110.49 0)
+			(at 208.28 48.26 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6985,7 +7009,7 @@
 			)
 		)
 		(property "MANUFACTURER" ""
-			(at 189.23 110.49 0)
+			(at 208.28 48.26 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6993,7 +7017,7 @@
 			)
 		)
 		(property "MAXIMUM_PACKAGE_HEIGHT" ""
-			(at 189.23 110.49 0)
+			(at 208.28 48.26 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7001,7 +7025,7 @@
 			)
 		)
 		(property "PARTREV" ""
-			(at 189.23 110.49 0)
+			(at 208.28 48.26 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7009,7 +7033,7 @@
 			)
 		)
 		(property "STANDARD" ""
-			(at 189.23 110.49 0)
+			(at 208.28 48.26 0)
 			(effects
 				(font
 					(size 1.27 1.27)
