@@ -583,15 +583,21 @@
       {
         "clearance": 0.1,
         "name": "FMC_ADDR",
-        "pcb_color": "rgb(255, 125, 136)",
-        "priority": 1,
+        "pcb_color": "rgb(194, 0, 0)",
+        "priority": 2,
         "schematic_color": "rgb(194, 0, 0)"
       },
       {
-        "clearance": 0.1,
-        "name": "FMC_DAT",
-        "pcb_color": "rgb(69, 66, 255)",
+        "name": "FMC_DAT_H",
+        "pcb_color": "rgb(8, 0, 255)",
         "priority": 0,
+        "schematic_color": "rgb(0, 0, 132)"
+      },
+      {
+        "clearance": 0.1,
+        "name": "FMC_DAT_L",
+        "pcb_color": "rgb(0, 0, 255)",
+        "priority": 1,
         "schematic_color": "rgb(0, 0, 255)"
       }
     ],
@@ -599,15 +605,60 @@
       "version": 4
     },
     "net_colors": null,
-    "netclass_assignments": null,
+    "netclass_assignments": {
+      "/Display/FMC.D0": [
+        "FMC_DAT_L"
+      ],
+      "/Display/FMC.D1": [
+        "FMC_DAT_L"
+      ],
+      "/Display/FMC.D10": [
+        "FMC_DAT_H"
+      ],
+      "/Display/FMC.D11": [
+        "FMC_DAT_H"
+      ],
+      "/Display/FMC.D12": [
+        "FMC_DAT_H"
+      ],
+      "/Display/FMC.D13": [
+        "FMC_DAT_H"
+      ],
+      "/Display/FMC.D14": [
+        "FMC_DAT_H"
+      ],
+      "/Display/FMC.D15": [
+        "FMC_DAT_H"
+      ],
+      "/Display/FMC.D2": [
+        "FMC_DAT_L"
+      ],
+      "/Display/FMC.D3": [
+        "FMC_DAT_L"
+      ],
+      "/Display/FMC.D4": [
+        "FMC_DAT_L"
+      ],
+      "/Display/FMC.D5": [
+        "FMC_DAT_L"
+      ],
+      "/Display/FMC.D6": [
+        "FMC_DAT_L"
+      ],
+      "/Display/FMC.D7": [
+        "FMC_DAT_L"
+      ],
+      "/Display/FMC.D8": [
+        "FMC_DAT_H"
+      ],
+      "/Display/FMC.D9": [
+        "FMC_DAT_H"
+      ]
+    },
     "netclass_patterns": [
       {
         "netclass": "FMC_ADDR",
         "pattern": "/[a-zA-Z]+/FMC.A[0-9]+"
-      },
-      {
-        "netclass": "FMC_DAT",
-        "pattern": "/[a-zA-Z]+/FMC.D[0-9]+"
       }
     ]
   },
