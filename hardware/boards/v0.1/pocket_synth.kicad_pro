@@ -60,14 +60,6 @@
       ],
       "drc_exclusions": [
         [
-          "clearance|51300000|48500000|f6fcbd76-70e0-47cc-81c3-a89cf438f016|dc20ccdf-5ef9-4319-8a7c-49fae5f650aa",
-          ""
-        ],
-        [
-          "clearance|51300000|76399994|e09563ce-c6cb-491c-bfb2-9f8db5673878|7a9335ab-aa2c-4fef-a59e-f0b0351acd25",
-          ""
-        ],
-        [
           "lib_footprint_mismatch|39062500|107338500|058000c2-8477-4f2c-a6e5-65c6840b61df|00000000-0000-0000-0000-000000000000",
           ""
         ],
@@ -133,14 +125,6 @@
         ],
         [
           "nonmirrored_text_on_back_layer|88175000|166875000|2149646a-21fd-4a6b-9f12-35ec52ff2a9a|00000000-0000-0000-0000-000000000000",
-          ""
-        ],
-        [
-          "solder_mask_bridge|51300000|48500000|dc20ccdf-5ef9-4319-8a7c-49fae5f650aa|f6fcbd76-70e0-47cc-81c3-a89cf438f016",
-          ""
-        ],
-        [
-          "solder_mask_bridge|51300000|76399994|7a9335ab-aa2c-4fef-a59e-f0b0351acd25|e09563ce-c6cb-491c-bfb2-9f8db5673878",
           ""
         ]
       ],
@@ -583,15 +567,21 @@
       {
         "clearance": 0.1,
         "name": "FMC_ADDR",
-        "pcb_color": "rgb(255, 125, 136)",
-        "priority": 1,
+        "pcb_color": "rgb(194, 0, 0)",
+        "priority": 2,
         "schematic_color": "rgb(194, 0, 0)"
       },
       {
-        "clearance": 0.1,
-        "name": "FMC_DAT",
-        "pcb_color": "rgb(69, 66, 255)",
+        "name": "FMC_DAT_H",
+        "pcb_color": "rgb(8, 0, 255)",
         "priority": 0,
+        "schematic_color": "rgb(0, 0, 132)"
+      },
+      {
+        "clearance": 0.1,
+        "name": "FMC_DAT_L",
+        "pcb_color": "rgb(0, 0, 255)",
+        "priority": 1,
         "schematic_color": "rgb(0, 0, 255)"
       }
     ],
@@ -599,15 +589,60 @@
       "version": 4
     },
     "net_colors": null,
-    "netclass_assignments": null,
+    "netclass_assignments": {
+      "/Display/FMC.D0": [
+        "FMC_DAT_L"
+      ],
+      "/Display/FMC.D1": [
+        "FMC_DAT_L"
+      ],
+      "/Display/FMC.D10": [
+        "FMC_DAT_H"
+      ],
+      "/Display/FMC.D11": [
+        "FMC_DAT_H"
+      ],
+      "/Display/FMC.D12": [
+        "FMC_DAT_H"
+      ],
+      "/Display/FMC.D13": [
+        "FMC_DAT_H"
+      ],
+      "/Display/FMC.D14": [
+        "FMC_DAT_H"
+      ],
+      "/Display/FMC.D15": [
+        "FMC_DAT_H"
+      ],
+      "/Display/FMC.D2": [
+        "FMC_DAT_L"
+      ],
+      "/Display/FMC.D3": [
+        "FMC_DAT_L"
+      ],
+      "/Display/FMC.D4": [
+        "FMC_DAT_L"
+      ],
+      "/Display/FMC.D5": [
+        "FMC_DAT_L"
+      ],
+      "/Display/FMC.D6": [
+        "FMC_DAT_L"
+      ],
+      "/Display/FMC.D7": [
+        "FMC_DAT_L"
+      ],
+      "/Display/FMC.D8": [
+        "FMC_DAT_H"
+      ],
+      "/Display/FMC.D9": [
+        "FMC_DAT_H"
+      ]
+    },
     "netclass_patterns": [
       {
         "netclass": "FMC_ADDR",
         "pattern": "/[a-zA-Z]+/FMC.A[0-9]+"
-      },
-      {
-        "netclass": "FMC_DAT",
-        "pattern": "/[a-zA-Z]+/FMC.D[0-9]+"
       }
     ]
   },

@@ -3295,7 +3295,7 @@
 	)
 	(wire
 		(pts
-			(xy 134.62 74.93) (xy 121.92 74.93)
+			(xy 134.62 77.47) (xy 121.92 77.47)
 		)
 		(stroke
 			(width 0)
@@ -3985,7 +3985,7 @@
 	)
 	(wire
 		(pts
-			(xy 134.62 80.01) (xy 121.92 80.01)
+			(xy 134.62 72.39) (xy 121.92 72.39)
 		)
 		(stroke
 			(width 0)
@@ -4165,7 +4165,7 @@
 	)
 	(wire
 		(pts
-			(xy 134.62 77.47) (xy 121.92 77.47)
+			(xy 134.62 74.93) (xy 121.92 74.93)
 		)
 		(stroke
 			(width 0)
@@ -4455,7 +4455,7 @@
 	)
 	(wire
 		(pts
-			(xy 134.62 72.39) (xy 121.92 72.39)
+			(xy 134.62 80.01) (xy 121.92 80.01)
 		)
 		(stroke
 			(width 0)
@@ -4554,7 +4554,7 @@
 		(uuid "24a21c2f-5e15-44ae-a8a0-e46e87d325c3")
 	)
 	(label "FMC.D7"
-		(at 123.19 80.01 0)
+		(at 123.19 72.39 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4564,7 +4564,7 @@
 		(uuid "2c3fe714-e030-4387-a7ed-38e374d58ac1")
 	)
 	(label "FMC.D6"
-		(at 123.19 77.47 0)
+		(at 123.19 74.93 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4824,7 +4824,7 @@
 		(uuid "bd71847d-b0ab-45ed-884b-20934e1e87b2")
 	)
 	(label "FMC.D4"
-		(at 123.19 72.39 0)
+		(at 123.19 80.01 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4864,7 +4864,7 @@
 		(uuid "ce15f288-e614-403b-b605-0f7e6c790ed5")
 	)
 	(label "FMC.D5"
-		(at 123.19 74.93 0)
+		(at 123.19 77.47 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5011,21 +5011,6 @@
 	(rule_area
 		(polyline
 			(pts
-				(xy 121.92 81.28) (xy 121.92 101.6) (xy 134.62 101.6) (xy 134.62 81.28)
-			)
-			(stroke
-				(width 0)
-				(type dash)
-			)
-			(fill
-				(type none)
-			)
-			(uuid 3424947d-d777-4695-ac7a-1fbc82261619)
-		)
-	)
-	(rule_area
-		(polyline
-			(pts
 				(xy 121.92 81.28) (xy 121.92 59.69) (xy 134.62 59.69) (xy 134.62 81.28)
 			)
 			(stroke
@@ -5035,7 +5020,22 @@
 			(fill
 				(type none)
 			)
-			(uuid 9840db81-d220-43a9-a91b-f1a7a9c6e4fb)
+			(uuid 2ce211b2-7149-449a-b990-f7d8c5d418da)
+		)
+	)
+	(rule_area
+		(polyline
+			(pts
+				(xy 121.92 81.28) (xy 121.92 101.6) (xy 134.62 101.6) (xy 134.62 81.28)
+			)
+			(stroke
+				(width 0)
+				(type dash)
+			)
+			(fill
+				(type none)
+			)
+			(uuid 53ce0216-e130-4e51-a4cf-ae646b9303d1)
 		)
 	)
 	(netclass_flag ""
