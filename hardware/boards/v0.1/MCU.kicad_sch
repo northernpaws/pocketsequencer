@@ -33343,10 +33343,6 @@
 		(uuid "2d71d414-4c0e-458f-95ef-2c1b2c6a99ee")
 	)
 	(no_connect
-		(at 195.58 33.02)
-		(uuid "3b74f1a9-205c-4232-a339-f6e30c76e26a")
-	)
-	(no_connect
 		(at 129.54 130.81)
 		(uuid "3c5ea2c3-9de4-4b7f-9deb-51c95ed7d11a")
 	)
@@ -33373,10 +33369,6 @@
 	(no_connect
 		(at 260.35 129.54)
 		(uuid "843f4395-f6bb-49d9-896d-7f2aa9ff77fd")
-	)
-	(no_connect
-		(at 195.58 40.64)
-		(uuid "8838dc9f-a476-4fc9-a4e5-a13dd0368703")
 	)
 	(no_connect
 		(at 195.58 58.42)
@@ -35418,6 +35410,16 @@
 	)
 	(wire
 		(pts
+			(xy 190.5 33.02) (xy 195.58 33.02)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "682694c7-fdc4-46f0-b21c-0398c0bb861c")
+	)
+	(wire
+		(pts
 			(xy 67.31 102.87) (xy 67.31 105.41)
 		)
 		(stroke
@@ -36485,6 +36487,16 @@
 			(type default)
 		)
 		(uuid "af5b8037-d2bc-4749-a93e-779df077806b")
+	)
+	(wire
+		(pts
+			(xy 190.5 40.64) (xy 195.58 40.64)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "af8905d9-f4ff-4095-9a2a-e8bad1a18f57")
 	)
 	(bus
 		(pts
@@ -38646,6 +38658,17 @@
 		)
 		(uuid "fe03d56b-f81e-4c01-969c-3152e42583ce")
 	)
+	(hierarchical_label "9DOF_INT2"
+		(shape input)
+		(at 190.5 33.02 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "0f66d216-baec-416e-b745-9bc13398e989")
+	)
 	(hierarchical_label "EXP_CODEC{I2S}"
 		(shape output)
 		(at 283.21 85.09 90)
@@ -38744,6 +38767,17 @@
 			(justify left)
 		)
 		(uuid "7e4a04ac-b381-4d6b-9a6d-2e96c2b1022c")
+	)
+	(hierarchical_label "9DOF_INT1"
+		(shape input)
+		(at 190.5 40.64 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "90d0aa35-0a84-45a5-8b1c-f85bfc3ac236")
 	)
 	(hierarchical_label "{VELOCITY}"
 		(shape output)

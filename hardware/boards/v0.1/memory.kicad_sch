@@ -5583,7 +5583,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://www.winbond.com/hq/search-resource-file.jsp?partNo=W25Q512JVEIQ&type=datasheet"
+		(property "Datasheet" "https://www.winbond.com/resource-files/W25Q512JV%20SPI%20RevB%2006252019%20KMS.pdf"
 			(at 281.94 230.48 0)
 			(effects
 				(font

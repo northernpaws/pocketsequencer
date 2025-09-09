@@ -804,6 +804,16 @@
 	)
 	(wire
 		(pts
+			(xy 52.07 118.11) (xy 63.5 118.11)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3334d987-a7b6-4b17-84b8-abf9939db6fe")
+	)
+	(wire
+		(pts
 			(xy 101.6 125.73) (xy 129.54 125.73)
 		)
 		(stroke
@@ -1121,6 +1131,16 @@
 			(type default)
 		)
 		(uuid "e6019cca-36c2-4d86-b7c2-2dee1e4bb31e")
+	)
+	(wire
+		(pts
+			(xy 52.07 120.65) (xy 63.5 120.65)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ef310874-5b0a-46e7-aa11-e2d3e82278cd")
 	)
 	(wire
 		(pts
@@ -2561,6 +2581,26 @@
 				(justify right)
 			)
 		)
+		(pin "9DOF_INT1" input
+			(at 63.5 118.11 180)
+			(uuid "53210351-9ac8-41b6-abc3-e914a325b612")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "9DOF_INT2" input
+			(at 63.5 120.65 180)
+			(uuid "1e02ba66-f817-4601-97ff-ab82bec46b61")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
 		(instances
 			(project "pocket_synth"
 				(path "/485383b8-00f4-4405-b270-de249939cff4"
@@ -3248,7 +3288,7 @@
 				(hide yes)
 			)
 		)
-		(pin "9DOF_INT1" input
+		(pin "9DOF_INT1" output
 			(at 52.07 118.11 0)
 			(uuid "1fe0edff-5bd6-4971-9e35-fb9b8631de1d")
 			(effects
@@ -3258,7 +3298,7 @@
 				(justify right)
 			)
 		)
-		(pin "9DOF_INT2" input
+		(pin "9DOF_INT2" output
 			(at 52.07 120.65 0)
 			(uuid "1ba6135c-e654-45b4-b67a-f832c38d4c41")
 			(effects
