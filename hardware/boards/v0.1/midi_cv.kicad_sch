@@ -4713,31 +4713,31 @@
 			)
 		)
 		(pin "4"
-			(uuid "51688075-9e9f-442f-9d95-b09eaa00ee87")
+			(uuid "51688075-9e9f-442f-9d95-b09eaa00ee88")
 		)
 		(pin "1"
-			(uuid "4365fd25-490c-43c6-8df0-92d81b9a4720")
+			(uuid "4365fd25-490c-43c6-8df0-92d81b9a4721")
 		)
 		(pin "8"
-			(uuid "2f2b4d58-8e5f-45ea-bd7c-741dc16eb55e")
+			(uuid "2f2b4d58-8e5f-45ea-bd7c-741dc16eb55f")
 		)
 		(pin "9"
-			(uuid "e36de4ab-7317-4284-a7b6-8f9d76b1e2af")
+			(uuid "e36de4ab-7317-4284-a7b6-8f9d76b1e2b0")
 		)
 		(pin "7"
-			(uuid "4612075b-5433-482c-9d38-af846fae3d0b")
+			(uuid "4612075b-5433-482c-9d38-af846fae3d0c")
 		)
 		(pin "5"
-			(uuid "65b7d7ec-95e2-44bf-811c-ff3422cdfc61")
+			(uuid "65b7d7ec-95e2-44bf-811c-ff3422cdfc62")
 		)
 		(pin "3"
-			(uuid "2b34fe67-64f8-4166-b756-980198cd6761")
+			(uuid "2b34fe67-64f8-4166-b756-980198cd6762")
 		)
 		(pin "2"
-			(uuid "2c5b0750-1462-4a59-a63e-1de5509011de")
+			(uuid "2c5b0750-1462-4a59-a63e-1de5509011df")
 		)
 		(pin "6"
-			(uuid "1829e71a-be55-4453-9bfe-e204cd6f8de0")
+			(uuid "1829e71a-be55-4453-9bfe-e204cd6f8de1")
 		)
 		(instances
 			(project ""
@@ -5422,31 +5422,31 @@
 			)
 		)
 		(pin "4"
-			(uuid "51688075-9e9f-442f-9d95-b09eaa00ee87")
+			(uuid "51688075-9e9f-442f-9d95-b09eaa00ee89")
 		)
 		(pin "1"
-			(uuid "4365fd25-490c-43c6-8df0-92d81b9a4720")
+			(uuid "4365fd25-490c-43c6-8df0-92d81b9a4723")
 		)
 		(pin "8"
-			(uuid "2f2b4d58-8e5f-45ea-bd7c-741dc16eb55e")
+			(uuid "2f2b4d58-8e5f-45ea-bd7c-741dc16eb560")
 		)
 		(pin "9"
-			(uuid "e36de4ab-7317-4284-a7b6-8f9d76b1e2af")
+			(uuid "e36de4ab-7317-4284-a7b6-8f9d76b1e2b1")
 		)
 		(pin "7"
-			(uuid "4612075b-5433-482c-9d38-af846fae3d0b")
+			(uuid "4612075b-5433-482c-9d38-af846fae3d0e")
 		)
 		(pin "5"
-			(uuid "65b7d7ec-95e2-44bf-811c-ff3422cdfc61")
+			(uuid "65b7d7ec-95e2-44bf-811c-ff3422cdfc64")
 		)
 		(pin "3"
-			(uuid "2b34fe67-64f8-4166-b756-980198cd6761")
+			(uuid "2b34fe67-64f8-4166-b756-980198cd6764")
 		)
 		(pin "2"
-			(uuid "2c5b0750-1462-4a59-a63e-1de5509011de")
+			(uuid "2c5b0750-1462-4a59-a63e-1de5509011e1")
 		)
 		(pin "6"
-			(uuid "1829e71a-be55-4453-9bfe-e204cd6f8de0")
+			(uuid "1829e71a-be55-4453-9bfe-e204cd6f8de3")
 		)
 		(instances
 			(project ""
@@ -7203,16 +7203,16 @@
 			)
 		)
 		(pin "4"
-			(uuid "51688075-9e9f-442f-9d95-b09eaa00ee88")
+			(uuid "51688075-9e9f-442f-9d95-b09eaa00ee8a")
 		)
 		(pin "1"
-			(uuid "4365fd25-490c-43c6-8df0-92d81b9a4721")
+			(uuid "4365fd25-490c-43c6-8df0-92d81b9a4724")
 		)
 		(pin "8"
-			(uuid "2f2b4d58-8e5f-45ea-bd7c-741dc16eb55f")
+			(uuid "2f2b4d58-8e5f-45ea-bd7c-741dc16eb561")
 		)
 		(pin "9"
-			(uuid "e36de4ab-7317-4284-a7b6-8f9d76b1e2b0")
+			(uuid "e36de4ab-7317-4284-a7b6-8f9d76b1e2b2")
 		)
 		(pin "7"
 			(uuid "551a7e26-4b1a-4c8a-a5c1-ad223266e9c6")
@@ -7221,10 +7221,10 @@
 			(uuid "a0bfb238-55f2-448f-bc2d-58cdc56c1dcd")
 		)
 		(pin "3"
-			(uuid "2b34fe67-64f8-4166-b756-980198cd6762")
+			(uuid "2b34fe67-64f8-4166-b756-980198cd6765")
 		)
 		(pin "2"
-			(uuid "2c5b0750-1462-4a59-a63e-1de5509011df")
+			(uuid "2c5b0750-1462-4a59-a63e-1de5509011e2")
 		)
 		(pin "6"
 			(uuid "3e66d0b6-1953-48d6-b0ed-62d3b88b5142")
@@ -8383,22 +8383,22 @@
 			)
 		)
 		(pin "4"
-			(uuid "51688075-9e9f-442f-9d95-b09eaa00ee87")
+			(uuid "51688075-9e9f-442f-9d95-b09eaa00ee8b")
 		)
 		(pin "1"
 			(uuid "11087015-a96e-4725-b2eb-dd1406b0220e")
 		)
 		(pin "8"
-			(uuid "2f2b4d58-8e5f-45ea-bd7c-741dc16eb55e")
+			(uuid "2f2b4d58-8e5f-45ea-bd7c-741dc16eb562")
 		)
 		(pin "9"
-			(uuid "e36de4ab-7317-4284-a7b6-8f9d76b1e2af")
+			(uuid "e36de4ab-7317-4284-a7b6-8f9d76b1e2b3")
 		)
 		(pin "7"
-			(uuid "4612075b-5433-482c-9d38-af846fae3d0b")
+			(uuid "4612075b-5433-482c-9d38-af846fae3d0f")
 		)
 		(pin "5"
-			(uuid "65b7d7ec-95e2-44bf-811c-ff3422cdfc61")
+			(uuid "65b7d7ec-95e2-44bf-811c-ff3422cdfc65")
 		)
 		(pin "3"
 			(uuid "d85dd47e-af8f-4d88-9f76-341aac668c8c")
@@ -8407,7 +8407,7 @@
 			(uuid "91b7d157-57c1-4fd3-b1ca-ecfacfa838d7")
 		)
 		(pin "6"
-			(uuid "1829e71a-be55-4453-9bfe-e204cd6f8de0")
+			(uuid "1829e71a-be55-4453-9bfe-e204cd6f8de4")
 		)
 		(instances
 			(project "pocket_synth"
