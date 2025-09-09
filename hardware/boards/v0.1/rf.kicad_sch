@@ -2717,6 +2717,16 @@
 		)
 		(uuid "02e1d7b1-6d86-4a6f-9615-6a1ca84211b2")
 	)
+	(wire
+		(pts
+			(xy 129.54 58.42) (xy 148.59 58.42)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "09d88185-a05d-4701-aabd-243ceabb5936")
+	)
 	(bus
 		(pts
 			(xy 152.4 91.44) (xy 152.4 96.52)
@@ -2759,7 +2769,7 @@
 	)
 	(bus
 		(pts
-			(xy 152.4 71.12) (xy 152.4 73.66)
+			(xy 152.4 72.39) (xy 152.4 73.66)
 		)
 		(stroke
 			(width 0)
@@ -2769,7 +2779,7 @@
 	)
 	(wire
 		(pts
-			(xy 138.43 62.23) (xy 138.43 60.96)
+			(xy 148.59 58.42) (xy 148.59 57.15)
 		)
 		(stroke
 			(width 0)
@@ -2849,16 +2859,6 @@
 	)
 	(wire
 		(pts
-			(xy 132.08 62.23) (xy 138.43 62.23)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "54140c4f-c5e9-46af-8c33-9198a9ea9d7e")
-	)
-	(wire
-		(pts
 			(xy 95.25 186.69) (xy 95.25 189.23)
 		)
 		(stroke
@@ -2876,16 +2876,6 @@
 			(type default)
 		)
 		(uuid "5c48c85e-1ce7-44fa-9ccf-a4dc2ad3f4ac")
-	)
-	(wire
-		(pts
-			(xy 132.08 62.23) (xy 132.08 58.42)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "632844b3-904c-4277-a468-59dd92913047")
 	)
 	(wire
 		(pts
@@ -2909,7 +2899,7 @@
 	)
 	(bus
 		(pts
-			(xy 152.4 88.9) (xy 152.4 91.44)
+			(xy 152.4 90.17) (xy 152.4 91.44)
 		)
 		(stroke
 			(width 0)
@@ -2939,7 +2929,7 @@
 	)
 	(wire
 		(pts
-			(xy 132.08 52.07) (xy 138.43 52.07)
+			(xy 132.08 48.26) (xy 148.59 48.26)
 		)
 		(stroke
 			(width 0)
@@ -3029,7 +3019,7 @@
 	)
 	(wire
 		(pts
-			(xy 138.43 52.07) (xy 138.43 53.34)
+			(xy 148.59 48.26) (xy 148.59 49.53)
 		)
 		(stroke
 			(width 0)
@@ -3079,7 +3069,7 @@
 	)
 	(wire
 		(pts
-			(xy 132.08 52.07) (xy 132.08 55.88)
+			(xy 132.08 48.26) (xy 132.08 55.88)
 		)
 		(stroke
 			(width 0)
@@ -3166,16 +3156,6 @@
 			(type default)
 		)
 		(uuid "de134c6a-aeb8-434a-a987-444ce197698d")
-	)
-	(wire
-		(pts
-			(xy 132.08 58.42) (xy 129.54 58.42)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ee46674f-7dd0-408d-953a-b582de55289d")
 	)
 	(bus
 		(pts
@@ -3279,7 +3259,7 @@
 	)
 	(hierarchical_label "{AUDIO_UART}"
 		(shape input)
-		(at 152.4 71.12 90)
+		(at 152.4 72.39 90)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3290,7 +3270,7 @@
 	)
 	(hierarchical_label "{I2S}"
 		(shape input)
-		(at 152.4 88.9 90)
+		(at 152.4 90.17 90)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3418,6 +3398,14 @@
 				)
 			)
 		)
+		(property "Connector" ""
+			(at 52.07 31.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "c4d9f707-dee8-4560-bdb8-2a9b3fada404")
 		)
@@ -3528,6 +3516,14 @@
 			)
 		)
 		(property "STANDARD" ""
+			(at 82.55 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Connector" ""
 			(at 82.55 36.83 0)
 			(effects
 				(font
@@ -3719,6 +3715,14 @@
 				)
 			)
 		)
+		(property "Connector" ""
+			(at 90.17 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "4bf1ba65-0f7a-4998-b3fa-29530ec7a21f")
 		)
@@ -3848,6 +3852,14 @@
 			)
 		)
 		(property "STANDARD" ""
+			(at 93.98 26.67 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Connector" ""
 			(at 93.98 26.67 0)
 			(effects
 				(font
@@ -4015,6 +4027,14 @@
 			)
 		)
 		(property "STANDARD" ""
+			(at 95.25 116.84 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Connector" ""
 			(at 95.25 116.84 0)
 			(effects
 				(font
@@ -4344,8 +4364,7 @@
 	)
 	(symbol
 		(lib_id "Device:Crystal")
-		(at 138.43 57.15 270)
-		(mirror x)
+		(at 148.59 53.34 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4353,7 +4372,7 @@
 		(dnp no)
 		(uuid "9dfaa483-ab50-43c5-99d8-345bba2ce107")
 		(property "Reference" "Y2"
-			(at 142.24 55.8799 90)
+			(at 144.78 52.0699 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4362,7 +4381,7 @@
 			)
 		)
 		(property "Value" "32.768kHz"
-			(at 142.24 58.4199 90)
+			(at 144.78 54.6099 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4371,7 +4390,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 138.43 57.15 0)
+			(at 148.59 53.34 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4380,7 +4399,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 138.43 57.15 0)
+			(at 148.59 53.34 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4389,7 +4408,7 @@
 			)
 		)
 		(property "Description" "Two pin crystal"
-			(at 138.43 57.15 0)
+			(at 148.59 53.34 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4398,7 +4417,7 @@
 			)
 		)
 		(property "Arrow Part Number" ""
-			(at 138.43 57.15 0)
+			(at 148.59 53.34 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4406,7 +4425,7 @@
 			)
 		)
 		(property "Arrow Price/Stock" ""
-			(at 138.43 57.15 0)
+			(at 148.59 53.34 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4414,7 +4433,7 @@
 			)
 		)
 		(property "MANUFACTURER" ""
-			(at 138.43 57.15 0)
+			(at 148.59 53.34 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4422,7 +4441,7 @@
 			)
 		)
 		(property "MAXIMUM_PACKAGE_HEIGHT" ""
-			(at 138.43 57.15 0)
+			(at 148.59 53.34 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4430,7 +4449,7 @@
 			)
 		)
 		(property "PARTREV" ""
-			(at 138.43 57.15 0)
+			(at 148.59 53.34 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4438,7 +4457,15 @@
 			)
 		)
 		(property "STANDARD" ""
-			(at 138.43 57.15 0)
+			(at 148.59 53.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Connector" ""
+			(at 148.59 53.34 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4688,6 +4715,14 @@
 			)
 		)
 		(property "STANDARD" ""
+			(at 41.91 69.85 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Connector" ""
 			(at 41.91 69.85 0)
 			(effects
 				(font
