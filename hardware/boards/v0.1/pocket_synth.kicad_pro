@@ -927,6 +927,10 @@
     [
       "161a99fc-6043-4112-9f9d-22adc5c14b53",
       "MIDI&CV"
+    ],
+    [
+      "f91e71c7-727a-4ef4-a387-8ca9d7b49c20",
+      "Peripherals"
     ]
   ],
   "text_variables": {}
