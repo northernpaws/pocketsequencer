@@ -32928,17 +32928,6 @@
 		)
 		(uuid "6e1fbefb-d922-498c-a27f-8d0364e84d72")
 	)
-	(text "Notifies MCU of\nline-in jack plug"
-		(exclude_from_sim no)
-		(at 186.944 163.576 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-				(color 132 132 132 1)
-			)
-		)
-		(uuid "95b69461-c6dd-4e79-9dbd-88253c225035")
-	)
 	(text "NOTE: FMC.NE0 is on alternate"
 		(exclude_from_sim no)
 		(at 166.37 83.82 0)
@@ -35055,16 +35044,6 @@
 			(type default)
 		)
 		(uuid "4bac3438-c512-4d4c-bb4f-7794473dbe4e")
-	)
-	(wire
-		(pts
-			(xy 193.04 160.02) (xy 195.58 160.02)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4bc17921-c365-4978-92d5-009e8d25f01b")
 	)
 	(wire
 		(pts
@@ -38922,17 +38901,6 @@
 			(justify right)
 		)
 		(uuid "e8887085-1796-4c3d-9df8-fdb6b0fd7a41")
-	)
-	(hierarchical_label "CODEC_IRQ"
-		(shape input)
-		(at 193.04 160.02 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "ed9c7484-0e47-4da1-a94e-03f2c45a5a76")
 	)
 	(hierarchical_label "FLASH_CS"
 		(shape output)

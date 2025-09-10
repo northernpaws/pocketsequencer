@@ -834,16 +834,6 @@
 	)
 	(wire
 		(pts
-			(xy 101.6 121.92) (xy 129.54 121.92)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "43b47ebc-952c-4b26-9ceb-426b1f80ec39")
-	)
-	(wire
-		(pts
 			(xy 69.85 187.96) (xy 67.31 187.96)
 		)
 		(stroke
@@ -2421,16 +2411,6 @@
 				(justify left)
 			)
 		)
-		(pin "CODEC_IRQ" input
-			(at 101.6 121.92 0)
-			(uuid "74f183bc-4d8e-4d70-a344-afc79ed10de5")
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
 		(pin "{AUDIO_UART}" output
 			(at 63.5 64.77 180)
 			(uuid "112704e5-4242-4291-989e-66f8032ee235")
@@ -2969,16 +2949,6 @@
 		(pin "{I2C}" input
 			(at 129.54 106.68 180)
 			(uuid "bdb9ec9d-cb3c-4566-a3ad-c07bc8f93f7c")
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(pin "CODEC_IRQ" output
-			(at 129.54 121.92 180)
-			(uuid "d883d2de-9f93-4d9b-b63b-e32895f101e8")
 			(effects
 				(font
 					(size 1.27 1.27)
