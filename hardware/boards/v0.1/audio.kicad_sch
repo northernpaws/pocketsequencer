@@ -3817,6 +3817,17 @@
 		)
 		(uuid "59a7c548-557e-42ad-abcc-6d612b433e67")
 	)
+	(text "I2C Address\n0011010"
+		(exclude_from_sim no)
+		(at 28.956 68.072 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+				(color 132 132 132 1)
+			)
+		)
+		(uuid "6111aa92-549e-44bb-80ff-019319ec15d6")
+	)
 	(text "Analog MUX for switching\nline-in input modes"
 		(exclude_from_sim no)
 		(at 91.44 149.86 0)
@@ -3892,6 +3903,18 @@
 			(justify left)
 		)
 		(uuid "8a3f00bd-c335-4e50-9b8a-57f1da214a1d")
+	)
+	(text "SEN=0 address\ni2c 0010001"
+		(exclude_from_sim no)
+		(at 210.82 51.562 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+				(color 132 132 132 1)
+			)
+			(justify right)
+		)
+		(uuid "adf68371-df0c-48d6-94a1-3bc02fb29d11")
 	)
 	(text "TODO: use Si4703 or Si4705 which have RDS?"
 		(exclude_from_sim no)
@@ -3978,9 +4001,9 @@
 		)
 		(uuid "dfe89f2d-d0b8-48bd-bec6-1100f0113c66")
 	)
-	(text "SEN=0 address\ni2c 0010001"
+	(text "SEN=1 address\ni2c 1100011b"
 		(exclude_from_sim no)
-		(at 223.774 153.162 0)
+		(at 209.296 119.126 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3989,12 +4012,6 @@
 			(justify right)
 		)
 		(uuid "eee8e0ff-9b62-4267-8360-3638e2087f1c")
-	)
-	(junction
-		(at 208.28 143.51)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "01a92084-7ea1-4187-b1a2-6cad9d41ee7b")
 	)
 	(junction
 		(at 67.31 36.83)
@@ -4078,7 +4095,7 @@
 		(at 208.28 135.89)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "537f6715-1f47-4855-a08c-767282348be4")
+		(uuid "5cd24bdf-1a73-41d5-ab05-7372a5ac0ca4")
 	)
 	(junction
 		(at 246.38 107.95)
@@ -4989,16 +5006,6 @@
 	)
 	(wire
 		(pts
-			(xy 208.28 143.51) (xy 208.28 149.86)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4ceb8253-6b32-4dc1-9ed6-50d8dead62a5")
-	)
-	(wire
-		(pts
 			(xy 58.42 34.29) (xy 58.42 36.83)
 		)
 		(stroke
@@ -5089,7 +5096,7 @@
 	)
 	(wire
 		(pts
-			(xy 209.55 143.51) (xy 208.28 143.51)
+			(xy 201.93 143.51) (xy 209.55 143.51)
 		)
 		(stroke
 			(width 0)
@@ -5529,6 +5536,16 @@
 	)
 	(wire
 		(pts
+			(xy 208.28 135.89) (xy 208.28 149.86)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "83882acd-2c35-4204-9793-1800ea481815")
+	)
+	(wire
+		(pts
 			(xy 246.38 80.01) (xy 259.08 80.01)
 		)
 		(stroke
@@ -5579,13 +5596,13 @@
 	)
 	(wire
 		(pts
-			(xy 208.28 143.51) (xy 208.28 135.89)
+			(xy 210.82 80.01) (xy 226.06 80.01)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "88c33681-7f16-4323-85c7-389a426d2dfe")
+		(uuid "89d92f8e-8b3c-4c43-aa9f-f53ebe26c359")
 	)
 	(wire
 		(pts
@@ -6019,6 +6036,16 @@
 	)
 	(wire
 		(pts
+			(xy 201.93 143.51) (xy 201.93 140.97)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b42b6d1a-5073-4d82-98d0-e0aade84d265")
+	)
+	(wire
+		(pts
 			(xy 80.01 43.18) (xy 80.01 41.91)
 		)
 		(stroke
@@ -6246,6 +6273,16 @@
 			(type default)
 		)
 		(uuid "d3cafbc5-73a0-49ca-b092-ada42dc11eac")
+	)
+	(wire
+		(pts
+			(xy 210.82 73.66) (xy 210.82 80.01)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d55ae8e0-7a33-4df7-a864-ce782550a3f5")
 	)
 	(wire
 		(pts
@@ -9912,6 +9949,71 @@
 			(project "pocket_synth"
 				(path "/485383b8-00f4-4405-b270-de249939cff4/ac7a2cd5-8a17-4132-a50f-a1edfbc58e6d"
 					(reference "Y5")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+3.3V")
+		(at 201.93 140.97 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "77cff5ec-da78-4a74-b88c-3791405ad7b9")
+		(property "Reference" "#PWR0107"
+			(at 201.93 144.78 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+3.3V"
+			(at 202.184 136.398 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 201.93 140.97 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 201.93 140.97 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+3.3V\""
+			(at 201.93 140.97 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "33d293f7-49a9-4f39-a40d-872f0d11839b")
+		)
+		(instances
+			(project "pocket_synth"
+				(path "/485383b8-00f4-4405-b270-de249939cff4/ac7a2cd5-8a17-4132-a50f-a1edfbc58e6d"
+					(reference "#PWR0107")
 					(unit 1)
 				)
 			)
