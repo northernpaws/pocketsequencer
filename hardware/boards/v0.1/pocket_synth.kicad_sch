@@ -722,16 +722,6 @@
 		)
 		(uuid "06f2bd0e-c83c-4d60-8563-78046c483970")
 	)
-	(bus
-		(pts
-			(xy 121.92 106.68) (xy 129.54 106.68)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0bc90812-df7a-473b-bfca-0bea57313d83")
-	)
 	(wire
 		(pts
 			(xy 29.21 185.42) (xy 29.21 187.96)
@@ -844,16 +834,6 @@
 	)
 	(bus
 		(pts
-			(xy 55.88 113.03) (xy 52.07 113.03)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "49828794-6430-4e49-a520-72c795590be5")
-	)
-	(bus
-		(pts
 			(xy 119.38 44.45) (xy 129.54 44.45)
 		)
 		(stroke
@@ -951,6 +931,16 @@
 			(type default)
 		)
 		(uuid "7dce323b-4e3d-40c3-b75a-07ea3432798f")
+	)
+	(bus
+		(pts
+			(xy 101.6 106.68) (xy 129.54 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "83df6f6a-ef06-43fd-be6d-ef3e86ca0823")
 	)
 	(wire
 		(pts
@@ -1142,7 +1132,7 @@
 		)
 		(uuid "fb383aa2-52df-4eb3-a6e1-082a04698259")
 	)
-	(label "{I2C}"
+	(label "I2C2{I2C}"
 		(at 121.92 81.28 180)
 		(effects
 			(font
@@ -1153,18 +1143,7 @@
 		)
 		(uuid "1eab1fcc-3c38-4955-b061-97d830728f36")
 	)
-	(label "{I2C}"
-		(at 121.92 106.68 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-				(thickness 0.1588)
-			)
-			(justify right bottom)
-		)
-		(uuid "6180a08b-f6fe-49a4-b873-a233bf7f4ff7")
-	)
-	(label "{I2C}"
+	(label "I2C2{I2C}"
 		(at 124.46 59.69 180)
 		(effects
 			(font
@@ -1175,7 +1154,7 @@
 		)
 		(uuid "6837c862-c9cd-47c2-b2a7-35006cf844a7")
 	)
-	(label "{I2C}"
+	(label "I2C2{I2C}"
 		(at 22.86 38.1 180)
 		(effects
 			(font
@@ -1186,7 +1165,7 @@
 		)
 		(uuid "9d3ee19d-4020-4917-8af9-cdb4b7654426")
 	)
-	(label "{I2C}"
+	(label "I2C2{I2C}"
 		(at 105.41 24.13 0)
 		(effects
 			(font
@@ -1196,17 +1175,6 @@
 			(justify left bottom)
 		)
 		(uuid "c21a7c55-49f4-47a3-bda9-2eec3c147b37")
-	)
-	(label "{I2C}"
-		(at 55.88 113.03 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-				(thickness 0.1588)
-			)
-			(justify left bottom)
-		)
-		(uuid "cc54795b-1d87-41e9-ac47-71b98db00ad6")
 	)
 	(symbol
 		(lib_id "power:GNDPWR")
@@ -2381,7 +2349,7 @@
 				(justify right)
 			)
 		)
-		(pin "{I2C}" output
+		(pin "I2C2{I2C}" output
 			(at 101.6 24.13 0)
 			(uuid "fa339601-5e38-4ae9-befd-3567d6562f32")
 			(effects
@@ -2581,6 +2549,16 @@
 				(justify left)
 			)
 		)
+		(pin "I2C1{I2C}" output
+			(at 101.6 106.68 0)
+			(uuid "0cd18411-4656-401d-9929-593d4f6ca5b4")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
 		(instances
 			(project "pocket_synth"
 				(path "/485383b8-00f4-4405-b270-de249939cff4"
@@ -2737,7 +2715,7 @@
 				(justify right)
 			)
 		)
-		(pin "{I2C}" input
+		(pin "I2C2{I2C}" input
 			(at 26.67 38.1 180)
 			(uuid "f7769596-f6c3-481c-a6ba-a86181366000")
 			(effects
@@ -2883,7 +2861,7 @@
 				(justify left)
 			)
 		)
-		(pin "{I2C}" input
+		(pin "I2C{I2C}" input
 			(at 129.54 81.28 180)
 			(uuid "f26b5d06-fb60-4ffd-9449-bffe32f97f4e")
 			(effects
@@ -2946,7 +2924,7 @@
 				(hide yes)
 			)
 		)
-		(pin "{I2C}" input
+		(pin "I2C1{I2C}" input
 			(at 129.54 106.68 180)
 			(uuid "bdb9ec9d-cb3c-4566-a3ad-c07bc8f93f7c")
 			(effects
@@ -3175,7 +3153,7 @@
 				(justify left)
 			)
 		)
-		(pin "{I2C}" input
+		(pin "I2C{I2C}" input
 			(at 129.54 59.69 180)
 			(uuid "676b797b-d3ff-4b2f-8075-4c66b2990802")
 			(effects
@@ -3288,7 +3266,7 @@
 				(justify right)
 			)
 		)
-		(pin "{I2C}" input
+		(pin "I2C{I2C}" input
 			(at 52.07 113.03 0)
 			(uuid "202101d3-57d4-457f-a884-afafd6971683")
 			(effects

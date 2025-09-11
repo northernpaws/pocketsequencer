@@ -2292,7 +2292,7 @@
 		)
 		(uuid "2f7266b3-fb50-49b6-9ce5-f7ae24a1b668")
 	)
-	(label "I2C.SDA"
+	(label "I2C2.SDA"
 		(at 173.99 62.23 0)
 		(effects
 			(font
@@ -2312,7 +2312,7 @@
 		)
 		(uuid "b439e346-b1e3-4a04-a599-1d1f999a5bea")
 	)
-	(label "I2C.SCL"
+	(label "I2C2.SCL"
 		(at 173.99 64.77 0)
 		(effects
 			(font
@@ -2322,7 +2322,7 @@
 		)
 		(uuid "d8709935-8c25-4f3c-a428-f555047eccec")
 	)
-	(hierarchical_label "{I2C}"
+	(hierarchical_label "I2C2{I2C}"
 		(shape input)
 		(at 185.42 57.15 90)
 		(effects

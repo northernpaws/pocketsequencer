@@ -6557,7 +6557,7 @@
 		)
 		(uuid "0e87f7b3-c34d-4921-8c15-ce6268194777")
 	)
-	(label "I2C.SDA"
+	(label "I2C1.SDA"
 		(at 208.28 115.57 180)
 		(effects
 			(font
@@ -6617,7 +6617,7 @@
 		)
 		(uuid "35ef4862-836c-41ba-a477-d9f3f1f7c8fb")
 	)
-	(label "I2C.SCL"
+	(label "I2C1.SCL"
 		(at 58.42 67.31 180)
 		(effects
 			(font
@@ -6687,7 +6687,7 @@
 		)
 		(uuid "4b998e94-ba51-45b5-a848-3d499f88b783")
 	)
-	(label "I2C.SCL"
+	(label "I2C1.SCL"
 		(at 208.28 113.03 180)
 		(effects
 			(font
@@ -6697,7 +6697,7 @@
 		)
 		(uuid "4d0c1f0e-2972-467d-86d2-c49adfe50578")
 	)
-	(label "I2C.SDA"
+	(label "I2C1.SDA"
 		(at 58.42 69.85 180)
 		(effects
 			(font
@@ -6707,7 +6707,7 @@
 		)
 		(uuid "4fc2d028-3cdd-45c0-9eb7-ec6a509a11a2")
 	)
-	(label "I2C.SDA"
+	(label "I2C1.SDA"
 		(at 209.55 48.26 180)
 		(effects
 			(font
@@ -6747,7 +6747,7 @@
 		)
 		(uuid "6da4b0cc-4edf-4cde-a445-7f34d36c12d2")
 	)
-	(label "I2C.SCL"
+	(label "I2C1.SCL"
 		(at 209.55 45.72 180)
 		(effects
 			(font
@@ -6887,7 +6887,7 @@
 		)
 		(uuid "f94d2a0b-b4a1-4f1f-a846-18fcf9b8360d")
 	)
-	(hierarchical_label "{I2C}"
+	(hierarchical_label "I2C1{I2C}"
 		(shape input)
 		(at 193.04 40.64 90)
 		(effects
@@ -6920,7 +6920,7 @@
 		)
 		(uuid "85b7b189-3532-419f-90cd-b6557669fb36")
 	)
-	(hierarchical_label "{I2C}"
+	(hierarchical_label "I2C1{I2C}"
 		(shape input)
 		(at 36.83 62.23 90)
 		(effects
@@ -6931,7 +6931,7 @@
 		)
 		(uuid "a93d4853-0297-4560-a369-4c6d00a7db59")
 	)
-	(hierarchical_label "{I2C}"
+	(hierarchical_label "I2C1{I2C}"
 		(shape input)
 		(at 191.77 107.95 90)
 		(effects
@@ -9227,7 +9227,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
 			(at 115.57 66.3448 0)
 			(effects
 				(font
@@ -12083,7 +12083,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
 			(at 115.57 61.2648 0)
 			(effects
 				(font
