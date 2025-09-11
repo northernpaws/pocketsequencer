@@ -4241,6 +4241,18 @@
 		)
 		(uuid "24c9e6af-9431-43c0-b813-c00eba668c7f")
 	)
+	(text "I2C Address\n1100100"
+		(exclude_from_sim no)
+		(at 239.776 45.974 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+				(color 132 132 132 1)
+			)
+			(justify right)
+		)
+		(uuid "31e6858d-d8fc-4aee-a715-21306deb8ff5")
+	)
 	(text "Used by the STM32 to detect when a USB\ncable has been plugged in or removed.\n\nExpected signal < 4v"
 		(exclude_from_sim no)
 		(at 69.85 107.188 0)
@@ -4491,6 +4503,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "70bc82c1-e44a-48c6-b224-cf2cc8f32f29")
+	)
+	(junction
+		(at 212.09 86.36)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "75915e35-738d-4352-ac57-6bc46c05ea2e")
 	)
 	(junction
 		(at 67.31 153.67)
@@ -5298,7 +5316,7 @@
 	)
 	(wire
 		(pts
-			(xy 205.74 86.36) (xy 223.52 86.36)
+			(xy 205.74 86.36) (xy 212.09 86.36)
 		)
 		(stroke
 			(width 0)
@@ -5425,6 +5443,16 @@
 			(type default)
 		)
 		(uuid "9064c7bd-d1e7-4b7f-a6df-34fb3bfba8ec")
+	)
+	(wire
+		(pts
+			(xy 212.09 86.36) (xy 223.52 86.36)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "90d047a5-f205-45c0-b69c-b208fbc99ed5")
 	)
 	(wire
 		(pts
@@ -5988,6 +6016,16 @@
 	)
 	(wire
 		(pts
+			(xy 212.09 86.36) (xy 212.09 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f1275817-a5dc-4ec4-81c6-ea50545fbf74")
+	)
+	(wire
+		(pts
 			(xy 72.39 185.42) (xy 72.39 186.69)
 		)
 		(stroke
@@ -6307,7 +6345,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "100m"
+		(property "Value" "12m"
 			(at 272.288 39.37 0)
 			(effects
 				(font
@@ -6316,7 +6354,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+		(property "Footprint" "Resistor_SMD:R_2512_6332Metric_Pad1.40x3.35mm_HandSolder"
 			(at 276.098 38.1 90)
 			(effects
 				(font
@@ -6594,6 +6632,126 @@
 			(project ""
 				(path "/485383b8-00f4-4405-b270-de249939cff4/4ddef61a-efa7-4012-86d6-37c4f1088d14"
 					(reference "TP19")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 212.09 88.9 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "181494d3-6f45-40ab-a82a-bbc13d40d6b2")
+		(property "Reference" "TP20"
+			(at 212.09 97.028 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 212.09 94.488 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+			(at 207.01 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 207.01 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "test point"
+			(at 212.09 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Arrow Part Number" ""
+			(at 212.09 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Arrow Price/Stock" ""
+			(at 212.09 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MANUFACTURER" ""
+			(at 212.09 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MAXIMUM_PACKAGE_HEIGHT" ""
+			(at 212.09 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "PARTREV" ""
+			(at 212.09 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "STANDARD" ""
+			(at 212.09 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Connector" ""
+			(at 212.09 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "c469e8a7-f419-42ac-8913-d0c3bee56b48")
+		)
+		(instances
+			(project "pocket_synth"
+				(path "/485383b8-00f4-4405-b270-de249939cff4/4ddef61a-efa7-4012-86d6-37c4f1088d14"
+					(reference "TP20")
 					(unit 1)
 				)
 			)
@@ -7277,7 +7435,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 239.268 27.94 90)
 			(effects
 				(font
@@ -8080,7 +8238,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
 			(at 75.2348 163.83 0)
 			(effects
 				(font
@@ -8522,7 +8680,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 191.262 80.01 90)
 			(effects
 				(font
@@ -8799,7 +8957,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 72.39 189.23 0)
 			(effects
 				(font
@@ -9521,7 +9679,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
 			(at 17.4752 175.26 0)
 			(effects
 				(font
@@ -9836,7 +9994,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 91.948 179.07 90)
 			(effects
 				(font
@@ -10152,7 +10310,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 127.508 46.99 90)
 			(effects
 				(font
@@ -10343,7 +10501,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
 			(at 66.3448 163.83 0)
 			(effects
 				(font
@@ -11124,7 +11282,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 77.47 194.31 0)
 			(effects
 				(font
