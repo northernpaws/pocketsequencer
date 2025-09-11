@@ -1780,6 +1780,16 @@
 		)
 		(uuid "2aedfd66-472a-4004-b0ae-0b06fe89895a")
 	)
+	(text "https://www.moergo.com/collections/mcc-keycaps/products/double-shot-pbt-pc-mcc-and-mbk-convex-1u-96-pack-keycap-set?variant=50944481624337"
+		(exclude_from_sim no)
+		(at 177.546 227.584 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "32d3e05f-916a-460c-9ef6-f3ad3f518bab")
+	)
 	(text "The TCA8418 keypad scanner can read a\ncombination of one or more keypad matrixes\nand individual buttons tied to the inputs.\n\nThe TCA8418 states can be read over I2C and\nsupport triggering one or more interrupts\nto signal to the MCU to read the current state\nwithout needing to constantly poll."
 		(exclude_from_sim no)
 		(at 13.97 87.884 0)
@@ -8946,7 +8956,7 @@
 	)
 	(symbol
 		(lib_id "Switch:SW_Push")
-		(at 106.68 204.47 0)
+		(at 105.41 184.15 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -8954,7 +8964,7 @@
 		(dnp no)
 		(uuid "420ccb19-8d85-44e7-ba6c-60a3bbb828ce")
 		(property "Reference" "SW18"
-			(at 106.68 199.644 0)
+			(at 105.41 179.324 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8962,7 +8972,7 @@
 			)
 		)
 		(property "Value" "HELP"
-			(at 106.68 206.502 0)
+			(at 105.41 186.182 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8971,7 +8981,7 @@
 			)
 		)
 		(property "Footprint" "Button_Switch_SMD:SW_SPST_EVQQ2"
-			(at 106.68 199.39 0)
+			(at 105.41 179.07 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8980,7 +8990,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 106.68 199.39 0)
+			(at 105.41 179.07 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8989,7 +8999,7 @@
 			)
 		)
 		(property "Description" "Push button switch, generic, two pins"
-			(at 106.68 204.47 0)
+			(at 105.41 184.15 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8998,7 +9008,7 @@
 			)
 		)
 		(property "JLC" ""
-			(at 106.68 204.47 0)
+			(at 105.41 184.15 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9006,7 +9016,7 @@
 			)
 		)
 		(property "Arrow Part Number" ""
-			(at 106.68 204.47 0)
+			(at 105.41 184.15 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9014,7 +9024,7 @@
 			)
 		)
 		(property "Arrow Price/Stock" ""
-			(at 106.68 204.47 0)
+			(at 105.41 184.15 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9022,7 +9032,7 @@
 			)
 		)
 		(property "MANUFACTURER" ""
-			(at 106.68 204.47 0)
+			(at 105.41 184.15 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9030,7 +9040,7 @@
 			)
 		)
 		(property "MAXIMUM_PACKAGE_HEIGHT" ""
-			(at 106.68 204.47 0)
+			(at 105.41 184.15 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9038,7 +9048,7 @@
 			)
 		)
 		(property "PARTREV" ""
-			(at 106.68 204.47 0)
+			(at 105.41 184.15 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9046,7 +9056,7 @@
 			)
 		)
 		(property "STANDARD" ""
-			(at 106.68 204.47 0)
+			(at 105.41 184.15 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9054,7 +9064,7 @@
 			)
 		)
 		(property "Connector" ""
-			(at 106.68 204.47 0)
+			(at 105.41 184.15 0)
 			(effects
 				(font
 					(size 1.27 1.27)

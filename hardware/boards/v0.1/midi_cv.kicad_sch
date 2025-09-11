@@ -5,279 +5,6 @@
 	(uuid "28c48c96-28f0-4f9b-8cc1-9ee80931cf16")
 	(paper "A4")
 	(lib_symbols
-		(symbol "Amplifier_Operational:MCP6002-xMC"
-			(pin_names
-				(offset 0.127)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "U"
-				(at 0 5.08 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left)
-				)
-			)
-			(property "Value" "MCP6002-xMC"
-				(at 0 -5.08 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left)
-				)
-			)
-			(property "Footprint" "Package_DFN_QFN:DFN-8-1EP_3x2mm_P0.5mm_EP1.75x1.45mm"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" "http://ww1.microchip.com/downloads/en/DeviceDoc/21733j.pdf"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" "1MHz, Low-Power Op Amp, DFN-8"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_locked" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "ki_keywords" "dual opamp"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_fp_filters" "DFN*1EP*3x2mm*P0.5mm*"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "MCP6002-xMC_1_1"
-				(polyline
-					(pts
-						(xy -5.08 5.08) (xy 5.08 0) (xy -5.08 -5.08) (xy -5.08 5.08)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type background)
-					)
-				)
-				(pin input line
-					(at -7.62 2.54 0)
-					(length 2.54)
-					(name "+"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin input line
-					(at -7.62 -2.54 0)
-					(length 2.54)
-					(name "-"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 7.62 0 180)
-					(length 2.54)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(symbol "MCP6002-xMC_2_1"
-				(polyline
-					(pts
-						(xy -5.08 5.08) (xy 5.08 0) (xy -5.08 -5.08) (xy -5.08 5.08)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type background)
-					)
-				)
-				(pin input line
-					(at -7.62 2.54 0)
-					(length 2.54)
-					(name "+"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "5"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin input line
-					(at -7.62 -2.54 0)
-					(length 2.54)
-					(name "-"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "6"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 7.62 0 180)
-					(length 2.54)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "7"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(symbol "MCP6002-xMC_3_1"
-				(pin power_in line
-					(at -2.54 7.62 270)
-					(length 3.81)
-					(name "V+"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "8"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin power_in line
-					(at -2.54 -7.62 90)
-					(length 3.81)
-					(name "V-"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "4"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -2.54 -7.62 90)
-					(length 3.81)
-					(hide yes)
-					(name "V-"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "9"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
 		(symbol "Analog_Switch:TS5A23159RSE"
 			(exclude_from_sim no)
 			(in_bom yes)
@@ -2739,17 +2466,6 @@
 		)
 		(uuid "1039a3e5-213c-4348-a0d7-491234c5f461")
 	)
-	(text "TODO: 5v boost converter"
-		(exclude_from_sim no)
-		(at 240.284 34.544 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-				(color 194 0 0 1)
-			)
-		)
-		(uuid "1f8ff1a7-c87b-48be-9fc3-83854376cb2e")
-	)
 	(text "MIDI IN port can function as either a MIDI IN TRS port, or as \na SYNC and CV input for compatibility with eurorack-style gear. "
 		(exclude_from_sim no)
 		(at 13.462 148.336 0)
@@ -2787,20 +2503,7 @@
 		)
 		(uuid "8ff2f79d-e2c9-4046-aad3-e6c53d4e9873")
 	)
-	(text "CV Level Shifting"
-		(exclude_from_sim no)
-		(at 178.816 87.122 0)
-		(effects
-			(font
-				(size 1.651 1.651)
-				(thickness 0.254)
-				(bold yes)
-			)
-			(justify left top)
-		)
-		(uuid "ac10e7b3-79ee-4ee9-99dc-63fa21d44f93")
-	)
-	(text "CV Input by Émilie Gillet of Mutable Instruments\nhttps://wiki.synthdiy.com/building-blocks/cv-input-to-microcontroller/"
+	(text "CV Input by Émilie Gillet of Mutable Instruments\nhttps://wiki.synthdiy.com/building-blocks/cv-input-to-microcontroller/\nMCP6002-xMC"
 		(exclude_from_sim no)
 		(at 191.516 217.424 0)
 		(effects
@@ -2812,32 +2515,6 @@
 			(justify left)
 		)
 		(uuid "c1fa20cd-c79c-4890-b189-13df195076b3")
-	)
-	(text "+/-12v to 0-3.3v"
-		(exclude_from_sim no)
-		(at 178.816 90.17 0)
-		(effects
-			(font
-				(size 1.397 1.397)
-				(italic yes)
-				(color 194 194 194 1)
-			)
-			(justify left top)
-		)
-		(uuid "c5186b81-01fe-4254-af6a-a27dcc44f765")
-	)
-	(text "TODO: MUX with 5v tollerant analog output"
-		(exclude_from_sim no)
-		(at 79.248 13.97 0)
-		(effects
-			(font
-				(size 3.81 3.81)
-				(thickness 0.762)
-				(bold yes)
-				(color 194 0 0 1)
-			)
-		)
-		(uuid "c8b2942d-bf00-4449-8e6f-0e28eb2411d5")
 	)
 	(text "MIDI output, passthrough, or CV"
 		(exclude_from_sim no)
@@ -2864,12 +2541,6 @@
 		(uuid "ff179960-9762-4748-8af3-32b8b4768782")
 	)
 	(junction
-		(at 254 113.03)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "08032cea-bad9-4d62-9932-ba19cf134c91")
-	)
-	(junction
 		(at 105.41 85.09)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -2894,40 +2565,10 @@
 		(uuid "42e14801-acae-43fe-9136-3b1377910b9b")
 	)
 	(junction
-		(at 274.32 152.4)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "4ef782ae-e122-4401-b818-39e5e12668c4")
-	)
-	(junction
-		(at 274.32 115.57)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "51e658d5-c7c6-41d4-bc2f-3cc491183562")
-	)
-	(junction
-		(at 241.3 149.86)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "7ac06846-d545-4c35-8b1a-6890fb2e881f")
-	)
-	(junction
 		(at 76.2 118.11)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "7cc2e7ae-e3cd-4c10-a740-5c3fd3be42e0")
-	)
-	(junction
-		(at 254 149.86)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "8bc43f72-b9d8-41af-947d-7ec6d73d8d95")
-	)
-	(junction
-		(at 220.98 102.87)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "ab53a2b3-4506-46c7-8b51-6236375ddb6d")
 	)
 	(junction
 		(at 76.2 107.95)
@@ -2940,28 +2581,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "dfc317e7-b7e5-460a-857d-fe68def7293d")
-	)
-	(junction
-		(at 220.98 139.7)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "f37eed11-85e0-4052-bb60-f9fd876d7355")
-	)
-	(junction
-		(at 241.3 113.03)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "f9606a8b-9aa7-44d0-8df5-3c93633dec84")
-	)
-	(wire
-		(pts
-			(xy 254 118.11) (xy 254 120.65)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "00398e16-53f9-4d9f-9726-fef9f92c2f87")
 	)
 	(wire
 		(pts
@@ -3015,16 +2634,6 @@
 	)
 	(wire
 		(pts
-			(xy 251.46 113.03) (xy 254 113.03)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0597334a-e770-49cd-9eb8-ad2d08132cd2")
-	)
-	(wire
-		(pts
 			(xy 62.23 62.23) (xy 64.77 62.23)
 		)
 		(stroke
@@ -3045,26 +2654,6 @@
 	)
 	(wire
 		(pts
-			(xy 208.28 139.7) (xy 210.82 139.7)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "084e19f6-053d-4743-8695-2dc98397514d")
-	)
-	(wire
-		(pts
-			(xy 254 149.86) (xy 254 140.97)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0b372c96-5798-459f-ad4b-27e9437c893e")
-	)
-	(wire
-		(pts
 			(xy 127 115.57) (xy 129.54 115.57)
 		)
 		(stroke
@@ -3072,36 +2661,6 @@
 			(type default)
 		)
 		(uuid "0c7cfbac-9ef7-4355-8119-a23495a2ee13")
-	)
-	(wire
-		(pts
-			(xy 241.3 139.7) (xy 241.3 149.86)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0d472f6a-78a8-4657-a8a3-fde9aa731b2a")
-	)
-	(wire
-		(pts
-			(xy 208.28 102.87) (xy 210.82 102.87)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0e7471cb-52b0-42aa-9273-1232f511c99d")
-	)
-	(wire
-		(pts
-			(xy 223.52 139.7) (xy 220.98 139.7)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "122c74df-0b77-4acf-a584-c125f0e4bf55")
 	)
 	(wire
 		(pts
@@ -3115,26 +2674,6 @@
 	)
 	(wire
 		(pts
-			(xy 251.46 149.86) (xy 254 149.86)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1372490d-36b4-4cff-87e5-ece173475b2b")
-	)
-	(wire
-		(pts
-			(xy 254 154.94) (xy 254 157.48)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "144d0a6a-1d42-4fb2-a3dd-ab8f86437ca7")
-	)
-	(wire
-		(pts
 			(xy 52.07 104.14) (xy 52.07 124.46)
 		)
 		(stroke
@@ -3145,16 +2684,6 @@
 	)
 	(wire
 		(pts
-			(xy 220.98 102.87) (xy 220.98 110.49)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1c04d9ed-1054-4622-b812-45aeaad72336")
-	)
-	(wire
-		(pts
 			(xy 101.6 92.71) (xy 101.6 95.25)
 		)
 		(stroke
@@ -3162,16 +2691,6 @@
 			(type default)
 		)
 		(uuid "1fc66edd-1507-4a0a-a155-71b51243105e")
-	)
-	(wire
-		(pts
-			(xy 274.32 140.97) (xy 274.32 152.4)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "23dcc4c4-b925-4186-885d-44d7ff99f3a7")
 	)
 	(wire
 		(pts
@@ -3195,16 +2714,6 @@
 	)
 	(wire
 		(pts
-			(xy 220.98 152.4) (xy 220.98 154.94)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "273f2fc1-af72-475a-a3cb-dae897089c51")
-	)
-	(wire
-		(pts
 			(xy 158.75 124.46) (xy 158.75 127)
 		)
 		(stroke
@@ -3212,16 +2721,6 @@
 			(type default)
 		)
 		(uuid "291dc4ee-c24a-4bc7-9eb1-959f2eee2770")
-	)
-	(wire
-		(pts
-			(xy 241.3 102.87) (xy 241.3 113.03)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2d0a5572-33ab-483f-b471-879ee75f863d")
 	)
 	(wire
 		(pts
@@ -3255,16 +2754,6 @@
 	)
 	(wire
 		(pts
-			(xy 274.32 115.57) (xy 276.86 115.57)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "39a5b25c-df27-4e7d-b1fb-9dd8f139e99c")
-	)
-	(wire
-		(pts
 			(xy 133.35 129.54) (xy 132.08 129.54)
 		)
 		(stroke
@@ -3272,26 +2761,6 @@
 			(type default)
 		)
 		(uuid "3ac39ee9-6833-46d9-b1da-41af037aa7fc")
-	)
-	(wire
-		(pts
-			(xy 274.32 152.4) (xy 276.86 152.4)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3c0bc72b-7fa2-4d55-9330-7e315ab5764a")
-	)
-	(wire
-		(pts
-			(xy 220.98 139.7) (xy 220.98 147.32)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3c6ddb5c-0008-4f6d-996a-8acb03157f4a")
 	)
 	(wire
 		(pts
@@ -3305,16 +2774,6 @@
 	)
 	(wire
 		(pts
-			(xy 181.61 118.11) (xy 181.61 120.65)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "41221977-ef88-4261-80c8-72bc6d972a00")
-	)
-	(wire
-		(pts
 			(xy 64.77 59.69) (xy 64.77 62.23)
 		)
 		(stroke
@@ -3322,16 +2781,6 @@
 			(type default)
 		)
 		(uuid "46490a0e-a1d9-469c-91e9-7021ddf50864")
-	)
-	(wire
-		(pts
-			(xy 223.52 115.57) (xy 220.98 115.57)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "46e6eec8-2b0f-4376-ba70-904c637120b4")
 	)
 	(wire
 		(pts
@@ -3352,46 +2801,6 @@
 			(type default)
 		)
 		(uuid "4f95d198-d1f4-4d82-b3d9-b0630c5f6840")
-	)
-	(wire
-		(pts
-			(xy 218.44 102.87) (xy 220.98 102.87)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "511ce6d3-a46d-4d93-9c93-13a85c97e5a8")
-	)
-	(wire
-		(pts
-			(xy 274.32 115.57) (xy 271.78 115.57)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "527b39dd-4048-4cba-8510-00487be5f663")
-	)
-	(wire
-		(pts
-			(xy 220.98 110.49) (xy 223.52 110.49)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "54071cd4-4dc6-4330-a4f6-bac6773595dd")
-	)
-	(wire
-		(pts
-			(xy 238.76 113.03) (xy 241.3 113.03)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "55b2eb9d-e8f9-4946-85eb-4d9ea41c1a6d")
 	)
 	(wire
 		(pts
@@ -3475,26 +2884,6 @@
 	)
 	(wire
 		(pts
-			(xy 218.44 139.7) (xy 220.98 139.7)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "63a5a16a-1c34-446b-b0d1-433fb6bf0ee1")
-	)
-	(wire
-		(pts
-			(xy 265.43 140.97) (xy 274.32 140.97)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "64ed46ed-ed41-4966-a485-d7becfdefc9a")
-	)
-	(wire
-		(pts
 			(xy 86.36 38.1) (xy 81.28 38.1)
 		)
 		(stroke
@@ -3505,26 +2894,6 @@
 	)
 	(wire
 		(pts
-			(xy 220.98 115.57) (xy 220.98 118.11)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "77421cac-99b4-450a-88ae-de79af9588ca")
-	)
-	(wire
-		(pts
-			(xy 181.61 154.94) (xy 181.61 157.48)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7b88494b-ab6a-4bea-bebf-f4457d7037c0")
-	)
-	(wire
-		(pts
 			(xy 107.95 40.64) (xy 114.3 40.64)
 		)
 		(stroke
@@ -3532,26 +2901,6 @@
 			(type default)
 		)
 		(uuid "7c64f5fa-0a05-45ce-af3e-15d1984f615e")
-	)
-	(wire
-		(pts
-			(xy 238.76 149.86) (xy 241.3 149.86)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7d7f4aac-2ac3-4def-8aaa-95d6ad918dd1")
-	)
-	(wire
-		(pts
-			(xy 181.61 137.16) (xy 181.61 139.7)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "827548ea-21fe-4f09-ab57-56ef5c071c3d")
 	)
 	(polyline
 		(pts
@@ -3615,26 +2964,6 @@
 	)
 	(wire
 		(pts
-			(xy 181.61 100.33) (xy 181.61 102.87)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "91ca6bd6-b75a-4ece-8c75-65a4ba098e0d")
-	)
-	(wire
-		(pts
-			(xy 274.32 104.14) (xy 274.32 115.57)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "93accedd-b670-44d4-94ec-18c237bdb1f1")
-	)
-	(wire
-		(pts
 			(xy 54.61 54.61) (xy 57.15 54.61)
 		)
 		(stroke
@@ -3675,16 +3004,6 @@
 	)
 	(wire
 		(pts
-			(xy 256.54 118.11) (xy 254 118.11)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "abc8322f-ffda-417e-982f-7db93207c90d")
-	)
-	(wire
-		(pts
 			(xy 158.75 92.71) (xy 158.75 95.25)
 		)
 		(stroke
@@ -3702,36 +3021,6 @@
 			(type default)
 		)
 		(uuid "b593b62a-80da-4dd9-93df-74800e6d73f6")
-	)
-	(wire
-		(pts
-			(xy 231.14 102.87) (xy 241.3 102.87)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b6f57967-9f6f-44fd-bf75-4254b8950de9")
-	)
-	(wire
-		(pts
-			(xy 223.52 152.4) (xy 220.98 152.4)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "bc41f963-8708-4faa-a62d-a92d6ad6b870")
-	)
-	(wire
-		(pts
-			(xy 265.43 104.14) (xy 274.32 104.14)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "bdef5407-f89a-4aa5-a39e-c4c69606aac9")
 	)
 	(wire
 		(pts
@@ -3765,26 +3054,6 @@
 	)
 	(wire
 		(pts
-			(xy 274.32 152.4) (xy 271.78 152.4)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c515cb35-c2e1-4327-b457-e5fbb5e9bd00")
-	)
-	(wire
-		(pts
-			(xy 223.52 102.87) (xy 220.98 102.87)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c7410bb5-bdd8-4043-a6d8-a5cef793bea8")
-	)
-	(wire
-		(pts
 			(xy 104.14 118.11) (xy 107.95 118.11)
 		)
 		(stroke
@@ -3792,16 +3061,6 @@
 			(type default)
 		)
 		(uuid "c7477092-a20e-4d6e-9f34-e7c10bb3ded0")
-	)
-	(wire
-		(pts
-			(xy 231.14 139.7) (xy 241.3 139.7)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c96bd30c-6aac-48ad-baff-528b5b759025")
 	)
 	(wire
 		(pts
@@ -3815,16 +3074,6 @@
 	)
 	(wire
 		(pts
-			(xy 220.98 147.32) (xy 223.52 147.32)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "cc98453b-c3d5-4c27-9498-26cfd7fbc750")
-	)
-	(wire
-		(pts
 			(xy 105.41 96.52) (xy 109.22 96.52)
 		)
 		(stroke
@@ -3832,16 +3081,6 @@
 			(type default)
 		)
 		(uuid "cd807a8c-6374-4460-88e1-5dbacde9063a")
-	)
-	(wire
-		(pts
-			(xy 254 113.03) (xy 256.54 113.03)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "cf9aa2f0-3f91-4581-b972-ba19064a66ce")
 	)
 	(wire
 		(pts
@@ -3905,16 +3144,6 @@
 	)
 	(wire
 		(pts
-			(xy 254 140.97) (xy 257.81 140.97)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "de2a4837-ac42-4b27-9a93-0b8e089f31a4")
-	)
-	(wire
-		(pts
 			(xy 64.77 101.6) (xy 67.31 101.6)
 		)
 		(stroke
@@ -3925,26 +3154,6 @@
 	)
 	(wire
 		(pts
-			(xy 254 113.03) (xy 254 104.14)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e34b1aed-e21d-40c7-98c0-5e54d983896d")
-	)
-	(wire
-		(pts
-			(xy 256.54 154.94) (xy 254 154.94)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e7b1d6e2-5bc9-4b30-943d-71f219340f11")
-	)
-	(wire
-		(pts
 			(xy 105.41 96.52) (xy 105.41 107.95)
 		)
 		(stroke
@@ -3952,16 +3161,6 @@
 			(type default)
 		)
 		(uuid "ea4d0f20-37a1-4c70-b6f9-fa5a03735897")
-	)
-	(wire
-		(pts
-			(xy 254 104.14) (xy 257.81 104.14)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ecab41e0-1b40-4de7-b725-687886acf268")
 	)
 	(wire
 		(pts
@@ -3985,26 +3184,6 @@
 	)
 	(wire
 		(pts
-			(xy 241.3 113.03) (xy 243.84 113.03)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "faf149fc-f995-4323-89ba-d23d4b76e7bc")
-	)
-	(wire
-		(pts
-			(xy 254 149.86) (xy 256.54 149.86)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "fb3271b1-c077-4862-8130-e7d1b5a94598")
-	)
-	(wire
-		(pts
 			(xy 133.35 139.7) (xy 133.35 142.24)
 		)
 		(stroke
@@ -4012,16 +3191,6 @@
 			(type default)
 		)
 		(uuid "fc0ff552-dca4-4896-a2dd-1f15b4cd76af")
-	)
-	(wire
-		(pts
-			(xy 241.3 149.86) (xy 243.84 149.86)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "fe311355-48ec-4df3-9b89-95178ad05aff")
 	)
 	(wire
 		(pts
@@ -4043,17 +3212,6 @@
 		)
 		(uuid "ff48eec2-788a-4784-9261-0a63542e0921")
 	)
-	(label "CV_IN_A"
-		(at 200.66 74.93 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-				(thickness 0.1588)
-			)
-			(justify right bottom)
-		)
-		(uuid "10574f6b-3c27-4c44-8202-9d7d00a1e71a")
-	)
 	(label "MIDI_THRU"
 		(at 54.61 54.61 180)
 		(effects
@@ -4063,37 +3221,6 @@
 			(justify right bottom)
 		)
 		(uuid "4c7e6026-4c8f-41eb-8458-ac845e67fdfd")
-	)
-	(label "CV_IN_B"
-		(at 200.66 77.47 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-				(thickness 0.1588)
-			)
-			(justify right bottom)
-		)
-		(uuid "82984697-0815-4e79-819f-48407bebebb9")
-	)
-	(label "CV_RAW_B"
-		(at 208.28 102.87 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "c8caf2ef-c1e6-41f7-97ba-b3c62535b20c")
-	)
-	(label "CV_RAW_A"
-		(at 208.28 139.7 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "fed922d3-5b92-4b39-9fbf-bc3cba46a642")
 	)
 	(label "MIDI_THRU"
 		(at 129.54 115.57 0)
@@ -4161,104 +3288,6 @@
 			(justify right)
 		)
 		(uuid "f87bae8b-b2ee-4b81-9272-fa1fdd216d09")
-	)
-	(symbol
-		(lib_id "Amplifier_Operational:MCP6002-xMC")
-		(at 184.15 110.49 0)
-		(unit 3)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "08e8d513-fa0d-436c-a3fc-e263bef9dc92")
-		(property "Reference" "U36"
-			(at 182.88 109.2199 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "MCP6002-xMC"
-			(at 182.88 111.7599 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Package_DFN_QFN:DFN-8-1EP_3x2mm_P0.5mm_EP1.75x1.45mm"
-			(at 184.15 110.49 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "http://ww1.microchip.com/downloads/en/DeviceDoc/21733j.pdf"
-			(at 184.15 110.49 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "1MHz, Low-Power Op Amp, DFN-8"
-			(at 184.15 110.49 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Connector" ""
-			(at 184.15 110.49 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "4"
-			(uuid "e4609135-bafb-43dc-be62-5ff87cd23353")
-		)
-		(pin "1"
-			(uuid "4365fd25-490c-43c6-8df0-92d81b9a4722")
-		)
-		(pin "8"
-			(uuid "c617835b-8874-433a-bd53-b9d816560a7f")
-		)
-		(pin "9"
-			(uuid "355f8b57-5495-4bfb-a2de-74f99121e146")
-		)
-		(pin "7"
-			(uuid "4612075b-5433-482c-9d38-af846fae3d0d")
-		)
-		(pin "5"
-			(uuid "65b7d7ec-95e2-44bf-811c-ff3422cdfc63")
-		)
-		(pin "3"
-			(uuid "2b34fe67-64f8-4166-b756-980198cd6763")
-		)
-		(pin "2"
-			(uuid "2c5b0750-1462-4a59-a63e-1de5509011e0")
-		)
-		(pin "6"
-			(uuid "1829e71a-be55-4453-9bfe-e204cd6f8de2")
-		)
-		(instances
-			(project "pocket_synth"
-				(path "/485383b8-00f4-4405-b270-de249939cff4/161a99fc-6043-4112-9f9d-22adc5c14b53"
-					(reference "U36")
-					(unit 3)
-				)
-			)
-		)
 	)
 	(symbol
 		(lib_id "Device:FerriteBead")
@@ -4413,179 +3442,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Amplifier_Operational:MCP6002-xMC")
-		(at 231.14 149.86 0)
-		(mirror x)
-		(unit 2)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "2312c4fe-b983-495e-affd-f2fb764993ce")
-		(property "Reference" "U27"
-			(at 231.14 160.02 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "MCP6002-xMC"
-			(at 231.14 157.48 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Package_DFN_QFN:DFN-8-1EP_3x2mm_P0.5mm_EP1.75x1.45mm"
-			(at 231.14 149.86 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "http://ww1.microchip.com/downloads/en/DeviceDoc/21733j.pdf"
-			(at 231.14 149.86 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "1MHz, Low-Power Op Amp, DFN-8"
-			(at 231.14 149.86 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Connector" ""
-			(at 231.14 149.86 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "4"
-			(uuid "51688075-9e9f-442f-9d95-b09eaa00ee87")
-		)
-		(pin "1"
-			(uuid "4365fd25-490c-43c6-8df0-92d81b9a4720")
-		)
-		(pin "8"
-			(uuid "2f2b4d58-8e5f-45ea-bd7c-741dc16eb55e")
-		)
-		(pin "9"
-			(uuid "e36de4ab-7317-4284-a7b6-8f9d76b1e2af")
-		)
-		(pin "7"
-			(uuid "4612075b-5433-482c-9d38-af846fae3d0b")
-		)
-		(pin "5"
-			(uuid "65b7d7ec-95e2-44bf-811c-ff3422cdfc61")
-		)
-		(pin "3"
-			(uuid "2b34fe67-64f8-4166-b756-980198cd6761")
-		)
-		(pin "2"
-			(uuid "2c5b0750-1462-4a59-a63e-1de5509011de")
-		)
-		(pin "6"
-			(uuid "1829e71a-be55-4453-9bfe-e204cd6f8de0")
-		)
-		(instances
-			(project ""
-				(path "/485383b8-00f4-4405-b270-de249939cff4/161a99fc-6043-4112-9f9d-22adc5c14b53"
-					(reference "U27")
-					(unit 2)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 247.65 113.03 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "2fa94180-0ffc-4f87-b7f7-e9ecddbc3db4")
-		(property "Reference" "R48"
-			(at 247.65 106.68 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "24.9k"
-			(at 247.65 109.22 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
-			(at 247.65 114.808 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 247.65 113.03 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 247.65 113.03 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Connector" ""
-			(at 247.65 113.03 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "2"
-			(uuid "3ad02ed3-a9ea-4b00-aa99-f15c74c90d61")
-		)
-		(pin "1"
-			(uuid "82a24456-857f-4911-bbd9-92e31e89ae3b")
-		)
-		(instances
-			(project "pocket_synth"
-				(path "/485383b8-00f4-4405-b270-de249939cff4/161a99fc-6043-4112-9f9d-22adc5c14b53"
-					(reference "R48")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "power:GND")
 		(at 111.76 45.72 0)
 		(unit 1)
@@ -4646,104 +3502,6 @@
 				(path "/485383b8-00f4-4405-b270-de249939cff4/161a99fc-6043-4112-9f9d-22adc5c14b53"
 					(reference "#PWR073")
 					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Amplifier_Operational:MCP6002-xMC")
-		(at 184.15 147.32 0)
-		(unit 3)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "3c61c5aa-330a-4adb-a020-7e99a78c5209")
-		(property "Reference" "U27"
-			(at 182.88 146.0499 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "MCP6002-xMC"
-			(at 182.88 148.5899 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Package_DFN_QFN:DFN-8-1EP_3x2mm_P0.5mm_EP1.75x1.45mm"
-			(at 184.15 147.32 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "http://ww1.microchip.com/downloads/en/DeviceDoc/21733j.pdf"
-			(at 184.15 147.32 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "1MHz, Low-Power Op Amp, DFN-8"
-			(at 184.15 147.32 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Connector" ""
-			(at 184.15 147.32 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "4"
-			(uuid "51688075-9e9f-442f-9d95-b09eaa00ee88")
-		)
-		(pin "1"
-			(uuid "4365fd25-490c-43c6-8df0-92d81b9a4721")
-		)
-		(pin "8"
-			(uuid "2f2b4d58-8e5f-45ea-bd7c-741dc16eb55f")
-		)
-		(pin "9"
-			(uuid "e36de4ab-7317-4284-a7b6-8f9d76b1e2b0")
-		)
-		(pin "7"
-			(uuid "4612075b-5433-482c-9d38-af846fae3d0c")
-		)
-		(pin "5"
-			(uuid "65b7d7ec-95e2-44bf-811c-ff3422cdfc62")
-		)
-		(pin "3"
-			(uuid "2b34fe67-64f8-4166-b756-980198cd6762")
-		)
-		(pin "2"
-			(uuid "2c5b0750-1462-4a59-a63e-1de5509011df")
-		)
-		(pin "6"
-			(uuid "1829e71a-be55-4453-9bfe-e204cd6f8de1")
-		)
-		(instances
-			(project ""
-				(path "/485383b8-00f4-4405-b270-de249939cff4/161a99fc-6043-4112-9f9d-22adc5c14b53"
-					(reference "U27")
-					(unit 3)
 				)
 			)
 		)
@@ -5076,138 +3834,6 @@
 		)
 	)
 	(symbol
-		(lib_id "power:GND")
-		(at 254 120.65 0)
-		(mirror y)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "4511a323-71b3-424d-b3cb-1fa285116250")
-		(property "Reference" "#PWR0131"
-			(at 254 127 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 254 125.476 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 254 120.65 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 254 120.65 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 254 120.65 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "45389370-145c-4e64-bdd8-460361cc783a")
-		)
-		(instances
-			(project "pocket_synth"
-				(path "/485383b8-00f4-4405-b270-de249939cff4/161a99fc-6043-4112-9f9d-22adc5c14b53"
-					(reference "#PWR0131")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 220.98 118.11 0)
-		(mirror y)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "564d8080-f5c0-4f80-829c-29836b0cefc9")
-		(property "Reference" "#PWR0127"
-			(at 220.98 124.46 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 220.98 122.936 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 220.98 118.11 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 220.98 118.11 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 220.98 118.11 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "c18b171f-9ffb-443b-b2df-12e27f47a371")
-		)
-		(instances
-			(project "pocket_synth"
-				(path "/485383b8-00f4-4405-b270-de249939cff4/161a99fc-6043-4112-9f9d-22adc5c14b53"
-					(reference "#PWR0127")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:FerriteBead")
 		(at 93.98 52.07 270)
 		(mirror x)
@@ -5279,179 +3905,6 @@
 			(project "pocket_synth"
 				(path "/485383b8-00f4-4405-b270-de249939cff4/161a99fc-6043-4112-9f9d-22adc5c14b53"
 					(reference "FB2")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 247.65 149.86 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "58b061b2-367a-41cc-92f5-169d5e44bb1a")
-		(property "Reference" "R18"
-			(at 247.65 143.51 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "24.9k"
-			(at 247.65 146.05 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
-			(at 247.65 151.638 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 247.65 149.86 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 247.65 149.86 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Connector" ""
-			(at 247.65 149.86 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "2"
-			(uuid "92b92d69-8bbd-456b-a76c-bc7a50102c2f")
-		)
-		(pin "1"
-			(uuid "b1c3fa84-8a93-4fab-88d2-1aa4c8660057")
-		)
-		(instances
-			(project ""
-				(path "/485383b8-00f4-4405-b270-de249939cff4/161a99fc-6043-4112-9f9d-22adc5c14b53"
-					(reference "R18")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Amplifier_Operational:MCP6002-xMC")
-		(at 264.16 152.4 0)
-		(mirror x)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "5aaafdb6-6e3a-4aac-bcf8-a55c5c5d2526")
-		(property "Reference" "U27"
-			(at 264.16 162.56 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "MCP6002-xMC"
-			(at 264.16 160.02 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Package_DFN_QFN:DFN-8-1EP_3x2mm_P0.5mm_EP1.75x1.45mm"
-			(at 264.16 152.4 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "http://ww1.microchip.com/downloads/en/DeviceDoc/21733j.pdf"
-			(at 264.16 152.4 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "1MHz, Low-Power Op Amp, DFN-8"
-			(at 264.16 152.4 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Connector" ""
-			(at 264.16 152.4 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "4"
-			(uuid "51688075-9e9f-442f-9d95-b09eaa00ee89")
-		)
-		(pin "1"
-			(uuid "4365fd25-490c-43c6-8df0-92d81b9a4723")
-		)
-		(pin "8"
-			(uuid "2f2b4d58-8e5f-45ea-bd7c-741dc16eb560")
-		)
-		(pin "9"
-			(uuid "e36de4ab-7317-4284-a7b6-8f9d76b1e2b1")
-		)
-		(pin "7"
-			(uuid "4612075b-5433-482c-9d38-af846fae3d0e")
-		)
-		(pin "5"
-			(uuid "65b7d7ec-95e2-44bf-811c-ff3422cdfc64")
-		)
-		(pin "3"
-			(uuid "2b34fe67-64f8-4166-b756-980198cd6764")
-		)
-		(pin "2"
-			(uuid "2c5b0750-1462-4a59-a63e-1de5509011e1")
-		)
-		(pin "6"
-			(uuid "1829e71a-be55-4453-9bfe-e204cd6f8de3")
-		)
-		(instances
-			(project ""
-				(path "/485383b8-00f4-4405-b270-de249939cff4/161a99fc-6043-4112-9f9d-22adc5c14b53"
-					(reference "U27")
 					(unit 1)
 				)
 			)
@@ -5678,137 +4131,6 @@
 				(path "/485383b8-00f4-4405-b270-de249939cff4/161a99fc-6043-4112-9f9d-22adc5c14b53"
 					(reference "U35")
 					(unit 2)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 220.98 154.94 0)
-		(mirror y)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "6c47eac5-dc45-4908-98a1-8a74343177db")
-		(property "Reference" "#PWR0119"
-			(at 220.98 161.29 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 220.98 159.766 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 220.98 154.94 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 220.98 154.94 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 220.98 154.94 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "9812d9b2-730f-4f50-b00c-c8e8bceba207")
-		)
-		(instances
-			(project "pocket_synth"
-				(path "/485383b8-00f4-4405-b270-de249939cff4/161a99fc-6043-4112-9f9d-22adc5c14b53"
-					(reference "#PWR0119")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:+3.3V")
-		(at 181.61 137.16 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "6f053849-6d2e-494c-87a7-3b0b8dc31c35")
-		(property "Reference" "#PWR0117"
-			(at 181.61 140.97 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "+3.3V"
-			(at 181.864 132.588 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 181.61 137.16 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 181.61 137.16 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"+3.3V\""
-			(at 181.61 137.16 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "511df40e-f088-40c3-8f20-ced6b4ee5802")
-		)
-		(instances
-			(project "pocket_synth"
-				(path "/485383b8-00f4-4405-b270-de249939cff4/161a99fc-6043-4112-9f9d-22adc5c14b53"
-					(reference "#PWR0117")
-					(unit 1)
 				)
 			)
 		)
@@ -6251,82 +4573,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:R")
-		(at 261.62 104.14 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "8761eee5-e7a7-4745-bf4f-1acfab920d54")
-		(property "Reference" "R49"
-			(at 261.62 97.79 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "24.9k"
-			(at 261.62 100.33 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
-			(at 261.62 105.918 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 261.62 104.14 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 261.62 104.14 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Connector" ""
-			(at 261.62 104.14 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "2"
-			(uuid "ac28066b-2acb-4e93-9cce-e9ee6d2be43c")
-		)
-		(pin "1"
-			(uuid "d50160f0-b7f9-45c4-99ec-b9d78edd600f")
-		)
-		(instances
-			(project "pocket_synth"
-				(path "/485383b8-00f4-4405-b270-de249939cff4/161a99fc-6043-4112-9f9d-22adc5c14b53"
-					(reference "R49")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "power:GND")
 		(at 107.95 125.73 0)
 		(unit 1)
@@ -6452,147 +4698,6 @@
 			(project "pocket_synth"
 				(path "/485383b8-00f4-4405-b270-de249939cff4/161a99fc-6043-4112-9f9d-22adc5c14b53"
 					(reference "#PWR0113")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:+3.3V")
-		(at 181.61 100.33 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "9348cefd-ce1b-4e8d-af05-79a355c3e670")
-		(property "Reference" "#PWR0121"
-			(at 181.61 104.14 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "+3.3V"
-			(at 181.864 95.758 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 181.61 100.33 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 181.61 100.33 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"+3.3V\""
-			(at 181.61 100.33 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "b4a4536e-b213-4f07-ada8-8f87c323d536")
-		)
-		(instances
-			(project "pocket_synth"
-				(path "/485383b8-00f4-4405-b270-de249939cff4/161a99fc-6043-4112-9f9d-22adc5c14b53"
-					(reference "#PWR0121")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 261.62 140.97 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "949b2ff0-ecbd-47e7-a46f-cd6bc034154c")
-		(property "Reference" "R44"
-			(at 261.62 134.62 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "24.9k"
-			(at 261.62 137.16 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
-			(at 261.62 142.748 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 261.62 140.97 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 261.62 140.97 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Connector" ""
-			(at 261.62 140.97 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "2"
-			(uuid "7be74d69-8520-4a84-a7ce-4ec8bab06270")
-		)
-		(pin "1"
-			(uuid "214206cc-5c34-418a-9fcd-a6011c479a30")
-		)
-		(instances
-			(project "pocket_synth"
-				(path "/485383b8-00f4-4405-b270-de249939cff4/161a99fc-6043-4112-9f9d-22adc5c14b53"
-					(reference "R44")
 					(unit 1)
 				)
 			)
@@ -6772,289 +4877,6 @@
 		)
 	)
 	(symbol
-		(lib_id "power:GND")
-		(at 181.61 157.48 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "abfb3cc9-782e-4edd-a34d-21ce6ccd0976")
-		(property "Reference" "#PWR0118"
-			(at 181.61 163.83 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 181.61 162.306 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 181.61 157.48 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 181.61 157.48 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 181.61 157.48 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "f25e110d-188c-48a3-941c-9ad4db1deb7a")
-		)
-		(instances
-			(project "pocket_synth"
-				(path "/485383b8-00f4-4405-b270-de249939cff4/161a99fc-6043-4112-9f9d-22adc5c14b53"
-					(reference "#PWR0118")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 254 157.48 0)
-		(mirror y)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "ac49237c-3471-45f1-b738-260980a13a8a")
-		(property "Reference" "#PWR0120"
-			(at 254 163.83 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 254 162.306 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 254 157.48 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 254 157.48 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 254 157.48 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "81b8227a-a37c-4397-97f9-639fa69d3d91")
-		)
-		(instances
-			(project "pocket_synth"
-				(path "/485383b8-00f4-4405-b270-de249939cff4/161a99fc-6043-4112-9f9d-22adc5c14b53"
-					(reference "#PWR0120")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 227.33 102.87 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "b8ae8892-c474-4f41-b26e-00d91c8c6625")
-		(property "Reference" "R47"
-			(at 227.33 96.52 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "24.9k"
-			(at 227.33 99.06 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
-			(at 227.33 104.648 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 227.33 102.87 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 227.33 102.87 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Connector" ""
-			(at 227.33 102.87 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "2"
-			(uuid "359b06dc-d4b0-4f95-b918-7f9273987286")
-		)
-		(pin "1"
-			(uuid "faf1d412-4ee5-46f7-818a-e587518aea26")
-		)
-		(instances
-			(project "pocket_synth"
-				(path "/485383b8-00f4-4405-b270-de249939cff4/161a99fc-6043-4112-9f9d-22adc5c14b53"
-					(reference "R47")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 214.63 102.87 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "c6428a79-60ed-452f-9686-c58b85e67958")
-		(property "Reference" "R46"
-			(at 214.63 96.52 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "100k"
-			(at 214.63 99.06 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
-			(at 214.63 104.648 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 214.63 102.87 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 214.63 102.87 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Connector" ""
-			(at 214.63 102.87 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "2"
-			(uuid "c4ad2122-5e2d-42ba-88fc-abf6886bb09f")
-		)
-		(pin "1"
-			(uuid "28cfac6f-5f9b-432e-88a8-41ef59398b8e")
-		)
-		(instances
-			(project "pocket_synth"
-				(path "/485383b8-00f4-4405-b270-de249939cff4/161a99fc-6043-4112-9f9d-22adc5c14b53"
-					(reference "R46")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "pocket_synth:TLP2362TPR_E")
 		(at 73.66 107.95 0)
 		(unit 1)
@@ -7137,103 +4959,6 @@
 				(path "/485383b8-00f4-4405-b270-de249939cff4/161a99fc-6043-4112-9f9d-22adc5c14b53"
 					(reference "U19")
 					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Amplifier_Operational:MCP6002-xMC")
-		(at 231.14 113.03 0)
-		(mirror x)
-		(unit 2)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "cb7fbd8b-4bad-4f17-988c-9100db076203")
-		(property "Reference" "U36"
-			(at 231.14 123.19 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "MCP6002-xMC"
-			(at 231.14 120.65 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Package_DFN_QFN:DFN-8-1EP_3x2mm_P0.5mm_EP1.75x1.45mm"
-			(at 231.14 113.03 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "http://ww1.microchip.com/downloads/en/DeviceDoc/21733j.pdf"
-			(at 231.14 113.03 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "1MHz, Low-Power Op Amp, DFN-8"
-			(at 231.14 113.03 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Connector" ""
-			(at 231.14 113.03 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "4"
-			(uuid "51688075-9e9f-442f-9d95-b09eaa00ee8a")
-		)
-		(pin "1"
-			(uuid "4365fd25-490c-43c6-8df0-92d81b9a4724")
-		)
-		(pin "8"
-			(uuid "2f2b4d58-8e5f-45ea-bd7c-741dc16eb561")
-		)
-		(pin "9"
-			(uuid "e36de4ab-7317-4284-a7b6-8f9d76b1e2b2")
-		)
-		(pin "7"
-			(uuid "551a7e26-4b1a-4c8a-a5c1-ad223266e9c6")
-		)
-		(pin "5"
-			(uuid "a0bfb238-55f2-448f-bc2d-58cdc56c1dcd")
-		)
-		(pin "3"
-			(uuid "2b34fe67-64f8-4166-b756-980198cd6765")
-		)
-		(pin "2"
-			(uuid "2c5b0750-1462-4a59-a63e-1de5509011e2")
-		)
-		(pin "6"
-			(uuid "3e66d0b6-1953-48d6-b0ed-62d3b88b5142")
-		)
-		(instances
-			(project "pocket_synth"
-				(path "/485383b8-00f4-4405-b270-de249939cff4/161a99fc-6043-4112-9f9d-22adc5c14b53"
-					(reference "U36")
-					(unit 2)
 				)
 			)
 		)
@@ -7606,71 +5331,6 @@
 		)
 	)
 	(symbol
-		(lib_id "power:GND")
-		(at 181.61 120.65 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "e7075686-4b31-4860-b7e9-6736d502c67e")
-		(property "Reference" "#PWR0122"
-			(at 181.61 127 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 181.61 125.476 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 181.61 120.65 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 181.61 120.65 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 181.61 120.65 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "cba61d49-3e28-431d-8841-70ceba3417db")
-		)
-		(instances
-			(project "pocket_synth"
-				(path "/485383b8-00f4-4405-b270-de249939cff4/161a99fc-6043-4112-9f9d-22adc5c14b53"
-					(reference "#PWR0122")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:C")
 		(at 48.26 115.57 0)
 		(mirror y)
@@ -7819,82 +5479,6 @@
 			(project "pocket_synth"
 				(path "/485383b8-00f4-4405-b270-de249939cff4/161a99fc-6043-4112-9f9d-22adc5c14b53"
 					(reference "R8")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 227.33 139.7 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "ea961fd8-a00c-4903-bd5b-d076ed0f0ca5")
-		(property "Reference" "R43"
-			(at 227.33 133.35 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "24.9k"
-			(at 227.33 135.89 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
-			(at 227.33 141.478 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 227.33 139.7 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 227.33 139.7 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Connector" ""
-			(at 227.33 139.7 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "2"
-			(uuid "7c990405-a499-468f-bc1c-35eeb0b9932a")
-		)
-		(pin "1"
-			(uuid "ab9eacaf-12b4-4780-97e2-8b19ada97c9e")
-		)
-		(instances
-			(project "pocket_synth"
-				(path "/485383b8-00f4-4405-b270-de249939cff4/161a99fc-6043-4112-9f9d-22adc5c14b53"
-					(reference "R43")
 					(unit 1)
 				)
 			)
@@ -8240,179 +5824,6 @@
 			(project "pocket_synth"
 				(path "/485383b8-00f4-4405-b270-de249939cff4/161a99fc-6043-4112-9f9d-22adc5c14b53"
 					(reference "#PWR0106")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 214.63 139.7 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "f81fef68-6e9b-454d-b41d-e9113acce6c4")
-		(property "Reference" "R45"
-			(at 214.63 133.35 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "100k"
-			(at 214.63 135.89 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
-			(at 214.63 141.478 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 214.63 139.7 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 214.63 139.7 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Connector" ""
-			(at 214.63 139.7 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "2"
-			(uuid "07e2fee1-fcaa-40b5-86fd-d142ef884b88")
-		)
-		(pin "1"
-			(uuid "4c4bb059-5cfd-46cc-b481-39a76386b78b")
-		)
-		(instances
-			(project "pocket_synth"
-				(path "/485383b8-00f4-4405-b270-de249939cff4/161a99fc-6043-4112-9f9d-22adc5c14b53"
-					(reference "R45")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Amplifier_Operational:MCP6002-xMC")
-		(at 264.16 115.57 0)
-		(mirror x)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "fd15d3d8-5e32-4cea-acdc-86b233dcf43d")
-		(property "Reference" "U36"
-			(at 264.16 125.73 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "MCP6002-xMC"
-			(at 264.16 123.19 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Package_DFN_QFN:DFN-8-1EP_3x2mm_P0.5mm_EP1.75x1.45mm"
-			(at 264.16 115.57 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "http://ww1.microchip.com/downloads/en/DeviceDoc/21733j.pdf"
-			(at 264.16 115.57 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "1MHz, Low-Power Op Amp, DFN-8"
-			(at 264.16 115.57 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Connector" ""
-			(at 264.16 115.57 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "4"
-			(uuid "51688075-9e9f-442f-9d95-b09eaa00ee8b")
-		)
-		(pin "1"
-			(uuid "11087015-a96e-4725-b2eb-dd1406b0220e")
-		)
-		(pin "8"
-			(uuid "2f2b4d58-8e5f-45ea-bd7c-741dc16eb562")
-		)
-		(pin "9"
-			(uuid "e36de4ab-7317-4284-a7b6-8f9d76b1e2b3")
-		)
-		(pin "7"
-			(uuid "4612075b-5433-482c-9d38-af846fae3d0f")
-		)
-		(pin "5"
-			(uuid "65b7d7ec-95e2-44bf-811c-ff3422cdfc65")
-		)
-		(pin "3"
-			(uuid "d85dd47e-af8f-4d88-9f76-341aac668c8c")
-		)
-		(pin "2"
-			(uuid "91b7d157-57c1-4fd3-b1ca-ecfacfa838d7")
-		)
-		(pin "6"
-			(uuid "1829e71a-be55-4453-9bfe-e204cd6f8de4")
-		)
-		(instances
-			(project "pocket_synth"
-				(path "/485383b8-00f4-4405-b270-de249939cff4/161a99fc-6043-4112-9f9d-22adc5c14b53"
-					(reference "U36")
 					(unit 1)
 				)
 			)
