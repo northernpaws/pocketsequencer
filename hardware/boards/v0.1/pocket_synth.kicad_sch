@@ -722,6 +722,16 @@
 		)
 		(uuid "06f2bd0e-c83c-4d60-8563-78046c483970")
 	)
+	(bus
+		(pts
+			(xy 57.15 72.39) (xy 72.39 72.39)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "08080e44-b80e-4341-ab24-83e24201b814")
+	)
 	(wire
 		(pts
 			(xy 29.21 185.42) (xy 29.21 187.96)
@@ -2400,7 +2410,7 @@
 				(justify left)
 			)
 		)
-		(pin "{AUDIO_UART}" output
+		(pin "{AUDIO_UART}" bidirectional
 			(at 72.39 64.77 180)
 			(uuid "112704e5-4242-4291-989e-66f8032ee235")
 			(effects
@@ -2578,6 +2588,16 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
+			)
+		)
+		(pin "WIFI{UART}" bidirectional
+			(at 72.39 72.39 180)
+			(uuid "76b41d4f-e8a5-4d04-bd36-26973e82012a")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
 			)
 		)
 		(instances
@@ -2819,9 +2839,19 @@
 				(justify right)
 			)
 		)
-		(pin "{AUDIO_UART}" input
+		(pin "{AUDIO_UART}" bidirectional
 			(at 57.15 64.77 0)
 			(uuid "091f4f2c-6b4e-4208-a4bb-31859888c16a")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "WIFI{UART}" bidirectional
+			(at 57.15 72.39 0)
+			(uuid "b010f45f-e17b-4acb-8096-b0b243412119")
 			(effects
 				(font
 					(size 1.27 1.27)

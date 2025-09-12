@@ -60,6 +60,14 @@
       ],
       "drc_exclusions": [
         [
+          "clearance|82879901|48500000|e09563ce-c6cb-491c-bfb2-9f8db5673878|7a9335ab-aa2c-4fef-a59e-f0b0351acd25",
+          ""
+        ],
+        [
+          "clearance|82879901|76399994|f6fcbd76-70e0-47cc-81c3-a89cf438f016|dc20ccdf-5ef9-4319-8a7c-49fae5f650aa",
+          ""
+        ],
+        [
           "lib_footprint_mismatch|39062500|107338500|058000c2-8477-4f2c-a6e5-65c6840b61df|00000000-0000-0000-0000-000000000000",
           ""
         ],

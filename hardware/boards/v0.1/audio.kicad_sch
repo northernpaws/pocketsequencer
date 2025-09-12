@@ -3791,19 +3791,6 @@
 		)
 		(uuid "489dbff4-79cc-4677-819c-1e29063dc0f4")
 	)
-	(text "TODO: rclk clock"
-		(exclude_from_sim no)
-		(at 245.618 136.652 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-				(thickness 0.254)
-				(bold yes)
-				(color 194 0 0 1)
-			)
-		)
-		(uuid "4de5577a-e91b-46bd-bf91-e58b2ed0432e")
-	)
 	(text "Audio CODEC"
 		(exclude_from_sim no)
 		(at 13.208 13.97 0)
