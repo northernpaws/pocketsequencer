@@ -5680,7 +5680,7 @@
 		)
 		(uuid "887da179-147e-419b-bd03-faafe98cc84a")
 	)
-	(hierarchical_label "{I2C}"
+	(hierarchical_label "I2C2{I2C}"
 		(shape input)
 		(at 40.64 30.48 90)
 		(effects

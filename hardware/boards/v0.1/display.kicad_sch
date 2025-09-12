@@ -1860,6 +1860,18 @@
 		)
 		(uuid "3db88226-b556-4f45-97e1-c2600f2eb64b")
 	)
+	(text "Selects 8080 parallel\n6-bit bus mode"
+		(exclude_from_sim no)
+		(at 106.68 41.656 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+				(color 132 132 132 1)
+			)
+			(justify left)
+		)
+		(uuid "a97f430b-e92c-4c8d-b22e-74209f6e0478")
+	)
 	(text "TODO: doubt check connections"
 		(exclude_from_sim no)
 		(at 66.294 83.566 0)
@@ -1931,6 +1943,12 @@
 		(uuid "84f74634-96a0-4090-b362-db2a69ee0eed")
 	)
 	(junction
+		(at 102.87 33.02)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "8819f35e-7414-493b-8967-de8c855f63f5")
+	)
+	(junction
 		(at 95.25 82.55)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -1971,6 +1989,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "df6121de-1575-4806-b94b-bef07a6ba33c")
+	)
+	(junction
+		(at 102.87 35.56)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "e02c9bee-94a0-4f9b-aeaf-1a2041790ed5")
 	)
 	(junction
 		(at 95.25 77.47)
@@ -2256,6 +2280,16 @@
 	)
 	(wire
 		(pts
+			(xy 105.41 30.48) (xy 102.87 30.48)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1384f71f-5a23-418f-963d-e995f3aa1098")
+	)
+	(wire
+		(pts
 			(xy 67.31 128.27) (xy 67.31 130.81)
 		)
 		(stroke
@@ -2263,6 +2297,16 @@
 			(type default)
 		)
 		(uuid "13ad79d2-95d4-4cb5-a6f1-de9369122789")
+	)
+	(wire
+		(pts
+			(xy 114.3 27.94) (xy 114.3 38.1)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "17a96fdd-ceb0-42ee-b707-01d9f61c66ef")
 	)
 	(bus
 		(pts
@@ -2483,6 +2527,16 @@
 			(type default)
 		)
 		(uuid "44fb360a-e897-4e95-81d7-f00c38d1fe0e")
+	)
+	(wire
+		(pts
+			(xy 105.41 38.1) (xy 114.3 38.1)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "496bb849-7630-42c0-a931-97c43e4ed55b")
 	)
 	(wire
 		(pts
@@ -2926,6 +2980,16 @@
 	)
 	(wire
 		(pts
+			(xy 102.87 33.02) (xy 102.87 35.56)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b0405772-8789-485d-a518-288e8272037c")
+	)
+	(wire
+		(pts
 			(xy 95.25 80.01) (xy 95.25 82.55)
 		)
 		(stroke
@@ -2996,6 +3060,16 @@
 	)
 	(wire
 		(pts
+			(xy 102.87 35.56) (xy 102.87 38.1)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c1891158-337d-4198-860c-1e240df9ee76")
+	)
+	(wire
+		(pts
 			(xy 92.71 60.96) (xy 95.25 60.96)
 		)
 		(stroke
@@ -3003,6 +3077,16 @@
 			(type default)
 		)
 		(uuid "c1c3f226-9381-4af9-a7fc-48e50cb5805e")
+	)
+	(wire
+		(pts
+			(xy 102.87 30.48) (xy 102.87 33.02)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c1f21a94-2640-417b-af0a-5dec9f8eb5e0")
 	)
 	(wire
 		(pts
@@ -3023,6 +3107,16 @@
 			(type default)
 		)
 		(uuid "c5cc4463-96ba-4ff8-b82c-87078134276b")
+	)
+	(wire
+		(pts
+			(xy 102.87 35.56) (xy 105.41 35.56)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c758668a-e298-4687-8fba-5ec8f7babf49")
 	)
 	(wire
 		(pts
@@ -3193,6 +3287,16 @@
 			(type default)
 		)
 		(uuid "e88d8056-d591-412b-a21e-28451da957de")
+	)
+	(wire
+		(pts
+			(xy 102.87 33.02) (xy 105.41 33.02)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e9c2c0ad-6093-45f9-9411-954c1016fc98")
 	)
 	(wire
 		(pts
@@ -3404,6 +3508,16 @@
 		)
 		(uuid "8f9a59d1-872b-4c1e-b630-22d3a7e5f121")
 	)
+	(label "MODE0"
+		(at 105.41 30.48 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "a868ed82-c5aa-4deb-b2b9-b5d5f542c2b8")
+	)
 	(label "FMC.D12"
 		(at 38.1 93.98 180)
 		(effects
@@ -3484,6 +3598,16 @@
 		)
 		(uuid "be0c76a0-a17c-48b4-883a-bae2857875e7")
 	)
+	(label "MODE2"
+		(at 105.41 35.56 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "be59c685-fb70-4526-9a49-0270c5d4c1cc")
+	)
 	(label "FMC.D6"
 		(at 38.1 78.74 180)
 		(effects
@@ -3493,6 +3617,16 @@
 			(justify right bottom)
 		)
 		(uuid "bf0d737c-d5ce-44a1-886b-7eca81c1b7e9")
+	)
+	(label "MODE3"
+		(at 105.41 38.1 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "c610fb43-f219-47ed-900d-e80592537340")
 	)
 	(label "MODE2"
 		(at 95.25 63.5 0)
@@ -3513,6 +3647,16 @@
 			(justify right bottom)
 		)
 		(uuid "ee57c44f-bdfd-4c63-8264-6b5e117e2a88")
+	)
+	(label "MODE1"
+		(at 105.41 33.02 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "ffaa9825-fbf8-4726-abe3-b6a853e659ea")
 	)
 	(hierarchical_label "TOUCH_INT"
 		(shape output)
@@ -4205,6 +4349,72 @@
 		)
 	)
 	(symbol
+		(lib_id "power:+3.3V")
+		(at 114.3 27.94 0)
+		(mirror y)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "337453d6-717d-4142-835b-7dbeeeed3770")
+		(property "Reference" "#PWR0118"
+			(at 114.3 31.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+3.3V"
+			(at 114.3 23.622 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 114.3 27.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 114.3 27.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+3.3V\""
+			(at 114.3 27.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "e3d119e3-cbf6-4004-88b2-bccac1f64bdd")
+		)
+		(instances
+			(project "pocket_synth"
+				(path "/485383b8-00f4-4405-b270-de249939cff4/f0d5f3c5-7c53-4584-b479-82b3ef9bea09"
+					(reference "#PWR0118")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:C_Small")
 		(at 58.42 33.02 0)
 		(mirror y)
@@ -4390,6 +4600,71 @@
 			(project "pocket_synth"
 				(path "/485383b8-00f4-4405-b270-de249939cff4/f0d5f3c5-7c53-4584-b479-82b3ef9bea09"
 					(reference "#PWR030")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 102.87 38.1 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "91befb3f-fa15-4f08-9e1d-6249a4369ca1")
+		(property "Reference" "#PWR0117"
+			(at 102.87 44.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 102.87 42.164 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 102.87 38.1 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 102.87 38.1 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 102.87 38.1 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "d578a1dc-de32-455c-80bb-ca71ffb4b961")
+		)
+		(instances
+			(project "pocket_synth"
+				(path "/485383b8-00f4-4405-b270-de249939cff4/f0d5f3c5-7c53-4584-b479-82b3ef9bea09"
+					(reference "#PWR0117")
 					(unit 1)
 				)
 			)
