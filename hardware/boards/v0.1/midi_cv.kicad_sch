@@ -729,6 +729,113 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "Connector:TestPoint"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0.762)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "TP"
+				(at 0 6.858 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "TestPoint"
+				(at 0 5.08 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 5.08 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 5.08 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "test point"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "test point tp"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "Pin* Test*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "TestPoint_0_1"
+				(circle
+					(center 0 3.302)
+					(radius 0.762)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "TestPoint_1_1"
+				(pin passive line
+					(at 0 0 90)
+					(length 2.54)
+					(name "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "Connector_Audio:AudioJack3"
 			(exclude_from_sim no)
 			(in_bom yes)
@@ -2541,6 +2648,12 @@
 		(uuid "ff179960-9762-4748-8af3-32b8b4768782")
 	)
 	(junction
+		(at 54.61 49.53)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "1de64015-3c15-42b2-a61b-f52e534f4e9d")
+	)
+	(junction
 		(at 105.41 85.09)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -2565,10 +2678,22 @@
 		(uuid "42e14801-acae-43fe-9136-3b1377910b9b")
 	)
 	(junction
+		(at 133.35 129.54)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "57eb15a3-50da-4a74-80f0-0b0974154f35")
+	)
+	(junction
 		(at 76.2 118.11)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "7cc2e7ae-e3cd-4c10-a740-5c3fd3be42e0")
+	)
+	(junction
+		(at 129.54 110.49)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "a7cf8bfc-73c1-403a-bb9f-6b1ae0ff5eb9")
 	)
 	(junction
 		(at 76.2 107.95)
@@ -2654,7 +2779,7 @@
 	)
 	(wire
 		(pts
-			(xy 127 115.57) (xy 129.54 115.57)
+			(xy 127 115.57) (xy 132.08 115.57)
 		)
 		(stroke
 			(width 0)
@@ -2751,6 +2876,16 @@
 			(type default)
 		)
 		(uuid "34d60add-28a6-4ff2-aae0-7d72328bfd81")
+	)
+	(wire
+		(pts
+			(xy 129.54 110.49) (xy 132.08 110.49)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3830f333-f7d5-42f0-b6f5-8ce333460561")
 	)
 	(wire
 		(pts
@@ -2851,6 +2986,16 @@
 			(type default)
 		)
 		(uuid "5c8975fa-5689-4ae2-b7f5-e4057d57c3d4")
+	)
+	(wire
+		(pts
+			(xy 54.61 49.53) (xy 57.15 49.53)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5db54f48-6e5d-4ee8-a276-a9581df168e5")
 	)
 	(wire
 		(pts
@@ -2964,7 +3109,17 @@
 	)
 	(wire
 		(pts
-			(xy 54.61 54.61) (xy 57.15 54.61)
+			(xy 54.61 46.99) (xy 54.61 49.53)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9645e2ba-f216-42af-bc72-82f33c103b50")
+	)
+	(wire
+		(pts
+			(xy 52.07 54.61) (xy 57.15 54.61)
 		)
 		(stroke
 			(width 0)
@@ -3001,6 +3156,16 @@
 			(type default)
 		)
 		(uuid "a78e4674-c871-4860-95ab-88f45bce9f5f")
+	)
+	(wire
+		(pts
+			(xy 133.35 129.54) (xy 135.89 129.54)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "aa05666c-9b54-4ff7-a19b-cb4d750d2241")
 	)
 	(wire
 		(pts
@@ -3124,7 +3289,7 @@
 	)
 	(wire
 		(pts
-			(xy 54.61 49.53) (xy 57.15 49.53)
+			(xy 52.07 49.53) (xy 54.61 49.53)
 		)
 		(stroke
 			(width 0)
@@ -3184,6 +3349,16 @@
 	)
 	(wire
 		(pts
+			(xy 129.54 107.95) (xy 129.54 110.49)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fbd4e1ef-0055-4499-9f6b-1b13640205ab")
+	)
+	(wire
+		(pts
 			(xy 133.35 139.7) (xy 133.35 142.24)
 		)
 		(stroke
@@ -3213,7 +3388,7 @@
 		(uuid "ff48eec2-788a-4784-9261-0a63542e0921")
 	)
 	(label "MIDI_THRU"
-		(at 54.61 54.61 180)
+		(at 52.07 54.61 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3223,7 +3398,7 @@
 		(uuid "4c7e6026-4c8f-41eb-8458-ac845e67fdfd")
 	)
 	(label "MIDI_THRU"
-		(at 129.54 115.57 0)
+		(at 132.08 115.57 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3255,8 +3430,8 @@
 		(uuid "39a89015-b849-462a-99e5-de43e706c20b")
 	)
 	(hierarchical_label "MIDI_RX"
-		(shape input)
-		(at 129.54 110.49 0)
+		(shape output)
+		(at 132.08 110.49 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3279,7 +3454,7 @@
 	)
 	(hierarchical_label "MIDI_TX"
 		(shape input)
-		(at 54.61 49.53 180)
+		(at 52.07 49.53 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4136,6 +4311,72 @@
 		)
 	)
 	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 135.89 129.54 270)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "702a4b42-b330-4ed8-917f-7598c06741c3")
+		(property "Reference" "TP29"
+			(at 140.462 128.524 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "MIDI_THRU_EN"
+			(at 140.462 130.556 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+			(at 135.89 134.62 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 135.89 134.62 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "test point"
+			(at 135.89 129.54 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "bf9381b0-5610-4b1c-9f8f-1f449327294c")
+		)
+		(instances
+			(project "pocket_synth"
+				(path "/485383b8-00f4-4405-b270-de249939cff4/161a99fc-6043-4112-9f9d-22adc5c14b53"
+					(reference "TP29")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Analog_Switch:TS5A23159RSE")
 		(at 158.75 111.76 0)
 		(mirror y)
@@ -4502,6 +4743,70 @@
 			(project "pocket_synth"
 				(path "/485383b8-00f4-4405-b270-de249939cff4/161a99fc-6043-4112-9f9d-22adc5c14b53"
 					(reference "R40")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 54.61 46.99 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "7876f6de-7ff1-474f-8edd-198ef631c3b7")
+		(property "Reference" "TP27"
+			(at 54.61 39.116 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "MIDI_TX"
+			(at 54.61 41.402 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+			(at 59.69 46.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 59.69 46.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "test point"
+			(at 54.61 46.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "182f03f6-d815-416a-93c0-49c2a61aeea4")
+		)
+		(instances
+			(project "pocket_synth"
+				(path "/485383b8-00f4-4405-b270-de249939cff4/161a99fc-6043-4112-9f9d-22adc5c14b53"
+					(reference "TP27")
 					(unit 1)
 				)
 			)
@@ -5325,6 +5630,70 @@
 			(project "pocket_synth"
 				(path "/485383b8-00f4-4405-b270-de249939cff4/161a99fc-6043-4112-9f9d-22adc5c14b53"
 					(reference "#PWR0114")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 129.54 107.95 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "dde6cb7f-fcd6-4777-ba72-f9785c7adfe7")
+		(property "Reference" "TP28"
+			(at 129.54 100.076 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "MIDI_RX"
+			(at 129.54 102.362 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+			(at 134.62 107.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 134.62 107.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "test point"
+			(at 129.54 107.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "16880811-7380-409b-836e-6a119192a51f")
+		)
+		(instances
+			(project "pocket_synth"
+				(path "/485383b8-00f4-4405-b270-de249939cff4/161a99fc-6043-4112-9f9d-22adc5c14b53"
+					(reference "TP28")
 					(unit 1)
 				)
 			)
