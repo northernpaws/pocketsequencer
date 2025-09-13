@@ -32919,10 +32919,6 @@
 		(uuid "1dba9f5a-cf3a-4342-a19d-026ceb5c1576")
 	)
 	(no_connect
-		(at 195.58 80.01)
-		(uuid "29dff9ec-8dc3-4d91-941d-0f8fbb0c5c98")
-	)
-	(no_connect
 		(at 195.58 55.88)
 		(uuid "2c45660c-36ef-44bb-897f-fa7acdd8c760")
 	)
@@ -32949,10 +32945,6 @@
 	(no_connect
 		(at 260.35 137.16)
 		(uuid "63c71737-da67-442f-937a-9b70981e3a77")
-	)
-	(no_connect
-		(at 195.58 82.55)
-		(uuid "68548157-c670-4d54-a7a1-0f530380262c")
 	)
 	(no_connect
 		(at 195.58 160.02)
@@ -35619,7 +35611,7 @@
 	)
 	(wire
 		(pts
-			(xy 139.7 127) (xy 142.24 127)
+			(xy 185.42 82.55) (xy 195.58 82.55)
 		)
 		(stroke
 			(width 0)
@@ -36389,7 +36381,7 @@
 	)
 	(wire
 		(pts
-			(xy 139.7 124.46) (xy 142.24 124.46)
+			(xy 185.42 80.01) (xy 195.58 80.01)
 		)
 		(stroke
 			(width 0)
@@ -38596,7 +38588,7 @@
 	)
 	(hierarchical_label "TOUCH_INT"
 		(shape input)
-		(at 139.7 127 180)
+		(at 185.42 82.55 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -38607,7 +38599,7 @@
 	)
 	(hierarchical_label "TOUCH_RST"
 		(shape output)
-		(at 139.7 124.46 180)
+		(at 185.42 80.01 180)
 		(effects
 			(font
 				(size 1.27 1.27)
