@@ -4047,7 +4047,7 @@
 		)
 		(uuid "ed48dcd4-5675-49f4-a36b-ab3a3241ea55")
 	)
-	(text "Bluetooth Module"
+	(text "Bluetooth Module (nRF5340)"
 		(exclude_from_sim no)
 		(at 13.462 14.224 0)
 		(effects
