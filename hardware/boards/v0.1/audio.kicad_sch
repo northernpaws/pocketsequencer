@@ -6938,16 +6938,6 @@
 		)
 		(uuid "543f69a1-dd8b-4df3-b4a4-3bf05d1bda9a")
 	)
-	(label "AUDIO_LOUT"
-		(at 243.84 40.64 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "5c60618a-648a-490a-9887-4d1b594f3c2e")
-	)
 	(label "MIC_OUT"
 		(at 62.23 171.45 0)
 		(effects
@@ -7038,6 +7028,16 @@
 		)
 		(uuid "af048261-f6b7-4905-b708-a79276d1d2c5")
 	)
+	(label "FM_LOUT"
+		(at 243.84 40.64 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "c38f33c1-8ab0-42d0-bf28-b1979868b6a4")
+	)
 	(label "MIC_R"
 		(at 165.1 125.73 0)
 		(effects
@@ -7098,7 +7098,7 @@
 		)
 		(uuid "ed7b139d-c4f0-4c90-80d5-d328f036a0b2")
 	)
-	(label "AUDIO_LOUT"
+	(label "FM_LOUT"
 		(at 57.15 83.82 180)
 		(effects
 			(font
@@ -11666,7 +11666,7 @@
 	)
 	(symbol
 		(lib_id "Connector:TestPoint")
-		(at 161.29 132.08 90)
+		(at 161.29 125.73 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -11674,72 +11674,6 @@
 		(dnp no)
 		(uuid "a450c077-1221-43a9-a4a8-a394ac7ec641")
 		(property "Reference" "TP40"
-			(at 156.718 130.81 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "MIC_R"
-			(at 156.718 133.35 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
-			(at 161.29 127 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 161.29 127 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "test point"
-			(at 161.29 132.08 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "2e6bb1ea-0a0e-4a15-9d71-713cdf13dacb")
-		)
-		(instances
-			(project "pocket_synth"
-				(path "/485383b8-00f4-4405-b270-de249939cff4/ac7a2cd5-8a17-4132-a50f-a1edfbc58e6d"
-					(reference "TP40")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Connector:TestPoint")
-		(at 161.29 125.73 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "a588b633-8d03-43da-bb4e-5736c29bd761")
-		(property "Reference" "TP39"
 			(at 156.718 124.46 90)
 			(effects
 				(font
@@ -11748,7 +11682,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "AUX_R"
+		(property "Value" "MIC_R"
 			(at 156.718 127 90)
 			(effects
 				(font
@@ -11777,6 +11711,72 @@
 		)
 		(property "Description" "test point"
 			(at 161.29 125.73 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "2e6bb1ea-0a0e-4a15-9d71-713cdf13dacb")
+		)
+		(instances
+			(project "pocket_synth"
+				(path "/485383b8-00f4-4405-b270-de249939cff4/ac7a2cd5-8a17-4132-a50f-a1edfbc58e6d"
+					(reference "TP40")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 161.29 132.08 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "a588b633-8d03-43da-bb4e-5736c29bd761")
+		(property "Reference" "TP39"
+			(at 156.718 130.81 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "AUX_R"
+			(at 156.718 133.35 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+			(at 161.29 127 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 161.29 127 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "test point"
+			(at 161.29 132.08 0)
 			(effects
 				(font
 					(size 1.27 1.27)
