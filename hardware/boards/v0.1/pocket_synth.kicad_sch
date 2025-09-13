@@ -693,7 +693,7 @@
 		(uuid "ba5e0a48-ea45-44a4-89e9-76c945c867f9")
 	)
 	(junction
-		(at 125.73 83.82)
+		(at 125.73 86.36)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "f569c9eb-e0d2-4e3a-85f2-7cb8c9b6e25a")
@@ -760,7 +760,7 @@
 	)
 	(bus
 		(pts
-			(xy 129.54 73.66) (xy 125.73 77.47)
+			(xy 129.54 74.93) (xy 125.73 78.74)
 		)
 		(stroke
 			(width 0)
@@ -777,6 +777,16 @@
 			(type default)
 		)
 		(uuid "1fc5aa27-1ca5-44e6-a85c-270ab6974dcf")
+	)
+	(wire
+		(pts
+			(xy 57.15 91.44) (xy 72.39 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "20d8cc6e-47a5-47ad-82f9-7c74e7208688")
 	)
 	(wire
 		(pts
@@ -830,23 +840,13 @@
 	)
 	(wire
 		(pts
-			(xy 110.49 125.73) (xy 138.43 125.73)
+			(xy 110.49 128.27) (xy 138.43 128.27)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "39cb954c-6c72-401f-bb31-b3967cb7d4c2")
-	)
-	(bus
-		(pts
-			(xy 138.43 73.66) (xy 129.54 73.66)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3a483ca8-3807-4966-ae59-7cd6034be396")
 	)
 	(bus
 		(pts
@@ -868,9 +868,19 @@
 		)
 		(uuid "46490d0d-cf75-453b-9ae1-60f15c0c6bf1")
 	)
+	(wire
+		(pts
+			(xy 110.49 93.98) (xy 138.43 93.98)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4af6354d-c303-4124-8eba-411b90896df5")
+	)
 	(bus
 		(pts
-			(xy 110.49 83.82) (xy 125.73 83.82)
+			(xy 110.49 86.36) (xy 125.73 86.36)
 		)
 		(stroke
 			(width 0)
@@ -897,6 +907,16 @@
 			(type default)
 		)
 		(uuid "4c6ac539-778c-4907-86f8-17adf37b8603")
+	)
+	(bus
+		(pts
+			(xy 129.54 74.93) (xy 138.43 74.93)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4def4327-8d8e-4747-a3ee-33a9f0d825c7")
 	)
 	(bus
 		(pts
@@ -940,7 +960,7 @@
 	)
 	(wire
 		(pts
-			(xy 110.49 138.43) (xy 138.43 138.43)
+			(xy 110.49 140.97) (xy 138.43 140.97)
 		)
 		(stroke
 			(width 0)
@@ -980,17 +1000,7 @@
 	)
 	(bus
 		(pts
-			(xy 110.49 87.63) (xy 138.43 87.63)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7dce323b-4e3d-40c3-b75a-07ea3432798f")
-	)
-	(bus
-		(pts
-			(xy 110.49 106.68) (xy 138.43 106.68)
+			(xy 110.49 109.22) (xy 138.43 109.22)
 		)
 		(stroke
 			(width 0)
@@ -1048,6 +1058,16 @@
 		)
 		(uuid "97c32230-25f5-42b0-82b1-fd237320e8a7")
 	)
+	(wire
+		(pts
+			(xy 110.49 33.02) (xy 138.43 33.02)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9d0c9eae-cbf0-44a7-a642-96e7271a9bf1")
+	)
 	(bus
 		(pts
 			(xy 57.15 68.58) (xy 72.39 68.58)
@@ -1100,7 +1120,7 @@
 	)
 	(wire
 		(pts
-			(xy 110.49 142.24) (xy 138.43 142.24)
+			(xy 110.49 144.78) (xy 138.43 144.78)
 		)
 		(stroke
 			(width 0)
@@ -1130,7 +1150,7 @@
 	)
 	(bus
 		(pts
-			(xy 110.49 110.49) (xy 138.43 110.49)
+			(xy 110.49 113.03) (xy 138.43 113.03)
 		)
 		(stroke
 			(width 0)
@@ -1140,7 +1160,7 @@
 	)
 	(bus
 		(pts
-			(xy 125.73 83.82) (xy 138.43 83.82)
+			(xy 125.73 86.36) (xy 138.43 86.36)
 		)
 		(stroke
 			(width 0)
@@ -1170,16 +1190,6 @@
 	)
 	(wire
 		(pts
-			(xy 57.15 120.65) (xy 72.39 120.65)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ef310874-5b0a-46e7-aa11-e2d3e82278cd")
-	)
-	(wire
-		(pts
 			(xy 80.01 175.26) (xy 80.01 187.96)
 		)
 		(stroke
@@ -1190,7 +1200,17 @@
 	)
 	(bus
 		(pts
-			(xy 125.73 77.47) (xy 125.73 83.82)
+			(xy 57.15 115.57) (xy 59.69 115.57)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fe6eb50f-6034-43a3-a449-58d2c8fca116")
+	)
+	(bus
+		(pts
+			(xy 125.73 78.74) (xy 125.73 86.36)
 		)
 		(stroke
 			(width 0)
@@ -1209,7 +1229,7 @@
 		)
 		(uuid "116beacd-fc5c-42df-a696-d69a6e45fd29")
 	)
-	(label "I2C2{I2C}"
+	(label "I2C4{I2C}"
 		(at 133.35 59.69 180)
 		(effects
 			(font
@@ -1221,7 +1241,7 @@
 		(uuid "6837c862-c9cd-47c2-b2a7-35006cf844a7")
 	)
 	(label "I2C4{I2C}"
-		(at 113.03 83.82 0)
+		(at 112.9074 85.2914 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1251,6 +1271,17 @@
 			(justify left bottom)
 		)
 		(uuid "c21a7c55-49f4-47a3-bda9-2eec3c147b37")
+	)
+	(label "I2C4{I2C}"
+		(at 59.69 115.57 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.1588)
+			)
+			(justify left bottom)
+		)
+		(uuid "ebb51c8c-77c8-437a-848a-4f1b619632c9")
 	)
 	(symbol
 		(lib_id "power:GNDPWR")
@@ -2476,7 +2507,7 @@
 			)
 		)
 		(pin "MIC_SELECT" output
-			(at 110.49 125.73 0)
+			(at 110.49 128.27 0)
 			(uuid "3b41f227-e9de-4676-82c2-6b79a3c11bb2")
 			(effects
 				(font
@@ -2546,7 +2577,7 @@
 			)
 		)
 		(pin "CODEC{I2S}" output
-			(at 110.49 110.49 0)
+			(at 110.49 113.03 0)
 			(uuid "5724c0e2-a4c3-4306-a208-7aa60519e808")
 			(effects
 				(font
@@ -2575,18 +2606,8 @@
 				(justify right)
 			)
 		)
-		(pin "{VELOCITY}" output
-			(at 110.49 87.63 0)
-			(uuid "e0433832-5f2b-4de0-bd8e-0efc89e8f2c5")
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
 		(pin "MIDI_RX" input
-			(at 110.49 138.43 0)
+			(at 110.49 140.97 0)
 			(uuid "e03bdb2f-b9ed-4e6d-9da7-4a3e297ec7b1")
 			(effects
 				(font
@@ -2596,7 +2617,7 @@
 			)
 		)
 		(pin "MIDI_TX" output
-			(at 110.49 142.24 0)
+			(at 110.49 144.78 0)
 			(uuid "e6e50e00-bdbf-48b6-a488-e1ffef0bdab2")
 			(effects
 				(font
@@ -2615,18 +2636,8 @@
 				(justify left)
 			)
 		)
-		(pin "9DOF_INT2" input
-			(at 72.39 120.65 180)
-			(uuid "1e02ba66-f817-4601-97ff-ab82bec46b61")
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
 		(pin "I2C1{I2C}" output
-			(at 110.49 106.68 0)
+			(at 110.49 109.22 0)
 			(uuid "0cd18411-4656-401d-9929-593d4f6ca5b4")
 			(effects
 				(font
@@ -2646,13 +2657,43 @@
 			)
 		)
 		(pin "I2C4{I2C}" output
-			(at 110.49 83.82 0)
+			(at 110.49 86.36 0)
 			(uuid "95d5bc55-8b19-4eee-b961-af30cd5fa289")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify right)
+			)
+		)
+		(pin "KEYPAD_INT" input
+			(at 110.49 93.98 0)
+			(uuid "f78f9074-39c0-4bf0-b0d8-c313c6064573")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "SD_CS" output
+			(at 110.49 33.02 0)
+			(uuid "44a25922-44ed-4575-ae70-b4271bd7243b")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "LED_DIN" output
+			(at 72.39 91.44 180)
+			(uuid "ee17927e-693a-4a85-a1ee-a9e5dcdf6323")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
 			)
 		)
 		(instances
@@ -2664,8 +2705,8 @@
 		)
 	)
 	(sheet
-		(at 138.43 135.89)
-		(size 31.75 20.32)
+		(at 138.43 138.43)
+		(size 25.4 15.24)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
@@ -2680,7 +2721,7 @@
 		)
 		(uuid "161a99fc-6043-4112-9f9d-22adc5c14b53")
 		(property "Sheetname" "MIDI"
-			(at 138.43 135.1784 0)
+			(at 138.43 137.7184 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2689,7 +2730,7 @@
 			)
 		)
 		(property "Sheetfile" "midi_cv.kicad_sch"
-			(at 138.43 156.7946 0)
+			(at 138.43 154.2546 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2699,7 +2740,7 @@
 			)
 		)
 		(pin "MIDI_RX" output
-			(at 138.43 138.43 180)
+			(at 138.43 140.97 180)
 			(uuid "4c363d4b-1c5e-42c0-b2a2-1a68fe6558be")
 			(effects
 				(font
@@ -2709,7 +2750,7 @@
 			)
 		)
 		(pin "MIDI_THRU_EN" input
-			(at 138.43 149.86 180)
+			(at 138.43 148.59 180)
 			(uuid "5d6ec538-f326-4d11-abdd-d492bef25d28")
 			(effects
 				(font
@@ -2719,7 +2760,7 @@
 			)
 		)
 		(pin "MIDI_TX" input
-			(at 138.43 142.24 180)
+			(at 138.43 144.78 180)
 			(uuid "8076cf2c-9327-41ef-bd65-e02e27e68f4f")
 			(effects
 				(font
@@ -2914,6 +2955,16 @@
 				(justify right)
 			)
 		)
+		(pin "~{WIFI_EN}" input
+			(at 57.15 76.2 0)
+			(uuid "bfab5349-f325-4f32-aa32-6075016b3604")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
 		(instances
 			(project "pocket_synth"
 				(path "/485383b8-00f4-4405-b270-de249939cff4"
@@ -2923,7 +2974,7 @@
 		)
 	)
 	(sheet
-		(at 138.43 81.28)
+		(at 138.43 83.82)
 		(size 25.4 17.78)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -2939,7 +2990,7 @@
 		)
 		(uuid "7f1ac839-494f-4521-b63e-5606a3cb7bc9")
 		(property "Sheetname" "Keypad"
-			(at 138.43 80.5684 0)
+			(at 138.43 83.1084 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2948,7 +2999,7 @@
 			)
 		)
 		(property "Sheetfile" "keypad.kicad_sch"
-			(at 138.43 99.6446 0)
+			(at 138.43 102.1846 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2957,8 +3008,8 @@
 				(hide yes)
 			)
 		)
-		(pin "KEYPAD_INT" input
-			(at 138.43 91.44 180)
+		(pin "KEYPAD_INT" output
+			(at 138.43 93.98 180)
 			(uuid "bbedc51a-ef5d-4d40-8220-d584574a93c0")
 			(effects
 				(font
@@ -2967,18 +3018,8 @@
 				(justify left)
 			)
 		)
-		(pin "{VELOCITY}" input
-			(at 138.43 87.63 180)
-			(uuid "c61b20d1-058f-4889-858c-0af905cc2db8")
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
 		(pin "I2C4{I2C}" input
-			(at 138.43 83.82 180)
+			(at 138.43 86.36 180)
 			(uuid "5e72bffc-47bb-4eb0-9f98-e59253d8668b")
 			(effects
 				(font
@@ -2996,7 +3037,7 @@
 		)
 	)
 	(sheet
-		(at 138.43 104.14)
+		(at 138.43 106.68)
 		(size 25.4 26.67)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -3012,7 +3053,7 @@
 		)
 		(uuid "ac7a2cd5-8a17-4132-a50f-a1edfbc58e6d")
 		(property "Sheetname" "Audio"
-			(at 138.43 103.4284 0)
+			(at 138.43 105.9684 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3021,7 +3062,7 @@
 			)
 		)
 		(property "Sheetfile" "audio.kicad_sch"
-			(at 138.43 131.3946 0)
+			(at 138.43 133.9346 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3031,7 +3072,7 @@
 			)
 		)
 		(pin "I2C1{I2C}" input
-			(at 138.43 106.68 180)
+			(at 138.43 109.22 180)
 			(uuid "bdb9ec9d-cb3c-4566-a3ad-c07bc8f93f7c")
 			(effects
 				(font
@@ -3041,7 +3082,7 @@
 			)
 		)
 		(pin "MIC_SELECT" input
-			(at 138.43 125.73 180)
+			(at 138.43 128.27 180)
 			(uuid "37451544-608f-41a2-b37a-580abb35e0eb")
 			(effects
 				(font
@@ -3051,7 +3092,7 @@
 			)
 		)
 		(pin "CODEC{I2S}" input
-			(at 138.43 110.49 180)
+			(at 138.43 113.03 180)
 			(uuid "7dc9a32f-281d-4346-b786-35cd3cca2794")
 			(effects
 				(font
@@ -3216,7 +3257,7 @@
 	)
 	(sheet
 		(at 138.43 53.34)
-		(size 25.4 22.86)
+		(size 25.4 24.13)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
@@ -3240,7 +3281,7 @@
 			)
 		)
 		(property "Sheetfile" "display.kicad_sch"
-			(at 138.43 76.7846 0)
+			(at 138.43 78.0546 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3259,7 +3300,7 @@
 				(justify left)
 			)
 		)
-		(pin "I2C{I2C}" input
+		(pin "I2C4{I2C}" input
 			(at 138.43 59.69 180)
 			(uuid "676b797b-d3ff-4b2f-8075-4c66b2990802")
 			(effects
@@ -3300,7 +3341,7 @@
 			)
 		)
 		(pin "I2C4{I2C}" input
-			(at 138.43 73.66 180)
+			(at 138.43 74.93 180)
 			(uuid "5385604c-3bc9-4bb0-835b-a42a2dfb0ae7")
 			(effects
 				(font
@@ -3362,16 +3403,6 @@
 				(justify right)
 			)
 		)
-		(pin "9DOF_INT2" output
-			(at 57.15 120.65 0)
-			(uuid "1ba6135c-e654-45b4-b67a-f832c38d4c41")
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
 		(pin "HAPTIC_IRQ" output
 			(at 57.15 125.73 0)
 			(uuid "c8135ad6-f410-451c-98c3-cdfcb8170932")
@@ -3385,6 +3416,16 @@
 		(pin "I2C2{I2C}" input
 			(at 57.15 113.03 0)
 			(uuid "202101d3-57d4-457f-a884-afafd6971683")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "I2C4{I2C}" input
+			(at 57.15 115.57 0)
+			(uuid "077b6d96-2ffb-4004-9485-a1a5953487bc")
 			(effects
 				(font
 					(size 1.27 1.27)

@@ -5106,12 +5106,20 @@
 		(uuid "fb26e121-0902-486f-8447-818ddd0b04c7")
 	)
 	(no_connect
+		(at 44.45 76.2)
+		(uuid "0db65758-999b-4b44-b9e4-910b945cd2e9")
+	)
+	(no_connect
 		(at 213.36 130.81)
 		(uuid "1e34e156-5056-4950-a464-ee04e7c11b22")
 	)
 	(no_connect
 		(at 243.84 133.35)
 		(uuid "41afab47-95bd-4c6f-97a6-2a6e15292bec")
+	)
+	(no_connect
+		(at 44.45 78.74)
+		(uuid "6837c1a6-b796-4ffe-900d-e80f0fbd9a5b")
 	)
 	(bus_entry
 		(at 114.3 48.26)
@@ -8992,7 +9000,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Button_Switch_SMD:SW_SPST_B3U-1000P"
+		(property "Footprint" "Button_Switch_THT:SW_Tactile_SPST_Angled_PTS645Vx58-2LFS"
 			(at 199.39 128.27 0)
 			(effects
 				(font

@@ -3102,7 +3102,7 @@
 						)
 					)
 				)
-				(pin power_out line
+				(pin power_in line
 					(at 0 -15.24 90)
 					(length 2.54)
 					(name "GND"
@@ -3383,6 +3383,18 @@
 			(justify left)
 		)
 		(uuid "a97f430b-e92c-4c8d-b22e-74209f6e0478")
+	)
+	(text "I2C Address\n0x38/00111000"
+		(exclude_from_sim no)
+		(at 208.28 75.184 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+				(color 132 132 132 1)
+			)
+			(justify right)
+		)
+		(uuid "b57b788d-9754-45d8-8e09-1d5f2e4164a9")
 	)
 	(text "TODO: doubt check connections"
 		(exclude_from_sim no)

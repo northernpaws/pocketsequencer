@@ -543,6 +543,131 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "Device:R_Small"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0.254)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "R"
+				(at 0 0 90)
+				(effects
+					(font
+						(size 1.016 1.016)
+					)
+				)
+			)
+			(property "Value" "R_Small"
+				(at 1.778 0 90)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Resistor, small symbol"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "R resistor"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "R_*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "R_Small_0_1"
+				(rectangle
+					(start -0.762 1.778)
+					(end 0.762 -1.778)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "R_Small_1_1"
+				(pin passive line
+					(at 0 2.54 270)
+					(length 0.762)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 0 -2.54 90)
+					(length 0.762)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "SW_Push_Pressure_1"
 			(pin_numbers
 				(hide yes)
@@ -2410,6 +2535,18 @@
 		)
 		(uuid "a273a684-afdf-4018-ab69-9a7c208b5318")
 	)
+	(text "I2C Address\n001 0000"
+		(exclude_from_sim no)
+		(at 55.118 135.89 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+				(color 132 132 132 1)
+			)
+			(justify right)
+		)
+		(uuid "a6e331d6-c45a-41e2-8e87-c05e0c94cf52")
+	)
 	(text "Keyswitch Matrix Decoder"
 		(exclude_from_sim no)
 		(at 13.208 13.97 0)
@@ -2422,6 +2559,18 @@
 			(justify left top)
 		)
 		(uuid "b783db1b-f44e-4878-b676-5979492438ab")
+	)
+	(text "I2C Address\n0110100"
+		(exclude_from_sim no)
+		(at 37.338 38.354 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+				(color 132 132 132 1)
+			)
+			(justify right)
+		)
+		(uuid "bd91d656-8767-4932-bbfa-ef20a494f903")
 	)
 	(text "TODO: add navigation stick?\nhttps://tech.alpsalpine.com/e/products/detail/RKJXT1F42001/#ancFig4"
 		(exclude_from_sim no)
@@ -2671,6 +2820,12 @@
 		(uuid "67f9a344-6f4e-4200-afe8-4f7726c541fe")
 	)
 	(junction
+		(at 57.15 25.4)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "71f536e8-5530-492f-9349-85a76d1e8142")
+	)
+	(junction
 		(at 135.89 43.18)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -2898,6 +3053,34 @@
 		(color 0 0 0 0)
 		(uuid "ff487bd4-bc18-4449-9716-721f38f4ab81")
 	)
+	(no_connect
+		(at 95.25 58.42)
+		(uuid "231e3399-db71-49b0-96be-8e3aebddbdc1")
+	)
+	(no_connect
+		(at 95.25 63.5)
+		(uuid "32a74a8e-75c1-49a5-8bb4-e3a34c6a0552")
+	)
+	(no_connect
+		(at 95.25 68.58)
+		(uuid "33d51f90-c975-42e2-9f58-bbc5b3bf712d")
+	)
+	(no_connect
+		(at 95.25 55.88)
+		(uuid "7698de5e-0585-40f7-9be2-14420a0c44f7")
+	)
+	(no_connect
+		(at 49.53 140.97)
+		(uuid "8296d4ec-e85b-48ea-ad16-46b685208c55")
+	)
+	(no_connect
+		(at 95.25 60.96)
+		(uuid "a876a537-18f0-464c-befc-0ea48ce6e084")
+	)
+	(no_connect
+		(at 95.25 66.04)
+		(uuid "b7b8869f-48a4-43a0-b2c9-f94d8f49feef")
+	)
 	(bus_entry
 		(at 41.91 38.1)
 		(size -2.54 -2.54)
@@ -3103,6 +3286,16 @@
 			(type default)
 		)
 		(uuid "0edab233-2ec9-4109-b15c-f6a96e5c0f9a")
+	)
+	(wire
+		(pts
+			(xy 57.15 25.4) (xy 57.15 26.67)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "10d1f8ea-9a3c-48e9-b77c-d5eeeb89b565")
 	)
 	(wire
 		(pts
@@ -4246,6 +4439,16 @@
 	)
 	(wire
 		(pts
+			(xy 57.15 31.75) (xy 57.15 33.02)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7e88dce2-8d04-4a9c-8c3c-b0d5b09c1675")
+	)
+	(wire
+		(pts
 			(xy 195.58 127) (xy 196.85 127)
 		)
 		(stroke
@@ -4953,6 +5156,16 @@
 			(type default)
 		)
 		(uuid "c00c5a5f-eba2-4609-8825-c006ad0d6e58")
+	)
+	(wire
+		(pts
+			(xy 57.15 33.02) (xy 59.69 33.02)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c01b7010-8feb-4215-bfc4-93a4ec3049e7")
 	)
 	(wire
 		(pts
@@ -9644,138 +9857,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Switch:SW_Push")
-		(at 105.41 184.15 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "420ccb19-8d85-44e7-ba6c-60a3bbb828ce")
-		(property "Reference" "SW18"
-			(at 105.41 179.324 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "HELP"
-			(at 105.41 186.182 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify top)
-			)
-		)
-		(property "Footprint" "Button_Switch_SMD:SW_SPST_EVQQ2"
-			(at 105.41 179.07 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 105.41 179.07 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Push button switch, generic, two pins"
-			(at 105.41 184.15 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "JLC" ""
-			(at 105.41 184.15 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Arrow Part Number" ""
-			(at 105.41 184.15 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Arrow Price/Stock" ""
-			(at 105.41 184.15 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "MANUFACTURER" ""
-			(at 105.41 184.15 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "MAXIMUM_PACKAGE_HEIGHT" ""
-			(at 105.41 184.15 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "PARTREV" ""
-			(at 105.41 184.15 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "STANDARD" ""
-			(at 105.41 184.15 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Connector" ""
-			(at 105.41 184.15 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "52382309-ea14-4ec4-88fd-c3a4faa447e2")
-		)
-		(pin "2"
-			(uuid "47849e5d-7322-4f16-8d63-c354eb2ffba5")
-		)
-		(instances
-			(project "pocket_synth"
-				(path "/485383b8-00f4-4405-b270-de249939cff4/7f1ac839-494f-4521-b63e-5606a3cb7bc9"
-					(reference "SW18")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:D")
 		(at 200.66 142.24 0)
 		(mirror x)
@@ -11120,6 +11201,75 @@
 			(project "pocket_synth"
 				(path "/485383b8-00f4-4405-b270-de249939cff4/7f1ac839-494f-4521-b63e-5606a3cb7bc9"
 					(reference "TP18")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R_Small")
+		(at 57.15 29.21 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "5fb811e0-d7ab-4572-a1e9-5392fc9ec712")
+		(property "Reference" "R18"
+			(at 55.626 27.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "10k"
+			(at 55.626 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 57.15 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 57.15 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor, small symbol"
+			(at 57.15 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "5b858165-5d4e-4857-9968-a963117acb76")
+		)
+		(pin "1"
+			(uuid "ec9c1c50-1e09-44f3-9c47-50f08c435a7a")
+		)
+		(instances
+			(project ""
+				(path "/485383b8-00f4-4405-b270-de249939cff4/7f1ac839-494f-4521-b63e-5606a3cb7bc9"
+					(reference "R18")
 					(unit 1)
 				)
 			)

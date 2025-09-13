@@ -7016,24 +7016,6 @@
 				)
 			)
 			(pin power_in line
-				(at -24.13 -11.43 0)
-				(length 7.62)
-				(name "DECAP"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "8"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin power_in line
 				(at -1.27 22.86 270)
 				(length 7.62)
 				(name "AVDD"
@@ -7260,6 +7242,24 @@
 				)
 				(fill
 					(type background)
+				)
+			)
+			(pin input line
+				(at -24.13 -11.43 0)
+				(length 7.62)
+				(name "DECAP"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "8"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
 				)
 			)
 		)
@@ -11171,7 +11171,7 @@
 					)
 				)
 			)
-			(pin power_out line
+			(pin power_in line
 				(at 0 -15.24 90)
 				(length 2.54)
 				(name "GND"
@@ -16900,7 +16900,7 @@
 					)
 				)
 			)
-			(pin power_out line
+			(pin power_in line
 				(at 0 -8.89 90)
 				(length 2.54)
 				(hide yes)
@@ -16919,7 +16919,7 @@
 					)
 				)
 			)
-			(pin power_out line
+			(pin power_in line
 				(at 0 -8.89 90)
 				(length 2.54)
 				(name "GND"
@@ -17359,7 +17359,7 @@
 					)
 				)
 			)
-			(pin power_out line
+			(pin power_in line
 				(at -1.27 -40.64 90)
 				(length 5.08)
 				(name "VSSA"
@@ -17395,7 +17395,7 @@
 					)
 				)
 			)
-			(pin power_out line
+			(pin power_in line
 				(at 1.27 -40.64 90)
 				(length 5.08)
 				(name "VSSD"
@@ -17431,7 +17431,7 @@
 					)
 				)
 			)
-			(pin power_out line
+			(pin power_in line
 				(at 7.62 -40.64 90)
 				(length 5.08)
 				(name "VSSSPK"
