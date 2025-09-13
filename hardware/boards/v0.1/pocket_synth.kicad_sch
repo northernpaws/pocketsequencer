@@ -692,6 +692,12 @@
 		(color 0 0 0 0)
 		(uuid "ba5e0a48-ea45-44a4-89e9-76c945c867f9")
 	)
+	(junction
+		(at 125.73 83.82)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "f569c9eb-e0d2-4e3a-85f2-7cb8c9b6e25a")
+	)
 	(wire
 		(pts
 			(xy 57.15 39.37) (xy 72.39 39.37)
@@ -751,6 +757,16 @@
 			(type default)
 		)
 		(uuid "0f612b35-7620-4a60-8872-4261effdd939")
+	)
+	(bus
+		(pts
+			(xy 129.54 73.66) (xy 125.73 77.47)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "155b61c4-ca12-499b-a457-3d0f9812e609")
 	)
 	(bus
 		(pts
@@ -824,6 +840,16 @@
 	)
 	(bus
 		(pts
+			(xy 138.43 73.66) (xy 129.54 73.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3a483ca8-3807-4966-ae59-7cd6034be396")
+	)
+	(bus
+		(pts
 			(xy 110.49 36.83) (xy 138.43 36.83)
 		)
 		(stroke
@@ -841,6 +867,16 @@
 			(type default)
 		)
 		(uuid "46490d0d-cf75-453b-9ae1-60f15c0c6bf1")
+	)
+	(bus
+		(pts
+			(xy 110.49 83.82) (xy 125.73 83.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4b63fac1-6206-452f-b42e-7bea5b51d7a3")
 	)
 	(bus
 		(pts
@@ -944,7 +980,7 @@
 	)
 	(bus
 		(pts
-			(xy 110.49 85.09) (xy 138.43 85.09)
+			(xy 110.49 87.63) (xy 138.43 87.63)
 		)
 		(stroke
 			(width 0)
@@ -1062,16 +1098,6 @@
 		)
 		(uuid "a8bfd6d1-3044-4f56-8936-f521ed4af033")
 	)
-	(bus
-		(pts
-			(xy 138.43 81.28) (xy 130.81 81.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "aa5d06fb-d04c-4300-87ed-ba6cdc4d09fa")
-	)
 	(wire
 		(pts
 			(xy 110.49 142.24) (xy 138.43 142.24)
@@ -1111,6 +1137,16 @@
 			(type default)
 		)
 		(uuid "d28f1dfc-464e-49ba-87dc-044da86519cc")
+	)
+	(bus
+		(pts
+			(xy 125.73 83.82) (xy 138.43 83.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d57208d1-eaa8-4f49-a838-cce28b7c18b5")
 	)
 	(wire
 		(pts
@@ -1152,6 +1188,16 @@
 		)
 		(uuid "fb383aa2-52df-4eb3-a6e1-082a04698259")
 	)
+	(bus
+		(pts
+			(xy 125.73 77.47) (xy 125.73 83.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ffb302aa-f22a-40af-8e29-6f89caa355ad")
+	)
 	(label "I2C2{I2C}"
 		(at 59.69 113.03 0)
 		(effects
@@ -1164,17 +1210,6 @@
 		(uuid "116beacd-fc5c-42df-a696-d69a6e45fd29")
 	)
 	(label "I2C2{I2C}"
-		(at 130.81 81.28 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-				(thickness 0.1588)
-			)
-			(justify right bottom)
-		)
-		(uuid "1eab1fcc-3c38-4955-b061-97d830728f36")
-	)
-	(label "I2C2{I2C}"
 		(at 133.35 59.69 180)
 		(effects
 			(font
@@ -1184,6 +1219,16 @@
 			(justify right bottom)
 		)
 		(uuid "6837c862-c9cd-47c2-b2a7-35006cf844a7")
+	)
+	(label "I2C4{I2C}"
+		(at 113.03 83.82 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "947cc6d2-937b-45cc-9c92-8a6cf7b9c7eb")
 	)
 	(label "I2C2{I2C}"
 		(at 27.94 38.1 180)
@@ -2531,7 +2576,7 @@
 			)
 		)
 		(pin "{VELOCITY}" output
-			(at 110.49 85.09 0)
+			(at 110.49 87.63 0)
 			(uuid "e0433832-5f2b-4de0-bd8e-0efc89e8f2c5")
 			(effects
 				(font
@@ -2598,6 +2643,16 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
+			)
+		)
+		(pin "I2C4{I2C}" output
+			(at 110.49 83.82 0)
+			(uuid "95d5bc55-8b19-4eee-b961-af30cd5fa289")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
 			)
 		)
 		(instances
@@ -2868,8 +2923,8 @@
 		)
 	)
 	(sheet
-		(at 138.43 78.74)
-		(size 25.4 20.32)
+		(at 138.43 81.28)
+		(size 25.4 17.78)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
@@ -2884,7 +2939,7 @@
 		)
 		(uuid "7f1ac839-494f-4521-b63e-5606a3cb7bc9")
 		(property "Sheetname" "Keypad"
-			(at 138.43 78.0284 0)
+			(at 138.43 80.5684 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2903,7 +2958,7 @@
 			)
 		)
 		(pin "KEYPAD_INT" input
-			(at 138.43 88.9 180)
+			(at 138.43 91.44 180)
 			(uuid "bbedc51a-ef5d-4d40-8220-d584574a93c0")
 			(effects
 				(font
@@ -2912,9 +2967,9 @@
 				(justify left)
 			)
 		)
-		(pin "I2C{I2C}" input
-			(at 138.43 81.28 180)
-			(uuid "f26b5d06-fb60-4ffd-9449-bffe32f97f4e")
+		(pin "{VELOCITY}" input
+			(at 138.43 87.63 180)
+			(uuid "c61b20d1-058f-4889-858c-0af905cc2db8")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2922,9 +2977,9 @@
 				(justify left)
 			)
 		)
-		(pin "{VELOCITY}" input
-			(at 138.43 85.09 180)
-			(uuid "c61b20d1-058f-4889-858c-0af905cc2db8")
+		(pin "I2C4{I2C}" input
+			(at 138.43 83.82 180)
+			(uuid "5e72bffc-47bb-4eb0-9f98-e59253d8668b")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3161,7 +3216,7 @@
 	)
 	(sheet
 		(at 138.43 53.34)
-		(size 25.4 20.32)
+		(size 25.4 22.86)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
@@ -3185,7 +3240,7 @@
 			)
 		)
 		(property "Sheetfile" "display.kicad_sch"
-			(at 138.43 74.2446 0)
+			(at 138.43 76.7846 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3237,6 +3292,16 @@
 		(pin "TOUCH_RST" input
 			(at 138.43 67.31 180)
 			(uuid "b51b0a85-3863-423d-9128-1d6511c855b6")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "I2C4{I2C}" input
+			(at 138.43 73.66 180)
+			(uuid "5385604c-3bc9-4bb0-835b-a42a2dfb0ae7")
 			(effects
 				(font
 					(size 1.27 1.27)
