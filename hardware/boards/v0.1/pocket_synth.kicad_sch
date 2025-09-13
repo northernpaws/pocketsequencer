@@ -2749,9 +2749,9 @@
 				(justify left)
 			)
 		)
-		(pin "MIDI_THRU_EN" input
-			(at 138.43 148.59 180)
-			(uuid "5d6ec538-f326-4d11-abdd-d492bef25d28")
+		(pin "MIDI_TX" input
+			(at 138.43 144.78 180)
+			(uuid "8076cf2c-9327-41ef-bd65-e02e27e68f4f")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2759,9 +2759,9 @@
 				(justify left)
 			)
 		)
-		(pin "MIDI_TX" input
-			(at 138.43 144.78 180)
-			(uuid "8076cf2c-9327-41ef-bd65-e02e27e68f4f")
+		(pin "~{MIDI_THRU_EN}" input
+			(at 138.43 151.13 180)
+			(uuid "b9d17d27-6fe9-4071-b3a6-bb30ea799288")
 			(effects
 				(font
 					(size 1.27 1.27)

@@ -18251,17 +18251,17 @@
 				)
 			)
 			(pin no_connect line
-				(at 19.05 -69.85 90)
+				(at 8.89 -69.85 90)
 				(length 5.08)
 				(hide yes)
-				(name "N/C_1"
+				(name "N/C_4"
 					(effects
 						(font
 							(size 1.27 1.27)
 						)
 					)
 				)
-				(number "A6"
+				(number "J5"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -18270,26 +18270,7 @@
 				)
 			)
 			(pin no_connect line
-				(at 19.05 -69.85 90)
-				(length 5.08)
-				(hide yes)
-				(name "N/C_2"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "J1"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin no_connect line
-				(at 19.05 -69.85 90)
+				(at 11.43 -69.85 90)
 				(length 5.08)
 				(hide yes)
 				(name "N/C_3"
@@ -18308,17 +18289,36 @@
 				)
 			)
 			(pin no_connect line
-				(at 19.05 -69.85 90)
+				(at 13.97 -69.85 90)
 				(length 5.08)
 				(hide yes)
-				(name "N/C_4"
+				(name "N/C_2"
 					(effects
 						(font
 							(size 1.27 1.27)
 						)
 					)
 				)
-				(number "J5"
+				(number "J1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin no_connect line
+				(at 16.51 -69.85 90)
+				(length 5.08)
+				(hide yes)
+				(name "N/C_1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "A6"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -19646,7 +19646,7 @@
 					)
 				)
 			)
-			(pin power_out line
+			(pin power_in line
 				(at 0 -21.59 90)
 				(length 2.54)
 				(hide yes)
@@ -19665,7 +19665,7 @@
 					)
 				)
 			)
-			(pin power_out line
+			(pin power_in line
 				(at 0 -21.59 90)
 				(length 2.54)
 				(name "GND"
@@ -20089,7 +20089,7 @@
 					)
 				)
 			)
-			(pin power_out line
+			(pin power_in line
 				(at 0 -22.86 90)
 				(length 2.54)
 				(name "GND"
@@ -20107,7 +20107,7 @@
 					)
 				)
 			)
-			(pin power_out line
+			(pin passive line
 				(at 0 -22.86 90)
 				(length 2.54)
 				(hide yes)
@@ -20145,7 +20145,7 @@
 				)
 			)
 			(pin no_connect line
-				(at 6.35 -22.86 90)
+				(at 3.81 -22.86 90)
 				(length 2.54)
 				(hide yes)
 				(name "NC"
@@ -20174,7 +20174,7 @@
 						)
 					)
 				)
-				(number "2"
+				(number "20"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -20183,7 +20183,7 @@
 				)
 			)
 			(pin no_connect line
-				(at 6.35 -22.86 90)
+				(at 8.89 -22.86 90)
 				(length 2.54)
 				(hide yes)
 				(name "NC"
@@ -20193,7 +20193,7 @@
 						)
 					)
 				)
-				(number "20"
+				(number "2"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -25501,7 +25501,7 @@
 				)
 			)
 		)
-		(property "Footprint" "11-4L1S_TOS"
+		(property "Footprint" "pocket_synth:TLP2362TPR_E"
 			(at 0 0 0)
 			(effects
 				(font
@@ -25528,14 +25528,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "ki_locked" ""
-			(at 0 0 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(property "ki_keywords" "TLP2362(TPR,E"
@@ -25966,7 +25958,7 @@
 			)
 		)
 		(symbol "TLP2362TPR_E_1_1"
-			(pin unspecified line
+			(pin passive line
 				(at 5.08 0 0)
 				(length 2.54)
 				(name "ANODE"
@@ -25984,7 +25976,7 @@
 					)
 				)
 			)
-			(pin unspecified line
+			(pin passive line
 				(at 5.08 -10.16 0)
 				(length 2.54)
 				(name "CATHODE"
@@ -26020,7 +26012,7 @@
 					)
 				)
 			)
-			(pin power_in line
+			(pin output line
 				(at 30.48 -5.08 180)
 				(length 2.54)
 				(name "VO"
