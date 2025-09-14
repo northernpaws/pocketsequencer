@@ -3115,7 +3115,7 @@
 						)
 					)
 				)
-				(pin power_out line
+				(pin power_in line
 					(at 15.24 -16.51 180)
 					(length 2.54)
 					(name "RFGND"
@@ -3559,7 +3559,7 @@
 						)
 					)
 				)
-				(pin power_out line
+				(pin power_in line
 					(at 15.24 -17.78 180)
 					(length 2.54)
 					(name "RFGND"
@@ -4010,9 +4010,9 @@
 		)
 		(uuid "adf68371-df0c-48d6-94a1-3bc02fb29d11")
 	)
-	(text "TODO: use Si4703 or Si4705 which have RDS?"
+	(text "TODO: use Si4703 which have RDS?"
 		(exclude_from_sim no)
-		(at 260.096 89.154 0)
+		(at 264.414 89.154 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4192,6 +4192,12 @@
 		(uuid "666b6bfd-e665-445b-90b9-723ade3f9c20")
 	)
 	(junction
+		(at 209.55 64.77)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "6d80acd5-79d8-4873-a5de-8cf8fa98602e")
+	)
+	(junction
 		(at 129.54 170.18)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -4270,6 +4276,12 @@
 		(uuid "b0e73dd1-1853-4c04-b225-bd84797b9fac")
 	)
 	(junction
+		(at 209.55 73.66)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "bde90692-cacc-4de1-845f-a5ee471f6ef9")
+	)
+	(junction
 		(at 80.01 24.13)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -4292,6 +4304,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "e2f97fb9-f2c0-47c0-94d9-1d60a84d9985")
+	)
+	(junction
+		(at 209.55 58.42)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "ee70279d-2f6d-400d-9786-e375beb4a2e5")
 	)
 	(junction
 		(at 81.28 128.27)
@@ -4336,14 +4354,6 @@
 	(no_connect
 		(at 241.3 54.61)
 		(uuid "2aeb686b-20e7-4236-8098-0ed8edf356e5")
-	)
-	(no_connect
-		(at 210.82 58.42)
-		(uuid "3f94570c-d21b-4298-9c88-67269495a413")
-	)
-	(no_connect
-		(at 210.82 55.88)
-		(uuid "551eff03-f3ae-4072-98a7-43ff27813fce")
 	)
 	(no_connect
 		(at 259.08 140.97)
@@ -4671,6 +4681,16 @@
 	)
 	(wire
 		(pts
+			(xy 209.55 58.42) (xy 209.55 64.77)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "19889737-379e-49f7-824e-d6b4a1608a07")
+	)
+	(wire
+		(pts
 			(xy 161.29 125.73) (xy 165.1 125.73)
 		)
 		(stroke
@@ -4778,6 +4798,16 @@
 			(type default)
 		)
 		(uuid "270466b0-eaa0-4317-ad43-d594fe565582")
+	)
+	(wire
+		(pts
+			(xy 241.3 57.15) (xy 254 57.15)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "27cd4613-7217-4860-9c10-4956f6e31812")
 	)
 	(wire
 		(pts
@@ -5001,6 +5031,16 @@
 	)
 	(wire
 		(pts
+			(xy 210.82 64.77) (xy 209.55 64.77)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3c04cac4-4996-44b3-b8af-2ac3a959db1a")
+	)
+	(wire
+		(pts
 			(xy 99.06 34.29) (xy 99.06 36.83)
 		)
 		(stroke
@@ -5078,6 +5118,16 @@
 			(type default)
 		)
 		(uuid "47d8ce52-8f0f-44bc-ba8c-6df554e3f5af")
+	)
+	(wire
+		(pts
+			(xy 210.82 55.88) (xy 209.55 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4913c6ed-3be7-4bf4-9999-c7afea01ea53")
 	)
 	(wire
 		(pts
@@ -5461,16 +5511,6 @@
 	)
 	(wire
 		(pts
-			(xy 226.06 107.95) (xy 226.06 110.49)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7f69603f-96bc-428d-8355-a6db6a814775")
-	)
-	(wire
-		(pts
 			(xy 57.15 115.57) (xy 57.15 116.84)
 		)
 		(stroke
@@ -5621,7 +5661,7 @@
 	)
 	(wire
 		(pts
-			(xy 210.82 80.01) (xy 226.06 80.01)
+			(xy 209.55 80.01) (xy 226.06 80.01)
 		)
 		(stroke
 			(width 0)
@@ -5728,6 +5768,16 @@
 			(type default)
 		)
 		(uuid "923536df-74ef-401b-951d-937eb2957316")
+	)
+	(wire
+		(pts
+			(xy 209.55 64.77) (xy 209.55 73.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "92469fa6-0ac7-4015-869d-541199bb25a8")
 	)
 	(wire
 		(pts
@@ -6311,23 +6361,13 @@
 	)
 	(wire
 		(pts
-			(xy 210.82 73.66) (xy 210.82 80.01)
+			(xy 209.55 73.66) (xy 209.55 80.01)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "d55ae8e0-7a33-4df7-a864-ce782550a3f5")
-	)
-	(wire
-		(pts
-			(xy 208.28 38.1) (xy 208.28 40.64)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d5fbee88-3f5b-4ecb-813a-964617e12440")
 	)
 	(wire
 		(pts
@@ -6398,6 +6438,16 @@
 			(type default)
 		)
 		(uuid "dc1a27b5-9215-46eb-8f3a-01a861cd6520")
+	)
+	(wire
+		(pts
+			(xy 209.55 58.42) (xy 210.82 58.42)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "dc925b59-b94e-492f-b023-00489bd12b05")
 	)
 	(wire
 		(pts
@@ -6521,6 +6571,16 @@
 	)
 	(wire
 		(pts
+			(xy 209.55 73.66) (xy 210.82 73.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ed107bbe-1aff-4e1d-91e8-a60890c24f25")
+	)
+	(wire
+		(pts
 			(xy 87.63 182.88) (xy 91.44 182.88)
 		)
 		(stroke
@@ -6548,6 +6608,16 @@
 			(type default)
 		)
 		(uuid "f0a9e7bc-aa21-464a-b88c-27033ffe1e49")
+	)
+	(wire
+		(pts
+			(xy 209.55 55.88) (xy 209.55 58.42)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f190e68e-4ca1-4433-ae4f-af50e041e15e")
 	)
 	(bus
 		(pts
@@ -7083,6 +7153,17 @@
 		)
 		(uuid "85b7b189-3532-419f-90cd-b6557669fb36")
 	)
+	(hierarchical_label "~{FM_TX_RST}"
+		(shape input)
+		(at 226.06 110.49 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "8ae431c6-bcff-4e64-9ffb-5f545ba45511")
+	)
 	(hierarchical_label "I2C1{I2C}"
 		(shape input)
 		(at 36.83 62.23 90)
@@ -7104,6 +7185,28 @@
 			(justify left)
 		)
 		(uuid "bf2cd1ff-1512-4606-8ce1-41a7792a342d")
+	)
+	(hierarchical_label "~{FM_RX_RST}"
+		(shape input)
+		(at 208.28 40.64 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "dc256f08-b1d9-4b05-ac45-9dafddb68633")
+	)
+	(hierarchical_label "FM_RECV_INT"
+		(shape input)
+		(at 254 57.15 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "ec651778-0d67-4d24-a7ca-fac3576f8c6f")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -7893,71 +7996,6 @@
 			(project "pocket_synth"
 				(path "/485383b8-00f4-4405-b270-de249939cff4/ac7a2cd5-8a17-4132-a50f-a1edfbc58e6d"
 					(reference "#PWR054")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:+3.3V")
-		(at 208.28 38.1 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "217fed65-c2b7-4f79-8139-cb9e737a3642")
-		(property "Reference" "#PWR083"
-			(at 208.28 41.91 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "+3.3V"
-			(at 208.28 33.528 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 208.28 38.1 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 208.28 38.1 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"+3.3V\""
-			(at 208.28 38.1 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "648f70d2-a44a-4cbe-a87e-e06135a20262")
-		)
-		(instances
-			(project "pocket_synth"
-				(path "/485383b8-00f4-4405-b270-de249939cff4/ac7a2cd5-8a17-4132-a50f-a1edfbc58e6d"
-					(reference "#PWR083")
 					(unit 1)
 				)
 			)
@@ -10071,71 +10109,6 @@
 			(project "pocket_synth"
 				(path "/485383b8-00f4-4405-b270-de249939cff4/ac7a2cd5-8a17-4132-a50f-a1edfbc58e6d"
 					(reference "#PWR058")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:+3.3V")
-		(at 226.06 107.95 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "6e672cb7-cecb-4f5e-8fac-1f28669d6f57")
-		(property "Reference" "#PWR084"
-			(at 226.06 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "+3.3V"
-			(at 226.06 103.378 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 226.06 107.95 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 226.06 107.95 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"+3.3V\""
-			(at 226.06 107.95 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "58eda037-5be6-4fb7-81ab-67865ba08b1b")
-		)
-		(instances
-			(project "pocket_synth"
-				(path "/485383b8-00f4-4405-b270-de249939cff4/ac7a2cd5-8a17-4132-a50f-a1edfbc58e6d"
-					(reference "#PWR084")
 					(unit 1)
 				)
 			)

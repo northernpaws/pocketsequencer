@@ -5,6 +5,86 @@
 	(uuid "485383b8-00f4-4405-b270-de249939cff4")
 	(paper "A4")
 	(lib_symbols
+		(symbol "Mechanical:Fiducial"
+			(exclude_from_sim no)
+			(in_bom no)
+			(on_board yes)
+			(property "Reference" "FID"
+				(at 0 5.08 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "Fiducial"
+				(at 0 3.175 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Fiducial Marker"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "fiducial marker"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "Fiducial*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "Fiducial_0_1"
+				(circle
+					(center 0 0)
+					(radius 1.27)
+					(stroke
+						(width 0.508)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "Mechanical:MountingHole_Pad"
 			(pin_numbers
 				(hide yes)
@@ -188,6 +268,16 @@
 			(type default)
 		)
 		(uuid "08080e44-b80e-4341-ab24-83e24201b814")
+	)
+	(wire
+		(pts
+			(xy 110.49 128.27) (xy 138.43 128.27)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1c41dc1e-b1eb-4a7c-927b-eecd4c989460")
 	)
 	(bus
 		(pts
@@ -379,6 +469,16 @@
 		)
 		(uuid "6a740705-0011-4cb2-8f9c-4f1acd682b72")
 	)
+	(wire
+		(pts
+			(xy 110.49 124.46) (xy 138.43 124.46)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7af2f1ea-282f-4482-a0b5-d898c0b7c5ce")
+	)
 	(polyline
 		(pts
 			(xy 85.344 166.116) (xy 85.344 197.866)
@@ -508,6 +608,16 @@
 			(type default)
 		)
 		(uuid "a8bfd6d1-3044-4f56-8936-f521ed4af033")
+	)
+	(wire
+		(pts
+			(xy 110.49 120.65) (xy 138.43 120.65)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b98a9333-1c93-48f4-ba70-8b10fbc6cbd5")
 	)
 	(wire
 		(pts
@@ -1135,6 +1245,198 @@
 			)
 		)
 	)
+	(symbol
+		(lib_id "Mechanical:Fiducial")
+		(at 90.17 171.45 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "7b992673-efb2-4e04-9359-04c66e5077f4")
+		(property "Reference" "FID1"
+			(at 92.71 170.1799 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "Fiducial"
+			(at 92.71 172.7199 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Fiducial:Fiducial_0.5mm_Mask1.5mm"
+			(at 90.17 171.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 90.17 171.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Fiducial Marker"
+			(at 90.17 171.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(instances
+			(project ""
+				(path "/485383b8-00f4-4405-b270-de249939cff4"
+					(reference "FID1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Mechanical:Fiducial")
+		(at 90.17 181.61 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "b87d9d0a-d911-4130-ad2f-7fba1e4e50c3")
+		(property "Reference" "FID3"
+			(at 92.71 180.3399 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "Fiducial"
+			(at 92.71 182.8799 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Fiducial:Fiducial_0.5mm_Mask1.5mm"
+			(at 90.17 181.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 90.17 181.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Fiducial Marker"
+			(at 90.17 181.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(instances
+			(project "pocket_synth"
+				(path "/485383b8-00f4-4405-b270-de249939cff4"
+					(reference "FID3")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Mechanical:Fiducial")
+		(at 90.17 176.53 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "dec15561-a83b-4e9b-929c-a17a280d68fd")
+		(property "Reference" "FID2"
+			(at 92.71 175.2599 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "Fiducial"
+			(at 92.71 177.7999 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Fiducial:Fiducial_0.5mm_Mask1.5mm"
+			(at 90.17 176.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 90.17 176.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Fiducial Marker"
+			(at 90.17 176.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(instances
+			(project "pocket_synth"
+				(path "/485383b8-00f4-4405-b270-de249939cff4"
+					(reference "FID2")
+					(unit 1)
+				)
+			)
+		)
+	)
 	(sheet
 		(at 72.39 20.32)
 		(size 38.1 135.89)
@@ -1493,6 +1795,36 @@
 		(pin "VELOCITY_ALERT" input
 			(at 110.49 93.98 0)
 			(uuid "dbfee7ad-8c8e-4a7f-a319-6ece6b1b7922")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "FM_RECV_INT" input
+			(at 110.49 120.65 0)
+			(uuid "c9011ec6-40b0-4a4d-9ade-bc30f47fc1d9")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "~{FM_TX_RST}" output
+			(at 110.49 124.46 0)
+			(uuid "6766434a-e60e-4e71-b025-16d640c3c083")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "~{FM_RX_RST}" output
+			(at 110.49 128.27 0)
+			(uuid "bcee2dd5-7131-4170-a826-3a08ed1d0278")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1872,7 +2204,7 @@
 	)
 	(sheet
 		(at 138.43 106.68)
-		(size 25.4 16.51)
+		(size 25.4 24.13)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
@@ -1896,7 +2228,7 @@
 			)
 		)
 		(property "Sheetfile" "audio.kicad_sch"
-			(at 138.43 123.7746 0)
+			(at 138.43 131.3946 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1928,6 +2260,36 @@
 		(pin "CODEC{I2S}" input
 			(at 138.43 113.03 180)
 			(uuid "7dc9a32f-281d-4346-b786-35cd3cca2794")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "FM_RECV_INT" output
+			(at 138.43 120.65 180)
+			(uuid "2bb306de-91d0-4616-9ba1-b7843926f0a3")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "~{FM_TX_RST}" input
+			(at 138.43 124.46 180)
+			(uuid "686d17d2-1b00-4c1e-b842-95dfee47ad11")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "~{FM_RX_RST}" input
+			(at 138.43 128.27 180)
+			(uuid "f7b4145c-09e0-4d92-97e9-f324092ea583")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2038,7 +2400,7 @@
 	)
 	(sheet
 		(at 31.75 97.79)
-		(size 25.4 17.78)
+		(size 25.4 8.89)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
@@ -2062,7 +2424,7 @@
 			)
 		)
 		(property "Sheetfile" "lighting.kicad_sch"
-			(at 31.75 116.1546 0)
+			(at 31.75 107.2646 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2194,7 +2556,7 @@
 	)
 	(sheet
 		(at 31.75 120.65)
-		(size 25.4 17.78)
+		(size 25.4 13.97)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
@@ -2218,7 +2580,7 @@
 			)
 		)
 		(property "Sheetfile" "peripherals.kicad_sch"
-			(at 31.75 139.0146 0)
+			(at 31.75 135.2046 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2238,7 +2600,7 @@
 			)
 		)
 		(pin "HAPTIC_IRQ" output
-			(at 57.15 135.89 0)
+			(at 57.15 132.08 0)
 			(uuid "c8135ad6-f410-451c-98c3-cdfcb8170932")
 			(effects
 				(font

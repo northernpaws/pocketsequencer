@@ -6279,10 +6279,6 @@
 		(uuid "0300059a-29d1-448d-bb45-ebf69316f75f")
 	)
 	(no_connect
-		(at 195.58 149.86)
-		(uuid "0c77c6b4-40ad-495c-8d84-ceaa6d088d40")
-	)
-	(no_connect
 		(at 195.58 142.24)
 		(uuid "1dba9f5a-cf3a-4342-a19d-026ceb5c1576")
 	)
@@ -6307,10 +6303,6 @@
 		(uuid "5194c705-d0dc-4a72-a60f-0f578d6e624b")
 	)
 	(no_connect
-		(at 195.58 160.02)
-		(uuid "7035add0-d2d7-41b0-b365-708149f0934a")
-	)
-	(no_connect
 		(at 260.35 129.54)
 		(uuid "843f4395-f6bb-49d9-896d-7f2aa9ff77fd")
 	)
@@ -6321,10 +6313,6 @@
 	(no_connect
 		(at 195.58 100.33)
 		(uuid "eccd56dc-fbb6-4db3-86c7-360716747ea5")
-	)
-	(no_connect
-		(at 195.58 152.4)
-		(uuid "f52b565e-72d4-4ad9-bce9-9bc311bf9d7a")
 	)
 	(bus_entry
 		(at 77.47 157.48)
@@ -7478,6 +7466,16 @@
 	)
 	(wire
 		(pts
+			(xy 193.04 160.02) (xy 195.58 160.02)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2168fd3b-b03b-445a-a801-c48c3d61a97b")
+	)
+	(wire
+		(pts
 			(xy 119.38 21.59) (xy 111.76 21.59)
 		)
 		(stroke
@@ -8325,6 +8323,16 @@
 			(type default)
 		)
 		(uuid "5dde61a0-08b6-4705-b9f1-e8b5548574c6")
+	)
+	(wire
+		(pts
+			(xy 193.04 149.86) (xy 195.58 149.86)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5f414fda-13e3-4c9e-ae13-64154cb34512")
 	)
 	(wire
 		(pts
@@ -10578,6 +10586,16 @@
 	)
 	(wire
 		(pts
+			(xy 193.04 152.4) (xy 195.58 152.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "faef3aad-5342-4838-b0b8-866c5c169543")
+	)
+	(wire
+		(pts
 			(xy 50.8 30.48) (xy 50.8 31.75)
 		)
 		(stroke
@@ -11707,6 +11725,17 @@
 		)
 		(uuid "114e7c2f-70da-4e38-a331-f8ad32c965fd")
 	)
+	(hierarchical_label "~{FM_TX_RST}"
+		(shape output)
+		(at 193.04 160.02 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "1684179c-ea3a-4a88-960f-c8a439c054f4")
+	)
 	(hierarchical_label "I2C4{I2C}"
 		(shape input)
 		(at 16.51 153.67 90)
@@ -11973,6 +12002,17 @@
 		)
 		(uuid "c0955a46-5c24-449b-8979-ee4f59ad5a2f")
 	)
+	(hierarchical_label "~{FM_RX_RST}"
+		(shape output)
+		(at 193.04 152.4 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "c1fea7c3-4606-4035-b208-716515169739")
+	)
 	(hierarchical_label "{QSPI}"
 		(shape input)
 		(at 279.4 144.78 90)
@@ -12028,6 +12068,17 @@
 			(justify right)
 		)
 		(uuid "de282e2d-cc9c-432d-93a7-01410392bd11")
+	)
+	(hierarchical_label "FM_RECV_INT"
+		(shape input)
+		(at 193.04 149.86 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "e121f60a-b154-4eef-9046-dd210d59d7ac")
 	)
 	(hierarchical_label "I2C2{I2C}"
 		(shape input)

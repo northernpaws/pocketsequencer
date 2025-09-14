@@ -4771,6 +4771,18 @@
 		)
 		(uuid "2ea26cd3-8dd4-488e-83c9-6f2f518ca223")
 	)
+	(text "10 s / µF."
+		(exclude_from_sim no)
+		(at 189.992 145.034 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+				(color 132 132 132 1)
+			)
+			(justify right)
+		)
+		(uuid "2f224e93-c312-475d-acf6-f69d3f7167ae")
+	)
 	(text "I2C Address\n1100100"
 		(exclude_from_sim no)
 		(at 234.696 45.974 0)
@@ -4795,9 +4807,9 @@
 		)
 		(uuid "33a9402d-75e4-4825-9d96-703905d80e2e")
 	)
-	(text "Used by the STM32 to detect when a USB\ncable has been plugged in or removed.\n\nExpected signal < 4v"
+	(text "Used by the STM32 to detect when a USB\ncable has been plugged in or removed.\n\nExpected signal < 4v\n\nCurrent divider is configured\nfor possible 14v PD input"
 		(exclude_from_sim no)
-		(at 69.85 107.188 0)
+		(at 36.83 91.948 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4965,13 +4977,13 @@
 	)
 	(text "We use the 6601 variant to allow a window\nto program an MCU within the blank period\nif the MCU is not responding with PS_HOLD."
 		(exclude_from_sim no)
-		(at 179.07 161.036 0)
+		(at 283.21 102.362 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 				(color 132 132 132 1)
 			)
-			(justify left)
+			(justify right)
 		)
 		(uuid "dbf8e85c-f973-4dfa-af38-071bdeee2483")
 	)
@@ -4987,6 +4999,30 @@
 		)
 		(uuid "dce9b7e3-8df5-49fd-bf1b-6ef3b01f5c19")
 	)
+	(text "AN3271"
+		(exclude_from_sim no)
+		(at 283.718 163.83 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+				(color 132 132 132 1)
+			)
+			(justify right)
+		)
+		(uuid "de7e11dc-bb68-412a-85e7-1f86fd5732b5")
+	)
+	(text "https://community.st.com/t5/stm32-mcus/management-of-vbus-sensing-for-usb-device-design/ta-p/49485"
+		(exclude_from_sim no)
+		(at 13.462 130.81 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+				(color 132 132 132 1)
+			)
+			(justify left)
+		)
+		(uuid "e3110aec-38fa-4332-bf6e-ff6648ea10cb")
+	)
 	(text "VCONN supplies power over a\nCC line to devices with a 1k \n(Ra) pulldown on a CC line."
 		(exclude_from_sim no)
 		(at 85.598 33.528 0)
@@ -4998,6 +5034,12 @@
 			(justify right top)
 		)
 		(uuid "fbd3d314-ea76-4d26-87cb-00f684fcb86a")
+	)
+	(junction
+		(at 29.21 109.22)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "05091443-b5e2-4c13-bc1c-3e708beb64cf")
 	)
 	(junction
 		(at 191.77 83.82)
@@ -5248,6 +5290,10 @@
 		(uuid "1e34e156-5056-4950-a464-ee04e7c11b22")
 	)
 	(no_connect
+		(at 184.15 133.35)
+		(uuid "1e7d9882-3c41-4b9f-a38d-b0575c09e3cd")
+	)
+	(no_connect
 		(at 243.84 140.97)
 		(uuid "3011da6f-ffb4-477e-9509-7dafcbb9f78e")
 	)
@@ -5258,6 +5304,10 @@
 	(no_connect
 		(at 44.45 78.74)
 		(uuid "6837c1a6-b796-4ffe-900d-e80f0fbd9a5b")
+	)
+	(no_connect
+		(at 204.47 125.73)
+		(uuid "e02a1f9a-dced-4b25-b2f4-651bf5867658")
 	)
 	(bus_entry
 		(at 114.3 48.26)
@@ -5617,6 +5667,16 @@
 	)
 	(wire
 		(pts
+			(xy 29.21 109.22) (xy 29.21 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2bb39f1a-ea34-4f87-bece-07dc5b835779")
+	)
+	(wire
+		(pts
 			(xy 67.31 163.83) (xy 67.31 166.37)
 		)
 		(stroke
@@ -5784,6 +5844,16 @@
 			(type default)
 		)
 		(uuid "412d11ef-28ae-4c31-abe0-118154dce16c")
+	)
+	(wire
+		(pts
+			(xy 29.21 109.22) (xy 31.75 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "41ca36f8-a90f-4a03-8a43-6cf8060dd781")
 	)
 	(wire
 		(pts
@@ -6114,6 +6184,16 @@
 			(type default)
 		)
 		(uuid "7d38bf90-675f-4f51-9861-c3e9df5e71a9")
+	)
+	(wire
+		(pts
+			(xy 185.42 148.59) (xy 185.42 151.13)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "81e2c06b-9d4c-4112-a902-c59625a14845")
 	)
 	(wire
 		(pts
@@ -6697,6 +6777,16 @@
 	)
 	(wire
 		(pts
+			(xy 29.21 106.68) (xy 29.21 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d2e0403a-6b67-4b32-96de-30e10ea2aeb4")
+	)
+	(wire
+		(pts
 			(xy 44.45 66.04) (xy 45.72 66.04)
 		)
 		(stroke
@@ -6714,6 +6804,16 @@
 			(type default)
 		)
 		(uuid "d680aec7-9f2a-413c-965b-255ce975eced")
+	)
+	(wire
+		(pts
+			(xy 185.42 156.21) (xy 185.42 158.75)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d6e379ec-cab7-49f2-8c50-951d40e8cac4")
 	)
 	(wire
 		(pts
@@ -7007,6 +7107,16 @@
 	)
 	(wire
 		(pts
+			(xy 29.21 96.52) (xy 29.21 99.06)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "edae5424-b483-4199-8e9e-967a64ad0295")
+	)
+	(wire
+		(pts
 			(xy 186.69 76.2) (xy 186.69 83.82)
 		)
 		(stroke
@@ -7147,6 +7257,16 @@
 	)
 	(wire
 		(pts
+			(xy 29.21 119.38) (xy 29.21 121.92)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fcb2ed83-6e0e-4732-b035-a9e909b7e0dc")
+	)
+	(wire
+		(pts
 			(xy 245.11 146.05) (xy 245.11 147.32)
 		)
 		(stroke
@@ -7236,7 +7356,7 @@
 		(uuid "22d6a3f8-1b26-48a9-947a-692249f6c6fc")
 	)
 	(label "C_SRD"
-		(at 194.31 151.13 180)
+		(at 185.42 148.59 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7511,12 +7631,12 @@
 	)
 	(hierarchical_label "USB_VBUS"
 		(shape output)
-		(at 87.63 116.84 180)
+		(at 31.75 109.22 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right)
+			(justify left)
 		)
 		(uuid "9a40ded4-41dc-4f9f-8f6c-d655568ceb6d")
 	)
@@ -8078,6 +8198,76 @@
 			(project "pocket_synth"
 				(path "/485383b8-00f4-4405-b270-de249939cff4/4ddef61a-efa7-4012-86d6-37c4f1088d14"
 					(reference "#PWR047")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C_Small")
+		(at 185.42 153.67 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "1e6067f2-33a3-4258-9e1a-4d470bd01c7c")
+		(property "Reference" "C23"
+			(at 187.96 152.4062 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "1uF"
+			(at 187.96 154.9462 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+			(at 185.42 153.67 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 185.42 153.67 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Unpolarized capacitor, small symbol"
+			(at 185.42 153.67 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "efdad665-a9fe-491b-81d0-436b14f80040")
+		)
+		(pin "2"
+			(uuid "5a950cf6-5732-4293-b64d-0fbeddf4f32b")
+		)
+		(instances
+			(project ""
+				(path "/485383b8-00f4-4405-b270-de249939cff4/4ddef61a-efa7-4012-86d6-37c4f1088d14"
+					(reference "C23")
 					(unit 1)
 				)
 			)
@@ -10042,6 +10232,77 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:R")
+		(at 29.21 115.57 0)
+		(mirror y)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "67776ad2-a382-4a69-9dc4-4806d292ea51")
+		(property "Reference" "R24"
+			(at 31.75 114.2999 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "4.7k"
+			(at 31.75 116.8399 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
+			(at 30.988 115.57 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 29.21 115.57 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 29.21 115.57 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "f29cfdb6-2f9b-4800-a0be-02e4c2d7d82d")
+		)
+		(pin "1"
+			(uuid "19e9d5e2-904b-4af2-af92-d42115a017f8")
+		)
+		(instances
+			(project "pocket_synth"
+				(path "/485383b8-00f4-4405-b270-de249939cff4/4ddef61a-efa7-4012-86d6-37c4f1088d14"
+					(reference "R24")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:+BATT")
 		(at 229.87 63.5 0)
 		(unit 1)
@@ -10391,6 +10652,71 @@
 			(project "pocket_synth"
 				(path "/485383b8-00f4-4405-b270-de249939cff4/4ddef61a-efa7-4012-86d6-37c4f1088d14"
 					(reference "TP33")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 185.42 158.75 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "6d9190b1-06d1-4b5a-8bbc-755c0c237668")
+		(property "Reference" "#PWR0142"
+			(at 185.42 165.1 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 185.42 163.322 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 185.42 158.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 185.42 158.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 185.42 158.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "8b61ed0f-7406-4c60-b358-941720b9182c")
+		)
+		(instances
+			(project "pocket_synth"
+				(path "/485383b8-00f4-4405-b270-de249939cff4/4ddef61a-efa7-4012-86d6-37c4f1088d14"
+					(reference "#PWR0142")
 					(unit 1)
 				)
 			)
@@ -12731,6 +13057,77 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:R")
+		(at 29.21 102.87 0)
+		(mirror y)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "ab85bd49-a7aa-4e34-bf40-1905591e502c")
+		(property "Reference" "R2"
+			(at 31.75 101.5999 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "10k"
+			(at 31.75 104.1399 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
+			(at 30.988 102.87 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 29.21 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 29.21 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "48b2d667-a306-4274-9fa2-1460bd7c0fca")
+		)
+		(pin "1"
+			(uuid "4ff55d27-5245-459c-ace2-2905a3f441ba")
+		)
+		(instances
+			(project ""
+				(path "/485383b8-00f4-4405-b270-de249939cff4/4ddef61a-efa7-4012-86d6-37c4f1088d14"
+					(reference "R2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:C")
 		(at 67.31 160.02 0)
 		(mirror y)
@@ -13042,6 +13439,71 @@
 			(project "pocket_synth"
 				(path "/485383b8-00f4-4405-b270-de249939cff4/4ddef61a-efa7-4012-86d6-37c4f1088d14"
 					(reference "#PWR035")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 29.21 121.92 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "ba67de82-5b5a-4586-8ba0-eab6a294fb3e")
+		(property "Reference" "#PWR050"
+			(at 29.21 128.27 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 29.21 126.238 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 29.21 121.92 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 29.21 121.92 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 29.21 121.92 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "f497224b-cef6-4ae5-8b19-8eec9f6f8862")
+		)
+		(instances
+			(project "pocket_synth"
+				(path "/485383b8-00f4-4405-b270-de249939cff4/4ddef61a-efa7-4012-86d6-37c4f1088d14"
+					(reference "#PWR050")
 					(unit 1)
 				)
 			)
@@ -13822,6 +14284,71 @@
 			(project ""
 				(path "/485383b8-00f4-4405-b270-de249939cff4/4ddef61a-efa7-4012-86d6-37c4f1088d14"
 					(reference "TP21")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:VBUS")
+		(at 29.21 96.52 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "d7043cc1-59ae-419a-acda-3dbb15610b3b")
+		(property "Reference" "#PWR022"
+			(at 29.21 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "VBUS"
+			(at 29.21 91.948 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 29.21 96.52 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 29.21 96.52 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"VBUS\""
+			(at 29.21 96.52 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "432fed04-0b52-4cdc-a109-d5db2abb0dee")
+		)
+		(instances
+			(project "pocket_synth"
+				(path "/485383b8-00f4-4405-b270-de249939cff4/4ddef61a-efa7-4012-86d6-37c4f1088d14"
+					(reference "#PWR022")
 					(unit 1)
 				)
 			)
