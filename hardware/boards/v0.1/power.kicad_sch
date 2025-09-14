@@ -203,17 +203,17 @@
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
-			(property "Reference" "U32"
-				(at -3.81 -11.43 0)
+			(property "Reference" "U"
+				(at -10.16 6.35 0)
 				(effects
 					(font
 						(size 1.27 1.27)
 					)
-					(justify right)
+					(justify left)
 				)
 			)
 			(property "Value" "LTC2942"
-				(at -3.81 -13.97 0)
+				(at 10.16 6.35 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -268,8 +268,8 @@
 			)
 			(symbol "LTC2942_0_1"
 				(rectangle
-					(start -10.16 8.89)
-					(end 10.16 -8.89)
+					(start -10.16 5.08)
+					(end 10.16 -5.08)
 					(stroke
 						(width 0.254)
 						(type default)
@@ -281,7 +281,7 @@
 			)
 			(symbol "LTC2942_1_1"
 				(pin bidirectional line
-					(at -12.7 3.81 0)
+					(at -12.7 2.54 0)
 					(length 2.54)
 					(name "~{AL}/CC"
 						(effects
@@ -299,7 +299,7 @@
 					)
 				)
 				(pin input line
-					(at -12.7 -1.27 0)
+					(at -12.7 0 0)
 					(length 2.54)
 					(name "SCL"
 						(effects
@@ -317,7 +317,7 @@
 					)
 				)
 				(pin bidirectional line
-					(at -12.7 -3.81 0)
+					(at -12.7 -2.54 0)
 					(length 2.54)
 					(name "SDA"
 						(effects
@@ -335,7 +335,7 @@
 					)
 				)
 				(pin power_in line
-					(at 0 -11.43 90)
+					(at 0 -7.62 90)
 					(length 2.54)
 					(name "GND"
 						(effects
@@ -353,7 +353,7 @@
 					)
 				)
 				(pin passive line
-					(at 12.7 6.35 180)
+					(at 12.7 2.54 180)
 					(length 2.54)
 					(name "SENSE+"
 						(effects
@@ -371,7 +371,7 @@
 					)
 				)
 				(pin passive line
-					(at 12.7 -6.35 180)
+					(at 12.7 -2.54 180)
 					(length 2.54)
 					(name "SENSE-"
 						(effects
@@ -4861,7 +4861,7 @@
 	)
 	(text "Fuel gauge"
 		(exclude_from_sim no)
-		(at 245.11 54.356 0)
+		(at 245.11 51.054 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5260,7 +5260,7 @@
 		(uuid "ec017719-e20c-48d6-a3c2-6d5da167944a")
 	)
 	(junction
-		(at 232.41 34.29)
+		(at 232.41 35.56)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "eef234ee-a1d0-4bbf-9119-515014c4a892")
@@ -5333,7 +5333,7 @@
 		(uuid "cb21c858-7c49-4eca-955b-25a6e6bbfbd3")
 	)
 	(bus_entry
-		(at 218.44 39.37)
+		(at 213.36 38.1)
 		(size -2.54 -2.54)
 		(stroke
 			(width 0)
@@ -5342,7 +5342,7 @@
 		(uuid "d0521f37-e3e6-44a2-9f42-da85f5e0fa20")
 	)
 	(bus_entry
-		(at 218.44 41.91)
+		(at 213.36 40.64)
 		(size -2.54 -2.54)
 		(stroke
 			(width 0)
@@ -5431,7 +5431,7 @@
 	)
 	(wire
 		(pts
-			(xy 232.41 34.29) (xy 234.95 34.29)
+			(xy 232.41 35.56) (xy 234.95 35.56)
 		)
 		(stroke
 			(width 0)
@@ -5841,7 +5841,7 @@
 	)
 	(bus
 		(pts
-			(xy 215.9 34.29) (xy 215.9 36.83)
+			(xy 210.82 33.02) (xy 210.82 35.56)
 		)
 		(stroke
 			(width 0)
@@ -5991,7 +5991,7 @@
 	)
 	(wire
 		(pts
-			(xy 232.41 31.75) (xy 232.41 34.29)
+			(xy 232.41 33.02) (xy 232.41 35.56)
 		)
 		(stroke
 			(width 0)
@@ -6001,7 +6001,7 @@
 	)
 	(wire
 		(pts
-			(xy 232.41 21.59) (xy 232.41 24.13)
+			(xy 232.41 22.86) (xy 232.41 25.4)
 		)
 		(stroke
 			(width 0)
@@ -6218,6 +6218,16 @@
 			(type default)
 		)
 		(uuid "821b8b32-5294-4794-9fe2-3c12e0e98de2")
+	)
+	(wire
+		(pts
+			(xy 247.65 45.72) (xy 247.65 59.69)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "83c6d774-a172-427e-a82e-7eae433edbdb")
 	)
 	(wire
 		(pts
@@ -6631,7 +6641,7 @@
 	)
 	(wire
 		(pts
-			(xy 234.95 39.37) (xy 218.44 39.37)
+			(xy 234.95 38.1) (xy 213.36 38.1)
 		)
 		(stroke
 			(width 0)
@@ -6691,7 +6701,7 @@
 	)
 	(wire
 		(pts
-			(xy 234.95 41.91) (xy 218.44 41.91)
+			(xy 234.95 40.64) (xy 213.36 40.64)
 		)
 		(stroke
 			(width 0)
@@ -6778,6 +6788,16 @@
 			(type default)
 		)
 		(uuid "cbdbd464-ec1f-4d7f-b917-03c8a732dc17")
+	)
+	(wire
+		(pts
+			(xy 260.35 40.64) (xy 260.35 44.45)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cc655f76-51c1-4e2f-bc0b-11f820a85793")
 	)
 	(wire
 		(pts
@@ -7021,7 +7041,7 @@
 	)
 	(bus
 		(pts
-			(xy 215.9 36.83) (xy 215.9 39.37)
+			(xy 210.82 35.56) (xy 210.82 38.1)
 		)
 		(stroke
 			(width 0)
@@ -7048,6 +7068,16 @@
 			(type default)
 		)
 		(uuid "e94cc186-3548-490c-b70d-58504eb5cd29")
+	)
+	(wire
+		(pts
+			(xy 260.35 31.75) (xy 260.35 35.56)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e9584eb2-6939-4e9d-843e-48d7dcc7c297")
 	)
 	(polyline
 		(pts
@@ -7241,7 +7271,7 @@
 	)
 	(wire
 		(pts
-			(xy 229.87 34.29) (xy 232.41 34.29)
+			(xy 223.52 35.56) (xy 232.41 35.56)
 		)
 		(stroke
 			(width 0)
@@ -7299,16 +7329,6 @@
 		)
 		(uuid "fdf67dd4-ad67-42cd-9be2-ea6aee8dd0fd")
 	)
-	(wire
-		(pts
-			(xy 247.65 49.53) (xy 247.65 59.69)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ff0653d5-6bcb-4fd8-9225-6be62e37eceb")
-	)
 	(polyline
 		(pts
 			(xy 177.038 97.79) (xy 177.038 137.16)
@@ -7320,7 +7340,7 @@
 		(uuid "ff9939f8-9a31-4177-b62e-8c54aa00b45e")
 	)
 	(label "I2C2.SCL"
-		(at 233.68 39.37 180)
+		(at 233.68 38.1 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7420,7 +7440,7 @@
 		(uuid "4433e8c3-d1dd-493a-96f5-c26aa002ab92")
 	)
 	(label "I2C2.SDA"
-		(at 233.68 41.91 180)
+		(at 233.68 40.64 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7555,7 +7575,7 @@
 	)
 	(hierarchical_label "FUEL_INT"
 		(shape output)
-		(at 229.87 34.29 180)
+		(at 223.52 35.56 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7600,7 +7620,7 @@
 	)
 	(hierarchical_label "I2C2{I2C}"
 		(shape input)
-		(at 215.9 34.29 90)
+		(at 210.82 33.02 90)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8735,7 +8755,7 @@
 		(dnp no)
 		(uuid "29cf9b34-4382-42a8-aa8f-6b5c947aeccd")
 		(property "Reference" "U32"
-			(at 245.11 49.276 0)
+			(at 245.11 45.974 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8744,7 +8764,7 @@
 			)
 		)
 		(property "Value" "LTC2942"
-			(at 245.11 51.816 0)
+			(at 245.11 48.514 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8998,7 +9018,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 232.41 27.94 0)
+		(at 232.41 29.21 0)
 		(mirror y)
 		(unit 1)
 		(exclude_from_sim no)
@@ -9007,7 +9027,7 @@
 		(dnp no)
 		(uuid "2c9235c1-edea-4c43-a80b-64be65cd65d2")
 		(property "Reference" "R34"
-			(at 230.378 26.67 0)
+			(at 230.378 27.94 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9016,7 +9036,7 @@
 			)
 		)
 		(property "Value" "1k"
-			(at 230.378 29.21 0)
+			(at 230.378 30.48 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9025,7 +9045,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
-			(at 234.188 27.94 90)
+			(at 234.188 29.21 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9034,7 +9054,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 232.41 27.94 0)
+			(at 232.41 29.21 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9043,7 +9063,7 @@
 			)
 		)
 		(property "Description" "Resistor"
-			(at 232.41 27.94 0)
+			(at 232.41 29.21 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9052,7 +9072,7 @@
 			)
 		)
 		(property "Arrow Part Number" ""
-			(at 232.41 27.94 0)
+			(at 232.41 29.21 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9060,7 +9080,7 @@
 			)
 		)
 		(property "Arrow Price/Stock" ""
-			(at 232.41 27.94 0)
+			(at 232.41 29.21 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9068,7 +9088,7 @@
 			)
 		)
 		(property "MANUFACTURER" ""
-			(at 232.41 27.94 0)
+			(at 232.41 29.21 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9076,7 +9096,7 @@
 			)
 		)
 		(property "MAXIMUM_PACKAGE_HEIGHT" ""
-			(at 232.41 27.94 0)
+			(at 232.41 29.21 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9084,7 +9104,7 @@
 			)
 		)
 		(property "PARTREV" ""
-			(at 232.41 27.94 0)
+			(at 232.41 29.21 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9092,7 +9112,7 @@
 			)
 		)
 		(property "STANDARD" ""
-			(at 232.41 27.94 0)
+			(at 232.41 29.21 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9100,7 +9120,7 @@
 			)
 		)
 		(property "Connector" ""
-			(at 232.41 27.94 0)
+			(at 232.41 29.21 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14496,7 +14516,7 @@
 	)
 	(symbol
 		(lib_id "power:+3.3V")
-		(at 232.41 21.59 0)
+		(at 232.41 22.86 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -14504,7 +14524,7 @@
 		(dnp no)
 		(uuid "de5740f3-1955-4139-aaa5-d2ebc53be526")
 		(property "Reference" "#PWR075"
-			(at 232.41 25.4 0)
+			(at 232.41 26.67 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14513,7 +14533,7 @@
 			)
 		)
 		(property "Value" "+3.3V"
-			(at 232.41 17.78 0)
+			(at 232.41 19.05 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14521,7 +14541,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 232.41 21.59 0)
+			(at 232.41 22.86 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14530,7 +14550,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 232.41 21.59 0)
+			(at 232.41 22.86 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14539,7 +14559,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"+3.3V\""
-			(at 232.41 21.59 0)
+			(at 232.41 22.86 0)
 			(effects
 				(font
 					(size 1.27 1.27)

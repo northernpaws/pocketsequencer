@@ -1607,12 +1607,6 @@
 		(uuid "2b78d20b-6e63-4a7d-9b45-0b1abb7c9c10")
 	)
 	(junction
-		(at 39.37 49.53)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "2e19e983-2138-437b-a86b-90c1dd020d13")
-	)
-	(junction
 		(at 40.64 69.85)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -1885,16 +1879,6 @@
 			(type default)
 		)
 		(uuid "3ec54eed-c2cc-4d0c-937b-f7a9f4b91a39")
-	)
-	(wire
-		(pts
-			(xy 36.83 49.53) (xy 39.37 49.53)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "47c5b6d9-4564-419e-9c62-d1e284d82d3f")
 	)
 	(wire
 		(pts
@@ -2316,18 +2300,6 @@
 			(justify left)
 		)
 		(uuid "09f043b3-deb1-4028-96a5-3c08d1ab9ee0")
-	)
-	(hierarchical_label "HAPTIC_IRQ"
-		(shape output)
-		(at 36.83 49.53 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-				(thickness 0.1588)
-			)
-			(justify right)
-		)
-		(uuid "6753bd38-aeef-416a-9aca-ff2929cfe6be")
 	)
 	(hierarchical_label "I2C4{I2C}"
 		(shape input)

@@ -2639,16 +2639,6 @@
 				(justify right)
 			)
 		)
-		(pin "HAPTIC_IRQ" output
-			(at 57.15 132.08 0)
-			(uuid "c8135ad6-f410-451c-98c3-cdfcb8170932")
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
 		(pin "I2C4{I2C}" input
 			(at 57.15 123.19 0)
 			(uuid "077b6d96-2ffb-4004-9485-a1a5953487bc")
