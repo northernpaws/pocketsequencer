@@ -3984,6 +3984,16 @@
 	)
 	(wire
 		(pts
+			(xy 46.99 130.81) (xy 49.53 130.81)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "577d0b95-c8d8-477b-aca4-7b25bd3c005a")
+	)
+	(wire
+		(pts
 			(xy 223.52 35.56) (xy 226.06 35.56)
 		)
 		(stroke
@@ -6469,6 +6479,17 @@
 			(justify right bottom)
 		)
 		(uuid "ffc4e967-42a2-4848-acd3-a0b560c4267a")
+	)
+	(hierarchical_label "VELOCITY_ALERT"
+		(shape output)
+		(at 46.99 130.81 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "152976ff-6b33-41a3-b280-870d5d4c78b2")
 	)
 	(hierarchical_label "I2C4{I2C}"
 		(shape input)

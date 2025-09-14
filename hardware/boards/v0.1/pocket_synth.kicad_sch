@@ -549,6 +549,16 @@
 		)
 		(uuid "db68f2a3-f668-4bea-8e37-91800b2e12d0")
 	)
+	(wire
+		(pts
+			(xy 110.49 93.98) (xy 138.43 93.98)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "df5efb51-12ad-4e6a-9206-f7291cf2d17e")
+	)
 	(bus
 		(pts
 			(xy 27.94 38.1) (xy 31.75 38.1)
@@ -1480,6 +1490,16 @@
 				(justify left)
 			)
 		)
+		(pin "VELOCITY_ALERT" input
+			(at 110.49 93.98 0)
+			(uuid "dbfee7ad-8c8e-4a7f-a319-6ece6b1b7922")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
 		(instances
 			(project "pocket_synth"
 				(path "/485383b8-00f4-4405-b270-de249939cff4"
@@ -1825,6 +1845,16 @@
 		(pin "I2C4{I2C}" input
 			(at 138.43 86.36 180)
 			(uuid "5e72bffc-47bb-4eb0-9f98-e59253d8668b")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "VELOCITY_ALERT" output
+			(at 138.43 93.98 180)
+			(uuid "6a32b0fd-0648-48d7-9829-11e8f54d3f8e")
 			(effects
 				(font
 					(size 1.27 1.27)

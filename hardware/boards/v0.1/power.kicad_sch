@@ -4725,6 +4725,18 @@
 		)
 		(uuid "53853fa9-8a1c-4d5b-aa7d-2ae92dbf423c")
 	)
+	(text "STM6601 varient selected\nto just assert power EN"
+		(exclude_from_sim no)
+		(at 255.778 134.874 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+				(color 132 132 132 1)
+			)
+			(justify left)
+		)
+		(uuid "60bab157-202c-4d03-95a7-f926a30c1110")
+	)
 	(text "Charger supply and USB High-Speed"
 		(exclude_from_sim no)
 		(at 13.716 17.526 0)
@@ -5112,6 +5124,10 @@
 	(no_connect
 		(at 213.36 130.81)
 		(uuid "1e34e156-5056-4950-a464-ee04e7c11b22")
+	)
+	(no_connect
+		(at 243.84 140.97)
+		(uuid "3011da6f-ffb4-477e-9509-7dafcbb9f78e")
 	)
 	(no_connect
 		(at 243.84 133.35)

@@ -5768,12 +5768,13 @@
 	)
 	(text "Selects if line-in is\na mic or aux input"
 		(exclude_from_sim no)
-		(at 180.34 91.44 0)
+		(at 172.72 95.504 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 				(color 132 132 132 1)
 			)
+			(justify right)
 		)
 		(uuid "4bdf3bb4-5ff3-47f9-9175-b7aa6d82ac30")
 	)
@@ -6306,20 +6307,12 @@
 		(uuid "5194c705-d0dc-4a72-a60f-0f578d6e624b")
 	)
 	(no_connect
-		(at 195.58 90.17)
-		(uuid "60da772a-ec2b-4ac1-8c65-1787be470329")
-	)
-	(no_connect
 		(at 195.58 160.02)
 		(uuid "7035add0-d2d7-41b0-b365-708149f0934a")
 	)
 	(no_connect
 		(at 260.35 129.54)
 		(uuid "843f4395-f6bb-49d9-896d-7f2aa9ff77fd")
-	)
-	(no_connect
-		(at 195.58 58.42)
-		(uuid "bc3c2796-6244-417b-b816-aa843c3b6e87")
 	)
 	(no_connect
 		(at 195.58 97.79)
@@ -9635,6 +9628,16 @@
 	)
 	(wire
 		(pts
+			(xy 186.69 90.17) (xy 195.58 90.17)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bfca3dc2-60a8-4655-8925-afadc233fdf1")
+	)
+	(wire
+		(pts
 			(xy 99.06 38.1) (xy 99.06 39.37)
 		)
 		(stroke
@@ -10282,6 +10285,16 @@
 			(type default)
 		)
 		(uuid "e679f5d8-9f10-4b0b-ab98-da249e5ded56")
+	)
+	(wire
+		(pts
+			(xy 186.69 58.42) (xy 195.58 58.42)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e6c27378-b6d3-4e17-bc2e-2eb1804a3307")
 	)
 	(wire
 		(pts
@@ -11705,6 +11718,17 @@
 		)
 		(uuid "31f2ad1b-d109-41c9-8ed6-46ffdab8c93a")
 	)
+	(hierarchical_label "VELOCITY_ALERT"
+		(shape input)
+		(at 186.69 58.42 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "33468101-c525-493a-8729-29e57b93adde")
+	)
 	(hierarchical_label "FUEL_INT"
 		(shape input)
 		(at 139.7 124.46 180)
@@ -11873,12 +11897,12 @@
 	)
 	(hierarchical_label "~{PWR_PBOUT}"
 		(shape input)
-		(at 100.33 124.46 0)
+		(at 186.69 90.17 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left)
+			(justify right)
 		)
 		(uuid "a4a15699-5600-4e98-8bc2-1e7d9370c2e4")
 	)
