@@ -361,7 +361,7 @@
 	)
 	(wire
 		(pts
-			(xy 110.49 73.66) (xy 138.43 73.66)
+			(xy 110.49 71.12) (xy 138.43 71.12)
 		)
 		(stroke
 			(width 0)
@@ -401,7 +401,7 @@
 	)
 	(wire
 		(pts
-			(xy 110.49 69.85) (xy 138.43 69.85)
+			(xy 110.49 68.58) (xy 138.43 68.58)
 		)
 		(stroke
 			(width 0)
@@ -458,6 +458,16 @@
 			(type default)
 		)
 		(uuid "64a9d234-273e-4caf-b7d4-bea4c1e7f9f8")
+	)
+	(wire
+		(pts
+			(xy 110.49 73.66) (xy 138.43 73.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6a32d7f8-b353-4b4d-a35b-5df192e1d07d")
 	)
 	(wire
 		(pts
@@ -638,6 +648,16 @@
 			(type default)
 		)
 		(uuid "c03ce327-d885-450c-98b9-95100dc8ae10")
+	)
+	(polyline
+		(pts
+			(xy 104.14 166.37) (xy 104.14 198.12)
+		)
+		(stroke
+			(width 0.127)
+			(type dash)
+		)
+		(uuid "c2af36ad-d98c-4782-bbf5-3aa1c56ab617")
 	)
 	(bus
 		(pts
@@ -1311,7 +1331,7 @@
 	)
 	(symbol
 		(lib_id "Mechanical:Fiducial")
-		(at 90.17 181.61 0)
+		(at 90.17 184.15 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
@@ -1320,15 +1340,6 @@
 		(fields_autoplaced yes)
 		(uuid "b87d9d0a-d911-4130-ad2f-7fba1e4e50c3")
 		(property "Reference" "FID3"
-			(at 92.71 180.3399 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "Fiducial"
 			(at 92.71 182.8799 0)
 			(effects
 				(font
@@ -1337,8 +1348,17 @@
 				(justify left)
 			)
 		)
+		(property "Value" "Fiducial"
+			(at 92.71 185.4199 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
 		(property "Footprint" "Fiducial:Fiducial_0.5mm_Mask1.5mm"
-			(at 90.17 181.61 0)
+			(at 90.17 184.15 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1347,7 +1367,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 90.17 181.61 0)
+			(at 90.17 184.15 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1356,7 +1376,7 @@
 			)
 		)
 		(property "Description" "Fiducial Marker"
-			(at 90.17 181.61 0)
+			(at 90.17 184.15 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1375,7 +1395,7 @@
 	)
 	(symbol
 		(lib_id "Mechanical:Fiducial")
-		(at 90.17 176.53 0)
+		(at 90.17 177.8 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
@@ -1384,7 +1404,7 @@
 		(fields_autoplaced yes)
 		(uuid "dec15561-a83b-4e9b-929c-a17a280d68fd")
 		(property "Reference" "FID2"
-			(at 92.71 175.2599 0)
+			(at 92.71 176.5299 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1393,7 +1413,7 @@
 			)
 		)
 		(property "Value" "Fiducial"
-			(at 92.71 177.7999 0)
+			(at 92.71 179.0699 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1402,7 +1422,7 @@
 			)
 		)
 		(property "Footprint" "Fiducial:Fiducial_0.5mm_Mask1.5mm"
-			(at 90.17 176.53 0)
+			(at 90.17 177.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1411,7 +1431,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 90.17 176.53 0)
+			(at 90.17 177.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1420,7 +1440,7 @@
 			)
 		)
 		(property "Description" "Fiducial Marker"
-			(at 90.17 176.53 0)
+			(at 90.17 177.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1553,7 +1573,7 @@
 			)
 		)
 		(pin "TOUCH_RST" output
-			(at 110.49 69.85 0)
+			(at 110.49 68.58 0)
 			(uuid "41c1adad-c30b-45f8-8224-062045885e69")
 			(effects
 				(font
@@ -1743,7 +1763,7 @@
 			)
 		)
 		(pin "DISPLAY_TE" input
-			(at 110.49 73.66 0)
+			(at 110.49 71.12 0)
 			(uuid "4a9d9d99-4699-4df3-8fea-55b72caf676b")
 			(effects
 				(font
@@ -1825,6 +1845,16 @@
 		(pin "~{FM_RX_RST}" output
 			(at 110.49 128.27 0)
 			(uuid "bcee2dd5-7131-4170-a826-3a08ed1d0278")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "DISPLAY_RESET" output
+			(at 110.49 73.66 0)
+			(uuid "79c2a824-cf99-4b54-849a-9da5c98cdadf")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2463,7 +2493,7 @@
 	)
 	(sheet
 		(at 138.43 53.34)
-		(size 25.4 24.13)
+		(size 25.4 25.4)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
@@ -2487,7 +2517,7 @@
 			)
 		)
 		(property "Sheetfile" "display.kicad_sch"
-			(at 138.43 78.0546 0)
+			(at 138.43 79.3246 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2517,7 +2547,7 @@
 			)
 		)
 		(pin "DISPLAY_TE" input
-			(at 138.43 73.66 180)
+			(at 138.43 71.12 180)
 			(uuid "0f510438-0a90-4935-8a57-2de6a5f9927b")
 			(effects
 				(font
@@ -2537,8 +2567,18 @@
 			)
 		)
 		(pin "TOUCH_RST" input
-			(at 138.43 69.85 180)
+			(at 138.43 68.58 180)
 			(uuid "b51b0a85-3863-423d-9128-1d6511c855b6")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "DISPLAY_RESET" input
+			(at 138.43 73.66 180)
+			(uuid "dd65e64e-edf9-4fe2-8eb1-4c59c9685a6f")
 			(effects
 				(font
 					(size 1.27 1.27)

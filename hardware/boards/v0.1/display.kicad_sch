@@ -5202,6 +5202,16 @@
 	)
 	(wire
 		(pts
+			(xy 36.83 55.88) (xy 39.37 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1b495949-0a54-4fab-bd7b-b972c2e6bc8e")
+	)
+	(wire
+		(pts
 			(xy 43.18 38.1) (xy 43.18 40.64)
 		)
 		(stroke
@@ -6592,6 +6602,17 @@
 			(justify left)
 		)
 		(uuid "95ce1cf3-5442-4bdd-8864-7c30e16ba1cc")
+	)
+	(hierarchical_label "DISPLAY_RESET"
+		(shape input)
+		(at 36.83 55.88 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "c1924bf3-1b0a-44a0-93e9-b1d4cd0c26b4")
 	)
 	(hierarchical_label "DISPLAY_TE"
 		(shape input)
