@@ -6310,10 +6310,6 @@
 		(uuid "4ba23355-a1e7-4bae-9ca8-9aaf47548650")
 	)
 	(no_connect
-		(at 142.24 124.46)
-		(uuid "508adfe3-96f5-4c7a-a678-8783147ac57d")
-	)
-	(no_connect
 		(at 195.58 50.8)
 		(uuid "5194c705-d0dc-4a72-a60f-0f578d6e624b")
 	)
@@ -6336,10 +6332,6 @@
 	(no_connect
 		(at 142.24 127)
 		(uuid "9445bd89-79e1-4f56-8c6e-486ce040cedf")
-	)
-	(no_connect
-		(at 195.58 33.02)
-		(uuid "97c97e00-3d95-488d-8411-cdba2a4a5d6f")
 	)
 	(no_connect
 		(at 195.58 58.42)
@@ -9889,6 +9881,16 @@
 	)
 	(wire
 		(pts
+			(xy 139.7 124.46) (xy 142.24 124.46)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cdfe2b58-1eea-4f83-98a4-c1e7c0dcb140")
+	)
+	(wire
+		(pts
 			(xy 58.42 30.48) (xy 58.42 31.75)
 		)
 		(stroke
@@ -11680,6 +11682,18 @@
 		)
 		(uuid "31f2ad1b-d109-41c9-8ed6-46ffdab8c93a")
 	)
+	(hierarchical_label "FUEL_INT"
+		(shape input)
+		(at 139.7 124.46 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.1588)
+			)
+			(justify right)
+		)
+		(uuid "4ba78295-3645-42e6-b5ac-76c44512932f")
+	)
 	(hierarchical_label "LED_DIN"
 		(shape output)
 		(at 193.04 129.54 180)
@@ -11935,6 +11949,17 @@
 			(justify right)
 		)
 		(uuid "e4f92f80-44d5-447e-8bb0-18913259d2db")
+	)
+	(hierarchical_label "~{MIDI_THRU_EN}"
+		(shape output)
+		(at 134.62 107.95 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "e84e221f-1ad2-4752-b060-8c4c8b659c41")
 	)
 	(hierarchical_label "{FMC}"
 		(shape output)

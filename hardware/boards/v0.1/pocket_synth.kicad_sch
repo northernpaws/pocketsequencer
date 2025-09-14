@@ -870,6 +870,16 @@
 	)
 	(wire
 		(pts
+			(xy 57.15 53.34) (xy 72.39 53.34)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "474d38ad-eaca-42ce-82c7-233e4166dc23")
+	)
+	(wire
+		(pts
 			(xy 110.49 93.98) (xy 138.43 93.98)
 		)
 		(stroke
@@ -2689,6 +2699,26 @@
 		(pin "LED_DIN" output
 			(at 72.39 91.44 180)
 			(uuid "ee17927e-693a-4a85-a1ee-a9e5dcdf6323")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "9DOF_INT2" input
+			(at 72.39 58.42 180)
+			(uuid "72b5415c-0e16-4d06-b145-e4455ff6225a")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "FUEL_INT" input
+			(at 72.39 53.34 180)
+			(uuid "64c78731-5ec5-46e1-94ed-f5ecd6af58f6")
 			(effects
 				(font
 					(size 1.27 1.27)
