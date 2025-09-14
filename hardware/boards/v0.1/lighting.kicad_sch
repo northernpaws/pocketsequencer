@@ -1241,6 +1241,10 @@
 		(uuid "eae6e4c5-7373-4d81-b511-ecef35d73170")
 	)
 	(no_connect
+		(at 44.45 181.61)
+		(uuid "7685a003-ea6e-40f4-a460-096cae0ecfad")
+	)
+	(no_connect
 		(at 69.85 138.43)
 		(uuid "ca428c70-1285-4fea-b891-ddfc0317cbbb")
 	)
@@ -1526,6 +1530,16 @@
 	)
 	(wire
 		(pts
+			(xy 26.67 181.61) (xy 29.21 181.61)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4c1ee453-ce8e-43eb-82b9-ac8d2bbd112b")
+	)
+	(wire
+		(pts
 			(xy 78.74 58.42) (xy 78.74 60.96)
 		)
 		(stroke
@@ -1583,6 +1597,16 @@
 			(type default)
 		)
 		(uuid "55f9e6d6-7757-452f-ae23-a3f25ce877e2")
+	)
+	(wire
+		(pts
+			(xy 36.83 189.23) (xy 36.83 190.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "565773eb-317b-49c2-bd1f-da2dd41dabb0")
 	)
 	(wire
 		(pts
@@ -1893,6 +1917,16 @@
 			(type default)
 		)
 		(uuid "a8807142-51cc-443b-8f11-46b84db03fcb")
+	)
+	(wire
+		(pts
+			(xy 36.83 172.72) (xy 36.83 173.99)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a8fb6b6e-cb05-4e9d-9929-0f49ce7d2ba5")
 	)
 	(wire
 		(pts
@@ -2234,6 +2268,17 @@
 			(justify right)
 		)
 		(uuid "1c6313ea-df70-4f61-b53b-36768f2b41fa")
+	)
+	(hierarchical_label "METRO_DIN"
+		(shape input)
+		(at 26.67 181.61 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "e17c43d5-3805-4e51-9e48-8515420b2272")
 	)
 	(symbol
 		(lib_id "pocket_synth:SK6812MINI-E")
@@ -2642,6 +2687,72 @@
 			(project "pocket_synth"
 				(path "/485383b8-00f4-4405-b270-de249939cff4/ecdfb102-30c7-4f5a-8eb8-8f15fcbab9da"
 					(reference "#PWR021")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 36.83 190.5 0)
+		(mirror y)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "1acf4d5e-79cd-4327-a28a-30da0a911724")
+		(property "Reference" "#PWR0114"
+			(at 36.83 196.85 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 36.83 195.072 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 36.83 190.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 36.83 190.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 36.83 190.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "2fbc52b7-8dda-4e8c-862a-bc3fdee817fc")
+		)
+		(instances
+			(project "pocket_synth"
+				(path "/485383b8-00f4-4405-b270-de249939cff4/ecdfb102-30c7-4f5a-8eb8-8f15fcbab9da"
+					(reference "#PWR0114")
 					(unit 1)
 				)
 			)
@@ -4051,7 +4162,7 @@
 	)
 	(symbol
 		(lib_id "LED:SK6812MINI")
-		(at 24.13 181.61 0)
+		(at 36.83 181.61 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4059,7 +4170,7 @@
 		(dnp no)
 		(uuid "639b8c8a-4de8-412d-a3ca-1ef254222cef")
 		(property "Reference" "D20"
-			(at 36.83 175.1898 0)
+			(at 49.53 175.1898 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4067,7 +4178,7 @@
 			)
 		)
 		(property "Value" "METRONOME"
-			(at 36.83 177.7298 0)
+			(at 49.53 177.7298 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4075,7 +4186,7 @@
 			)
 		)
 		(property "Footprint" "LED_SMD:LED_SK6812MINI_PLCC4_3.5x3.5mm_P1.75mm"
-			(at 25.4 189.23 0)
+			(at 38.1 189.23 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4085,7 +4196,7 @@
 			)
 		)
 		(property "Datasheet" "https://cdn-shop.adafruit.com/product-files/2686/SK6812MINI_REV.01-1-2.pdf"
-			(at 26.67 191.135 0)
+			(at 39.37 191.135 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4095,7 +4206,7 @@
 			)
 		)
 		(property "Description" "RGB LED with integrated controller"
-			(at 24.13 181.61 0)
+			(at 36.83 181.61 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4104,7 +4215,7 @@
 			)
 		)
 		(property "Arrow Part Number" ""
-			(at 24.13 181.61 0)
+			(at 36.83 181.61 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4112,7 +4223,7 @@
 			)
 		)
 		(property "Arrow Price/Stock" ""
-			(at 24.13 181.61 0)
+			(at 36.83 181.61 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4120,7 +4231,7 @@
 			)
 		)
 		(property "MANUFACTURER" ""
-			(at 24.13 181.61 0)
+			(at 36.83 181.61 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4128,7 +4239,7 @@
 			)
 		)
 		(property "MAXIMUM_PACKAGE_HEIGHT" ""
-			(at 24.13 181.61 0)
+			(at 36.83 181.61 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4136,7 +4247,7 @@
 			)
 		)
 		(property "PARTREV" ""
-			(at 24.13 181.61 0)
+			(at 36.83 181.61 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4144,7 +4255,7 @@
 			)
 		)
 		(property "STANDARD" ""
-			(at 24.13 181.61 0)
+			(at 36.83 181.61 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4152,7 +4263,7 @@
 			)
 		)
 		(property "Connector" ""
-			(at 24.13 181.61 0)
+			(at 36.83 181.61 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4865,6 +4976,72 @@
 			(project "pocket_synth"
 				(path "/485383b8-00f4-4405-b270-de249939cff4/ecdfb102-30c7-4f5a-8eb8-8f15fcbab9da"
 					(reference "U2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:VDD")
+		(at 36.83 172.72 0)
+		(mirror y)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "b4e34122-85da-4354-94c9-f35dfb2be2f0")
+		(property "Reference" "#PWR0113"
+			(at 36.83 176.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "VDD"
+			(at 36.83 168.148 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 36.83 172.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 36.83 172.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"VDD\""
+			(at 36.83 172.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "1c246222-3900-4905-ae54-49dd25ad8e70")
+		)
+		(instances
+			(project "pocket_synth"
+				(path "/485383b8-00f4-4405-b270-de249939cff4/ecdfb102-30c7-4f5a-8eb8-8f15fcbab9da"
+					(reference "#PWR0113")
 					(unit 1)
 				)
 			)

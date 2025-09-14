@@ -134,6 +134,18 @@
         [
           "nonmirrored_text_on_back_layer|88175000|166875000|2149646a-21fd-4a6b-9f12-35ec52ff2a9a|00000000-0000-0000-0000-000000000000",
           ""
+        ],
+        [
+          "solder_mask_bridge|82879901|48500000|7a9335ab-aa2c-4fef-a59e-f0b0351acd25|e09563ce-c6cb-491c-bfb2-9f8db5673878",
+          ""
+        ],
+        [
+          "solder_mask_bridge|82879901|76399994|dc20ccdf-5ef9-4319-8a7c-49fae5f650aa|f6fcbd76-70e0-47cc-81c3-a89cf438f016",
+          ""
+        ],
+        [
+          "unconnected_items|58400000|29900000|14b7aae4-aa0a-432a-ab6a-1d8d6439cae0|2a1520ef-b8a1-4572-9a65-68a8149f194a",
+          ""
         ]
       ],
       "meta": {

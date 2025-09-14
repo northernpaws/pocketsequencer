@@ -5582,6 +5582,16 @@
 	)
 	(wire
 		(pts
+			(xy 266.7 134.62) (xy 271.78 134.62)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c9a173c4-c0da-46c9-b5de-d62e812ba2dc")
+	)
+	(wire
+		(pts
 			(xy 135.89 99.06) (xy 156.21 99.06)
 		)
 		(stroke
@@ -5879,6 +5889,16 @@
 			(justify left bottom)
 		)
 		(uuid "b2f1ea70-d2de-46a5-8673-55de082755ce")
+	)
+	(label "WIFI_EN"
+		(at 271.78 134.62 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "c5d56a05-9fc7-4297-8368-32017b8525bc")
 	)
 	(label "WIFI.TX"
 		(at 250.19 57.15 0)
