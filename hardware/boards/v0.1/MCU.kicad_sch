@@ -10113,6 +10113,10 @@
 		(uuid "c7a6a71d-1be0-479e-95e9-fc7041dbd0f6")
 	)
 	(no_connect
+		(at 195.58 33.02)
+		(uuid "d59a1081-ee69-482a-b067-156cf66cc14a")
+	)
+	(no_connect
 		(at 195.58 100.33)
 		(uuid "eccd56dc-fbb6-4db3-86c7-360716747ea5")
 	)
@@ -11245,16 +11249,6 @@
 			(type default)
 		)
 		(uuid "20790713-2717-4e31-94ea-de7a3dbf16a2")
-	)
-	(wire
-		(pts
-			(xy 186.69 33.02) (xy 195.58 33.02)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "20b56d8c-bb80-4f8c-a32e-eac5f7720250")
 	)
 	(wire
 		(pts
@@ -15902,17 +15896,6 @@
 			(justify left)
 		)
 		(uuid "e1321994-846a-4ae6-9cd0-557fe4be3041")
-	)
-	(hierarchical_label "METRO_DIN"
-		(shape output)
-		(at 186.69 33.02 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "e326b384-99bb-47cd-9bc4-981c2a99f19a")
 	)
 	(hierarchical_label "USB_INT"
 		(shape input)

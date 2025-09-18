@@ -641,16 +641,6 @@
 	)
 	(wire
 		(pts
-			(xy 57.15 104.14) (xy 72.39 104.14)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "bed53697-f9bb-4534-9034-1ed680327eff")
-	)
-	(wire
-		(pts
 			(xy 110.49 144.78) (xy 138.43 144.78)
 		)
 		(stroke
@@ -1597,6 +1587,70 @@
 	)
 	(symbol
 		(lib_id "Mechanical:Fiducial")
+		(at 109.22 190.5 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "deadb8b6-5808-4fa0-aaa7-2bf7e1eb1c09")
+		(property "Reference" "FID7"
+			(at 111.76 189.2299 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "Fiducial"
+			(at 111.76 191.7699 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Fiducial:Fiducial_0.5mm_Mask1.5mm"
+			(at 109.22 190.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 109.22 190.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Fiducial Marker"
+			(at 109.22 190.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(instances
+			(project "pocket_synth"
+				(path "/485383b8-00f4-4405-b270-de249939cff4"
+					(reference "FID7")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Mechanical:Fiducial")
 		(at 90.17 177.8 0)
 		(unit 1)
 		(exclude_from_sim no)
@@ -1997,16 +2051,6 @@
 		(pin "~{PWR_PBOUT}" input
 			(at 72.39 63.5 180)
 			(uuid "b0b44233-e100-4c8a-971c-85a56da6570d")
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(pin "METRO_DIN" output
-			(at 72.39 104.14 180)
-			(uuid "57f799a9-8d70-46c3-807c-00bf84e2d4d0")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2668,16 +2712,6 @@
 		(pin "LED_DIN" input
 			(at 57.15 100.33 0)
 			(uuid "e1c36280-39b2-4479-971a-fc37ab5b12d5")
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(pin "METRO_DIN" input
-			(at 57.15 104.14 0)
-			(uuid "4213efcc-5ca8-4835-b379-65be5d5414eb")
 			(effects
 				(font
 					(size 1.27 1.27)

@@ -1674,7 +1674,7 @@
 		(uuid "543fc83e-e684-4f9b-b636-42d6f917c593")
 	)
 	(bus_entry
-		(at 24.13 55.88)
+		(at 30.48 55.88)
 		(size -2.54 -2.54)
 		(stroke
 			(width 0)
@@ -1692,7 +1692,7 @@
 		(uuid "af3b5f9b-75c7-4986-be37-ffe89cb09b57")
 	)
 	(bus_entry
-		(at 24.13 53.34)
+		(at 30.48 53.34)
 		(size -2.54 -2.54)
 		(stroke
 			(width 0)
@@ -1792,7 +1792,7 @@
 	)
 	(wire
 		(pts
-			(xy 24.13 53.34) (xy 41.91 53.34)
+			(xy 30.48 53.34) (xy 41.91 53.34)
 		)
 		(stroke
 			(width 0)
@@ -1912,7 +1912,7 @@
 	)
 	(wire
 		(pts
-			(xy 24.13 55.88) (xy 41.91 55.88)
+			(xy 30.48 55.88) (xy 41.91 55.88)
 		)
 		(stroke
 			(width 0)
@@ -1972,7 +1972,7 @@
 	)
 	(bus
 		(pts
-			(xy 21.59 48.26) (xy 21.59 50.8)
+			(xy 27.94 48.26) (xy 27.94 50.8)
 		)
 		(stroke
 			(width 0)
@@ -2182,7 +2182,7 @@
 	)
 	(bus
 		(pts
-			(xy 21.59 50.8) (xy 21.59 53.34)
+			(xy 27.94 50.8) (xy 27.94 53.34)
 		)
 		(stroke
 			(width 0)
@@ -2251,12 +2251,12 @@
 		(uuid "fa22ba08-9137-4d59-935c-047548363956")
 	)
 	(label "I2C4.SCL"
-		(at 33.02 53.34 180)
+		(at 31.75 53.34 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right bottom)
+			(justify left bottom)
 		)
 		(uuid "2f7266b3-fb50-49b6-9ce5-f7ae24a1b668")
 	)
@@ -2271,12 +2271,12 @@
 		(uuid "74d0163d-c550-425b-ba99-afc85c68f5a1")
 	)
 	(label "I2C4.SDA"
-		(at 33.02 55.88 180)
+		(at 31.75 55.88 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right bottom)
+			(justify left bottom)
 		)
 		(uuid "b439e346-b1e3-4a04-a599-1d1f999a5bea")
 	)
@@ -2303,7 +2303,7 @@
 	)
 	(hierarchical_label "I2C4{I2C}"
 		(shape input)
-		(at 21.59 48.26 90)
+		(at 27.94 48.26 90)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -2501,7 +2501,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://www.dialog-semiconductor.com/sites/default/files/da7280_datasheet_3v0.pdf"
+		(property "Datasheet" "https://www.renesas.com/en/document/dst/da7280-datasheet?language=en&utm_nooverride=1"
 			(at 99.06 246.99 0)
 			(effects
 				(font
