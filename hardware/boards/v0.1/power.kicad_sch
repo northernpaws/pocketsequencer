@@ -5530,15 +5530,15 @@
 		)
 		(uuid "68f09356-2d7f-4331-9a33-f2bd6a325131")
 	)
-	(text "USB_VBUS used by the STM32 to detect when\na USB host has been (dis)connected.\n\nAN4879: Signal needs to be <4v when MCU\nis powered off to prevent damage."
+	(text "USB_VBUS used by the STM32\nto detect when a USB host\nhas been (dis)connected.\n\nAN4879: Signal needs to be\n<4v when MCU is powered off\nto prevent damage."
 		(exclude_from_sim no)
-		(at 46.482 66.802 0)
+		(at 17.018 63.5 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 				(color 132 132 132 1)
 			)
-			(justify right)
+			(justify left)
 		)
 		(uuid "6afcccfa-1e39-4f51-b11b-e829a26d31b6")
 	)
@@ -17303,22 +17303,23 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "f33620a1-cfd1-470f-9662-35d5779cfdb7")
 		(property "Reference" "J2"
-			(at 26.67 76.2 0)
+			(at 17.526 83.312 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
 		(property "Value" "USB"
-			(at 26.67 78.74 0)
+			(at 17.526 85.852 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
 		(property "Footprint" "Connector_USB:USB_C_Receptacle_HCTL_HC-TYPE-C-16P-01A"
