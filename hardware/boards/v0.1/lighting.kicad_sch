@@ -5137,6 +5137,15 @@
 				)
 			)
 		)
+		(property "JLC" "C25531"
+			(at 29.21 45.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "3381145b-04d1-4364-918e-c50bbe42c7bd")
 		)

@@ -144,6 +144,130 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "Device:R"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "R"
+				(at 2.032 0 90)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "R"
+				(at 0 0 90)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at -1.778 0 90)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Resistor"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "R res resistor"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "R_*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "R_0_1"
+				(rectangle
+					(start -1.016 -2.54)
+					(end 1.016 2.54)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "R_1_1"
+				(pin passive line
+					(at 0 3.81 270)
+					(length 1.27)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 0 -3.81 90)
+					(length 1.27)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "Switch:SW_Push"
 			(pin_numbers
 				(hide yes)
@@ -1514,16 +1638,153 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "power:VDD"
+			(power)
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "#PWR"
+				(at 0 -3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Value" "VDD"
+				(at 0 3.556 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Power symbol creates a global label with name \"VDD\""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "global power"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "VDD_0_1"
+				(polyline
+					(pts
+						(xy -0.762 1.27) (xy 0 2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 2.54) (xy 0.762 1.27)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 0) (xy 0 2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "VDD_1_1"
+				(pin power_in line
+					(at 0 0 90)
+					(length 0)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 	)
-	(text "VDDH connected to VDD to\ndisable high-voltage mode\non nRF5340."
+	(text "NOTE: We're not sure if the VBAT supply\nis required from the battery when system\npower is off (i.e. for memory retention).\n\nSo currently using a couple of 0R\nresistors while that's determined."
 		(exclude_from_sim no)
-		(at 139.954 67.31 0)
+		(at 157.734 70.612 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 				(color 132 132 132 1)
 			)
 			(justify left)
+		)
+		(uuid "271fdae2-a0c7-4af4-bf5f-4e4bf664f433")
+	)
+	(text "VDDH connected to VDD to\ndisable high-voltage mode\non nRF5340."
+		(exclude_from_sim no)
+		(at 134.62 68.834 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+				(color 132 132 132 1)
+			)
+			(justify right)
 		)
 		(uuid "31c35868-7791-41d2-85ee-4f1727a4e951")
 	)
@@ -1553,20 +1814,6 @@
 		)
 		(uuid "b66501e5-b942-47fa-a762-1934d40a3247")
 	)
-	(text "TODO is VBAT required by nRF7002,\nand what power domains does it power"
-		(exclude_from_sim no)
-		(at 108.966 69.85 0)
-		(effects
-			(font
-				(size 2.54 2.54)
-				(thickness 0.508)
-				(bold yes)
-				(color 194 0 0 1)
-			)
-			(justify left)
-		)
-		(uuid "d86a2c8b-f189-45c4-90a3-c29323e23896")
-	)
 	(text "Wireless Module (nRF5340+nRF7002)"
 		(exclude_from_sim no)
 		(at 13.462 14.224 0)
@@ -1587,10 +1834,10 @@
 		(uuid "58aedbc8-4577-4501-8fbb-86d594bf8870")
 	)
 	(junction
-		(at 138.43 77.47)
+		(at 135.89 77.47)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "6b61395c-7e8c-4d23-8511-205394a17d77")
+		(uuid "71918471-b9e2-459f-ac05-7acdb122b94d")
 	)
 	(junction
 		(at 62.23 133.35)
@@ -1598,17 +1845,71 @@
 		(color 0 0 0 0)
 		(uuid "d3865a39-f08a-4e59-a27d-201446f2e90a")
 	)
+	(junction
+		(at 140.97 77.47)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "f5b00252-5a13-47fd-bc15-66e40ff31fcc")
+	)
+	(no_connect
+		(at 157.48 95.25)
+		(uuid "0976a185-34a4-4175-8f64-7599c0238629")
+	)
+	(no_connect
+		(at 157.48 105.41)
+		(uuid "0b556a15-d469-4be2-b841-db2fe038b466")
+	)
+	(no_connect
+		(at 157.48 113.03)
+		(uuid "12104870-dceb-4d16-9f8b-cf86341096c8")
+	)
+	(no_connect
+		(at 116.84 128.27)
+		(uuid "3987ce0c-a45c-4c45-90a8-09212f9334d7")
+	)
 	(no_connect
 		(at 133.35 78.74)
 		(uuid "427f3d30-8024-44fc-a851-48524310867c")
+	)
+	(no_connect
+		(at 157.48 115.57)
+		(uuid "4a0cba3e-112e-44a1-9f6b-0985b06b10b8")
+	)
+	(no_connect
+		(at 157.48 102.87)
+		(uuid "4af9ec51-5f6d-4dd5-bb35-9773e6530bfe")
 	)
 	(no_connect
 		(at 45.72 100.33)
 		(uuid "4ec81810-74db-4096-ad01-78ff6ee2c842")
 	)
 	(no_connect
+		(at 157.48 107.95)
+		(uuid "673b7b5c-2c39-4183-a1eb-e40d0c38cb65")
+	)
+	(no_connect
+		(at 116.84 130.81)
+		(uuid "6911375c-7bc4-411c-b68d-09ba63e99063")
+	)
+	(no_connect
+		(at 116.84 125.73)
+		(uuid "9266a169-2380-4575-bcb6-93b1a2cdf22c")
+	)
+	(no_connect
+		(at 157.48 87.63)
+		(uuid "967ee89f-5b9a-4ed4-b7bb-f09ebfd046fd")
+	)
+	(no_connect
+		(at 157.48 118.11)
+		(uuid "a23d3f10-5718-47d9-b067-e33b5bb31924")
+	)
+	(no_connect
 		(at 116.84 100.33)
 		(uuid "a49718c6-5be2-4c6e-9f5a-e9103f8f406d")
+	)
+	(no_connect
+		(at 157.48 92.71)
+		(uuid "a9fd0990-29c6-4952-b0d1-6e6113baeade")
 	)
 	(no_connect
 		(at 45.72 102.87)
@@ -1617,6 +1918,18 @@
 	(no_connect
 		(at 116.84 102.87)
 		(uuid "b235688f-1b24-46e2-9d7e-db6c4e723773")
+	)
+	(no_connect
+		(at 157.48 90.17)
+		(uuid "b40208b5-0793-432f-91db-1986d8b972c8")
+	)
+	(no_connect
+		(at 157.48 100.33)
+		(uuid "b47c3292-d369-44d2-88eb-88d09213c353")
+	)
+	(no_connect
+		(at 157.48 97.79)
+		(uuid "eaf7886f-6776-4f52-84eb-87cb25aaeef7")
 	)
 	(bus_entry
 		(at 95.25 120.65)
@@ -1711,6 +2024,16 @@
 		)
 		(uuid "1e6d4ef7-6a6a-44d0-8cd8-c50a2d4b311b")
 	)
+	(wire
+		(pts
+			(xy 140.97 77.47) (xy 149.86 77.47)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2438413e-5b7f-4544-93e6-57d591376a8f")
+	)
 	(bus
 		(pts
 			(xy 95.25 104.14) (xy 95.25 105.41)
@@ -1760,6 +2083,16 @@
 			(type default)
 		)
 		(uuid "75834e27-d76a-459b-aa4c-e9b1b384e3c3")
+	)
+	(wire
+		(pts
+			(xy 149.86 77.47) (xy 149.86 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7e2b1a2b-fbed-4643-95bd-ea2e3deac76c")
 	)
 	(wire
 		(pts
@@ -1893,6 +2226,16 @@
 	)
 	(wire
 		(pts
+			(xy 140.97 77.47) (xy 140.97 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a975ca98-5b49-43dd-9bf0-8e3232b41fa6")
+	)
+	(wire
+		(pts
 			(xy 116.84 120.65) (xy 95.25 120.65)
 		)
 		(stroke
@@ -1913,7 +2256,7 @@
 	)
 	(wire
 		(pts
-			(xy 138.43 64.77) (xy 138.43 77.47)
+			(xy 135.89 66.04) (xy 135.89 77.47)
 		)
 		(stroke
 			(width 0)
@@ -1950,6 +2293,16 @@
 			(type default)
 		)
 		(uuid "cf03b035-4bde-45af-b1e8-4026b1f9bc6b")
+	)
+	(wire
+		(pts
+			(xy 140.97 66.04) (xy 140.97 68.58)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d26f83dc-5d17-4d9f-adfa-82c140745e3a")
 	)
 	(wire
 		(pts
@@ -2030,6 +2383,26 @@
 			(type default)
 		)
 		(uuid "eae2cb24-9143-4c75-97e9-9a1e234a7d1e")
+	)
+	(wire
+		(pts
+			(xy 140.97 76.2) (xy 140.97 77.47)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ebbd34be-718d-474a-82ce-3e6d82c20f7f")
+	)
+	(wire
+		(pts
+			(xy 149.86 66.04) (xy 149.86 68.58)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f28df314-a5d9-4e70-8075-1cd3047d278c")
 	)
 	(bus
 		(pts
@@ -2266,7 +2639,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Button_Switch_SMD:SW_SPST_B3U-1000P"
 			(at 55.88 128.27 0)
 			(effects
 				(font
@@ -2285,6 +2658,15 @@
 			)
 		)
 		(property "Description" "Push button switch, generic, two pins"
+			(at 55.88 133.35 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C231329"
 			(at 55.88 133.35 0)
 			(effects
 				(font
@@ -2313,7 +2695,7 @@
 		(at 137.16 109.22 0)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(uuid "15a60c41-80cb-4e01-827b-412c5e01aefd")
@@ -2486,6 +2868,75 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:R")
+		(at 140.97 72.39 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "1d708151-9b96-4ae3-802a-a60231c9407c")
+		(property "Reference" "R24"
+			(at 142.494 71.12 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "0R"
+			(at 142.494 73.66 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
+			(at 139.192 72.39 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 140.97 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 140.97 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "0a6f6547-7b29-44f6-8c96-c954883f61ca")
+		)
+		(pin "1"
+			(uuid "225da06e-df64-49db-b745-ebafbeb3557e")
+		)
+		(instances
+			(project ""
+				(path "/485383b8-00f4-4405-b270-de249939cff4/7e9f39e0-07aa-49bf-8354-e1f007de5af0"
+					(reference "R24")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:GND")
 		(at 59.69 110.49 0)
 		(mirror y)
@@ -2569,7 +3020,7 @@
 				)
 			)
 		)
-		(property "Value" "0.1uF"
+		(property "Value" "100nF"
 			(at 60.198 140.208 90)
 			(effects
 				(font
@@ -2577,7 +3028,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
 			(at 59.69 137.4648 0)
 			(effects
 				(font
@@ -2685,16 +3136,16 @@
 		)
 	)
 	(symbol
-		(lib_id "power:+3.3V")
-		(at 138.43 64.77 0)
+		(lib_id "power:VDD")
+		(at 140.97 66.04 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "bf9bfbe2-ba86-4570-9663-d1817f56aed8")
-		(property "Reference" "#PWR039"
-			(at 138.43 68.58 0)
+		(uuid "a4a72225-28e5-4c82-9fee-51136911ea78")
+		(property "Reference" "#PWR04"
+			(at 140.97 69.85 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2702,8 +3153,8 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "+3.3V"
-			(at 138.43 60.198 0)
+		(property "Value" "VDD"
+			(at 140.97 61.468 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2711,7 +3162,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 138.43 64.77 0)
+			(at 140.97 66.04 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2720,7 +3171,72 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 138.43 64.77 0)
+			(at 140.97 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"VDD\""
+			(at 140.97 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "0ad7e5dd-bdc1-4b61-84e0-7158fbbbfc8e")
+		)
+		(instances
+			(project ""
+				(path "/485383b8-00f4-4405-b270-de249939cff4/7e9f39e0-07aa-49bf-8354-e1f007de5af0"
+					(reference "#PWR04")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+3.3V")
+		(at 135.89 66.04 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "bf9bfbe2-ba86-4570-9663-d1817f56aed8")
+		(property "Reference" "#PWR039"
+			(at 135.89 69.85 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+3.3V"
+			(at 135.89 61.468 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 135.89 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 135.89 66.04 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2729,7 +3245,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"+3.3V\""
-			(at 138.43 64.77 0)
+			(at 135.89 66.04 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2816,6 +3332,75 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:R")
+		(at 149.86 72.39 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp yes)
+		(uuid "e09858d4-7a8a-4f99-b5c0-bd4bdc433575")
+		(property "Reference" "R46"
+			(at 151.384 71.12 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "0R"
+			(at 151.384 73.66 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
+			(at 148.082 72.39 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 149.86 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 149.86 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "5fe35e8d-2850-4793-8e10-a8908bf69b17")
+		)
+		(pin "1"
+			(uuid "0df7e454-3592-407b-a8fd-aa1acab65bb8")
+		)
+		(instances
+			(project "pocket_synth"
+				(path "/485383b8-00f4-4405-b270-de249939cff4/7e9f39e0-07aa-49bf-8354-e1f007de5af0"
+					(reference "R46")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:+3.3V")
 		(at 59.69 77.47 0)
 		(unit 1)
@@ -2875,6 +3460,71 @@
 			(project "pocket_synth"
 				(path "/485383b8-00f4-4405-b270-de249939cff4/7e9f39e0-07aa-49bf-8354-e1f007de5af0"
 					(reference "#PWR044")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+3.3V")
+		(at 149.86 66.04 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "f0e9eeda-54e3-4274-a25c-d8b779a1655f")
+		(property "Reference" "#PWR078"
+			(at 149.86 69.85 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+3.3V"
+			(at 149.86 61.468 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 149.86 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 149.86 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+3.3V\""
+			(at 149.86 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "eb96f373-fb14-496c-b129-9e323eb4fd4b")
+		)
+		(instances
+			(project "pocket_synth"
+				(path "/485383b8-00f4-4405-b270-de249939cff4/7e9f39e0-07aa-49bf-8354-e1f007de5af0"
+					(reference "#PWR078")
 					(unit 1)
 				)
 			)
@@ -2984,6 +3634,14 @@
 			)
 		)
 		(property "Connector" ""
+			(at 59.69 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "JLC" "C5382952"
 			(at 59.69 93.98 0)
 			(effects
 				(font

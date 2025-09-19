@@ -269,16 +269,6 @@
 		)
 		(uuid "06f2bd0e-c83c-4d60-8563-78046c483970")
 	)
-	(bus
-		(pts
-			(xy 57.15 82.55) (xy 72.39 82.55)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "08080e44-b80e-4341-ab24-83e24201b814")
-	)
 	(wire
 		(pts
 			(xy 110.49 128.27) (xy 138.43 128.27)
@@ -671,16 +661,6 @@
 	)
 	(wire
 		(pts
-			(xy 57.15 86.36) (xy 72.39 86.36)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "db68f2a3-f668-4bea-8e37-91800b2e12d0")
-	)
-	(wire
-		(pts
 			(xy 110.49 93.98) (xy 138.43 93.98)
 		)
 		(stroke
@@ -778,7 +758,7 @@
 		(at 19.05 182.88 0)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom no)
+		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
@@ -901,7 +881,7 @@
 		(at 109.22 177.8 0)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom no)
+		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
@@ -924,7 +904,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Fiducial:Fiducial_0.5mm_Mask1.5mm"
+		(property "Footprint" "PCM_kikit:Fiducial"
 			(at 109.22 177.8 0)
 			(effects
 				(font
@@ -965,7 +945,7 @@
 		(at 48.26 182.88 0)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom no)
+		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
@@ -1088,7 +1068,7 @@
 		(at 29.21 182.88 0)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom no)
+		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
@@ -1211,7 +1191,7 @@
 		(at 38.1 182.88 0)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom no)
+		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
@@ -1334,7 +1314,7 @@
 		(at 90.17 171.45 0)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom no)
+		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
@@ -1357,7 +1337,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Fiducial:Fiducial_0.5mm_Mask1.5mm"
+		(property "Footprint" "PCM_kikit:Fiducial"
 			(at 90.17 171.45 0)
 			(effects
 				(font
@@ -1398,7 +1378,7 @@
 		(at 109.22 184.15 0)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom no)
+		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
@@ -1421,7 +1401,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Fiducial:Fiducial_0.5mm_Mask1.5mm"
+		(property "Footprint" "PCM_kikit:Fiducial"
 			(at 109.22 184.15 0)
 			(effects
 				(font
@@ -1462,7 +1442,7 @@
 		(at 90.17 184.15 0)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom no)
+		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
@@ -1485,7 +1465,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Fiducial:Fiducial_0.5mm_Mask1.5mm"
+		(property "Footprint" "PCM_kikit:Fiducial"
 			(at 90.17 184.15 0)
 			(effects
 				(font
@@ -1526,7 +1506,7 @@
 		(at 109.22 171.45 0)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom no)
+		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
@@ -1549,7 +1529,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Fiducial:Fiducial_0.5mm_Mask1.5mm"
+		(property "Footprint" "PCM_kikit:Fiducial"
 			(at 109.22 171.45 0)
 			(effects
 				(font
@@ -1590,7 +1570,7 @@
 		(at 109.22 190.5 0)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom no)
+		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
@@ -1613,7 +1593,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Fiducial:Fiducial_0.5mm_Mask1.5mm"
+		(property "Footprint" "PCM_kikit:Fiducial"
 			(at 109.22 190.5 0)
 			(effects
 				(font
@@ -1654,7 +1634,7 @@
 		(at 90.17 177.8 0)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom no)
+		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
@@ -1677,7 +1657,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Fiducial:Fiducial_0.5mm_Mask1.5mm"
+		(property "Footprint" "PCM_kikit:Fiducial"
 			(at 90.17 177.8 0)
 			(effects
 				(font
@@ -1948,16 +1928,6 @@
 				(justify right)
 			)
 		)
-		(pin "WIFI{UART}" bidirectional
-			(at 72.39 82.55 180)
-			(uuid "76b41d4f-e8a5-4d04-bd36-26973e82012a")
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
 		(pin "I2C4{I2C}" output
 			(at 110.49 86.36 0)
 			(uuid "95d5bc55-8b19-4eee-b961-af30cd5fa289")
@@ -2001,16 +1971,6 @@
 		(pin "FUEL_INT" input
 			(at 72.39 53.34 180)
 			(uuid "64c78731-5ec5-46e1-94ed-f5ecd6af58f6")
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(pin "~{WIFI_EN}" output
-			(at 72.39 86.36 180)
-			(uuid "7f5161e5-33e2-48b0-85fd-b8bc78c69e2d")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2370,26 +2330,6 @@
 		(pin "{AUDIO_UART}" bidirectional
 			(at 57.15 74.93 0)
 			(uuid "091f4f2c-6b4e-4208-a4bb-31859888c16a")
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(pin "WIFI{UART}" bidirectional
-			(at 57.15 82.55 0)
-			(uuid "b010f45f-e17b-4acb-8096-b0b243412119")
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(pin "~{WIFI_EN}" input
-			(at 57.15 86.36 0)
-			(uuid "bfab5349-f325-4f32-aa32-6075016b3604")
 			(effects
 				(font
 					(size 1.27 1.27)

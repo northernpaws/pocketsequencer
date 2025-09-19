@@ -9268,6 +9268,14 @@
 				(hide yes)
 			)
 		)
+		(property "JLC" "C625669"
+			(at 80.01 33.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "5906bdb4-ff9e-4d3f-b7b5-7357f52dc7f3")
 		)
@@ -9347,6 +9355,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "JLC" "C25531"
+			(at 109.22 184.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "2"
@@ -9495,7 +9511,7 @@
 		(at 223.52 63.5 0)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(uuid "1460b184-423a-4a41-96a9-ae13816fbac7")
@@ -9615,7 +9631,7 @@
 		(at 207.01 87.63 270)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(uuid "181494d3-6f45-40ab-a82a-bbc13d40d6b2")
@@ -10047,6 +10063,15 @@
 				(hide yes)
 			)
 		)
+		(property "JLC" "C14445"
+			(at 185.42 153.67 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "efdad665-a9fe-491b-81d0-436b14f80040")
 		)
@@ -10067,7 +10092,7 @@
 		(at 162.56 -12.7 90)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(uuid "2013f2d1-e8f9-4443-a577-39fbcdaeb5c8")
@@ -10756,6 +10781,15 @@
 				)
 			)
 		)
+		(property "JLC" "C25531"
+			(at 252.73 124.46 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "f5841450-e0b2-46ed-88d4-60411703937f")
 		)
@@ -10902,7 +10936,7 @@
 		(at 210.82 143.51 180)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(uuid "2da2fcfd-682c-4d2d-a49e-4e5f2d6597c6")
@@ -11015,6 +11049,14 @@
 				(hide yes)
 			)
 		)
+		(property "JLC" "C128617"
+			(at 121.92 173.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "f02f459f-a6ae-4604-85e8-864cdca67e5a")
 		)
@@ -11097,6 +11139,15 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 67.31 40.64 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C25095"
 			(at 67.31 40.64 0)
 			(effects
 				(font
@@ -11296,6 +11347,15 @@
 				)
 			)
 		)
+		(property "JLC" "C1530"
+			(at 96.52 106.68 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "fc805e5a-e52b-4c88-8b0a-d2b5d56e3662")
 		)
@@ -11357,6 +11417,15 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 148.59 184.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C43249"
 			(at 148.59 184.15 0)
 			(effects
 				(font
@@ -11625,6 +11694,15 @@
 				(hide yes)
 			)
 		)
+		(property "JLC" "C1546"
+			(at 158.75 173.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "ed71f212-53bd-4d80-9f35-36a3d2c9fdde")
 		)
@@ -11751,6 +11829,15 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 148.59 173.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C27017"
 			(at 148.59 173.99 0)
 			(effects
 				(font
@@ -11950,6 +12037,15 @@
 				)
 			)
 		)
+		(property "JLC" "C25900"
+			(at 170.18 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "e9939de4-793e-40a5-85f7-dac11aab2ab2")
 		)
@@ -12103,7 +12199,7 @@
 		(at 140.97 -25.4 90)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(uuid "59732ca3-dda6-4ef6-9906-d2f8b625d85a")
@@ -12168,7 +12264,7 @@
 		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(uuid "5e0e57ba-ffb7-419e-a271-57a47814a568")
@@ -12409,7 +12505,7 @@
 				(justify right)
 			)
 		)
-		(property "Value" "0.1uF"
+		(property "Value" "100nF"
 			(at 278.13 39.3699 0)
 			(effects
 				(font
@@ -12418,7 +12514,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
+		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
 			(at 282.9052 41.91 0)
 			(effects
 				(font
@@ -12501,6 +12597,15 @@
 				)
 			)
 		)
+		(property "JLC" "C1525"
+			(at 281.94 38.1 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "bd628b32-3f5d-4345-bb14-4e48c3f82877")
 		)
@@ -12521,7 +12626,7 @@
 		(at 265.43 127 0)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(uuid "5e2f7ab0-7c7d-453a-8583-c03ee4056941")
@@ -12699,6 +12804,15 @@
 				(hide yes)
 			)
 		)
+		(property "JLC" "C415703"
+			(at 167.64 173.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "1bf739cf-74e7-4e84-9e40-a20afadbb402")
 		)
@@ -12742,7 +12856,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
+		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
 			(at 75.2348 163.83 0)
 			(effects
 				(font
@@ -12823,6 +12937,15 @@
 				(font
 					(size 1.27 1.27)
 				)
+			)
+		)
+		(property "JLC" "C415703"
+			(at 76.2 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
 			)
 		)
 		(pin "1"
@@ -13081,6 +13204,15 @@
 				)
 			)
 		)
+		(property "JLC" "C295747"
+			(at 274.32 53.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "396dcaf0-5389-49b6-8dbb-ff7b14ca3cf0")
 		)
@@ -13201,7 +13333,7 @@
 		(at 265.43 142.24 180)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(uuid "6c3de2e1-71f5-4757-9c52-928a6a82dd47")
@@ -13330,7 +13462,7 @@
 		(at 243.84 90.17 270)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(uuid "70713058-e00c-464a-a14b-5f5c341e4f3e")
@@ -13439,6 +13571,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "JLC" "C415177"
+			(at 72.39 67.31 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -13956,7 +14096,7 @@
 		(at 162.56 -25.4 90)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(uuid "83201980-dc16-441b-b045-0c61c5cff445")
@@ -14154,7 +14294,7 @@
 		(mirror y)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(uuid "87c8069a-88a0-4761-8de5-2488f1240691")
@@ -14513,6 +14653,15 @@
 				)
 			)
 		)
+		(property "JLC" "C1530"
+			(at 90.17 106.68 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "a0c20802-85a9-41a1-bf9e-9b4e3d197bf8")
 		)
@@ -14546,7 +14695,7 @@
 				(justify right)
 			)
 		)
-		(property "Value" "0.1uF"
+		(property "Value" "100nF"
 			(at 220.472 114.3 0)
 			(effects
 				(font
@@ -14636,6 +14785,15 @@
 				(font
 					(size 1.27 1.27)
 				)
+			)
+		)
+		(property "JLC" "C1525"
+			(at 223.52 113.03 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
 			)
 		)
 		(pin "2"
@@ -14849,7 +15007,7 @@
 		(mirror y)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(uuid "9687e6be-1bf8-48cc-8ee8-3238e4864a03")
@@ -15688,6 +15846,15 @@
 				(hide yes)
 			)
 		)
+		(property "JLC" "C26083"
+			(at 172.72 148.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "ff7c5b65-d4db-43de-8229-1f74b38c13ae")
 		)
@@ -15731,7 +15898,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
+		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
 			(at 66.3448 163.83 0)
 			(effects
 				(font
@@ -15812,6 +15979,15 @@
 				(font
 					(size 1.27 1.27)
 				)
+			)
+		)
+		(property "JLC" "C40059"
+			(at 67.31 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
 			)
 		)
 		(pin "1"
@@ -15938,6 +16114,15 @@
 				(font
 					(size 1.27 1.27)
 				)
+			)
+		)
+		(property "JLC" "C3154728"
+			(at 222.25 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
 			)
 		)
 		(pin "1"
@@ -16124,6 +16309,14 @@
 			)
 		)
 		(property "Connector" ""
+			(at 245.11 151.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "JLC" "C14445"
 			(at 245.11 151.13 0)
 			(effects
 				(font
@@ -16411,7 +16604,7 @@
 		(at 162.56 -31.75 90)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(uuid "c4af00be-5f4d-47bc-aa5c-44ae70a5165e")
@@ -16686,7 +16879,7 @@
 		(at 162.56 -19.05 90)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(uuid "d1f3ce6f-8c1a-43cc-9bee-b06af1052b16")
@@ -17479,7 +17672,7 @@
 		(at 140.97 -19.05 90)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(uuid "f74ccdd3-3a06-47ed-9fda-aed0f7956d89")
@@ -17789,6 +17982,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "JLC" "C603074"
+			(at 116.84 86.36 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "13"

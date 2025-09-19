@@ -5298,7 +5298,7 @@
 	)
 	(wire
 		(pts
-			(xy 118.11 100.33) (xy 123.19 100.33)
+			(xy 118.11 100.33) (xy 132.08 100.33)
 		)
 		(stroke
 			(width 0)
@@ -5558,7 +5558,7 @@
 	)
 	(wire
 		(pts
-			(xy 123.19 105.41) (xy 120.65 105.41)
+			(xy 132.08 105.41) (xy 129.54 105.41)
 		)
 		(stroke
 			(width 0)
@@ -5658,7 +5658,7 @@
 	)
 	(wire
 		(pts
-			(xy 120.65 113.03) (xy 123.19 113.03)
+			(xy 129.54 113.03) (xy 132.08 113.03)
 		)
 		(stroke
 			(width 0)
@@ -6078,6 +6078,16 @@
 	)
 	(wire
 		(pts
+			(xy 127 59.69) (xy 127 66.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ace85719-b781-440f-aefa-dae8907d3f02")
+	)
+	(wire
+		(pts
 			(xy 229.87 30.48) (xy 237.49 30.48)
 		)
 		(stroke
@@ -6208,7 +6218,7 @@
 	)
 	(wire
 		(pts
-			(xy 118.11 102.87) (xy 123.19 102.87)
+			(xy 118.11 102.87) (xy 132.08 102.87)
 		)
 		(stroke
 			(width 0)
@@ -6368,16 +6378,6 @@
 	)
 	(wire
 		(pts
-			(xy 134.62 59.69) (xy 134.62 69.85)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "db4c51fa-cbc7-4f6c-bf3c-20ae9efae2df")
-	)
-	(wire
-		(pts
 			(xy 105.41 97.79) (xy 107.95 97.79)
 		)
 		(stroke
@@ -6488,7 +6488,7 @@
 	)
 	(wire
 		(pts
-			(xy 120.65 105.41) (xy 120.65 113.03)
+			(xy 129.54 105.41) (xy 129.54 113.03)
 		)
 		(stroke
 			(width 0)
@@ -6706,6 +6706,16 @@
 		)
 		(uuid "17799ba4-1991-4eff-9d6d-8d1419536233")
 	)
+	(label "LINE_OUT_L"
+		(at 119.38 100.33 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "1b013edf-0e33-4276-a17a-688ea24575fe")
+	)
 	(label "FM_TX_ANT"
 		(at 267.97 110.49 0)
 		(effects
@@ -6717,7 +6727,7 @@
 		(uuid "1c64a9e7-b26b-4880-80d5-b8e237c664a3")
 	)
 	(label "FM_TX_ANT"
-		(at 123.19 113.03 0)
+		(at 132.08 113.03 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6755,6 +6765,16 @@
 			(justify right bottom)
 		)
 		(uuid "31b442e5-54f0-47c0-8366-7edda5ecd3ca")
+	)
+	(label "LINE_OUT_R"
+		(at 119.38 102.87 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "33a043c9-e452-429b-b521-df566918f145")
 	)
 	(label "MIC_R"
 		(at 30.48 106.68 180)
@@ -6936,6 +6956,16 @@
 		)
 		(uuid "873981bd-561b-4fc6-b8fb-3a77acfa1144")
 	)
+	(label "RSPKR"
+		(at 107.95 87.63 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "981270c6-fe75-47b1-a215-86c9a1d17ca3")
+	)
 	(label "LINE_IN_R"
 		(at 106.68 163.83 0)
 		(effects
@@ -6955,6 +6985,16 @@
 			(justify right bottom)
 		)
 		(uuid "abbda03d-6eac-4007-91c2-0f1b46508dcd")
+	)
+	(label "LSPKR"
+		(at 107.95 80.01 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "ad01bf76-55ed-4031-8fc2-7861505f451e")
 	)
 	(label "FM_LOUT"
 		(at 243.84 40.64 0)
@@ -7232,7 +7272,7 @@
 	)
 	(symbol
 		(lib_id "Connector_Audio:AudioJack3")
-		(at 128.27 102.87 180)
+		(at 137.16 102.87 180)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -7240,7 +7280,7 @@
 		(dnp no)
 		(uuid "009f1122-5c04-4f8e-a247-2de16367e21b")
 		(property "Reference" "J8"
-			(at 128.27 96.266 0)
+			(at 137.16 96.266 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7249,7 +7289,7 @@
 			)
 		)
 		(property "Value" "LINE_OUT"
-			(at 125.222 108.458 0)
+			(at 134.112 108.458 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7258,7 +7298,7 @@
 			)
 		)
 		(property "Footprint" "rhais_connector-lumberg:1503-02"
-			(at 128.27 102.87 0)
+			(at 137.16 102.87 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7267,7 +7307,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 128.27 102.87 0)
+			(at 137.16 102.87 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7276,7 +7316,7 @@
 			)
 		)
 		(property "Description" "Audio Jack, 3 Poles (Stereo / TRS)"
-			(at 128.27 102.87 0)
+			(at 137.16 102.87 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7284,8 +7324,8 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" "C4991872"
-			(at 128.27 102.87 0)
+		(property "JLC" ""
+			(at 137.16 102.87 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7294,7 +7334,7 @@
 			)
 		)
 		(property "Arrow Part Number" ""
-			(at 128.27 102.87 0)
+			(at 137.16 102.87 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7302,7 +7342,7 @@
 			)
 		)
 		(property "Arrow Price/Stock" ""
-			(at 128.27 102.87 0)
+			(at 137.16 102.87 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7310,7 +7350,7 @@
 			)
 		)
 		(property "MANUFACTURER" ""
-			(at 128.27 102.87 0)
+			(at 137.16 102.87 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7318,7 +7358,7 @@
 			)
 		)
 		(property "MAXIMUM_PACKAGE_HEIGHT" ""
-			(at 128.27 102.87 0)
+			(at 137.16 102.87 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7326,7 +7366,7 @@
 			)
 		)
 		(property "PARTREV" ""
-			(at 128.27 102.87 0)
+			(at 137.16 102.87 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7334,7 +7374,7 @@
 			)
 		)
 		(property "STANDARD" ""
-			(at 128.27 102.87 0)
+			(at 137.16 102.87 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7342,7 +7382,7 @@
 			)
 		)
 		(property "Connector" ""
-			(at 128.27 102.87 0)
+			(at 137.16 102.87 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8028,7 +8068,7 @@
 		(at 87.63 182.88 90)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(uuid "28eb507f-1a7e-4e7b-93b7-f1a61e47b8ec")
@@ -8142,7 +8182,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" "C4991872"
+		(property "JLC" ""
 			(at 100.33 163.83 0)
 			(effects
 				(font
@@ -8335,6 +8375,14 @@
 				)
 			)
 		)
+		(property "JLC" "C14445"
+			(at 54.61 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "d89a9b0c-bde1-408e-8010-0407fe8988fb")
 		)
@@ -8355,7 +8403,7 @@
 		(at 161.29 119.38 90)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(uuid "3064e8e9-98cd-41ec-a9e8-0be141b7d5ef")
@@ -8913,7 +8961,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "0.1uF"
+		(property "Value" "100nF"
 			(at 160.528 161.036 0)
 			(effects
 				(font
@@ -8922,7 +8970,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
+		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
 			(at 161.29 158.75 0)
 			(effects
 				(font
@@ -8998,6 +9046,14 @@
 			)
 		)
 		(property "Connector" ""
+			(at 161.29 158.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "JLC" "C1525"
 			(at 161.29 158.75 0)
 			(effects
 				(font
@@ -9206,7 +9262,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
+		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
 			(at 115.57 96.8248 0)
 			(effects
 				(font
@@ -9282,6 +9338,14 @@
 			)
 		)
 		(property "Connector" ""
+			(at 111.76 97.79 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "JLC" "C14445"
 			(at 111.76 97.79 0)
 			(effects
 				(font
@@ -9484,6 +9548,15 @@
 				(hide yes)
 			)
 		)
+		(property "JLC" "C2155582"
+			(at 226.06 57.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "02032a01-9c92-4208-a852-ddfeccb98ad7")
 		)
@@ -9583,7 +9656,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
+		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
 			(at 115.57 104.4448 0)
 			(effects
 				(font
@@ -9659,6 +9732,14 @@
 			)
 		)
 		(property "Connector" ""
+			(at 111.76 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "JLC" "C14445"
 			(at 111.76 105.41 0)
 			(effects
 				(font
@@ -9938,6 +10019,71 @@
 		)
 	)
 	(symbol
+		(lib_id "power:GND")
+		(at 127 66.04 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "613326cb-3899-4020-8812-6a24e7424211")
+		(property "Reference" "#PWR077"
+			(at 127 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 127 70.866 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 127 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 127 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 127 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "741a86db-ce19-4706-b06b-32db55049455")
+		)
+		(instances
+			(project "pocket_synth"
+				(path "/485383b8-00f4-4405-b270-de249939cff4/ac7a2cd5-8a17-4132-a50f-a1edfbc58e6d"
+					(reference "#PWR077")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:C")
 		(at 246.38 74.93 0)
 		(unit 1)
@@ -10033,7 +10179,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
+		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
 			(at 54.61 106.68 0)
 			(effects
 				(font
@@ -10109,6 +10255,14 @@
 			)
 		)
 		(property "Connector" ""
+			(at 54.61 106.68 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "JLC" "C14445"
 			(at 54.61 106.68 0)
 			(effects
 				(font
@@ -10289,7 +10443,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
+		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
 			(at 54.61 97.79 0)
 			(effects
 				(font
@@ -10365,6 +10519,14 @@
 			)
 		)
 		(property "Connector" ""
+			(at 54.61 97.79 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "JLC" "C14445"
 			(at 54.61 97.79 0)
 			(effects
 				(font
@@ -10480,7 +10642,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
+		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
 			(at 54.61 101.6 0)
 			(effects
 				(font
@@ -10563,6 +10725,14 @@
 				)
 			)
 		)
+		(property "JLC" "C14445"
+			(at 54.61 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "bcfee587-52f1-413f-b4a6-2a6e09514011")
 		)
@@ -10625,6 +10795,15 @@
 			)
 		)
 		(property "Description" "Crystal Clock Oscillator, Abracon ASCO"
+			(at 259.08 68.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C17591433"
 			(at 259.08 68.58 0)
 			(effects
 				(font
@@ -11021,6 +11200,70 @@
 		)
 	)
 	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 127 59.69 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(dnp no)
+		(uuid "884ef021-4981-47b1-b15c-1a42f3a6760c")
+		(property "Reference" "TP43"
+			(at 127 51.816 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 127 54.102 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D2.0mm"
+			(at 132.08 59.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 132.08 59.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "test point"
+			(at 127 59.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "701dcd1a-efc4-4e69-b8c0-f5dc4f2841ae")
+		)
+		(instances
+			(project "pocket_synth"
+				(path "/485383b8-00f4-4405-b270-de249939cff4/ac7a2cd5-8a17-4132-a50f-a1edfbc58e6d"
+					(reference "TP43")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:C_Small")
 		(at 54.61 110.49 90)
 		(unit 1)
@@ -11047,7 +11290,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
+		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
 			(at 54.61 110.49 0)
 			(effects
 				(font
@@ -11130,6 +11373,14 @@
 				)
 			)
 		)
+		(property "JLC" "C14445"
+			(at 54.61 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "bcc9cd9b-25aa-43f2-996d-d5305e468a2e")
 		)
@@ -11150,7 +11401,7 @@
 		(at 161.29 113.03 90)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(uuid "8a5fe949-e2d5-48b4-bdef-4d776edb5040")
@@ -11239,7 +11490,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
 			(at 131.318 175.26 90)
 			(effects
 				(font
@@ -11320,6 +11571,15 @@
 				(font
 					(size 1.27 1.27)
 				)
+			)
+		)
+		(property "JLC" "C25531"
+			(at 129.54 175.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
 			)
 		)
 		(pin "1"
@@ -11407,7 +11667,7 @@
 		(at 120.65 59.69 0)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(uuid "933aacbb-4685-499a-9fe4-49a445c59fdc")
@@ -11461,71 +11721,6 @@
 			(project "pocket_synth"
 				(path "/485383b8-00f4-4405-b270-de249939cff4/ac7a2cd5-8a17-4132-a50f-a1edfbc58e6d"
 					(reference "TP42")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 134.62 69.85 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "96c7243b-89ee-4783-9a5e-3d2427b1fd03")
-		(property "Reference" "#PWR085"
-			(at 134.62 76.2 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 134.62 74.676 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 134.62 69.85 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 134.62 69.85 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 134.62 69.85 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "d384cbff-576a-4262-b12d-45221b25f6f7")
-		)
-		(instances
-			(project "pocket_synth"
-				(path "/485383b8-00f4-4405-b270-de249939cff4/ac7a2cd5-8a17-4132-a50f-a1edfbc58e6d"
-					(reference "#PWR085")
 					(unit 1)
 				)
 			)
@@ -11605,7 +11800,7 @@
 		(at 161.29 125.73 90)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(uuid "a450c077-1221-43a9-a4a8-a394ac7ec641")
@@ -11671,7 +11866,7 @@
 		(at 161.29 132.08 90)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(uuid "a588b633-8d03-43da-bb4e-5736c29bd761")
@@ -12616,7 +12811,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
+		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
 			(at 115.57 61.2648 0)
 			(effects
 				(font
@@ -12785,70 +12980,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Connector:TestPoint")
-		(at 134.62 59.69 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "d924e689-5777-42d9-8e7e-1bb1ecd99220")
-		(property "Reference" "TP43"
-			(at 134.62 51.816 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "HPG"
-			(at 134.62 54.102 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "TestPoint:TestPoint_Pad_D2.0mm"
-			(at 139.7 59.69 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 139.7 59.69 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "test point"
-			(at 134.62 59.69 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "114776eb-2327-46c1-8cb1-37eb92b7dc5f")
-		)
-		(instances
-			(project "pocket_synth"
-				(path "/485383b8-00f4-4405-b270-de249939cff4/ac7a2cd5-8a17-4132-a50f-a1edfbc58e6d"
-					(reference "TP43")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "power:GND")
 		(at 58.42 39.37 0)
 		(unit 1)
@@ -12996,7 +13127,7 @@
 		(at 87.63 187.96 90)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(uuid "e10a8beb-5945-426d-a420-234f8c3489b8")
@@ -13644,6 +13775,14 @@
 			)
 		)
 		(property "Connector" ""
+			(at 54.61 92.71 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "JLC" "C14445"
 			(at 54.61 92.71 0)
 			(effects
 				(font
