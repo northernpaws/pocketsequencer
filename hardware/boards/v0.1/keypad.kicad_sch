@@ -7242,12 +7242,13 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C5333465"
 			(at 215.9 157.48 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -7674,12 +7675,13 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C5333465"
 			(at 167.64 142.24 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -7780,12 +7782,13 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C5333465"
 			(at 167.64 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -8003,12 +8006,13 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C5333465"
 			(at 215.9 142.24 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -8173,12 +8177,13 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C5333465"
 			(at 191.77 142.24 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -8722,12 +8727,13 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C5333465"
 			(at 215.9 127 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -8827,12 +8833,13 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C5333465"
 			(at 143.51 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -9379,12 +9386,13 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C5333465"
 			(at 142.24 81.28 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -9550,12 +9558,13 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C5333465"
 			(at 193.04 66.04 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -9655,12 +9664,13 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C5333465"
 			(at 191.77 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -9761,12 +9771,13 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C5333465"
 			(at 218.44 35.56 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -9985,12 +9996,13 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C5333465"
 			(at 193.04 81.28 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -10870,12 +10882,13 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C5333465"
 			(at 218.44 81.28 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -11067,12 +11080,13 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C5333465"
 			(at 142.24 35.56 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -11709,12 +11723,13 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C5333465"
 			(at 167.64 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -11880,12 +11895,13 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C5333465"
 			(at 218.44 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -12360,12 +12376,13 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C5333465"
 			(at 218.44 66.04 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -12583,12 +12600,13 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C5333465"
 			(at 215.9 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -12689,12 +12707,13 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C5333465"
 			(at 167.64 81.28 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -12978,12 +12997,13 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C5333465"
 			(at 142.24 66.04 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -13301,12 +13321,13 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C5333465"
 			(at 143.51 157.48 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -13870,12 +13891,13 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C5333465"
 			(at 142.24 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -13976,12 +13998,13 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C5333465"
 			(at 167.64 66.04 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -14081,12 +14104,13 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C5333465"
 			(at 143.51 127 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -14186,12 +14210,13 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C5333465"
 			(at 167.64 157.48 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -14780,12 +14805,13 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C5333465"
 			(at 191.77 157.48 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -15004,12 +15030,13 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C5333465"
 			(at 167.64 35.56 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -15228,12 +15255,13 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C5333465"
 			(at 193.04 35.56 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -15660,12 +15688,13 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C5333465"
 			(at 167.64 127 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -15765,12 +15794,13 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C5333465"
 			(at 191.77 127 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -15870,12 +15900,13 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C5333465"
 			(at 143.51 142.24 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -17189,12 +17220,13 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C5333465"
 			(at 193.04 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
