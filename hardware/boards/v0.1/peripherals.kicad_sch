@@ -2622,7 +2622,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
 			(at 37.592 43.18 90)
 			(effects
 				(font
@@ -2650,6 +2650,14 @@
 			)
 		)
 		(property "Connector" ""
+			(at 39.37 43.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "JLC" "C25908"
 			(at 39.37 43.18 0)
 			(effects
 				(font
@@ -2792,6 +2800,14 @@
 				(hide yes)
 			)
 		)
+		(property "JLC" "C1525"
+			(at 144.78 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "bde5319a-0275-4d36-876d-df417fe1dc95")
 		)
@@ -2863,26 +2879,6 @@
 		)
 		(property "Height" "0.84"
 			(at 99.06 446.99 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left top)
-				(hide yes)
-			)
-		)
-		(property "Mouser Part Number" "724-DA7280-00FVC"
-			(at 99.06 546.99 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left top)
-				(hide yes)
-			)
-		)
-		(property "Mouser Price/Stock" "https://www.mouser.co.uk/ProductDetail/Renesas-Dialog/DA7280-00FVC?qs=byeeYqUIh0PDtQ9ScBbgLA%3D%3D"
-			(at 99.06 646.99 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3036,22 +3032,6 @@
 				)
 			)
 		)
-		(property "Arrow Part Number" ""
-			(at 162.56 59.69 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Arrow Price/Stock" ""
-			(at 162.56 59.69 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "MANUFACTURER" ""
 			(at 162.56 59.69 0)
 			(effects
@@ -3061,22 +3041,6 @@
 			)
 		)
 		(property "MAXIMUM_PACKAGE_HEIGHT" ""
-			(at 162.56 59.69 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "PARTREV" ""
-			(at 162.56 59.69 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "STANDARD" ""
 			(at 162.56 59.69 0)
 			(effects
 				(font
@@ -3301,7 +3265,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
+		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
 			(at 77.47 33.02 0)
 			(effects
 				(font
@@ -3334,6 +3298,15 @@
 				(font
 					(size 1.27 1.27)
 				)
+			)
+		)
+		(property "JLC" "C1525"
+			(at 77.47 33.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
 			)
 		)
 		(pin "1"
@@ -3605,6 +3578,14 @@
 				(hide yes)
 			)
 		)
+		(property "JLC" "C1525"
+			(at 158.75 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "278bad5d-6ea5-4e6e-ad29-78ff9d103e49")
 		)
@@ -3648,7 +3629,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
 			(at 69.85 33.02 0)
 			(effects
 				(font
@@ -3681,6 +3662,15 @@
 				(font
 					(size 1.27 1.27)
 				)
+			)
+		)
+		(property "JLC" ""
+			(at 69.85 33.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
 			)
 		)
 		(pin "1"
