@@ -2675,6 +2675,14 @@
 				(hide yes)
 			)
 		)
+		(property "Part" ""
+			(at 55.88 133.35 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "1fde156e-9e21-4b64-9ed0-c120d5b61b59")
 		)
@@ -2742,6 +2750,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Part" ""
+			(at 137.16 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "16"
@@ -2921,6 +2937,22 @@
 				(hide yes)
 			)
 		)
+		(property "JLC" "C21189"
+			(at 140.97 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Part" ""
+			(at 140.97 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "0a6f6547-7b29-44f6-8c96-c954883f61ca")
 		)
@@ -3028,7 +3060,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
+		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
 			(at 59.69 137.4648 0)
 			(effects
 				(font
@@ -3056,6 +3088,15 @@
 			)
 		)
 		(property "JLC" "C1525"
+			(at 55.88 138.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Part" ""
 			(at 55.88 138.43 0)
 			(effects
 				(font
@@ -3393,6 +3434,22 @@
 				(hide yes)
 			)
 		)
+		(property "JLC" "C21189"
+			(at 149.86 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Part" ""
+			(at 149.86 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "5fe35e8d-2850-4793-8e10-a8908bf69b17")
 		)
@@ -3618,6 +3675,14 @@
 			)
 		)
 		(property "JLC" "C5382952"
+			(at 59.69 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Part" ""
 			(at 59.69 93.98 0)
 			(effects
 				(font

@@ -2665,6 +2665,14 @@
 				)
 			)
 		)
+		(property "Part" ""
+			(at 39.37 43.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "ef1b7bfd-3dc7-48c2-8cf0-73403ec2ccea")
 		)
@@ -2773,7 +2781,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
+		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
 			(at 143.8148 34.29 0)
 			(effects
 				(font
@@ -2801,6 +2809,14 @@
 			)
 		)
 		(property "JLC" "C1525"
+			(at 144.78 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Part" ""
 			(at 144.78 30.48 0)
 			(effects
 				(font
@@ -2922,6 +2938,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Part" ""
+			(at 62.23 59.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -3049,6 +3073,14 @@
 			)
 		)
 		(property "Connector" ""
+			(at 162.56 59.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Part" ""
 			(at 162.56 59.69 0)
 			(effects
 				(font
@@ -3309,6 +3341,14 @@
 				(hide yes)
 			)
 		)
+		(property "Part" ""
+			(at 77.47 33.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "424586d0-c43d-444a-8763-5539409e2da7")
 		)
@@ -3551,7 +3591,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
+		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
 			(at 157.7848 34.29 0)
 			(effects
 				(font
@@ -3579,6 +3619,14 @@
 			)
 		)
 		(property "JLC" "C1525"
+			(at 158.75 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Part" ""
 			(at 158.75 30.48 0)
 			(effects
 				(font
@@ -3664,13 +3712,21 @@
 				)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C15525"
 			(at 69.85 33.02 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Part" ""
+			(at 69.85 33.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -3693,7 +3749,7 @@
 		(at 93.98 50.8 0)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
@@ -3741,6 +3797,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Part" ""
+			(at 93.98 50.8 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "2"

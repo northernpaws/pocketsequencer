@@ -1841,31 +1841,7 @@
 		)
 		(uuid "1039a3e5-213c-4348-a0d7-491234c5f461")
 	)
-	(text "MIDI IN port can function as either a MIDI IN TRS port, or as \na SYNC and CV input for compatibility with eurorack-style gear. "
-		(exclude_from_sim no)
-		(at 13.462 148.336 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-				(color 132 132 132 1)
-			)
-			(justify left top)
-		)
-		(uuid "2666f794-1a98-412d-a893-181cad4dc3d0")
-	)
-	(text "MIDI OUT port can function as MIDI OUT, or as a\nCV and/or SYNC signals for eurorack-style gear."
-		(exclude_from_sim no)
-		(at 55.626 16.256 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-				(color 132 132 132 1)
-			)
-			(justify left top)
-		)
-		(uuid "2ae9818f-9841-41b6-abe6-65af48bb9b57")
-	)
-	(text "MIDI input, passthrough, or CV"
+	(text "MIDI input or passthrough"
 		(exclude_from_sim no)
 		(at 13.462 78.74 0)
 		(effects
@@ -1880,7 +1856,7 @@
 	)
 	(text "CV Input by Émilie Gillet of Mutable Instruments\nhttps://wiki.synthdiy.com/building-blocks/cv-input-to-microcontroller/\nMCP6002-xMC"
 		(exclude_from_sim no)
-		(at 191.516 217.424 0)
+		(at 13.716 220.218 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1891,7 +1867,7 @@
 		)
 		(uuid "c1fa20cd-c79c-4890-b189-13df195076b3")
 	)
-	(text "MIDI output, passthrough, or CV"
+	(text "MIDI output or passthrough"
 		(exclude_from_sim no)
 		(at 13.208 17.018 0)
 		(effects
@@ -1906,7 +1882,7 @@
 	)
 	(text "MMZ1608Y102BTD25"
 		(exclude_from_sim no)
-		(at 84.328 58.166 0)
+		(at 94.488 56.642 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -2562,13 +2538,21 @@
 				)
 			)
 		)
-		(property "JLC" "C50069"
+		(property "JLC" "C531293"
 			(at 60.96 101.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Part" ""
+			(at 60.96 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -2647,13 +2631,21 @@
 				)
 			)
 		)
-		(property "JLC" "C50069"
+		(property "JLC" "C531293"
 			(at 60.96 124.46 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Part" ""
+			(at 60.96 124.46 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -2807,7 +2799,7 @@
 		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(uuid "414c6f43-f55a-4840-8b46-d87686211bc8")
@@ -2880,6 +2872,14 @@
 			)
 		)
 		(property "Connector" ""
+			(at 31.75 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Part" ""
 			(at 31.75 104.14 0)
 			(effects
 				(font
@@ -2967,13 +2967,21 @@
 				)
 			)
 		)
-		(property "JLC" "C50069"
+		(property "JLC" "C531293"
 			(at 93.98 52.07 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Part" ""
+			(at 93.98 52.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -3061,7 +3069,7 @@
 		(at 128.27 40.64 180)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(uuid "739e5127-b604-4bae-82f2-a39da6d812da")
@@ -3134,6 +3142,14 @@
 			)
 		)
 		(property "Connector" ""
+			(at 128.27 40.64 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Part" ""
 			(at 128.27 40.64 0)
 			(effects
 				(font
@@ -3221,6 +3237,14 @@
 				)
 			)
 		)
+		(property "Part" ""
+			(at 109.22 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "2227901b-bdfc-49cd-a8cf-066dcee7b592")
 		)
@@ -3286,6 +3310,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Part" ""
+			(at 69.85 49.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -3492,13 +3524,21 @@
 				)
 			)
 		)
-		(property "JLC" "C50069"
+		(property "JLC" "C531293"
 			(at 93.98 38.1 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Part" ""
+			(at 93.98 38.1 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -3597,6 +3637,14 @@
 				)
 			)
 		)
+		(property "Part" ""
+			(at 76.2 113.03 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "83865611-0ff2-4f62-aaea-342eea304c2e")
 		)
@@ -3684,6 +3732,14 @@
 				(hide yes)
 			)
 		)
+		(property "Part" ""
+			(at 73.66 107.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "3"
 			(uuid "e000e1db-3bfc-4d0e-abae-a9a9e57c2b9e")
 		)
@@ -3769,6 +3825,23 @@
 				)
 			)
 		)
+		(property "JLC" "C25091"
+			(at 71.12 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Part" ""
+			(at 71.12 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "50add1e8-dcbb-4874-8088-52672db7b4e6")
 		)
@@ -3834,6 +3907,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Part" ""
+			(at 124.46 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -3920,6 +4001,14 @@
 				(hide yes)
 			)
 		)
+		(property "Part" ""
+			(at 39.37 115.57 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "0270fd5a-488d-4647-a52b-a08eeb435bce")
 		)
@@ -3994,6 +4083,23 @@
 				(font
 					(size 1.27 1.27)
 				)
+			)
+		)
+		(property "Part" ""
+			(at 81.28 52.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "JLC" "C427198"
+			(at 81.28 52.07 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
 			)
 		)
 		(pin "1"
@@ -4083,6 +4189,14 @@
 				(hide yes)
 			)
 		)
+		(property "Part" ""
+			(at 101.6 90.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "16ac07b5-6e18-4261-8f73-f495c2421d9e")
 		)
@@ -4124,7 +4238,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+		(property "Footprint" "Resistor_SMD:R_1206_3216Metric"
 			(at 77.47 39.878 90)
 			(effects
 				(font
@@ -4157,6 +4271,23 @@
 				(font
 					(size 1.27 1.27)
 				)
+			)
+		)
+		(property "Part" ""
+			(at 77.47 38.1 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "JLC" "C414914"
+			(at 77.47 38.1 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
 			)
 		)
 		(pin "1"

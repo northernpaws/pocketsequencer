@@ -6797,6 +6797,14 @@
 				(hide yes)
 			)
 		)
+		(property "Part" ""
+			(at 139.7 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "9ee6dc67-274f-4c45-9584-09ddfed0ef35")
 		)
@@ -6895,6 +6903,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Part" ""
+			(at 139.7 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "2"
@@ -7062,6 +7078,14 @@
 				(hide yes)
 			)
 		)
+		(property "Part" ""
+			(at 139.7 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "c020d5b4-0cb7-4ccc-ac52-a4bae835364a")
 		)
@@ -7163,6 +7187,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Part" ""
+			(at 179.07 82.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -7332,6 +7364,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Part" ""
+			(at 58.42 33.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -7633,6 +7673,14 @@
 				(hide yes)
 			)
 		)
+		(property "Part" ""
+			(at 160.02 153.67 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "38"
 			(uuid "24ff3805-552b-4548-a4b0-9c5afb5c7427")
 		)
@@ -7881,6 +7929,14 @@
 				(hide yes)
 			)
 		)
+		(property "Part" ""
+			(at 66.04 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "38"
 			(uuid "24ff3805-552b-4548-a4b0-9c5afb5c7428")
 		)
@@ -8123,6 +8179,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Part" ""
+			(at 139.7 121.92 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "2"
@@ -8424,6 +8488,14 @@
 				(hide yes)
 			)
 		)
+		(property "Part" ""
+			(at 160.02 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "38"
 			(uuid "24ff3805-552b-4548-a4b0-9c5afb5c7429")
 		)
@@ -8671,6 +8743,14 @@
 				(hide yes)
 			)
 		)
+		(property "Part" ""
+			(at 50.8 33.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "ee3261c5-2bb2-4383-a42c-66cd77dbd9c8")
 		)
@@ -8839,6 +8919,14 @@
 				(hide yes)
 			)
 		)
+		(property "Part" ""
+			(at 43.18 33.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "3fb83d55-809a-4f15-b152-105c2f0b8247")
 		)
@@ -8859,7 +8947,7 @@
 		(at 222.25 81.28 0)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
@@ -8907,6 +8995,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Part" ""
+			(at 222.25 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "2"
