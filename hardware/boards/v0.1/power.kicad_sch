@@ -11466,7 +11466,6 @@
 	(symbol
 		(lib_id "Device:R")
 		(at 57.15 160.02 0)
-		(mirror y)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -11474,7 +11473,7 @@
 		(dnp no)
 		(uuid "3eacb251-89d5-4506-846c-675c66cce5b6")
 		(property "Reference" "R23"
-			(at 55.372 158.75 0)
+			(at 58.928 158.75 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11482,8 +11481,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "442"
-			(at 55.372 161.29 0)
+		(property "Value" "90k"
+			(at 58.928 161.29 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11491,8 +11490,8 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
-			(at 58.928 160.02 90)
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
+			(at 55.372 160.02 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11548,6 +11547,15 @@
 				(font
 					(size 1.27 1.27)
 				)
+			)
+		)
+		(property "JLC" "C247028"
+			(at 57.15 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
 			)
 		)
 		(pin "2"
@@ -12789,7 +12797,6 @@
 	(symbol
 		(lib_id "Device:C")
 		(at 76.2 160.02 0)
-		(mirror y)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -12797,7 +12804,7 @@
 		(dnp no)
 		(uuid "625a3102-b924-41c2-8547-aecb6fa12795")
 		(property "Reference" "C12"
-			(at 75.184 156.972 0)
+			(at 77.216 156.972 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12806,7 +12813,7 @@
 			)
 		)
 		(property "Value" "22uF"
-			(at 75.184 163.068 0)
+			(at 77.216 163.068 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12815,7 +12822,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
-			(at 75.2348 163.83 0)
+			(at 77.1652 163.83 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14403,7 +14410,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "97.6k"
+		(property "Value" "20k"
 			(at 59.182 173.99 0)
 			(effects
 				(font
@@ -14412,7 +14419,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
 			(at 55.372 172.72 90)
 			(effects
 				(font
@@ -14463,7 +14470,7 @@
 				)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C25765"
 			(at 57.15 172.72 0)
 			(effects
 				(font
@@ -15795,7 +15802,6 @@
 	(symbol
 		(lib_id "Device:C")
 		(at 67.31 160.02 0)
-		(mirror y)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -15803,7 +15809,7 @@
 		(dnp no)
 		(uuid "b10a211a-a9af-4761-a4a5-0ffdeac73117")
 		(property "Reference" "C13"
-			(at 66.294 156.972 0)
+			(at 68.326 156.972 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -15812,7 +15818,7 @@
 			)
 		)
 		(property "Value" "120pF"
-			(at 66.294 163.068 0)
+			(at 68.326 163.068 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -15821,7 +15827,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
-			(at 66.3448 163.83 0)
+			(at 68.2752 163.83 0)
 			(effects
 				(font
 					(size 1.27 1.27)

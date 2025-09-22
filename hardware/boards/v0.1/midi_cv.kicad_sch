@@ -1854,6 +1854,19 @@
 		)
 		(uuid "8ff2f79d-e2c9-4046-aad3-e6c53d4e9873")
 	)
+	(text "(CA-033) MIDI 1.0 Electrical Specification Update [2014]\nhttps://midi.org/5-pin-din-electrical-specs\n\nrp54 Specification for Use of TRS Connectors with MIDI Devices\nhttps://midi.org/specification-for-use-of-trs-connectors-with-midi-devices"
+		(exclude_from_sim no)
+		(at 13.97 163.83 0)
+		(effects
+			(font
+				(size 2.032 2.032)
+				(thickness 0.1588)
+				(color 132 132 132 1)
+			)
+			(justify left)
+		)
+		(uuid "a0c6dbed-bb7b-42db-8075-f802c7553f43")
+	)
 	(text "CV Input by Émilie Gillet of Mutable Instruments\nhttps://wiki.synthdiy.com/building-blocks/cv-input-to-microcontroller/\nMCP6002-xMC"
 		(exclude_from_sim no)
 		(at 13.716 220.218 0)
@@ -1879,6 +1892,18 @@
 			(justify left top)
 		)
 		(uuid "e84f2b92-069f-47a9-97d1-639faf7e06ae")
+	)
+	(text "https://midi.org/community/midi-hardware/best-optoisolator-for-3-3v\n\nhttps://www.reddit.com/r/AskElectronics/comments/9ommpm/choosing_the_right_optocoupler_for_use_with_midi/\n\"3.3 V SMD variants of the 6N137: ACPL-M60L, ACPL-M62L, FODM8061, PS9124, TLP2362\"\n"
+		(exclude_from_sim no)
+		(at 13.208 151.892 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+				(color 132 132 132 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "f48cf58f-f1a1-4b4d-a35d-2eb3fa1a7170")
 	)
 	(text "MMZ1608Y102BTD25"
 		(exclude_from_sim no)
@@ -3193,7 +3218,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "359R"
+		(property "Value" "1.8k"
 			(at 110.998 102.87 0)
 			(effects
 				(font
@@ -3202,7 +3227,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 107.442 101.6 90)
 			(effects
 				(font
@@ -3243,6 +3268,15 @@
 				(font
 					(size 1.27 1.27)
 				)
+			)
+		)
+		(property "JLC" "C4177"
+			(at 109.22 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
 			)
 		)
 		(pin "2"
@@ -3575,7 +3609,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "D"
+		(property "Value" "1N4148WS"
 			(at 73.66 114.2999 90)
 			(effects
 				(font
@@ -3584,7 +3618,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_0603_1608Metric"
+		(property "Footprint" "Diode_SMD:D_SOD-323"
 			(at 76.2 113.03 0)
 			(effects
 				(font
@@ -3643,6 +3677,15 @@
 				(font
 					(size 1.27 1.27)
 				)
+			)
+		)
+		(property "JLC" "C2128"
+			(at 76.2 113.03 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
 			)
 		)
 		(pin "1"

@@ -6810,6 +6810,7 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -6936,6 +6937,7 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -7539,6 +7541,7 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -7665,6 +7668,7 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -8020,6 +8024,7 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -9269,6 +9274,7 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -9395,6 +9401,7 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -10145,6 +10152,7 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -10636,6 +10644,7 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -10862,6 +10871,7 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -11550,6 +11560,7 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -11676,6 +11687,7 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -11902,6 +11914,7 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -12486,6 +12499,7 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -12618,6 +12632,7 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "Part" ""
@@ -12934,6 +12949,7 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -13354,6 +13370,7 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -13601,6 +13618,7 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "Part" ""
@@ -13703,6 +13721,7 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -13943,6 +13962,7 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -14075,6 +14095,7 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "Part" ""
@@ -14177,6 +14198,7 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -14896,6 +14918,7 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -15772,6 +15795,7 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -16013,6 +16037,7 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -16139,6 +16164,7 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -17135,6 +17161,7 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -17387,6 +17414,7 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -17519,6 +17547,7 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "Part" ""
@@ -17621,6 +17650,7 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -17747,6 +17777,7 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""
@@ -17873,6 +17904,7 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MANUFACTURER" ""

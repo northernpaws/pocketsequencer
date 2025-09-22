@@ -4403,19 +4403,6 @@
 		)
 		(uuid "adf68371-df0c-48d6-94a1-3bc02fb29d11")
 	)
-	(text "(CA-033) MIDI 1.0 Electrical Specification Update [2014]\nhttps://midi.org/5-pin-din-electrical-specs\n\nrp54 Specification for Use of TRS Connectors with MIDI Devices\nhttps://midi.org/specification-for-use-of-trs-connectors-with-midi-devices"
-		(exclude_from_sim no)
-		(at 178.308 3.048 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-				(thickness 0.1588)
-				(color 132 132 132 1)
-			)
-			(justify left)
-		)
-		(uuid "b8503f43-3a6c-4479-9c24-18f51b1325df")
-	)
 	(text "ADC is recorded at 24-bit for a better noise\nfloor then recording at 16-bit would provide. \n\nPlayback is done at 24-bit due to CODEC\nrestrictions, however the internal audio\nengine runs in 16-bit as you cannot tell\nthe difference in the vast majority of \nlistening cases."
 		(exclude_from_sim no)
 		(at 175.768 13.462 0)
