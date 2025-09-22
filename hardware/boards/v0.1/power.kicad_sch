@@ -5552,15 +5552,15 @@
 		)
 		(uuid "7c9a296b-1753-426f-96aa-9b6de7b2bcbc")
 	)
-	(text "540AΩ/1A=540R\n1A fast charge"
+	(text "Min: 10.8kΩ (50mA)\nMax: 675Ω (800mA).\n[540AΩ/0.54A]=1.0kΩ\n0.54A fast charge"
 		(exclude_from_sim no)
-		(at 186.436 87.122 0)
+		(at 202.438 89.154 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 				(color 132 132 132 1)
 			)
-			(justify left)
+			(justify right)
 		)
 		(uuid "7e9c1f4b-f7f8-4481-bef5-8bef1bb6ac5e")
 	)
@@ -5834,12 +5834,6 @@
 		(uuid "2f265973-260c-42bf-954e-d05c99fe984e")
 	)
 	(junction
-		(at 210.82 133.35)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "332edf1f-af91-418c-8c4d-f0d5dc62b7c0")
-	)
-	(junction
 		(at 43.18 101.6)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -5922,6 +5916,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "732587c8-1ec0-4ae4-9fc9-e6c80c330d19")
+	)
+	(junction
+		(at 210.82 133.35)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "7942b28f-c2e4-4f3c-91ba-0569b4580dc4")
 	)
 	(junction
 		(at 71.12 76.2)
@@ -6038,6 +6038,12 @@
 		(uuid "cb5762fc-99a0-4ba4-8bc2-3e60af7ef821")
 	)
 	(junction
+		(at 210.82 130.81)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "cc5e3c94-4682-469a-bdea-a9e2ab672e1d")
+	)
+	(junction
 		(at 81.28 60.96)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -6110,10 +6116,6 @@
 	(no_connect
 		(at 41.91 111.76)
 		(uuid "0db65758-999b-4b44-b9e4-910b945cd2e9")
-	)
-	(no_connect
-		(at 213.36 130.81)
-		(uuid "1e34e156-5056-4950-a464-ee04e7c11b22")
 	)
 	(no_connect
 		(at 184.15 133.35)
@@ -6811,6 +6813,16 @@
 	)
 	(wire
 		(pts
+			(xy 213.36 130.81) (xy 210.82 130.81)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "405a9157-3bf9-4228-a0b0-501b79d30fa7")
+	)
+	(wire
+		(pts
 			(xy 24.13 186.69) (xy 24.13 189.23)
 		)
 		(stroke
@@ -6831,7 +6843,7 @@
 	)
 	(wire
 		(pts
-			(xy 210.82 130.81) (xy 210.82 133.35)
+			(xy 210.82 128.27) (xy 210.82 130.81)
 		)
 		(stroke
 			(width 0)
@@ -7531,7 +7543,7 @@
 	)
 	(wire
 		(pts
-			(xy 210.82 138.43) (xy 213.36 138.43)
+			(xy 208.28 138.43) (xy 213.36 138.43)
 		)
 		(stroke
 			(width 0)
@@ -7718,16 +7730,6 @@
 			(type default)
 		)
 		(uuid "a2e00ea9-0412-4bec-91e8-bde9d7ed65e3")
-	)
-	(wire
-		(pts
-			(xy 210.82 133.35) (xy 213.36 133.35)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a39efa30-6743-4cb3-bd85-2b68e19fd45f")
 	)
 	(wire
 		(pts
@@ -7998,6 +8000,16 @@
 			(type default)
 		)
 		(uuid "bde5755c-3f2f-4469-ae23-a37fa5998182")
+	)
+	(wire
+		(pts
+			(xy 210.82 130.81) (xy 210.82 133.35)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "be25eb70-8621-4c87-84b7-736b09f6eeb0")
 	)
 	(wire
 		(pts
@@ -8491,6 +8503,16 @@
 	)
 	(wire
 		(pts
+			(xy 210.82 133.35) (xy 213.36 133.35)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e54a0d29-8df2-4576-b740-3455be2fe281")
+	)
+	(wire
+		(pts
 			(xy 27.94 156.21) (xy 29.21 156.21)
 		)
 		(stroke
@@ -8940,7 +8962,7 @@
 		(uuid "2b393144-b9c4-446c-99f1-d5906edd445a")
 	)
 	(label "C_SRD"
-		(at 210.82 138.43 180)
+		(at 208.28 138.43 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13124,10 +13146,9 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "6afb764a-5e2b-4d0c-8586-3b1f81fd9144")
 		(property "Reference" "U36"
-			(at 230.7433 121.92 0)
+			(at 230.124 121.92 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13135,8 +13156,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "STM6601CQ2DDM6x"
-			(at 230.7433 124.46 0)
+		(property "Value" "STM6601GU2BDM6F"
+			(at 230.124 124.46 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13177,6 +13198,15 @@
 				(font
 					(size 1.27 1.27)
 				)
+			)
+		)
+		(property "JLC" "C155599"
+			(at 228.6 138.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
 			)
 		)
 		(pin "1"
@@ -13658,7 +13688,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "540R"
+		(property "Value" "1k"
 			(at 193.802 78.74 0)
 			(effects
 				(font
@@ -13667,7 +13697,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
 			(at 189.992 77.47 90)
 			(effects
 				(font
@@ -13724,6 +13754,15 @@
 				(font
 					(size 1.27 1.27)
 				)
+			)
+		)
+		(property "JLC" "C11702"
+			(at 191.77 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
 			)
 		)
 		(pin "1"
@@ -14125,7 +14164,7 @@
 	)
 	(symbol
 		(lib_id "Connector:TestPoint")
-		(at 210.82 130.81 0)
+		(at 210.82 128.27 0)
 		(mirror y)
 		(unit 1)
 		(exclude_from_sim no)
@@ -14134,7 +14173,7 @@
 		(dnp no)
 		(uuid "87c8069a-88a0-4761-8de5-2488f1240691")
 		(property "Reference" "TP31"
-			(at 210.82 123.19 0)
+			(at 210.82 120.65 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14142,7 +14181,7 @@
 			)
 		)
 		(property "Value" "PB"
-			(at 210.82 125.222 0)
+			(at 210.82 122.682 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14150,7 +14189,7 @@
 			)
 		)
 		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
-			(at 205.74 130.81 0)
+			(at 205.74 128.27 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14159,7 +14198,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 205.74 130.81 0)
+			(at 205.74 128.27 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14168,7 +14207,7 @@
 			)
 		)
 		(property "Description" "test point"
-			(at 210.82 130.81 0)
+			(at 210.82 128.27 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14177,7 +14216,7 @@
 			)
 		)
 		(property "Part" ""
-			(at 210.82 130.81 0)
+			(at 210.82 128.27 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14424,7 +14463,7 @@
 				)
 			)
 		)
-		(property "JLC" "C23269"
+		(property "JLC" ""
 			(at 57.15 172.72 0)
 			(effects
 				(font

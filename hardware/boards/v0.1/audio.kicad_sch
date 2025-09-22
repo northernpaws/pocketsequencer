@@ -8142,9 +8142,9 @@
 		(at 234.95 128.27 0)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
-		(dnp no)
+		(dnp yes)
 		(uuid "16c27b9d-c71a-4548-8f8b-7e901413d676")
 		(property "Reference" "U34"
 			(at 234.95 119.634 0)
@@ -12996,6 +12996,14 @@
 				(hide yes)
 			)
 		)
+		(property "JLC" "C7461237"
+			(at 111.76 62.23 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "d93d0bb2-3996-4a53-b08c-5235a3137369")
 		)
@@ -13169,7 +13177,7 @@
 		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(uuid "df6893bd-5709-46fc-b99b-7bb44653569d")
@@ -13329,7 +13337,7 @@
 		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(uuid "e31237ce-e340-423e-a361-0433557c2c0d")

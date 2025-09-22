@@ -29074,6 +29074,24 @@
 				)
 			)
 			(pin power_in line
+				(at -1.27 -12.7 90)
+				(length 2.54)
+				(name "VSS"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "4"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_in line
 				(at 0 12.7 270)
 				(length 2.54)
 				(name "VDD"
@@ -29092,16 +29110,16 @@
 				)
 			)
 			(pin power_in line
-				(at 0 -12.7 90)
+				(at 1.27 -12.7 90)
 				(length 2.54)
-				(name "VSS"
+				(name "EP"
 					(effects
 						(font
 							(size 1.27 1.27)
 						)
 					)
 				)
-				(number "4"
+				(number "9"
 					(effects
 						(font
 							(size 1.27 1.27)
