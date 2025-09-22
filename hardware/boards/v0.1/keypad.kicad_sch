@@ -2522,6 +2522,17 @@
 		)
 		(uuid "7889c81f-1fe2-4eb2-bbc7-b95bb17d6c47")
 	)
+	(text "https://github.com/joric/nrfmicro/wiki/Components#diodes"
+		(exclude_from_sim no)
+		(at 196.85 205.486 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+				(color 132 132 132 1)
+			)
+		)
+		(uuid "a0a10c18-94d4-425a-a439-b014a87f8886")
+	)
 	(text "Keypad Decoder"
 		(exclude_from_sim no)
 		(at 66.294 78.232 0)
@@ -6748,7 +6759,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_0402_1005Metric"
+		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 179.07 35.56 0)
 			(effects
 				(font
@@ -6793,7 +6804,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C2128"
 			(at 179.07 35.56 0)
 			(effects
 				(font
@@ -6874,7 +6885,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_0402_1005Metric"
+		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 224.79 127 0)
 			(effects
 				(font
@@ -6919,7 +6930,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C2128"
 			(at 224.79 127 0)
 			(effects
 				(font
@@ -7477,7 +7488,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_0402_1005Metric"
+		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 152.4 127 0)
 			(effects
 				(font
@@ -7522,7 +7533,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C2128"
 			(at 152.4 127 0)
 			(effects
 				(font
@@ -7603,7 +7614,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_0402_1005Metric"
+		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 204.47 50.8 0)
 			(effects
 				(font
@@ -7648,7 +7659,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C2128"
 			(at 204.47 50.8 0)
 			(effects
 				(font
@@ -7958,7 +7969,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_0402_1005Metric"
+		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 176.53 111.76 0)
 			(effects
 				(font
@@ -8003,7 +8014,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C2128"
 			(at 176.53 111.76 0)
 			(effects
 				(font
@@ -9081,7 +9092,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_0402_1005Metric"
+		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 229.87 66.04 0)
 			(effects
 				(font
@@ -9126,7 +9137,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C2128"
 			(at 229.87 66.04 0)
 			(effects
 				(font
@@ -9207,7 +9218,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_0402_1005Metric"
+		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 153.67 35.56 0)
 			(effects
 				(font
@@ -9252,7 +9263,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C2128"
 			(at 153.67 35.56 0)
 			(effects
 				(font
@@ -9333,7 +9344,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_0402_1005Metric"
+		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 200.66 142.24 0)
 			(effects
 				(font
@@ -9378,7 +9389,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C2128"
 			(at 200.66 142.24 0)
 			(effects
 				(font
@@ -10083,7 +10094,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_0402_1005Metric"
+		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 200.66 111.76 0)
 			(effects
 				(font
@@ -10128,7 +10139,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C2128"
 			(at 200.66 111.76 0)
 			(effects
 				(font
@@ -10574,7 +10585,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_0402_1005Metric"
+		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 179.07 50.8 0)
 			(effects
 				(font
@@ -10619,7 +10630,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C2128"
 			(at 179.07 50.8 0)
 			(effects
 				(font
@@ -10800,7 +10811,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_0402_1005Metric"
+		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 179.07 81.28 0)
 			(effects
 				(font
@@ -10845,7 +10856,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C2128"
 			(at 179.07 81.28 0)
 			(effects
 				(font
@@ -11488,7 +11499,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_0402_1005Metric"
+		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 153.67 81.28 0)
 			(effects
 				(font
@@ -11533,7 +11544,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C2128"
 			(at 153.67 81.28 0)
 			(effects
 				(font
@@ -11614,7 +11625,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_0402_1005Metric"
+		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 224.79 157.48 0)
 			(effects
 				(font
@@ -11659,7 +11670,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C2128"
 			(at 224.79 157.48 0)
 			(effects
 				(font
@@ -11840,7 +11851,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_0402_1005Metric"
+		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 224.79 142.24 0)
 			(effects
 				(font
@@ -11885,7 +11896,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C2128"
 			(at 224.79 142.24 0)
 			(effects
 				(font
@@ -12424,7 +12435,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_0402_1005Metric"
+		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 152.4 142.24 0)
 			(effects
 				(font
@@ -12469,7 +12480,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C2128"
 			(at 152.4 142.24 0)
 			(effects
 				(font
@@ -12872,7 +12883,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_0402_1005Metric"
+		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 204.47 35.56 0)
 			(effects
 				(font
@@ -12917,7 +12928,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C2128"
 			(at 204.47 35.56 0)
 			(effects
 				(font
@@ -13292,7 +13303,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_0402_1005Metric"
+		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 152.4 111.76 0)
 			(effects
 				(font
@@ -13337,7 +13348,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C2128"
 			(at 152.4 111.76 0)
 			(effects
 				(font
@@ -13641,7 +13652,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_0402_1005Metric"
+		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 152.4 157.48 0)
 			(effects
 				(font
@@ -13686,7 +13697,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C2128"
 			(at 152.4 157.48 0)
 			(effects
 				(font
@@ -13881,7 +13892,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_0402_1005Metric"
+		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 204.47 66.04 0)
 			(effects
 				(font
@@ -13926,7 +13937,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C2128"
 			(at 204.47 66.04 0)
 			(effects
 				(font
@@ -14115,7 +14126,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_0402_1005Metric"
+		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 204.47 81.28 0)
 			(effects
 				(font
@@ -14160,7 +14171,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C2128"
 			(at 204.47 81.28 0)
 			(effects
 				(font
@@ -14834,7 +14845,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_0402_1005Metric"
+		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 200.66 127 0)
 			(effects
 				(font
@@ -14879,7 +14890,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C2128"
 			(at 200.66 127 0)
 			(effects
 				(font
@@ -14960,7 +14971,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_0402_1005Metric"
+		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 229.87 50.8 0)
 			(effects
 				(font
@@ -15005,7 +15016,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C2128"
 			(at 229.87 50.8 0)
 			(effects
 				(font
@@ -15469,7 +15480,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_0402_1005Metric"
+		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 229.87 35.56 0)
 			(effects
 				(font
@@ -15514,7 +15525,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C2128"
 			(at 229.87 35.56 0)
 			(effects
 				(font
@@ -15710,7 +15721,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_0402_1005Metric"
+		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 224.79 111.76 0)
 			(effects
 				(font
@@ -15755,7 +15766,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C2128"
 			(at 224.79 111.76 0)
 			(effects
 				(font
@@ -15951,7 +15962,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_0402_1005Metric"
+		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 153.67 50.8 0)
 			(effects
 				(font
@@ -15996,7 +16007,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C2128"
 			(at 153.67 50.8 0)
 			(effects
 				(font
@@ -16077,7 +16088,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_0402_1005Metric"
+		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 153.67 66.04 0)
 			(effects
 				(font
@@ -16122,7 +16133,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C2128"
 			(at 153.67 66.04 0)
 			(effects
 				(font
@@ -17073,7 +17084,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_0402_1005Metric"
+		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 176.53 157.48 0)
 			(effects
 				(font
@@ -17118,7 +17129,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C2128"
 			(at 176.53 157.48 0)
 			(effects
 				(font
@@ -17199,7 +17210,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_0402_1005Metric"
+		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 229.87 81.28 0)
 			(effects
 				(font
@@ -17244,7 +17255,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C2128"
 			(at 229.87 81.28 0)
 			(effects
 				(font
@@ -17325,7 +17336,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_0402_1005Metric"
+		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 200.66 157.48 0)
 			(effects
 				(font
@@ -17370,7 +17381,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C2128"
 			(at 200.66 157.48 0)
 			(effects
 				(font
@@ -17559,7 +17570,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_0402_1005Metric"
+		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 176.53 127 0)
 			(effects
 				(font
@@ -17604,7 +17615,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C2128"
 			(at 176.53 127 0)
 			(effects
 				(font
@@ -17685,7 +17696,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_0402_1005Metric"
+		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 176.53 142.24 0)
 			(effects
 				(font
@@ -17730,7 +17741,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C2128"
 			(at 176.53 142.24 0)
 			(effects
 				(font
@@ -17811,7 +17822,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_0402_1005Metric"
+		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 179.07 66.04 0)
 			(effects
 				(font
@@ -17856,7 +17867,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C2128"
 			(at 179.07 66.04 0)
 			(effects
 				(font
