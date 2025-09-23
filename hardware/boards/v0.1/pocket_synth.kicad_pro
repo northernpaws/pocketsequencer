@@ -755,12 +755,6 @@
         },
         {
           "group_by": false,
-          "label": "JCL",
-          "name": "JCL",
-          "show": false
-        },
-        {
-          "group_by": false,
           "label": "JLC",
           "name": "JLC",
           "show": true
@@ -775,18 +769,6 @@
           "group_by": false,
           "label": "MAXIMUM_PACKAGE_HEIGHT",
           "name": "MAXIMUM_PACKAGE_HEIGHT",
-          "show": false
-        },
-        {
-          "group_by": false,
-          "label": "Manufacturer_Name",
-          "name": "Manufacturer_Name",
-          "show": false
-        },
-        {
-          "group_by": false,
-          "label": "Manufacturer_Part_Number",
-          "name": "Manufacturer_Part_Number",
           "show": false
         },
         {

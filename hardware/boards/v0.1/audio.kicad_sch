@@ -8912,9 +8912,9 @@
 		(at 111.76 67.31 90)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
-		(dnp no)
+		(dnp yes)
 		(uuid "3132adbb-6bb6-45e1-837e-bc0b2ed80a2b")
 		(property "Reference" "C54"
 			(at 109.982 65.532 90)
@@ -9102,6 +9102,7 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "Part" ""
@@ -12893,9 +12894,9 @@
 		(at 111.76 62.23 90)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
-		(dnp no)
+		(dnp yes)
 		(uuid "d321f4fb-4cd8-4575-bb83-87f33d19b05f")
 		(property "Reference" "C36"
 			(at 109.982 60.452 90)
@@ -12974,21 +12975,13 @@
 				)
 			)
 		)
-		(property "JCL" "C7461237"
-			(at 111.76 62.23 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
 		(property "JLC" "C7461237"
 			(at 111.76 62.23 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(pin "2"
@@ -14031,6 +14024,7 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "Part" ""

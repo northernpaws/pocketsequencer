@@ -5826,21 +5826,6 @@
 	(rule_area
 		(polyline
 			(pts
-				(xy 121.92 81.28) (xy 121.92 59.69) (xy 134.62 59.69) (xy 134.62 81.28)
-			)
-			(stroke
-				(width 0)
-				(type dash)
-			)
-			(fill
-				(type none)
-			)
-			(uuid 6b853b35-5afd-4727-9d34-847bf5e8a804)
-		)
-	)
-	(rule_area
-		(polyline
-			(pts
 				(xy 121.92 81.28) (xy 121.92 101.6) (xy 134.62 101.6) (xy 134.62 81.28)
 			)
 			(stroke
@@ -5850,7 +5835,22 @@
 			(fill
 				(type none)
 			)
-			(uuid c4533ce4-d983-405a-979a-4e9c03c2dfcc)
+			(uuid 046287cb-2ee0-4a53-b0f0-ceef05b7aabb)
+		)
+	)
+	(rule_area
+		(polyline
+			(pts
+				(xy 121.92 81.28) (xy 121.92 59.69) (xy 134.62 59.69) (xy 134.62 81.28)
+			)
+			(stroke
+				(width 0)
+				(type dash)
+			)
+			(fill
+				(type none)
+			)
+			(uuid 639ba185-f3c9-48be-b529-bc998232390e)
 		)
 	)
 	(netclass_flag ""
@@ -6389,26 +6389,6 @@
 		)
 		(property "Height" "0.8"
 			(at 288.29 436.83 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left top)
-				(hide yes)
-			)
-		)
-		(property "Manufacturer_Name" "Winbond"
-			(at 288.29 736.83 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left top)
-				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part_Number" "W25Q512JVEIQ"
-			(at 288.29 836.83 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7605,26 +7585,6 @@
 		)
 		(property "Height" "1.2"
 			(at 118.11 458.42 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left top)
-				(hide yes)
-			)
-		)
-		(property "Manufacturer_Name" "Integrated Silicon Solution Inc."
-			(at 118.11 758.42 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left top)
-				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part_Number" "IS42S16160J-7TLI"
-			(at 118.11 858.42 0)
 			(effects
 				(font
 					(size 1.27 1.27)

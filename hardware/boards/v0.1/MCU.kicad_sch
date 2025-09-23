@@ -144,10 +144,7 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "Device:Crystal"
-			(pin_numbers
-				(hide yes)
-			)
+		(symbol "Device:Crystal_GND24"
 			(pin_names
 				(offset 1.016)
 				(hide yes)
@@ -156,19 +153,21 @@
 			(in_bom yes)
 			(on_board yes)
 			(property "Reference" "Y"
-				(at 0 3.81 0)
+				(at 3.175 5.08 0)
 				(effects
 					(font
 						(size 1.27 1.27)
 					)
+					(justify left)
 				)
 			)
-			(property "Value" "Crystal"
-				(at 0 -3.81 0)
+			(property "Value" "Crystal_GND24"
+				(at 3.175 3.175 0)
 				(effects
 					(font
 						(size 1.27 1.27)
 					)
+					(justify left)
 				)
 			)
 			(property "Footprint" ""
@@ -189,7 +188,7 @@
 					(hide yes)
 				)
 			)
-			(property "Description" "Two pin crystal"
+			(property "Description" "Four pin crystal, GND on pins 2 and 4"
 				(at 0 0 0)
 				(effects
 					(font
@@ -216,10 +215,10 @@
 					(hide yes)
 				)
 			)
-			(symbol "Crystal_0_1"
+			(symbol "Crystal_GND24_0_1"
 				(polyline
 					(pts
-						(xy -2.54 0) (xy -1.905 0)
+						(xy -2.54 2.286) (xy -2.54 3.556) (xy 2.54 3.556) (xy 2.54 2.286)
 					)
 					(stroke
 						(width 0)
@@ -231,165 +230,7 @@
 				)
 				(polyline
 					(pts
-						(xy -1.905 -1.27) (xy -1.905 1.27)
-					)
-					(stroke
-						(width 0.508)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(rectangle
-					(start -1.143 2.54)
-					(end 1.143 -2.54)
-					(stroke
-						(width 0.3048)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 1.905 -1.27) (xy 1.905 1.27)
-					)
-					(stroke
-						(width 0.508)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 2.54 0) (xy 1.905 0)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-			)
-			(symbol "Crystal_1_1"
-				(pin passive line
-					(at -3.81 0 0)
-					(length 1.27)
-					(name "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 3.81 0 180)
-					(length 1.27)
-					(name "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
-		(symbol "Device:Crystal_GND2"
-			(pin_names
-				(offset 1.016)
-				(hide yes)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "Y"
-				(at 0 5.715 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "Crystal_GND2"
-				(at 0 3.81 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" "~"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" "Three pin crystal, GND on pin 2"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_keywords" "quartz ceramic resonator oscillator"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_fp_filters" "Crystal*"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "Crystal_GND2_0_1"
-				(polyline
-					(pts
-						(xy -2.54 0) (xy -1.905 0)
+						(xy -2.54 0) (xy -2.032 0)
 					)
 					(stroke
 						(width 0)
@@ -413,7 +254,7 @@
 				)
 				(polyline
 					(pts
-						(xy -1.905 -1.27) (xy -1.905 1.27)
+						(xy -2.032 -1.27) (xy -2.032 1.27)
 					)
 					(stroke
 						(width 0.508)
@@ -436,6 +277,18 @@
 				)
 				(polyline
 					(pts
+						(xy 0 3.556) (xy 0 3.81)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
 						(xy 0 -3.81) (xy 0 -3.556)
 					)
 					(stroke
@@ -448,19 +301,7 @@
 				)
 				(polyline
 					(pts
-						(xy 1.905 1.27) (xy 1.905 -1.27)
-					)
-					(stroke
-						(width 0.508)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 1.905 0) (xy 2.54 0)
+						(xy 2.032 0) (xy 2.54 0)
 					)
 					(stroke
 						(width 0)
@@ -470,8 +311,20 @@
 						(type none)
 					)
 				)
+				(polyline
+					(pts
+						(xy 2.032 -1.27) (xy 2.032 1.27)
+					)
+					(stroke
+						(width 0.508)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
 			)
-			(symbol "Crystal_GND2_1_1"
+			(symbol "Crystal_GND24_1_1"
 				(pin passive line
 					(at -3.81 0 0)
 					(length 1.27)
@@ -491,7 +344,7 @@
 					)
 				)
 				(pin passive line
-					(at 0 -5.08 90)
+					(at 0 5.08 270)
 					(length 1.27)
 					(name "2"
 						(effects
@@ -501,6 +354,24 @@
 						)
 					)
 					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 0 -5.08 90)
+					(length 1.27)
+					(name "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -2238,6 +2109,7 @@
 					(alternate "HRTIM_CHA1" bidirectional line)
 					(alternate "I2S2_MCK" bidirectional line)
 					(alternate "LTDC_HSYNC" bidirectional line)
+					(alternate "" input line)
 					(alternate "SDMMC1_D0DIR" bidirectional line)
 					(alternate "SDMMC1_D6" bidirectional line)
 					(alternate "SDMMC2_D6" bidirectional line)
@@ -2271,6 +2143,7 @@
 					(alternate "HRTIM_CHA2" bidirectional line)
 					(alternate "I2S3_MCK" bidirectional line)
 					(alternate "LTDC_G6" bidirectional line)
+					(alternate "" input line)
 					(alternate "SDMMC1_D123DIR" bidirectional line)
 					(alternate "SDMMC1_D7" bidirectional line)
 					(alternate "SDMMC2_D7" bidirectional line)
@@ -2363,6 +2236,7 @@
 					(alternate "HRTIM_EEV1" bidirectional line)
 					(alternate "I2S3_CK" bidirectional line)
 					(alternate "LTDC_R2" bidirectional line)
+					(alternate "" input line)
 					(alternate "QUADSPI_BK1_IO1" bidirectional line)
 					(alternate "SDMMC1_D2" bidirectional line)
 					(alternate "SPI3_SCK" bidirectional line)
@@ -7765,6 +7639,7 @@
 					(alternate "FMC_NCE" bidirectional line)
 					(alternate "FMC_NE2" bidirectional line)
 					(alternate "I2S1_SDI" bidirectional line)
+					(alternate "" input line)
 					(alternate "QUADSPI_BK2_IO2" bidirectional line)
 					(alternate "SAI2_FS_B" bidirectional line)
 					(alternate "SPDIFRX1_IN3" bidirectional line)
@@ -7905,6 +7780,7 @@
 					(alternate "FMC_A25" bidirectional line)
 					(alternate "LPTIM1_ETR" bidirectional line)
 					(alternate "LTDC_B0" bidirectional line)
+					(alternate "" input line)
 					(alternate "QUADSPI_BK2_IO3" bidirectional line)
 					(alternate "SPI6_MOSI" bidirectional line)
 					(alternate "USART6_TX" bidirectional line)
@@ -13339,7 +13215,7 @@
 		)
 		(uuid "1722feaf-d7be-40d6-a128-cb68e316c23b")
 	)
-	(text "HSE Crystal"
+	(text "25Mhz HSE Crystal"
 		(exclude_from_sim no)
 		(at 12.7 167.64 0)
 		(effects
@@ -13410,7 +13286,7 @@
 	)
 	(text "REF: AN2867"
 		(exclude_from_sim no)
-		(at 109.728 196.85 0)
+		(at 109.22 196.85 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13456,9 +13332,21 @@
 		)
 		(uuid "c62f8c7f-b0f9-4491-ad9e-dfd5fc6408cf")
 	)
+	(text "12pF crystal load capacitance\n7pF pin + board capacitance"
+		(exclude_from_sim no)
+		(at 18.034 196.85 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+				(color 132 132 132 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "c7b797f2-5b4a-4c13-b1bf-f24dfb957e94")
+	)
 	(text "REF: AN2867"
 		(exclude_from_sim no)
-		(at 60.198 196.85 0)
+		(at 59.69 196.85 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13468,7 +13356,19 @@
 		)
 		(uuid "d3fd80e1-e99a-4f37-ae88-23cd62e26bb7")
 	)
-	(text "LSE Crystal"
+	(text "9pF crystal load capacitance\n7pF pin + board capacitance"
+		(exclude_from_sim no)
+		(at 67.056 196.85 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+				(color 132 132 132 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "eb537baa-f7da-4d68-8e13-ed4d992daaa4")
+	)
+	(text "32.768Mhz LSE Crystal"
 		(exclude_from_sim no)
 		(at 62.23 167.64 0)
 		(effects
@@ -13898,6 +13798,10 @@
 	(no_connect
 		(at 195.58 48.26)
 		(uuid "5c82dabc-4c51-492f-b7a2-649d3d1849e5")
+	)
+	(no_connect
+		(at 81.28 181.61)
+		(uuid "833b0324-5820-46af-92bd-42f1b590eb4e")
 	)
 	(no_connect
 		(at 260.35 129.54)
@@ -15153,7 +15057,7 @@
 	)
 	(wire
 		(pts
-			(xy 44.45 181.61) (xy 44.45 182.88)
+			(xy 43.18 181.61) (xy 43.18 182.88)
 		)
 		(stroke
 			(width 0)
@@ -15263,7 +15167,7 @@
 	)
 	(polyline
 		(pts
-			(xy 118.11 166.37) (xy 118.11 198.12)
+			(xy 110.49 166.37) (xy 110.49 198.12)
 		)
 		(stroke
 			(width 0)
@@ -15653,7 +15557,7 @@
 	)
 	(wire
 		(pts
-			(xy 41.91 181.61) (xy 44.45 181.61)
+			(xy 41.91 181.61) (xy 43.18 181.61)
 		)
 		(stroke
 			(width 0)
@@ -15773,6 +15677,16 @@
 	)
 	(wire
 		(pts
+			(xy 92.71 181.61) (xy 92.71 182.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5611366e-4488-46cb-8605-7eb96640724a")
+	)
+	(wire
+		(pts
 			(xy 66.04 21.59) (xy 73.66 21.59)
 		)
 		(stroke
@@ -15810,6 +15724,16 @@
 			(type default)
 		)
 		(uuid "5694fe4b-7601-4ad3-b84a-48912c69d7df")
+	)
+	(wire
+		(pts
+			(xy 91.44 181.61) (xy 92.71 181.61)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "569cb319-78d4-41a6-be20-d60253bd6800")
 	)
 	(wire
 		(pts
@@ -16290,6 +16214,16 @@
 			(type default)
 		)
 		(uuid "810c41d7-0acc-4ee0-9737-5115205bc500")
+	)
+	(wire
+		(pts
+			(xy 30.48 181.61) (xy 30.48 182.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "81d5f0a5-ed07-43ae-8ad1-951f6bfe9b9d")
 	)
 	(wire
 		(pts
@@ -17550,6 +17484,16 @@
 			(type default)
 		)
 		(uuid "d58c053c-6d44-4da2-b931-aecbaf83ae49")
+	)
+	(wire
+		(pts
+			(xy 31.75 181.61) (xy 30.48 181.61)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d5ba14d1-6644-4dfd-9b46-47d22c120839")
 	)
 	(bus
 		(pts
@@ -20023,22 +19967,6 @@
 				)
 			)
 		)
-		(property "Manufacturer_Name" ""
-			(at 43.18 26.67 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Number" ""
-			(at 43.18 26.67 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "MANUFACTURER" ""
 			(at 43.18 26.67 0)
 			(effects
@@ -20220,22 +20148,6 @@
 				)
 			)
 		)
-		(property "Manufacturer_Name" ""
-			(at 19.05 55.88 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Number" ""
-			(at 19.05 55.88 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "MANUFACTURER" ""
 			(at 19.05 55.88 0)
 			(effects
@@ -20310,16 +20222,16 @@
 				(justify left)
 			)
 		)
-		(property "Value" "9pF"
-			(at 27.432 171.958 90)
+		(property "Value" "16pF"
+			(at 23.622 171.958 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
+				(justify right)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
 			(at 25.4 173.0248 0)
 			(effects
 				(font
@@ -20346,69 +20258,13 @@
 				(hide yes)
 			)
 		)
-		(property "Height" ""
-			(at 21.59 173.99 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Name" ""
-			(at 21.59 173.99 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Number" ""
-			(at 21.59 173.99 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "JLC" "C1580"
+		(property "JLC" "C1646"
 			(at 21.59 173.99 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "MANUFACTURER" ""
-			(at 21.59 173.99 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "MAXIMUM_PACKAGE_HEIGHT" ""
-			(at 21.59 173.99 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Connector" ""
-			(at 21.59 173.99 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Part" ""
-			(at 21.59 173.99 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "2"
@@ -20553,22 +20409,6 @@
 				)
 			)
 		)
-		(property "Manufacturer_Name" ""
-			(at 138.43 27.94 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Number" ""
-			(at 138.43 27.94 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "MANUFACTURER" ""
 			(at 138.43 27.94 0)
 			(effects
@@ -20678,22 +20518,6 @@
 			)
 		)
 		(property "Height" ""
-			(at 29.21 78.74 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Name" ""
-			(at 29.21 78.74 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Number" ""
 			(at 29.21 78.74 0)
 			(effects
 				(font
@@ -20877,22 +20701,6 @@
 			)
 		)
 		(property "Height" ""
-			(at 88.9 26.67 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Name" ""
-			(at 88.9 26.67 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Number" ""
 			(at 88.9 26.67 0)
 			(effects
 				(font
@@ -21172,7 +20980,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "4.3pF"
+		(property "Value" "10pF"
 			(at 78.486 171.958 90)
 			(effects
 				(font
@@ -21208,69 +21016,13 @@
 				(hide yes)
 			)
 		)
-		(property "Height" ""
-			(at 71.12 173.99 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Name" ""
-			(at 71.12 173.99 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Number" ""
-			(at 71.12 173.99 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "JLC" "C56585"
+		(property "JLC" "C1545"
 			(at 71.12 173.99 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "MANUFACTURER" ""
-			(at 71.12 173.99 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "MAXIMUM_PACKAGE_HEIGHT" ""
-			(at 71.12 173.99 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Connector" ""
-			(at 71.12 173.99 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Part" ""
-			(at 71.12 173.99 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "2"
@@ -21546,22 +21298,6 @@
 				)
 			)
 		)
-		(property "Manufacturer_Name" ""
-			(at 161.29 27.94 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Number" ""
-			(at 161.29 27.94 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "MANUFACTURER" ""
 			(at 161.29 27.94 0)
 			(effects
@@ -21803,22 +21539,6 @@
 			)
 		)
 		(property "Height" ""
-			(at 19.05 43.18 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Name" ""
-			(at 19.05 43.18 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Number" ""
 			(at 19.05 43.18 0)
 			(effects
 				(font
@@ -26348,22 +26068,6 @@
 				)
 			)
 		)
-		(property "Manufacturer_Name" ""
-			(at 50.8 59.69 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Number" ""
-			(at 50.8 59.69 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "MANUFACTURER" ""
 			(at 50.8 59.69 0)
 			(effects
@@ -26878,22 +26582,6 @@
 				)
 			)
 		)
-		(property "Manufacturer_Name" ""
-			(at 66.04 26.67 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Number" ""
-			(at 66.04 26.67 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "MANUFACTURER" ""
 			(at 66.04 26.67 0)
 			(effects
@@ -27077,22 +26765,6 @@
 				)
 			)
 		)
-		(property "Manufacturer_Name" ""
-			(at 130.81 27.94 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Number" ""
-			(at 130.81 27.94 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "MANUFACTURER" ""
 			(at 130.81 27.94 0)
 			(effects
@@ -27150,7 +26822,7 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:Crystal")
+		(lib_id "Device:Crystal_GND24")
 		(at 86.36 181.61 90)
 		(unit 1)
 		(exclude_from_sim no)
@@ -27159,24 +26831,24 @@
 		(dnp no)
 		(uuid "8779ee56-94ad-487d-b5b1-11c36417885c")
 		(property "Reference" "Y1"
-			(at 90.17 180.3399 90)
+			(at 79.756 180.34 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify right)
+				(justify left)
 			)
 		)
-		(property "Value" "ECS-.327-12.5-1210-TR"
-			(at 90.17 182.8799 90)
+		(property "Value" "7E032768H01"
+			(at 79.756 182.88 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify right)
+				(justify left)
 			)
 		)
-		(property "Footprint" "pocket_synth:XTAL_ECS-.327-12.5-1210-TR"
+		(property "Footprint" "pocket_synth:SMD1612-4P"
 			(at 86.36 181.61 0)
 			(effects
 				(font
@@ -27185,7 +26857,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://ecsxtal.com/store/pdf/ECX-1210.pdf"
+		(property "Datasheet" "~"
 			(at 86.36 181.61 0)
 			(effects
 				(font
@@ -27194,7 +26866,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Two pin crystal"
+		(property "Description" "Four pin crystal, GND on pins 2 and 4"
 			(at 86.36 181.61 0)
 			(effects
 				(font
@@ -27203,7 +26875,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" "C435179"
+		(property "JLC" "C781734"
 			(at 86.36 181.61 90)
 			(effects
 				(font
@@ -27212,43 +26884,17 @@
 				(hide yes)
 			)
 		)
-		(property "MANUFACTURER" ""
-			(at 86.36 181.61 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "MAXIMUM_PACKAGE_HEIGHT" ""
-			(at 86.36 181.61 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Connector" ""
-			(at 86.36 181.61 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Part" ""
-			(at 86.36 181.61 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "2"
 			(uuid "61c5478b-4f13-44b9-b1c8-5c76cd382578")
 		)
 		(pin "1"
 			(uuid "7cef58b4-814b-4942-a3df-d17f6142caab")
+		)
+		(pin "4"
+			(uuid "cf7e10fd-2467-498a-9ea7-ecf29b7bef39")
+		)
+		(pin "3"
+			(uuid "f8e50d07-ab80-4c3a-9802-ef7eaf29fdc6")
 		)
 		(instances
 			(project ""
@@ -27314,22 +26960,6 @@
 			)
 		)
 		(property "Height" ""
-			(at 111.76 26.67 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Name" ""
-			(at 111.76 26.67 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Number" ""
 			(at 111.76 26.67 0)
 			(effects
 				(font
@@ -27455,22 +27085,6 @@
 				)
 			)
 		)
-		(property "Manufacturer_Name" ""
-			(at 34.29 26.67 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Number" ""
-			(at 34.29 26.67 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "MANUFACTURER" ""
 			(at 34.29 26.67 0)
 			(effects
@@ -27582,22 +27196,6 @@
 			)
 		)
 		(property "Height" ""
-			(at 73.66 26.67 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Name" ""
-			(at 73.66 26.67 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Number" ""
 			(at 73.66 26.67 0)
 			(effects
 				(font
@@ -27723,22 +27321,6 @@
 				)
 			)
 		)
-		(property "Manufacturer_Name" ""
-			(at 29.21 55.88 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Number" ""
-			(at 29.21 55.88 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "MANUFACTURER" ""
 			(at 29.21 55.88 0)
 			(effects
@@ -27855,6 +27437,72 @@
 			(project "pocket_synth"
 				(path "/485383b8-00f4-4405-b270-de249939cff4/0f59ca20-5500-4399-8ffa-55aebf6eb4ee"
 					(reference "#PWR0131")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 92.71 182.88 0)
+		(mirror y)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "a2fcb66d-ce0d-43d3-93c6-56eda3d5e122")
+		(property "Reference" "#PWR0110"
+			(at 92.71 189.23 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 95.25 182.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 92.71 182.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 92.71 182.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 92.71 182.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "152e3cde-f38d-4b41-a1a0-9aa71fca80e2")
+		)
+		(instances
+			(project "pocket_synth"
+				(path "/485383b8-00f4-4405-b270-de249939cff4/0f59ca20-5500-4399-8ffa-55aebf6eb4ee"
+					(reference "#PWR0110")
 					(unit 1)
 				)
 			)
@@ -28049,22 +27697,6 @@
 			)
 		)
 		(property "Height" ""
-			(at 96.52 26.67 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Name" ""
-			(at 96.52 26.67 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Number" ""
 			(at 96.52 26.67 0)
 			(effects
 				(font
@@ -28321,22 +27953,6 @@
 				)
 			)
 		)
-		(property "Manufacturer_Name" ""
-			(at 58.42 26.67 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Number" ""
-			(at 58.42 26.67 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "MANUFACTURER" ""
 			(at 58.42 26.67 0)
 			(effects
@@ -28395,7 +28011,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 44.45 182.88 0)
+		(at 43.18 182.88 0)
 		(mirror y)
 		(unit 1)
 		(exclude_from_sim no)
@@ -28404,7 +28020,7 @@
 		(dnp no)
 		(uuid "b00c24a3-2e04-45e7-87f1-816f684d002e")
 		(property "Reference" "#PWR098"
-			(at 44.45 189.23 0)
+			(at 43.18 189.23 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -28413,7 +28029,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 46.99 182.88 0)
+			(at 45.72 182.88 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -28421,7 +28037,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 44.45 182.88 0)
+			(at 43.18 182.88 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -28430,7 +28046,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 44.45 182.88 0)
+			(at 43.18 182.88 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -28439,7 +28055,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 44.45 182.88 0)
+			(at 43.18 182.88 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -28525,6 +28141,71 @@
 		)
 	)
 	(symbol
+		(lib_id "power:GND")
+		(at 30.48 182.88 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "b2a2fe6d-2cc8-485a-a17a-031860c330c6")
+		(property "Reference" "#PWR0109"
+			(at 30.48 189.23 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 27.94 182.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 30.48 182.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 30.48 182.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 30.48 182.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "926fe525-a33f-4a52-b285-ee2fda979eff")
+		)
+		(instances
+			(project "pocket_synth"
+				(path "/485383b8-00f4-4405-b270-de249939cff4/0f59ca20-5500-4399-8ffa-55aebf6eb4ee"
+					(reference "#PWR0109")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:FerriteBead")
 		(at 149.86 21.59 90)
 		(unit 1)
@@ -28577,22 +28258,6 @@
 			)
 		)
 		(property "Height" ""
-			(at 149.86 21.59 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Name" ""
-			(at 149.86 21.59 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Number" ""
 			(at 149.86 21.59 0)
 			(effects
 				(font
@@ -28776,22 +28441,6 @@
 			)
 		)
 		(property "Height" ""
-			(at 81.28 26.67 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Name" ""
-			(at 81.28 26.67 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Number" ""
 			(at 81.28 26.67 0)
 			(effects
 				(font
@@ -29204,22 +28853,6 @@
 				)
 			)
 		)
-		(property "Manufacturer_Name" ""
-			(at 26.67 26.67 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Number" ""
-			(at 26.67 26.67 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "MANUFACTURER" ""
 			(at 26.67 26.67 0)
 			(effects
@@ -29294,7 +28927,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "4.3pF"
+		(property "Value" "10pF"
 			(at 78.486 191.262 90)
 			(effects
 				(font
@@ -29330,69 +28963,13 @@
 				(hide yes)
 			)
 		)
-		(property "Height" ""
-			(at 71.12 189.23 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Name" ""
-			(at 71.12 189.23 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Number" ""
-			(at 71.12 189.23 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "JLC" "C56585"
+		(property "JLC" "C1545"
 			(at 71.12 189.23 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "MANUFACTURER" ""
-			(at 71.12 189.23 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "MAXIMUM_PACKAGE_HEIGHT" ""
-			(at 71.12 189.23 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Connector" ""
-			(at 71.12 189.23 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Part" ""
-			(at 71.12 189.23 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "2"
@@ -29494,16 +29071,16 @@
 				(justify left)
 			)
 		)
-		(property "Value" "9pF"
-			(at 27.94 191.262 90)
+		(property "Value" "16pF"
+			(at 23.622 191.262 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
+				(justify right)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
 			(at 25.4 188.2648 0)
 			(effects
 				(font
@@ -29530,69 +29107,13 @@
 				(hide yes)
 			)
 		)
-		(property "Height" ""
-			(at 21.59 189.23 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Name" ""
-			(at 21.59 189.23 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Number" ""
-			(at 21.59 189.23 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "JLC" "C1580"
+		(property "JLC" "C1646"
 			(at 21.59 189.23 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "MANUFACTURER" ""
-			(at 21.59 189.23 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "MAXIMUM_PACKAGE_HEIGHT" ""
-			(at 21.59 189.23 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Connector" ""
-			(at 21.59 189.23 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Part" ""
-			(at 21.59 189.23 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "2"
@@ -29894,22 +29415,6 @@
 				)
 			)
 		)
-		(property "Manufacturer_Name" ""
-			(at 104.14 26.67 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Number" ""
-			(at 104.14 26.67 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "MANUFACTURER" ""
 			(at 104.14 26.67 0)
 			(effects
@@ -30021,22 +29526,6 @@
 			)
 		)
 		(property "Height" ""
-			(at 50.8 26.67 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Name" ""
-			(at 50.8 26.67 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Number" ""
 			(at 50.8 26.67 0)
 			(effects
 				(font
@@ -30167,34 +29656,33 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:Crystal_GND2")
+		(lib_id "Device:Crystal_GND24")
 		(at 36.83 181.61 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "fc5986d8-8585-4efe-9e33-c70c6336dd5e")
 		(property "Reference" "Y4"
-			(at 33.02 180.3399 90)
+			(at 41.402 176.022 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
+				(justify right)
 			)
 		)
-		(property "Value" "8Q-25.000MEEV-T"
-			(at 33.02 182.8799 90)
+		(property "Value" "X322525MOB4SI"
+			(at 41.402 178.562 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
+				(justify right)
 			)
 		)
-		(property "Footprint" "pocket_synth:XTAL_8Q-25.000MEEV-T"
+		(property "Footprint" "Crystal:Crystal_SMD_3225-4Pin_3.2x2.5mm"
 			(at 36.83 181.61 0)
 			(effects
 				(font
@@ -30203,7 +29691,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "~"
+		(property "Datasheet" "https://www.micros.com.pl/mediaserver/Q25.000_3.2x2.5_Y_0001.pdf"
 			(at 36.83 181.61 0)
 			(effects
 				(font
@@ -30212,7 +29700,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Three pin crystal, GND on pin 2"
+		(property "Description" "Four pin crystal, GND on pins 2 and 4"
 			(at 36.83 181.61 0)
 			(effects
 				(font
@@ -30245,21 +29733,13 @@
 				)
 			)
 		)
-		(property "JLC" "C2613088"
+		(property "JLC" "C9006"
 			(at 36.83 181.61 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Part" ""
-			(at 36.83 181.61 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "2"
@@ -30270,6 +29750,9 @@
 		)
 		(pin "1"
 			(uuid "c1386e34-2292-4e82-8735-4f6bb4b7ae38")
+		)
+		(pin "4"
+			(uuid "10c9ae56-ac47-409c-90e6-799de1c4d183")
 		)
 		(instances
 			(project ""
