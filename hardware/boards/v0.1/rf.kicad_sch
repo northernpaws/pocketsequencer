@@ -5,145 +5,6 @@
 	(uuid "9062df5a-d8ea-4dac-a585-4fe59de7a40c")
 	(paper "A4")
 	(lib_symbols
-		(symbol "Device:C"
-			(pin_numbers
-				(hide yes)
-			)
-			(pin_names
-				(offset 0.254)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "C"
-				(at 0.635 2.54 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left)
-				)
-			)
-			(property "Value" "C"
-				(at 0.635 -2.54 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left)
-				)
-			)
-			(property "Footprint" ""
-				(at 0.9652 -3.81 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" "~"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" "Unpolarized capacitor"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_keywords" "cap capacitor"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_fp_filters" "C_*"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "C_0_1"
-				(polyline
-					(pts
-						(xy -2.032 0.762) (xy 2.032 0.762)
-					)
-					(stroke
-						(width 0.508)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy -2.032 -0.762) (xy 2.032 -0.762)
-					)
-					(stroke
-						(width 0.508)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-			)
-			(symbol "C_1_1"
-				(pin passive line
-					(at 0 3.81 270)
-					(length 2.794)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 0 -3.81 90)
-					(length 2.794)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
 		(symbol "Device:R"
 			(pin_numbers
 				(hide yes)
@@ -251,156 +112,6 @@
 					(at 0 -3.81 90)
 					(length 1.27)
 					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
-		(symbol "Switch:SW_Push"
-			(pin_numbers
-				(hide yes)
-			)
-			(pin_names
-				(offset 1.016)
-				(hide yes)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "SW"
-				(at 1.27 2.54 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left)
-				)
-			)
-			(property "Value" "SW_Push"
-				(at 0 -1.524 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" ""
-				(at 0 5.08 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" "~"
-				(at 0 5.08 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" "Push button switch, generic, two pins"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_keywords" "switch normally-open pushbutton push-button"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "SW_Push_0_1"
-				(circle
-					(center -2.032 0)
-					(radius 0.508)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 0 1.27) (xy 0 3.048)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(circle
-					(center 2.032 0)
-					(radius 0.508)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 2.54 1.27) (xy -2.54 1.27)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(pin passive line
-					(at -5.08 0 0)
-					(length 2.54)
-					(name "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 5.08 0 180)
-					(length 2.54)
-					(name "2"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1828,22 +1539,10 @@
 		(uuid "f96c1dd2-d19f-4d16-9712-39277bd8aecf")
 	)
 	(junction
-		(at 49.53 138.43)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "58aedbc8-4577-4501-8fbb-86d594bf8870")
-	)
-	(junction
 		(at 135.89 77.47)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "71918471-b9e2-459f-ac05-7acdb122b94d")
-	)
-	(junction
-		(at 62.23 133.35)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "d3865a39-f08a-4e59-a27d-201446f2e90a")
 	)
 	(junction
 		(at 140.97 77.47)
@@ -2016,16 +1715,6 @@
 	)
 	(wire
 		(pts
-			(xy 62.23 133.35) (xy 62.23 138.43)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1e6d4ef7-6a6a-44d0-8cd8-c50a2d4b311b")
-	)
-	(wire
-		(pts
 			(xy 140.97 77.47) (xy 149.86 77.47)
 		)
 		(stroke
@@ -2043,16 +1732,6 @@
 			(type default)
 		)
 		(uuid "25e40549-7887-4b5b-989c-545d07a1156d")
-	)
-	(wire
-		(pts
-			(xy 49.53 138.43) (xy 52.07 138.43)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4c20b86a-a395-4d16-95ec-6b8ceeb5c305")
 	)
 	(wire
 		(pts
@@ -2136,16 +1815,6 @@
 	)
 	(wire
 		(pts
-			(xy 49.53 133.35) (xy 49.53 138.43)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8c3a1ad7-ce52-4dfa-aa44-25e8b7806692")
-	)
-	(wire
-		(pts
 			(xy 135.89 77.47) (xy 138.43 77.47)
 		)
 		(stroke
@@ -2153,26 +1822,6 @@
 			(type default)
 		)
 		(uuid "8e4000c2-4832-484c-a293-c7c2356329a2")
-	)
-	(wire
-		(pts
-			(xy 50.8 133.35) (xy 49.53 133.35)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "907fae4a-da9a-4fe8-b273-9e5f00461ef8")
-	)
-	(wire
-		(pts
-			(xy 49.53 138.43) (xy 49.53 140.97)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "95d21ed8-e578-4238-a7d6-1c261ff6189f")
 	)
 	(wire
 		(pts
@@ -2243,16 +1892,6 @@
 			(type default)
 		)
 		(uuid "ab5f9c42-cbf3-42b6-8634-3304463db375")
-	)
-	(wire
-		(pts
-			(xy 62.23 138.43) (xy 59.69 138.43)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b212d138-4f0c-444f-b371-324140d8a863")
 	)
 	(wire
 		(pts
@@ -2363,26 +2002,6 @@
 			(type default)
 		)
 		(uuid "e69d5633-3869-46fc-9ed1-31dbb156430e")
-	)
-	(wire
-		(pts
-			(xy 62.23 133.35) (xy 64.77 133.35)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e88ec17d-bb05-4287-9346-d057ccb14a2c")
-	)
-	(wire
-		(pts
-			(xy 60.96 133.35) (xy 62.23 133.35)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "eae2cb24-9143-4c75-97e9-9a1e234a7d1e")
 	)
 	(wire
 		(pts
@@ -2570,17 +2189,6 @@
 		(uuid "ef1961ef-2a8a-42ac-a088-d39216ab0468")
 	)
 	(label "nRESET"
-		(at 64.77 133.35 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-				(thickness 0.1588)
-			)
-			(justify left bottom)
-		)
-		(uuid "fa804341-57dc-4192-b066-6ca69cf442a7")
-	)
-	(label "nRESET"
 		(at 114.3 87.63 180)
 		(effects
 			(font
@@ -2612,83 +2220,6 @@
 			(justify left)
 		)
 		(uuid "e7673f61-72d1-4af3-a985-94b64b2408ff")
-	)
-	(symbol
-		(lib_id "Switch:SW_Push")
-		(at 55.88 133.35 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board yes)
-		(dnp yes)
-		(fields_autoplaced yes)
-		(uuid "0e436c34-508c-4dfc-b68b-442d9024b939")
-		(property "Reference" "SW23"
-			(at 55.88 125.73 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "RST"
-			(at 55.88 128.27 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Button_Switch_SMD:SW_SPST_B3U-1000P"
-			(at 55.88 128.27 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 55.88 128.27 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Push button switch, generic, two pins"
-			(at 55.88 133.35 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "JLC" "C231329"
-			(at 55.88 133.35 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "1fde156e-9e21-4b64-9ed0-c120d5b61b59")
-		)
-		(pin "2"
-			(uuid "e009b5ca-b4c8-48d6-8b1b-ab1f6a64bb57")
-		)
-		(instances
-			(project "pocket_synth"
-				(path "/485383b8-00f4-4405-b270-de249939cff4/7e9f39e0-07aa-49bf-8354-e1f007de5af0"
-					(reference "SW23")
-					(unit 1)
-				)
-			)
-		)
 	)
 	(symbol
 		(lib_id "pocket_synth:ME16WS03")
@@ -2927,6 +2458,7 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(pin "2"
@@ -3006,147 +2538,6 @@
 			(project "pocket_synth"
 				(path "/485383b8-00f4-4405-b270-de249939cff4/7e9f39e0-07aa-49bf-8354-e1f007de5af0"
 					(reference "#PWR0143")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:C")
-		(at 55.88 138.43 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "6a61b98e-e55c-46b0-a9e9-1ed67ef2ab06")
-		(property "Reference" "C56"
-			(at 52.324 140.208 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "100nF"
-			(at 60.198 140.208 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
-			(at 59.69 137.4648 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 55.88 138.43 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Unpolarized capacitor"
-			(at 55.88 138.43 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "JLC" "C1525"
-			(at 55.88 138.43 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "1c67d150-4986-4b38-b1fd-04589982f0fb")
-		)
-		(pin "1"
-			(uuid "8c8a5b4c-f8a3-4105-9138-a46effaff024")
-		)
-		(instances
-			(project ""
-				(path "/485383b8-00f4-4405-b270-de249939cff4/7e9f39e0-07aa-49bf-8354-e1f007de5af0"
-					(reference "C56")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 49.53 140.97 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "8459b126-1694-44db-a8f3-4b9a5529643d")
-		(property "Reference" "#PWR0112"
-			(at 49.53 147.32 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 49.53 145.542 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 49.53 140.97 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 49.53 140.97 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 49.53 140.97 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "548e9911-57ca-4715-b52e-736bc2e221d0")
-		)
-		(instances
-			(project "pocket_synth"
-				(path "/485383b8-00f4-4405-b270-de249939cff4/7e9f39e0-07aa-49bf-8354-e1f007de5af0"
-					(reference "#PWR0112")
 					(unit 1)
 				)
 			)
@@ -3408,6 +2799,7 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(pin "2"

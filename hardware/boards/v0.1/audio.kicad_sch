@@ -4266,19 +4266,6 @@
 		)
 		(uuid "2273911b-6e1e-4a25-a145-e5488fdc4979")
 	)
-	(text "MEMs Microphone"
-		(exclude_from_sim no)
-		(at 13.208 149.606 0)
-		(effects
-			(font
-				(size 1.397 1.397)
-				(italic yes)
-				(color 194 194 194 1)
-			)
-			(justify left top)
-		)
-		(uuid "233ecd93-e6f9-4900-9551-3c7a759260f6")
-	)
 	(text "Headphone antenna: AN383 P.g. 13\nIdeal with cables 1.1 to 1.45m"
 		(exclude_from_sim no)
 		(at 178.816 90.17 0)
@@ -4428,7 +4415,7 @@
 		)
 		(uuid "c5eeeb0b-d1a1-4f26-a559-7be5309c9979")
 	)
-	(text "Internal Microphone"
+	(text "MEMs Microphone"
 		(exclude_from_sim no)
 		(at 13.208 146.558 0)
 		(effects
@@ -5593,7 +5580,7 @@
 	)
 	(wire
 		(pts
-			(xy 59.69 171.45) (xy 62.23 171.45)
+			(xy 53.34 172.72) (xy 55.88 172.72)
 		)
 		(stroke
 			(width 0)
@@ -6603,7 +6590,7 @@
 	)
 	(wire
 		(pts
-			(xy 50.8 160.02) (xy 50.8 162.56)
+			(xy 44.45 161.29) (xy 44.45 163.83)
 		)
 		(stroke
 			(width 0)
@@ -6843,7 +6830,7 @@
 	)
 	(wire
 		(pts
-			(xy 50.8 180.34) (xy 50.8 182.88)
+			(xy 44.45 181.61) (xy 44.45 184.15)
 		)
 		(stroke
 			(width 0)
@@ -7342,7 +7329,7 @@
 		(uuid "543f69a1-dd8b-4df3-b4a4-3bf05d1bda9a")
 	)
 	(label "MIC_OUT"
-		(at 62.23 171.45 0)
+		(at 55.88 172.72 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7899,7 +7886,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 50.8 182.88 0)
+		(at 44.45 184.15 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -7907,7 +7894,7 @@
 		(dnp no)
 		(uuid "0ca10477-3bac-4bb2-8505-035d455b017d")
 		(property "Reference" "#PWR057"
-			(at 50.8 189.23 0)
+			(at 44.45 190.5 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7916,7 +7903,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 50.8 187.706 0)
+			(at 44.45 188.976 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7924,7 +7911,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 50.8 182.88 0)
+			(at 44.45 184.15 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7933,7 +7920,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 50.8 182.88 0)
+			(at 44.45 184.15 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7942,7 +7929,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 50.8 182.88 0)
+			(at 44.45 184.15 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11237,7 +11224,7 @@
 	)
 	(symbol
 		(lib_id "pocket_synth:LMA3722T421-OA5")
-		(at 50.8 171.45 0)
+		(at 44.45 172.72 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -11245,7 +11232,7 @@
 		(dnp no)
 		(uuid "838aeab6-4be7-4677-b2a0-2448b21a3561")
 		(property "Reference" "U24"
-			(at 43.434 168.91 0)
+			(at 37.084 170.18 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11254,7 +11241,7 @@
 			)
 		)
 		(property "Value" "MIC"
-			(at 43.434 171.45 0)
+			(at 37.084 172.72 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11263,7 +11250,7 @@
 			)
 		)
 		(property "Footprint" "pocket_synth:LMA3722T421-OA5"
-			(at 50.8 171.45 0)
+			(at 44.45 172.72 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11272,7 +11259,7 @@
 			)
 		)
 		(property "Datasheet" "https://jlcpcb.com/api/file/downloadByFileSystemAccessId/8603050779259248640"
-			(at 50.8 171.45 0)
+			(at 44.45 172.72 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11281,7 +11268,7 @@
 			)
 		)
 		(property "Description" "LMA3722T421-OA5"
-			(at 34.036 174.244 0)
+			(at 27.686 175.514 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11289,7 +11276,7 @@
 			)
 		)
 		(property "JLC" "C5373233"
-			(at 50.8 171.45 0)
+			(at 44.45 172.72 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11298,7 +11285,7 @@
 			)
 		)
 		(property "MANUFACTURER" ""
-			(at 50.8 171.45 0)
+			(at 44.45 172.72 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11306,7 +11293,7 @@
 			)
 		)
 		(property "MAXIMUM_PACKAGE_HEIGHT" ""
-			(at 50.8 171.45 0)
+			(at 44.45 172.72 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11314,7 +11301,7 @@
 			)
 		)
 		(property "Connector" ""
-			(at 50.8 171.45 0)
+			(at 44.45 172.72 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11745,7 +11732,7 @@
 	)
 	(symbol
 		(lib_id "power:+3.3V")
-		(at 50.8 160.02 0)
+		(at 44.45 161.29 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -11753,7 +11740,7 @@
 		(dnp no)
 		(uuid "92ca6f32-9f39-4b4b-b9d3-bab586c42cb3")
 		(property "Reference" "#PWR068"
-			(at 50.8 163.83 0)
+			(at 44.45 165.1 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11762,7 +11749,7 @@
 			)
 		)
 		(property "Value" "+3.3V"
-			(at 51.054 155.448 0)
+			(at 44.704 156.718 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11770,7 +11757,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 50.8 160.02 0)
+			(at 44.45 161.29 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11779,7 +11766,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 50.8 160.02 0)
+			(at 44.45 161.29 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11788,7 +11775,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"+3.3V\""
-			(at 50.8 160.02 0)
+			(at 44.45 161.29 0)
 			(effects
 				(font
 					(size 1.27 1.27)
