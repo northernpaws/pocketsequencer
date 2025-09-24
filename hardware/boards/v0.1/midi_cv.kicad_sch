@@ -2572,14 +2572,6 @@
 				(hide yes)
 			)
 		)
-		(property "Part" ""
-			(at 60.96 101.6 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
 			(uuid "b06aae55-8553-46c8-bcd4-b91a8c1da285")
 		)
@@ -2663,14 +2655,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Part" ""
-			(at 60.96 124.46 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "1"
@@ -2904,14 +2888,6 @@
 				)
 			)
 		)
-		(property "Part" ""
-			(at 31.75 104.14 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "T"
 			(uuid "b82d9f27-2242-4f14-abcd-f792a4dd8f3c")
 		)
@@ -2999,14 +2975,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Part" ""
-			(at 93.98 52.07 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "1"
@@ -3174,14 +3142,6 @@
 				)
 			)
 		)
-		(property "Part" ""
-			(at 128.27 40.64 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "T"
 			(uuid "e41c27af-b970-4b72-bab2-c3c4ad0f886e")
 		)
@@ -3255,14 +3215,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 109.22 101.6 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Part" ""
 			(at 109.22 101.6 0)
 			(effects
 				(font
@@ -3344,14 +3296,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Part" ""
-			(at 69.85 49.53 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "1"
@@ -3567,14 +3511,6 @@
 				(hide yes)
 			)
 		)
-		(property "Part" ""
-			(at 93.98 38.1 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
 			(uuid "48874336-b08e-4d66-b0fb-4feef52533cd")
 		)
@@ -3664,14 +3600,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 76.2 113.03 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Part" ""
 			(at 76.2 113.03 0)
 			(effects
 				(font
@@ -3775,14 +3703,6 @@
 				(hide yes)
 			)
 		)
-		(property "Part" ""
-			(at 73.66 107.95 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "3"
 			(uuid "e000e1db-3bfc-4d0e-abae-a9a9e57c2b9e")
 		)
@@ -3877,14 +3797,6 @@
 				(hide yes)
 			)
 		)
-		(property "Part" ""
-			(at 71.12 101.6 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
 			(uuid "50add1e8-dcbb-4874-8088-52672db7b4e6")
 		)
@@ -3950,14 +3862,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Part" ""
-			(at 124.46 110.49 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "1"
@@ -4044,14 +3948,6 @@
 				(hide yes)
 			)
 		)
-		(property "Part" ""
-			(at 39.37 115.57 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
 			(uuid "0270fd5a-488d-4647-a52b-a08eeb435bce")
 		)
@@ -4121,14 +4017,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 81.28 52.07 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Part" ""
 			(at 81.28 52.07 0)
 			(effects
 				(font
@@ -4232,14 +4120,6 @@
 				(hide yes)
 			)
 		)
-		(property "Part" ""
-			(at 101.6 90.17 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
 			(uuid "16ac07b5-6e18-4261-8f73-f495c2421d9e")
 		)
@@ -4309,14 +4189,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 77.47 38.1 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Part" ""
 			(at 77.47 38.1 0)
 			(effects
 				(font

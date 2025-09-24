@@ -281,7 +281,7 @@
 	)
 	(wire
 		(pts
-			(xy 110.49 128.27) (xy 138.43 128.27)
+			(xy 110.49 132.08) (xy 138.43 132.08)
 		)
 		(stroke
 			(width 0)
@@ -378,6 +378,16 @@
 			(type default)
 		)
 		(uuid "44213320-4326-4944-a05f-8f5ef57b0a6d")
+	)
+	(wire
+		(pts
+			(xy 110.49 120.65) (xy 138.43 120.65)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "44d58a97-1e9b-4780-90b3-7e4f1bacae71")
 	)
 	(wire
 		(pts
@@ -491,7 +501,7 @@
 	)
 	(wire
 		(pts
-			(xy 110.49 124.46) (xy 138.43 124.46)
+			(xy 110.49 128.27) (xy 138.43 128.27)
 		)
 		(stroke
 			(width 0)
@@ -631,7 +641,7 @@
 	)
 	(wire
 		(pts
-			(xy 110.49 120.65) (xy 138.43 120.65)
+			(xy 110.49 124.46) (xy 138.43 124.46)
 		)
 		(stroke
 			(width 0)
@@ -842,14 +852,6 @@
 				)
 			)
 		)
-		(property "Part" ""
-			(at 19.05 182.88 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
 			(uuid "b18e656e-be9a-48fd-af7a-64b475c6f1fe")
 		)
@@ -915,14 +917,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Part" ""
-			(at 109.22 177.8 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(instances
@@ -1006,14 +1000,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 48.26 182.88 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Part" ""
 			(at 48.26 182.88 0)
 			(effects
 				(font
@@ -1112,14 +1098,6 @@
 				)
 			)
 		)
-		(property "Part" ""
-			(at 29.21 182.88 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
 			(uuid "1204a0e4-f54e-4d56-9abc-1bbcac776dc1")
 		)
@@ -1211,14 +1189,6 @@
 				)
 			)
 		)
-		(property "Part" ""
-			(at 38.1 182.88 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
 			(uuid "2878110f-3e07-4270-9752-319f3b68895e")
 		)
@@ -1286,14 +1256,6 @@
 				(hide yes)
 			)
 		)
-		(property "Part" ""
-			(at 90.17 171.45 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(instances
 			(project ""
 				(path "/485383b8-00f4-4405-b270-de249939cff4"
@@ -1356,14 +1318,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Part" ""
-			(at 109.22 184.15 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(instances
@@ -1430,14 +1384,6 @@
 				(hide yes)
 			)
 		)
-		(property "Part" ""
-			(at 90.17 184.15 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(instances
 			(project "pocket_synth"
 				(path "/485383b8-00f4-4405-b270-de249939cff4"
@@ -1500,14 +1446,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Part" ""
-			(at 109.22 171.45 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(instances
@@ -1574,14 +1512,6 @@
 				(hide yes)
 			)
 		)
-		(property "Part" ""
-			(at 109.22 190.5 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(instances
 			(project "pocket_synth"
 				(path "/485383b8-00f4-4405-b270-de249939cff4"
@@ -1644,14 +1574,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Part" ""
-			(at 90.17 177.8 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(instances
@@ -1758,7 +1680,7 @@
 				(justify right)
 			)
 		)
-		(pin "MIC_SELECT" output
+		(pin "MIC_SELECT_L" output
 			(at 110.49 116.84 0)
 			(uuid "3b41f227-e9de-4676-82c2-6b79a3c11bb2")
 			(effects
@@ -1999,7 +1921,7 @@
 			)
 		)
 		(pin "FM_RECV_INT" input
-			(at 110.49 120.65 0)
+			(at 110.49 124.46 0)
 			(uuid "c9011ec6-40b0-4a4d-9ade-bc30f47fc1d9")
 			(effects
 				(font
@@ -2009,7 +1931,7 @@
 			)
 		)
 		(pin "~{FM_TX_RST}" output
-			(at 110.49 124.46 0)
+			(at 110.49 128.27 0)
 			(uuid "6766434a-e60e-4e71-b025-16d640c3c083")
 			(effects
 				(font
@@ -2019,7 +1941,7 @@
 			)
 		)
 		(pin "~{FM_RX_RST}" output
-			(at 110.49 128.27 0)
+			(at 110.49 132.08 0)
 			(uuid "bcee2dd5-7131-4170-a826-3a08ed1d0278")
 			(effects
 				(font
@@ -2041,6 +1963,16 @@
 		(pin "XTSDG_CS" output
 			(at 110.49 25.4 0)
 			(uuid "dbe3a62f-1d14-423b-80e5-1c9123474776")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "MIC_SELECT_R" output
+			(at 110.49 120.65 0)
+			(uuid "3491bf05-5c46-424f-b583-1ea775e8a4bb")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2400,7 +2332,7 @@
 	)
 	(sheet
 		(at 138.43 106.68)
-		(size 25.4 24.13)
+		(size 25.4 27.94)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
@@ -2424,7 +2356,7 @@
 			)
 		)
 		(property "Sheetfile" "audio.kicad_sch"
-			(at 138.43 131.3946 0)
+			(at 138.43 135.2046 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2443,16 +2375,6 @@
 				(justify left)
 			)
 		)
-		(pin "MIC_SELECT" input
-			(at 138.43 116.84 180)
-			(uuid "37451544-608f-41a2-b37a-580abb35e0eb")
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
 		(pin "CODEC{I2S}" input
 			(at 138.43 113.03 180)
 			(uuid "7dc9a32f-281d-4346-b786-35cd3cca2794")
@@ -2464,7 +2386,7 @@
 			)
 		)
 		(pin "FM_RECV_INT" output
-			(at 138.43 120.65 180)
+			(at 138.43 124.46 180)
 			(uuid "2bb306de-91d0-4616-9ba1-b7843926f0a3")
 			(effects
 				(font
@@ -2474,7 +2396,7 @@
 			)
 		)
 		(pin "~{FM_TX_RST}" input
-			(at 138.43 124.46 180)
+			(at 138.43 128.27 180)
 			(uuid "686d17d2-1b00-4c1e-b842-95dfee47ad11")
 			(effects
 				(font
@@ -2484,8 +2406,28 @@
 			)
 		)
 		(pin "~{FM_RX_RST}" input
-			(at 138.43 128.27 180)
+			(at 138.43 132.08 180)
 			(uuid "f7b4145c-09e0-4d92-97e9-f324092ea583")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "MIC_SELECT_L" input
+			(at 138.43 116.84 180)
+			(uuid "4e3e3129-b803-42f2-b788-84472a7656ec")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "MIC_SELECT_R" input
+			(at 138.43 120.65 180)
+			(uuid "96a1dc10-fbf0-4b73-9c40-c1799dd3548a")
 			(effects
 				(font
 					(size 1.27 1.27)
