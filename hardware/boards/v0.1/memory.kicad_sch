@@ -7894,7 +7894,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "0.1uF"
+		(property "Value" "100nF"
 			(at 215.646 30.734 0)
 			(effects
 				(font
@@ -7954,7 +7954,7 @@
 				)
 			)
 		)
-		(property "JLC" "C15525"
+		(property "JLC" "C1525"
 			(at 214.63 27.94 0)
 			(effects
 				(font

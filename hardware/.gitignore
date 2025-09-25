@@ -15,7 +15,7 @@ boards/**/*.bak
 boards/**/*.bck
 boards/**/*.kicad_pcb-bak
 boards/**/*.kicad_sch-bak
-boards/**/*-backups
+boards/**/*-backups/
 boards/**/*-cache*
 boards/**/*-bak
 boards/**/*-bak*

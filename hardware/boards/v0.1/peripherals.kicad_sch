@@ -4956,7 +4956,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "0.1uF"
+		(property "Value" "100nF"
 			(at 187.198 120.142 0)
 			(effects
 				(font
@@ -4992,6 +4992,15 @@
 				(hide yes)
 			)
 		)
+		(property "JLC" "C1525"
+			(at 186.69 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "8c2b7d14-0ca5-47b6-8424-c8de57c8a36d")
 		)
@@ -5012,9 +5021,9 @@
 		(at 270.51 80.01 0)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
-		(dnp no)
+		(dnp yes)
 		(uuid "1a854af3-8f35-4d68-8ac9-1e19becccd71")
 		(property "Reference" "J12"
 			(at 271.78 80.0099 0)
@@ -5343,6 +5352,15 @@
 				(hide yes)
 			)
 		)
+		(property "JLC" "C105226"
+			(at 260.35 60.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "13aeb509-7282-43cb-9474-bd854d613b98")
 		)
@@ -5557,7 +5575,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" "C1525"
+		(property "JLC" "C12530"
 			(at 241.3 146.05 0)
 			(effects
 				(font
@@ -5599,7 +5617,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "0.1uF"
+		(property "Value" "100nF"
 			(at 187.198 97.282 0)
 			(effects
 				(font
@@ -5627,6 +5645,15 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor, small symbol"
+			(at 186.69 95.25 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C1525"
 			(at 186.69 95.25 0)
 			(effects
 				(font
@@ -5859,7 +5886,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "0.1uF"
+		(property "Value" "100nF"
 			(at 187.198 74.422 0)
 			(effects
 				(font
@@ -5887,6 +5914,15 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor, small symbol"
+			(at 186.69 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C1525"
 			(at 186.69 72.39 0)
 			(effects
 				(font
@@ -6430,7 +6466,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C15195"
 			(at 234.95 146.05 0)
 			(effects
 				(font
@@ -6500,6 +6536,15 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor, small symbol"
+			(at 194.31 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C15525"
 			(at 194.31 72.39 0)
 			(effects
 				(font
@@ -7079,6 +7124,15 @@
 				(hide yes)
 			)
 		)
+		(property "JLC" "C105226"
+			(at 194.31 95.25 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "23e9f370-400b-47e6-b4d9-5fb604f4624e")
 		)
@@ -7177,7 +7231,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "0.1uF"
+		(property "Value" "100nF"
 			(at 253.238 62.992 0)
 			(effects
 				(font
@@ -7205,6 +7259,15 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor, small symbol"
+			(at 252.73 60.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C1525"
 			(at 252.73 60.96 0)
 			(effects
 				(font
@@ -7649,7 +7712,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" "C1525"
+		(property "JLC" "C14445"
 			(at 209.55 146.05 0)
 			(effects
 				(font
@@ -7784,6 +7847,15 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor, small symbol"
+			(at 194.31 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C15525"
 			(at 194.31 118.11 0)
 			(effects
 				(font
