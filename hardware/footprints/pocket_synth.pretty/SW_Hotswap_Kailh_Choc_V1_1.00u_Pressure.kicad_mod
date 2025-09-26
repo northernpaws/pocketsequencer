@@ -4252,7 +4252,6 @@
 		)
 	)
 	(model "kicad-embed://Kailh LP Choc Burnt Orange.STEP"
-		(hide yes)
 		(offset
 			(xyz 0 0 2.5)
 		)
@@ -4264,9 +4263,8 @@
 		)
 	)
 	(model "kicad-embed://Kailh_Keycap_1x1.STEP"
-		(hide yes)
 		(offset
-			(xyz 0 0 6.5)
+			(xyz 0.5 0.5 6.5)
 		)
 		(scale
 			(xyz 0.916 0.916 0.916)

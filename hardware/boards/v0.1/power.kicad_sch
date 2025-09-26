@@ -6134,6 +6134,10 @@
 		(at 134.62 96.52)
 		(uuid "e4e83796-26a4-43cd-bc7e-01f355b302dd")
 	)
+	(no_connect
+		(at 111.76 71.12)
+		(uuid "ef3dc8af-fd07-4fc2-b53d-f68760c59f4f")
+	)
 	(bus_entry
 		(at 146.05 78.74)
 		(size 2.54 -2.54)
@@ -6859,16 +6863,6 @@
 			(type default)
 		)
 		(uuid "42683fb4-bf56-4c18-87a1-cf9822623af1")
-	)
-	(wire
-		(pts
-			(xy 109.22 68.58) (xy 111.76 68.58)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "437d16b7-2e71-46ad-be60-6bfa4f12d490")
 	)
 	(wire
 		(pts
@@ -8842,16 +8836,6 @@
 	)
 	(wire
 		(pts
-			(xy 111.76 71.12) (xy 111.76 68.58)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "fcb1fb8e-c5e2-4fbc-a1d9-b75953d67d45")
-	)
-	(wire
-		(pts
 			(xy 245.11 146.05) (xy 245.11 147.32)
 		)
 		(stroke
@@ -8909,16 +8893,6 @@
 			(justify left bottom)
 		)
 		(uuid "01f73b4a-bf67-4b5a-940a-a720c41374bb")
-	)
-	(label "VBUS_LDO"
-		(at 109.22 68.58 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "1377355d-5708-4c99-bbc1-80bf28a5c9f0")
 	)
 	(label "BOOST_PG"
 		(at 92.71 34.29 0)

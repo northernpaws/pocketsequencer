@@ -10011,7 +10011,7 @@
 		(symbol "ER-TFT028A2-4_1_1"
 			(rectangle
 				(start -8.89 11.43)
-				(end 8.89 -11.43)
+				(end 8.89 -12.7)
 				(stroke
 					(width 0)
 					(type solid)
@@ -10022,7 +10022,7 @@
 			)
 			(polyline
 				(pts
-					(xy -6.35 -7.62) (xy 1.27 -7.62)
+					(xy -6.35 -10.16) (xy 1.27 -10.16)
 				)
 				(stroke
 					(width 0)
@@ -10226,7 +10226,7 @@
 			)
 			(polyline
 				(pts
-					(xy 1.27 -7.62) (xy 1.27 7.366)
+					(xy 1.27 -10.16) (xy 1.27 7.366)
 				)
 				(stroke
 					(width 0)
@@ -10237,7 +10237,7 @@
 				)
 			)
 			(text "BACKLIGHT"
-				(at 7.62 -10.16 900)
+				(at 7.62 -11.43 900)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -10318,7 +10318,7 @@
 				)
 			)
 			(pin input line
-				(at -11.43 -7.62 0)
+				(at -11.43 -10.16 0)
 				(length 2.54)
 				(name "K"
 					(effects
@@ -28684,6 +28684,160 @@
 					(effects
 						(font
 							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
+	)
+	(symbol "TPS92360DCKR"
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(property "Reference" "U"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Package_TO_SOT_SMD:SOT-353_SC-70-5"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/tps92360.pdf?ts=1758795012147&ref_url=https%253A%252F%252Fwww.mouser.de%252F"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(symbol "TPS92360DCKR_0_1"
+			(rectangle
+				(start -7.62 7.62)
+				(end 7.62 -7.62)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+		)
+		(symbol "TPS92360DCKR_1_1"
+			(pin power_in line
+				(at -10.16 5.08 0)
+				(length 2.54)
+				(name "VIN"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "5"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -10.16 -5.08 0)
+				(length 2.54)
+				(name "CTRL"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "4"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at 0 -10.16 90)
+				(length 2.54)
+				(name "GND"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at 10.16 5.08 180)
+				(length 2.54)
+				(name "SW"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at 10.16 -5.08 180)
+				(length 2.54)
+				(name "FB"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "3"
+					(effects
+						(font
+							(size 1.27 1.27)
 						)
 					)
 				)

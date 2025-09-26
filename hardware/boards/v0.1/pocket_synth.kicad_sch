@@ -375,6 +375,16 @@
 		)
 		(uuid "3c8eb4d5-8010-4929-b314-db851df69c15")
 	)
+	(wire
+		(pts
+			(xy 72.39 104.14) (xy 57.15 104.14)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3d6c8bb5-64b8-47cf-a900-15ba127df2f2")
+	)
 	(bus
 		(pts
 			(xy 60.96 93.98) (xy 63.5 91.44)
@@ -734,6 +744,16 @@
 			(type dash)
 		)
 		(uuid "c2af36ad-d98c-4782-bbf5-3aa1c56ab617")
+	)
+	(wire
+		(pts
+			(xy 110.49 76.2) (xy 138.43 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ce2040b2-52e8-4089-956f-223642e8a990")
 	)
 	(bus
 		(pts
@@ -2046,6 +2066,26 @@
 				(justify right)
 			)
 		)
+		(pin "HAPTIC_EN" output
+			(at 72.39 104.14 180)
+			(uuid "b3a13e84-17a5-4678-9242-442c10ec8616")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "BACKLIGHT_CTRL" output
+			(at 110.49 76.2 0)
+			(uuid "b1d383fe-bc53-4e01-875e-cde464bcee11")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
 		(instances
 			(project "pocket_synth"
 				(path "/485383b8-00f4-4405-b270-de249939cff4"
@@ -2760,6 +2800,16 @@
 				(justify left)
 			)
 		)
+		(pin "BACKLIGHT_CTRL" input
+			(at 138.43 76.2 180)
+			(uuid "6630148e-4375-4d62-b425-3d01c681b8fc")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
 		(instances
 			(project "pocket_synth"
 				(path "/485383b8-00f4-4405-b270-de249939cff4"
@@ -2834,7 +2884,7 @@
 			)
 		)
 		(pin "HAPTIC_EN" input
-			(at 57.15 105.41 0)
+			(at 57.15 104.14 0)
 			(uuid "30a36e09-fd61-4ac0-915e-3f3e1046a950")
 			(effects
 				(font
