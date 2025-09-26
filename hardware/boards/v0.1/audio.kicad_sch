@@ -2806,6 +2806,24 @@
 						)
 					)
 				)
+				(pin passive line
+					(at -3.81 -40.64 90)
+					(length 5.08)
+					(name "PAD"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "33"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
 				(pin power_in line
 					(at -2.54 40.64 270)
 					(length 5.08)
@@ -4513,6 +4531,12 @@
 		(uuid "494c7bb1-e3a9-4b94-bebb-f576cf15bd33")
 	)
 	(junction
+		(at 78.74 128.27)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "4972fe46-4646-4c1f-af0f-092a0e0195f2")
+	)
+	(junction
 		(at 83.82 128.27)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -5107,6 +5131,16 @@
 			(type default)
 		)
 		(uuid "230b4d57-6859-4e38-8027-850171b9d68d")
+	)
+	(wire
+		(pts
+			(xy 78.74 124.46) (xy 78.74 128.27)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "24eebdfc-fd16-4463-b545-db182bf41f88")
 	)
 	(wire
 		(pts
@@ -5860,6 +5894,16 @@
 	)
 	(wire
 		(pts
+			(xy 78.74 128.27) (xy 81.28 128.27)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7d4b3770-8bed-4995-a3a3-6058b9ce66a3")
+	)
+	(wire
+		(pts
 			(xy 246.38 78.74) (xy 246.38 80.01)
 		)
 		(stroke
@@ -6560,7 +6604,7 @@
 	)
 	(wire
 		(pts
-			(xy 57.15 128.27) (xy 81.28 128.27)
+			(xy 57.15 128.27) (xy 78.74 128.27)
 		)
 		(stroke
 			(width 0)
@@ -9344,6 +9388,9 @@
 		)
 		(pin "15"
 			(uuid "c5161517-8741-4e0f-a4dd-af6e42c0b18c")
+		)
+		(pin "33"
+			(uuid "493134a5-3e5d-4e2e-8ed4-35fb11f9933f")
 		)
 		(instances
 			(project ""
