@@ -5,6 +5,113 @@
 	(uuid "ce299ae7-9dcf-4afa-8b41-41153a7acd8d")
 	(paper "A4")
 	(lib_symbols
+		(symbol "Connector:TestPoint"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0.762)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "TP"
+				(at 0 6.858 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "TestPoint"
+				(at 0 5.08 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 5.08 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 5.08 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "test point"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "test point tp"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "Pin* Test*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "TestPoint_0_1"
+				(circle
+					(center 0 3.302)
+					(radius 0.762)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "TestPoint_1_1"
+				(pin passive line
+					(at 0 0 90)
+					(length 2.54)
+					(name "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "Device:C_Small"
 			(pin_numbers
 				(hide yes)
@@ -5329,6 +5436,12 @@
 		(uuid "aa70a4d7-ece9-495a-9d5e-922d4c68bda2")
 	)
 	(junction
+		(at 68.58 166.37)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "c6fb2965-e820-4563-8115-990c2639fd11")
+	)
+	(junction
 		(at 50.8 38.1)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -5743,6 +5856,16 @@
 			(type default)
 		)
 		(uuid "17a96fdd-ceb0-42ee-b707-01d9f61c66ef")
+	)
+	(wire
+		(pts
+			(xy 68.58 166.37) (xy 68.58 168.91)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "19aa79ca-d38d-4abc-91c7-df41cd5be875")
 	)
 	(wire
 		(pts
@@ -6516,7 +6639,7 @@
 	)
 	(wire
 		(pts
-			(xy 68.58 166.37) (xy 71.12 166.37)
+			(xy 66.04 166.37) (xy 68.58 166.37)
 		)
 		(stroke
 			(width 0)
@@ -6883,6 +7006,16 @@
 			(type default)
 		)
 		(uuid "ec4da320-2cca-44ca-862a-d6eed41b1124")
+	)
+	(wire
+		(pts
+			(xy 68.58 166.37) (xy 71.12 166.37)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "edb2177c-156e-4de3-b3ee-78b56d4bd0c6")
 	)
 	(wire
 		(pts
@@ -7279,7 +7412,7 @@
 	)
 	(hierarchical_label "BACKLIGHT_CTRL"
 		(shape input)
-		(at 68.58 166.37 180)
+		(at 66.04 166.37 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9156,6 +9289,70 @@
 			(project ""
 				(path "/485383b8-00f4-4405-b270-de249939cff4/f0d5f3c5-7c53-4584-b479-82b3ef9bea09"
 					(reference "U26")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 68.58 168.91 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(dnp no)
+		(uuid "be9d0632-ddd5-4261-9606-7e09550c36c0")
+		(property "Reference" "TP47"
+			(at 68.58 174.498 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "BACKLIGHT"
+			(at 68.58 176.784 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+			(at 63.5 168.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 63.5 168.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "test point"
+			(at 68.58 168.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "ae1ae2f2-cc10-4597-b6b5-3dac3a5b407d")
+		)
+		(instances
+			(project "pocket_synth"
+				(path "/485383b8-00f4-4405-b270-de249939cff4/f0d5f3c5-7c53-4584-b479-82b3ef9bea09"
+					(reference "TP47")
 					(unit 1)
 				)
 			)

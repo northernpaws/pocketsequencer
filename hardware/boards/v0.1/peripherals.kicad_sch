@@ -2590,13 +2590,13 @@
 	)
 	(text "I2C Address\n 1101010b"
 		(exclude_from_sim no)
-		(at 46.482 166.37 0)
+		(at 28.194 167.64 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 				(color 132 132 132 1)
 			)
-			(justify right)
+			(justify left)
 		)
 		(uuid "b08defdb-01b8-47ca-bc4b-13b2f210a7f9")
 	)
@@ -2795,12 +2795,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "7b49bdb1-ff1d-40b6-8b45-e64d6e14451d")
-	)
-	(junction
-		(at 49.53 177.8)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "847f475c-4c30-4be1-a0d3-13f06e244dbf")
 	)
 	(junction
 		(at 68.58 134.62)
@@ -3040,7 +3034,7 @@
 	)
 	(wire
 		(pts
-			(xy 49.53 177.8) (xy 49.53 186.69)
+			(xy 49.53 167.64) (xy 49.53 186.69)
 		)
 		(stroke
 			(width 0)
@@ -3207,6 +3201,16 @@
 			(type default)
 		)
 		(uuid "1c9bc063-d154-4573-b503-7496f454e1fc")
+	)
+	(wire
+		(pts
+			(xy 50.8 177.8) (xy 44.45 177.8)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1e5ffa82-8ca2-4a23-a1e2-8279c144da6f")
 	)
 	(wire
 		(pts
@@ -3397,16 +3401,6 @@
 			(type default)
 		)
 		(uuid "3c5c4868-c00b-48cd-aff2-e9acbec7ff2a")
-	)
-	(wire
-		(pts
-			(xy 49.53 167.64) (xy 49.53 177.8)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3d1dd870-a946-4816-ae1c-f5a309723be0")
 	)
 	(wire
 		(pts
@@ -4060,16 +4054,6 @@
 	)
 	(wire
 		(pts
-			(xy 50.8 177.8) (xy 49.53 177.8)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b86ca0ed-1a41-40e1-ad46-c23f22d33fed")
-	)
-	(wire
-		(pts
 			(xy 69.85 35.56) (xy 69.85 38.1)
 		)
 		(stroke
@@ -4487,6 +4471,16 @@
 			(type default)
 		)
 		(uuid "fa475346-567d-4b43-bd08-ea08d8eca2c8")
+	)
+	(wire
+		(pts
+			(xy 44.45 177.8) (xy 44.45 170.18)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ff14dacc-3331-445f-a82a-db1d985e40ae")
 	)
 	(label "I2C4.SDA"
 		(at 153.67 191.77 0)
@@ -6649,6 +6643,71 @@
 			(project ""
 				(path "/485383b8-00f4-4405-b270-de249939cff4/f91e71c7-727a-4ef4-a387-8ca9d7b49c20"
 					(reference "U43")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+3.3V")
+		(at 44.45 170.18 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "86945103-fd9f-4c77-8cec-e5c381af3e61")
+		(property "Reference" "#PWR0152"
+			(at 44.45 173.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+3.3V"
+			(at 44.45 166.116 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 44.45 170.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 44.45 170.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+3.3V\""
+			(at 44.45 170.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "c68122e1-4171-4173-841c-b487bb025026")
+		)
+		(instances
+			(project "pocket_synth"
+				(path "/485383b8-00f4-4405-b270-de249939cff4/f91e71c7-727a-4ef4-a387-8ca9d7b49c20"
+					(reference "#PWR0152")
 					(unit 1)
 				)
 			)
