@@ -5835,7 +5835,7 @@
 			(fill
 				(type none)
 			)
-			(uuid 3d1dc978-9808-4fe9-9686-2e890a271a1a)
+			(uuid 14cc1639-bae1-40c7-a190-46976f7518ed)
 		)
 	)
 	(rule_area
@@ -5850,7 +5850,7 @@
 			(fill
 				(type none)
 			)
-			(uuid d17d242d-06bc-4dfb-acf9-e89cde367aa3)
+			(uuid 391faafb-27b1-41fd-b581-bdb038667661)
 		)
 	)
 	(netclass_flag ""
@@ -5993,7 +5993,7 @@
 				)
 			)
 		)
-		(property "JLC" "C25531"
+		(property "JLC" "C25744"
 			(at 207.01 109.22 0)
 			(effects
 				(font
@@ -6775,7 +6775,7 @@
 				)
 			)
 		)
-		(property "JLC" "C25531"
+		(property "JLC" "C25744"
 			(at 191.77 109.22 0)
 			(effects
 				(font
@@ -7125,7 +7125,7 @@
 				)
 			)
 		)
-		(property "JLC" "C25531"
+		(property "JLC" "C25744"
 			(at 214.63 109.22 0)
 			(effects
 				(font
@@ -7227,7 +7227,7 @@
 				)
 			)
 		)
-		(property "JLC" "C25531"
+		(property "JLC" "C25744"
 			(at 199.39 109.22 0)
 			(effects
 				(font
@@ -8319,7 +8319,7 @@
 				)
 			)
 		)
-		(property "JLC" "C25531"
+		(property "JLC" "C25744"
 			(at 222.25 109.22 0)
 			(effects
 				(font

@@ -7725,6 +7725,15 @@
 				(hide yes)
 			)
 		)
+		(property "JLC" "C2928788"
+			(at 81.28 161.29 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "5b064801-f3ea-4873-9aba-b052a2d01f46")
 		)
@@ -7828,7 +7837,7 @@
 				)
 			)
 		)
-		(property "JLC" "C25531"
+		(property "JLC" "C25744"
 			(at 179.07 82.55 0)
 			(effects
 				(font
@@ -7972,7 +7981,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" "C14445"
+		(property "JLC" "C52923"
 			(at 105.41 153.67 0)
 			(effects
 				(font
@@ -8209,6 +8218,15 @@
 			)
 		)
 		(property "Description" "Schottky diode"
+			(at 99.06 148.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C668989"
 			(at 99.06 148.59 0)
 			(effects
 				(font

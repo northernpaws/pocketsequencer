@@ -2102,13 +2102,13 @@
 							)
 						)
 					)
+					(alternate "" input line)
 					(alternate "DCMI_D0" bidirectional line)
 					(alternate "DFSDM1_CKIN3" bidirectional line)
 					(alternate "FMC_NWAIT" bidirectional line)
 					(alternate "HRTIM_CHA1" bidirectional line)
 					(alternate "I2S2_MCK" bidirectional line)
 					(alternate "LTDC_HSYNC" bidirectional line)
-					(alternate "" input line)
 					(alternate "SDMMC1_D0DIR" bidirectional line)
 					(alternate "SDMMC1_D6" bidirectional line)
 					(alternate "SDMMC2_D6" bidirectional line)
@@ -2134,6 +2134,7 @@
 							)
 						)
 					)
+					(alternate "" input line)
 					(alternate "DCMI_D1" bidirectional line)
 					(alternate "DEBUG_TRGIO" bidirectional line)
 					(alternate "DFSDM1_DATIN3" bidirectional line)
@@ -2141,7 +2142,6 @@
 					(alternate "HRTIM_CHA2" bidirectional line)
 					(alternate "I2S3_MCK" bidirectional line)
 					(alternate "LTDC_G6" bidirectional line)
-					(alternate "" input line)
 					(alternate "SDMMC1_D123DIR" bidirectional line)
 					(alternate "SDMMC1_D7" bidirectional line)
 					(alternate "SDMMC2_D7" bidirectional line)
@@ -2228,12 +2228,12 @@
 							)
 						)
 					)
+					(alternate "" input line)
 					(alternate "DCMI_D8" bidirectional line)
 					(alternate "DFSDM1_CKIN5" bidirectional line)
 					(alternate "HRTIM_EEV1" bidirectional line)
 					(alternate "I2S3_CK" bidirectional line)
 					(alternate "LTDC_R2" bidirectional line)
-					(alternate "" input line)
 					(alternate "QUADSPI_BK1_IO1" bidirectional line)
 					(alternate "SDMMC1_D2" bidirectional line)
 					(alternate "SPI3_SCK" bidirectional line)
@@ -7629,12 +7629,12 @@
 							)
 						)
 					)
+					(alternate "" input line)
 					(alternate "DAC1_EXTI9" bidirectional line)
 					(alternate "DCMI_VSYNC" bidirectional line)
 					(alternate "FMC_NCE" bidirectional line)
 					(alternate "FMC_NE2" bidirectional line)
 					(alternate "I2S1_SDI" bidirectional line)
-					(alternate "" input line)
 					(alternate "QUADSPI_BK2_IO2" bidirectional line)
 					(alternate "SAI2_FS_B" bidirectional line)
 					(alternate "SPDIFRX1_IN3" bidirectional line)
@@ -7769,12 +7769,12 @@
 							)
 						)
 					)
+					(alternate "" input line)
 					(alternate "DEBUG_TRACED1" bidirectional line)
 					(alternate "ETH_TXD1" bidirectional line)
 					(alternate "FMC_A25" bidirectional line)
 					(alternate "LPTIM1_ETR" bidirectional line)
 					(alternate "LTDC_B0" bidirectional line)
-					(alternate "" input line)
 					(alternate "QUADSPI_BK2_IO3" bidirectional line)
 					(alternate "SPI6_MOSI" bidirectional line)
 					(alternate "USART6_TX" bidirectional line)
@@ -13302,6 +13302,18 @@
 		)
 		(uuid "6e1fbefb-d922-498c-a27f-8d0364e84d72")
 	)
+	(text "grounding HS_ID puts\nthe PHY in host mode"
+		(exclude_from_sim no)
+		(at 124.714 152.146 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+				(color 132 132 132 1)
+			)
+			(justify right)
+		)
+		(uuid "70fdb003-b244-43e9-b8b8-58b046b46c0d")
+	)
 	(text "NOTE: FMC.NE0 is on alternate"
 		(exclude_from_sim no)
 		(at 166.37 83.82 0)
@@ -13752,10 +13764,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "fdfb2e32-9c31-414f-b4cd-94b863c1bd4b")
-	)
-	(no_connect
-		(at 138.43 152.4)
-		(uuid "0300059a-29d1-448d-bb45-ebf69316f75f")
 	)
 	(no_connect
 		(at 195.58 142.24)
@@ -20434,7 +20442,7 @@
 				)
 			)
 		)
-		(property "JLC" "C14445"
+		(property "JLC" "C52923"
 			(at 138.43 27.94 0)
 			(effects
 				(font
@@ -21299,7 +21307,7 @@
 				)
 			)
 		)
-		(property "JLC" "C14445"
+		(property "JLC" "C52923"
 			(at 161.29 27.94 0)
 			(effects
 				(font
@@ -26124,7 +26132,7 @@
 				)
 			)
 		)
-		(property "JLC" "C25531"
+		(property "JLC" "C25744"
 			(at 50.8 59.69 0)
 			(effects
 				(font
@@ -26291,7 +26299,7 @@
 				)
 			)
 		)
-		(property "JLC" "C14445"
+		(property "JLC" "C52923"
 			(at 57.15 64.77 0)
 			(effects
 				(font
@@ -29038,7 +29046,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "4.7k"
+		(property "Value" "10k"
 			(at 39.37 125.7299 0)
 			(effects
 				(font
@@ -29098,7 +29106,7 @@
 				)
 			)
 		)
-		(property "JLC" "C25900"
+		(property "JLC" "C25744"
 			(at 36.83 124.46 0)
 			(effects
 				(font
@@ -29141,7 +29149,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "4.7k"
+		(property "Value" "10k"
 			(at 29.21 125.7299 0)
 			(effects
 				(font
@@ -29201,7 +29209,7 @@
 				)
 			)
 		)
-		(property "JLC" "C25900"
+		(property "JLC" "C25744"
 			(at 31.75 124.46 0)
 			(effects
 				(font
