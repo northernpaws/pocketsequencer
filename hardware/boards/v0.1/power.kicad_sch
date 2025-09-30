@@ -5405,7 +5405,7 @@
 	)
 	(text "Power enable, soft shutdown,\nand hold-to-reset"
 		(exclude_from_sim no)
-		(at 179.07 109.22 0)
+		(at 179.07 108.204 0)
 		(effects
 			(font
 				(size 1.397 1.397)
@@ -5442,7 +5442,7 @@
 	)
 	(text "Power Button Controller"
 		(exclude_from_sim no)
-		(at 179.07 106.172 0)
+		(at 179.07 105.156 0)
 		(effects
 			(font
 				(size 1.651 1.651)
@@ -5667,7 +5667,7 @@
 	)
 	(text "We use the 6601 variant to allow a window\nto program an MCU within the blank period\nif the MCU is not responding with PS_HOLD."
 		(exclude_from_sim no)
-		(at 283.464 108.458 0)
+		(at 283.464 107.442 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8748,7 +8748,7 @@
 		)
 		(uuid "007a8440-abaa-4c36-835f-d5afd893bbe9")
 	)
-	(label "D+"
+	(label "USB_D+"
 		(at 170.18 74.93 0)
 		(effects
 			(font
@@ -8778,7 +8778,7 @@
 		)
 		(uuid "20119e10-7177-4080-9340-05917276852d")
 	)
-	(label "D-"
+	(label "USB_D-"
 		(at 44.45 64.77 0)
 		(effects
 			(font
@@ -8828,7 +8828,7 @@
 		)
 		(uuid "40d591bc-d1e1-4c6a-a41d-b9107e3603ae")
 	)
-	(label "D+"
+	(label "USB_D+"
 		(at 44.45 67.31 0)
 		(effects
 			(font
@@ -8959,7 +8959,7 @@
 		)
 		(uuid "b5201cd3-68e7-4d26-aa36-87d60ddb8e4b")
 	)
-	(label "D-"
+	(label "USB_D-"
 		(at 170.18 68.58 0)
 		(effects
 			(font
@@ -8998,6 +8998,16 @@
 			(justify left bottom)
 		)
 		(uuid "d84b3980-f2c6-4108-8116-885311347255")
+	)
+	(label "SENSE+"
+		(at 157.48 143.51 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "ddd64862-fab0-46f0-87b8-fc99c593a3d4")
 	)
 	(label "SW"
 		(at 245.11 38.1 0)
