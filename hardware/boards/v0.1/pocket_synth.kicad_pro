@@ -750,8 +750,8 @@
         },
         {
           "group_by": false,
-          "label": "Characteristics ",
-          "name": "Characteristics ",
+          "label": "Characteristics",
+          "name": "Characteristics",
           "show": false
         },
         {
@@ -804,14 +804,20 @@
         },
         {
           "group_by": false,
-          "label": "Sim.Enable",
-          "name": "Sim.Enable",
+          "label": "Sim.Pins",
+          "name": "Sim.Pins",
           "show": false
         },
         {
           "group_by": false,
-          "label": "Sim.Pins",
-          "name": "Sim.Pins",
+          "label": "Characteristics ",
+          "name": "Characteristics ",
+          "show": false
+        },
+        {
+          "group_by": false,
+          "label": "Sim.Enable",
+          "name": "Sim.Enable",
           "show": false
         },
         {
