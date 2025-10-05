@@ -39,7 +39,7 @@
         "pads": {
           "drill": 0.0,
           "height": 0.5,
-          "width": 0.5
+          "width": 1.0
         },
         "silk_line_width": 0.1,
         "silk_text_italic": false,
@@ -134,14 +134,6 @@
         [
           "nonmirrored_text_on_back_layer|88175000|166725000|2149646a-21fd-4a6b-9f12-35ec52ff2a9a|00000000-0000-0000-0000-000000000000",
           ""
-        ],
-        [
-          "solder_mask_bridge|82879901|48500000|7a9335ab-aa2c-4fef-a59e-f0b0351acd25|e09563ce-c6cb-491c-bfb2-9f8db5673878",
-          ""
-        ],
-        [
-          "solder_mask_bridge|82879901|76399994|dc20ccdf-5ef9-4319-8a7c-49fae5f650aa|f6fcbd76-70e0-47cc-81c3-a89cf438f016",
-          ""
         ]
       ],
       "meta": {
@@ -153,7 +145,7 @@
         "connection_width": "warning",
         "copper_edge_clearance": "error",
         "copper_sliver": "warning",
-        "courtyards_overlap": "warning",
+        "courtyards_overlap": "ignore",
         "creepage": "error",
         "diff_pair_gap_out_of_range": "error",
         "diff_pair_uncoupled_length_too_long": "error",
@@ -189,7 +181,7 @@
         "silk_over_copper": "ignore",
         "silk_overlap": "ignore",
         "skew_out_of_range": "error",
-        "solder_mask_bridge": "error",
+        "solder_mask_bridge": "ignore",
         "starved_thermal": "error",
         "text_height": "warning",
         "text_on_edge_cuts": "error",
@@ -330,7 +322,40 @@
     "equivalence_files": []
   },
   "erc": {
-    "erc_exclusions": [],
+    "erc_exclusions": [
+      [
+        "lib_symbol_mismatch|2133600|444500|64111d65-9e01-4946-b97c-77cca56250be|00000000-0000-0000-0000-000000000000|||",
+        ""
+      ],
+      [
+        "lib_symbol_mismatch|2133600|939800|64111d65-9e01-4946-b97c-77cca56250bd|00000000-0000-0000-0000-000000000000|||",
+        ""
+      ],
+      [
+        "lib_symbol_mismatch|2578100|1282700|fc6fc0f8-c6ee-43e9-bbad-ffd331a74e83|00000000-0000-0000-0000-000000000000|||",
+        ""
+      ],
+      [
+        "multiple_net_names|1943100|901700|81386b38-3014-4573-9a4d-082cfb56c963|a55c73aa-e85d-47cb-8dc8-804c6b29f79d|/485383b8-00f4-4405-b270-de249939cff4/f91e71c7-727a-4ef4-a387-8ca9d7b49c20|/485383b8-00f4-4405-b270-de249939cff4/f91e71c7-727a-4ef4-a387-8ca9d7b49c20|/485383b8-00f4-4405-b270-de249939cff4/f91e71c7-727a-4ef4-a387-8ca9d7b49c20",
+        ""
+      ],
+      [
+        "multiple_net_names|2463800|698500|5eb9a543-7d57-43a6-ac50-57ced9f0f5e1|a134ba32-6e59-4c07-81a8-b21a4c3941f3|/485383b8-00f4-4405-b270-de249939cff4/f91e71c7-727a-4ef4-a387-8ca9d7b49c20|/485383b8-00f4-4405-b270-de249939cff4/f91e71c7-727a-4ef4-a387-8ca9d7b49c20|/485383b8-00f4-4405-b270-de249939cff4/f91e71c7-727a-4ef4-a387-8ca9d7b49c20",
+        ""
+      ],
+      [
+        "multiple_net_names|2476500|469900|fc5d676d-ec57-47ca-8247-e645fd46fc55|4fdfc024-98cb-421b-89f4-c1945a25cb2d|/485383b8-00f4-4405-b270-de249939cff4/4ddef61a-efa7-4012-86d6-37c4f1088d14|/485383b8-00f4-4405-b270-de249939cff4/4ddef61a-efa7-4012-86d6-37c4f1088d14|/485383b8-00f4-4405-b270-de249939cff4/4ddef61a-efa7-4012-86d6-37c4f1088d14",
+        ""
+      ],
+      [
+        "multiple_net_names|952500|584200|c2b178d7-1d06-4b25-b72a-5a3e51b25259|0bd079ab-b5b7-4e54-94fa-d3cbf41a8ac3|/485383b8-00f4-4405-b270-de249939cff4/f0d5f3c5-7c53-4584-b479-82b3ef9bea09|/485383b8-00f4-4405-b270-de249939cff4/f0d5f3c5-7c53-4584-b479-82b3ef9bea09|/485383b8-00f4-4405-b270-de249939cff4/f0d5f3c5-7c53-4584-b479-82b3ef9bea09",
+        ""
+      ],
+      [
+        "multiple_net_names|952500|660400|e3d119e3-cbf6-4004-88b2-bccac1f64bdd|ac7acf82-226b-4010-8a77-ca6b48aece72|/485383b8-00f4-4405-b270-de249939cff4/f0d5f3c5-7c53-4584-b479-82b3ef9bea09|/485383b8-00f4-4405-b270-de249939cff4/f0d5f3c5-7c53-4584-b479-82b3ef9bea09|/485383b8-00f4-4405-b270-de249939cff4/f0d5f3c5-7c53-4584-b479-82b3ef9bea09",
+        ""
+      ]
+    ],
     "meta": {
       "version": 0
     },
@@ -806,12 +831,6 @@
           "group_by": false,
           "label": "Sim.Pins",
           "name": "Sim.Pins",
-          "show": false
-        },
-        {
-          "group_by": false,
-          "label": "Characteristics ",
-          "name": "Characteristics ",
           "show": false
         },
         {

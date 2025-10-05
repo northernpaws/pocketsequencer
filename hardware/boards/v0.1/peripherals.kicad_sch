@@ -2844,12 +2844,6 @@
 		(color 0 0 0 0)
 		(uuid "f01ead06-efae-419f-aad8-b781e91cdd84")
 	)
-	(junction
-		(at 68.58 151.13)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "ffbcddd0-eabc-4ad7-8746-5bcaa88b28df")
-	)
 	(no_connect
 		(at 81.28 165.1)
 		(uuid "3794484c-9df6-4f4f-82b4-dee4920e8fef")
@@ -3114,7 +3108,7 @@
 	)
 	(wire
 		(pts
-			(xy 71.12 151.13) (xy 68.58 151.13)
+			(xy 71.12 134.62) (xy 68.58 134.62)
 		)
 		(stroke
 			(width 0)
@@ -3171,16 +3165,6 @@
 			(type default)
 		)
 		(uuid "1851a6c3-8722-41b4-9131-63098b8fc2a3")
-	)
-	(wire
-		(pts
-			(xy 68.58 134.62) (xy 68.58 151.13)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "197b9dae-7c2f-4834-87fb-8865dd390de2")
 	)
 	(wire
 		(pts
@@ -4014,6 +3998,16 @@
 	)
 	(wire
 		(pts
+			(xy 68.58 134.62) (xy 68.58 153.67)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b5d67b10-43e2-479a-a3d4-3d7534cb4e9b")
+	)
+	(wire
+		(pts
 			(xy 69.85 27.94) (xy 69.85 30.48)
 		)
 		(stroke
@@ -4391,16 +4385,6 @@
 			(type default)
 		)
 		(uuid "e8246260-b781-42b5-89a3-8ed60ca3d582")
-	)
-	(wire
-		(pts
-			(xy 68.58 151.13) (xy 68.58 153.67)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e87924f2-ee2d-42b3-8e5a-99196b1960a8")
 	)
 	(wire
 		(pts
@@ -4917,14 +4901,6 @@
 				(hide yes)
 			)
 		)
-		(property "Characteristics " ""
-			(at 39.37 43.18 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 39.37 43.18 0)
 			(effects
@@ -5011,14 +4987,6 @@
 				(hide yes)
 			)
 		)
-		(property "Characteristics " ""
-			(at 186.69 118.11 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 186.69 118.11 0)
 			(effects
@@ -5094,14 +5062,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Characteristics " ""
-			(at 270.51 80.01 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(property "Sim.Enable" ""
@@ -5189,14 +5149,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Characteristics " ""
-			(at 245.11 96.52 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(property "Sim.Enable" ""
@@ -5419,14 +5371,6 @@
 				(hide yes)
 			)
 		)
-		(property "Characteristics " ""
-			(at 260.35 60.96 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 260.35 60.96 0)
 			(effects
@@ -5579,14 +5523,6 @@
 				(hide yes)
 			)
 		)
-		(property "Characteristics " ""
-			(at 48.26 140.97 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 48.26 140.97 0)
 			(effects
@@ -5674,14 +5610,6 @@
 				(hide yes)
 			)
 		)
-		(property "Characteristics " ""
-			(at 241.3 146.05 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 241.3 146.05 0)
 			(effects
@@ -5766,14 +5694,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Characteristics " ""
-			(at 186.69 95.25 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(property "Sim.Enable" ""
@@ -5943,14 +5863,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Characteristics " ""
-			(at 62.23 59.69 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(property "Sim.Enable" ""
@@ -6135,14 +6047,6 @@
 				(hide yes)
 			)
 		)
-		(property "Characteristics " ""
-			(at 186.69 72.39 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 186.69 72.39 0)
 			(effects
@@ -6319,14 +6223,6 @@
 				)
 			)
 		)
-		(property "Characteristics " ""
-			(at 66.04 170.18 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 66.04 170.18 0)
 			(effects
@@ -6438,14 +6334,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Characteristics " ""
-			(at 163.83 191.77 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(property "Sim.Enable" ""
@@ -6585,14 +6473,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Characteristics " ""
-			(at 163.83 186.69 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(property "Sim.Enable" ""
@@ -6743,14 +6623,6 @@
 				(hide yes)
 			)
 		)
-		(property "Characteristics " ""
-			(at 234.95 146.05 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 234.95 146.05 0)
 			(effects
@@ -6837,14 +6709,6 @@
 				(hide yes)
 			)
 		)
-		(property "Characteristics " ""
-			(at 194.31 72.39 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 194.31 72.39 0)
 			(effects
@@ -6928,14 +6792,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Characteristics " ""
-			(at 222.25 139.7 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(property "Sim.Enable" ""
@@ -7107,14 +6963,6 @@
 				(hide yes)
 			)
 		)
-		(property "Characteristics " ""
-			(at 77.47 33.02 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 77.47 33.02 0)
 			(effects
@@ -7140,7 +6988,7 @@
 	)
 	(symbol
 		(lib_id "power:PWR_FLAG")
-		(at 71.12 151.13 270)
+		(at 71.12 134.62 270)
 		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
@@ -7149,7 +6997,7 @@
 		(dnp no)
 		(uuid "897ec321-dad5-441c-9d5d-f2d68a0c6a53")
 		(property "Reference" "#FLG08"
-			(at 73.025 151.13 0)
+			(at 73.025 134.62 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7158,7 +7006,7 @@
 			)
 		)
 		(property "Value" "PWR_FLAG"
-			(at 74.93 151.1299 90)
+			(at 74.93 134.6199 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7167,7 +7015,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 71.12 151.13 0)
+			(at 71.12 134.62 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7176,7 +7024,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 71.12 151.13 0)
+			(at 71.12 134.62 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7185,7 +7033,7 @@
 			)
 		)
 		(property "Description" "Special symbol for telling ERC where power comes from"
-			(at 71.12 151.13 0)
+			(at 71.12 134.62 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7464,14 +7312,6 @@
 				(hide yes)
 			)
 		)
-		(property "Characteristics " ""
-			(at 194.31 95.25 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 194.31 95.25 0)
 			(effects
@@ -7621,14 +7461,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Characteristics " ""
-			(at 252.73 60.96 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(property "Sim.Enable" ""
@@ -7849,14 +7681,6 @@
 				(hide yes)
 			)
 		)
-		(property "Characteristics " ""
-			(at 62.23 140.97 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 62.23 140.97 0)
 			(effects
@@ -7952,14 +7776,6 @@
 				(hide yes)
 			)
 		)
-		(property "Characteristics " ""
-			(at 69.85 33.02 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 69.85 33.02 0)
 			(effects
@@ -8036,14 +7852,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Characteristics " ""
-			(at 93.98 50.8 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(property "Sim.Enable" ""
@@ -8130,14 +7938,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Characteristics " ""
-			(at 209.55 146.05 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(property "Sim.Enable" ""
@@ -8289,14 +8089,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Characteristics " ""
-			(at 194.31 118.11 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(property "Sim.Enable" ""

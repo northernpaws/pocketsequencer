@@ -8533,7 +8533,7 @@
 			(pin power_in line
 				(at 0 -30.48 90)
 				(length 5.08)
-				(name "PGND"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -8552,7 +8552,7 @@
 				(at 0 -30.48 90)
 				(length 5.08)
 				(hide yes)
-				(name "PGND"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -8571,7 +8571,7 @@
 				(at 0 -30.48 90)
 				(length 5.08)
 				(hide yes)
-				(name "PAD"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -8681,7 +8681,7 @@
 			(pin power_in line
 				(at 17.78 5.08 180)
 				(length 5.08)
-				(name "BAT"
+				(name "+BATT"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -8700,7 +8700,7 @@
 				(at 17.78 5.08 180)
 				(length 5.08)
 				(hide yes)
-				(name "BAT"
+				(name "+BATT"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -8840,7 +8840,7 @@
 		(symbol "BQ27531-G1_1_1"
 			(rectangle
 				(start -12.7 17.78)
-				(end 12.7 -17.78)
+				(end 12.7 -22.86)
 				(stroke
 					(width 0)
 					(type solid)
@@ -8993,8 +8993,26 @@
 					)
 				)
 			)
-			(pin power_out line
+			(pin input line
 				(at -17.78 -15.24 0)
+				(length 5.08)
+				(name "TS"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "D3"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_out line
+				(at -17.78 -20.32 0)
 				(length 5.08)
 				(name "VCC"
 					(effects
@@ -9012,9 +9030,9 @@
 				)
 			)
 			(pin power_in line
-				(at 0 -22.86 90)
+				(at 0 -27.94 90)
 				(length 5.08)
-				(name "VSS"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -9030,10 +9048,10 @@
 				)
 			)
 			(pin power_in line
-				(at 0 -22.86 90)
+				(at 0 -27.94 90)
 				(length 5.08)
 				(hide yes)
-				(name "VSS"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -9095,24 +9113,6 @@
 					)
 				)
 				(number "B1"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at 17.78 -15.24 180)
-				(length 5.08)
-				(name "TS"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "D3"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -21826,7 +21826,7 @@
 					)
 				)
 			)
-			(pin bidirectional line
+			(pin power_in line
 				(at -2.54 21.59 270)
 				(length 2.54)
 				(name "VIO"
@@ -21904,7 +21904,7 @@
 				(at 0 -21.59 90)
 				(length 2.54)
 				(hide yes)
-				(name "EPAD"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)

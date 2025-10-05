@@ -6614,14 +6614,6 @@
 				)
 			)
 		)
-		(property "Characteristics " ""
-			(at 260.35 43.18 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 260.35 43.18 0)
 			(effects
@@ -6714,14 +6706,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 260.35 62.23 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Characteristics " ""
 			(at 260.35 62.23 0)
 			(effects
 				(font
@@ -6846,14 +6830,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 179.07 35.56 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Characteristics " ""
 			(at 179.07 35.56 0)
 			(effects
 				(font
@@ -6988,14 +6964,6 @@
 				)
 			)
 		)
-		(property "Characteristics " ""
-			(at 224.79 127 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 224.79 127 0)
 			(effects
@@ -7098,14 +7066,6 @@
 				)
 			)
 		)
-		(property "Characteristics " ""
-			(at 265.43 125.73 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 265.43 125.73 0)
 			(effects
@@ -7198,14 +7158,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 260.35 30.48 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Characteristics " ""
 			(at 260.35 30.48 0)
 			(effects
 				(font
@@ -7384,14 +7336,6 @@
 				)
 			)
 		)
-		(property "Characteristics " ""
-			(at 215.9 157.48 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 215.9 157.48 0)
 			(effects
@@ -7493,14 +7437,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 260.35 49.53 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Characteristics " ""
 			(at 260.35 49.53 0)
 			(effects
 				(font
@@ -7625,14 +7561,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 152.4 127 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Characteristics " ""
 			(at 152.4 127 0)
 			(effects
 				(font
@@ -7767,14 +7695,6 @@
 				)
 			)
 		)
-		(property "Characteristics " ""
-			(at 204.47 50.8 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 204.47 50.8 0)
 			(effects
@@ -7876,14 +7796,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 167.64 142.24 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Characteristics " ""
 			(at 167.64 142.24 0)
 			(effects
 				(font
@@ -7999,14 +7911,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 167.64 50.8 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Characteristics " ""
 			(at 167.64 50.8 0)
 			(effects
 				(font
@@ -8147,14 +8051,6 @@
 				)
 			)
 		)
-		(property "Characteristics " ""
-			(at 176.53 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 176.53 111.76 0)
 			(effects
@@ -8256,14 +8152,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 215.9 142.24 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Characteristics " ""
 			(at 215.9 142.24 0)
 			(effects
 				(font
@@ -8450,14 +8338,6 @@
 				)
 			)
 		)
-		(property "Characteristics " ""
-			(at 191.77 142.24 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 191.77 142.24 0)
 			(effects
@@ -8566,14 +8446,6 @@
 				)
 			)
 		)
-		(property "Characteristics " ""
-			(at 260.35 55.88 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 260.35 55.88 0)
 			(effects
@@ -8673,14 +8545,6 @@
 				)
 			)
 		)
-		(property "Characteristics " ""
-			(at 265.43 151.13 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 265.43 151.13 0)
 			(effects
@@ -8773,14 +8637,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 260.35 68.58 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Characteristics " ""
 			(at 260.35 68.58 0)
 			(effects
 				(font
@@ -8888,14 +8744,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 77.47 52.07 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Characteristics " ""
 			(at 77.47 52.07 0)
 			(effects
 				(font
@@ -9080,14 +8928,6 @@
 				)
 			)
 		)
-		(property "Characteristics " ""
-			(at 215.9 127 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 215.9 127 0)
 			(effects
@@ -9195,14 +9035,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 143.51 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Characteristics " ""
 			(at 143.51 111.76 0)
 			(effects
 				(font
@@ -9342,14 +9174,6 @@
 				)
 			)
 		)
-		(property "Characteristics " ""
-			(at 229.87 66.04 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 229.87 66.04 0)
 			(effects
@@ -9470,14 +9294,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 153.67 35.56 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Characteristics " ""
 			(at 153.67 35.56 0)
 			(effects
 				(font
@@ -9612,14 +9428,6 @@
 				)
 			)
 		)
-		(property "Characteristics " ""
-			(at 200.66 142.24 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 200.66 142.24 0)
 			(effects
@@ -9713,14 +9521,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 58.42 187.96 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Characteristics " ""
 			(at 58.42 187.96 0)
 			(effects
 				(font
@@ -9830,14 +9630,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 142.24 81.28 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Characteristics " ""
 			(at 142.24 81.28 0)
 			(effects
 				(font
@@ -10025,14 +9817,6 @@
 				)
 			)
 		)
-		(property "Characteristics " ""
-			(at 193.04 66.04 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 193.04 66.04 0)
 			(effects
@@ -10140,14 +9924,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 191.77 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Characteristics " ""
 			(at 191.77 111.76 0)
 			(effects
 				(font
@@ -10263,14 +10039,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 218.44 35.56 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Characteristics " ""
 			(at 218.44 35.56 0)
 			(effects
 				(font
@@ -10411,14 +10179,6 @@
 				)
 			)
 		)
-		(property "Characteristics " ""
-			(at 200.66 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 200.66 111.76 0)
 			(effects
@@ -10521,14 +10281,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 193.04 81.28 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Characteristics " ""
 			(at 193.04 81.28 0)
 			(effects
 				(font
@@ -10709,14 +10461,6 @@
 				)
 			)
 		)
-		(property "Characteristics " ""
-			(at 260.35 74.93 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 260.35 74.93 0)
 			(effects
@@ -10798,14 +10542,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Characteristics " ""
-			(at 57.15 29.21 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(property "Sim.Enable" ""
@@ -10935,14 +10671,6 @@
 				)
 			)
 		)
-		(property "Characteristics " ""
-			(at 179.07 50.8 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 179.07 50.8 0)
 			(effects
@@ -11036,14 +10764,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 27.94 176.53 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Characteristics " ""
 			(at 27.94 176.53 0)
 			(effects
 				(font
@@ -11178,14 +10898,6 @@
 				)
 			)
 		)
-		(property "Characteristics " ""
-			(at 179.07 81.28 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 179.07 81.28 0)
 			(effects
@@ -11272,14 +10984,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Characteristics " ""
-			(at 73.66 132.08 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(property "Sim.Enable" ""
@@ -11429,14 +11133,6 @@
 				)
 			)
 		)
-		(property "Characteristics " ""
-			(at 265.43 157.48 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 265.43 157.48 0)
 			(effects
@@ -11537,14 +11233,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 218.44 81.28 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Characteristics " ""
 			(at 218.44 81.28 0)
 			(effects
 				(font
@@ -11660,14 +11348,6 @@
 				)
 			)
 		)
-		(property "Characteristics " ""
-			(at 265.43 113.03 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 265.43 113.03 0)
 			(effects
@@ -11767,14 +11447,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 142.24 35.56 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Characteristics " ""
 			(at 142.24 35.56 0)
 			(effects
 				(font
@@ -11915,14 +11587,6 @@
 				)
 			)
 		)
-		(property "Characteristics " ""
-			(at 153.67 81.28 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 153.67 81.28 0)
 			(effects
@@ -12050,14 +11714,6 @@
 				)
 			)
 		)
-		(property "Characteristics " ""
-			(at 224.79 157.48 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 224.79 157.48 0)
 			(effects
@@ -12151,14 +11807,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 58.42 176.53 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Characteristics " ""
 			(at 58.42 176.53 0)
 			(effects
 				(font
@@ -12293,14 +11941,6 @@
 				)
 			)
 		)
-		(property "Characteristics " ""
-			(at 224.79 142.24 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 224.79 142.24 0)
 			(effects
@@ -12396,14 +12036,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 265.43 138.43 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Characteristics " ""
 			(at 265.43 138.43 0)
 			(effects
 				(font
@@ -12509,14 +12141,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 167.64 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Characteristics " ""
 			(at 167.64 111.76 0)
 			(effects
 				(font
@@ -12697,14 +12321,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 218.44 50.8 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Characteristics " ""
 			(at 218.44 50.8 0)
 			(effects
 				(font
@@ -12910,14 +12526,6 @@
 				)
 			)
 		)
-		(property "Characteristics " ""
-			(at 152.4 142.24 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 152.4 142.24 0)
 			(effects
@@ -13027,14 +12635,6 @@
 				(hide yes)
 			)
 		)
-		(property "Characteristics " ""
-			(at 236.22 119.38 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 236.22 119.38 0)
 			(effects
@@ -13130,14 +12730,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 265.43 119.38 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Characteristics " ""
 			(at 265.43 119.38 0)
 			(effects
 				(font
@@ -13244,14 +12836,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 218.44 66.04 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Characteristics " ""
 			(at 218.44 66.04 0)
 			(effects
 				(font
@@ -13392,14 +12976,6 @@
 				)
 			)
 		)
-		(property "Characteristics " ""
-			(at 204.47 35.56 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 204.47 35.56 0)
 			(effects
@@ -13501,14 +13077,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 215.9 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Characteristics " ""
 			(at 215.9 111.76 0)
 			(effects
 				(font
@@ -13624,14 +13192,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 167.64 81.28 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Characteristics " ""
 			(at 167.64 81.28 0)
 			(effects
 				(font
@@ -13837,14 +13397,6 @@
 				)
 			)
 		)
-		(property "Characteristics " ""
-			(at 152.4 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 152.4 111.76 0)
 			(effects
@@ -13947,14 +13499,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 142.24 66.04 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Characteristics " ""
 			(at 142.24 66.04 0)
 			(effects
 				(font
@@ -14075,14 +13619,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Characteristics " ""
-			(at 236.22 104.14 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(property "Sim.Enable" ""
@@ -14212,14 +13748,6 @@
 				)
 			)
 		)
-		(property "Characteristics " ""
-			(at 152.4 157.48 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 152.4 157.48 0)
 			(effects
@@ -14321,14 +13849,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 143.51 157.48 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Characteristics " ""
 			(at 143.51 157.48 0)
 			(effects
 				(font
@@ -14469,14 +13989,6 @@
 				)
 			)
 		)
-		(property "Characteristics " ""
-			(at 204.47 66.04 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 204.47 66.04 0)
 			(effects
@@ -14584,14 +14096,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Characteristics " ""
-			(at 236.22 134.62 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(property "Sim.Enable" ""
@@ -14721,14 +14225,6 @@
 				)
 			)
 		)
-		(property "Characteristics " ""
-			(at 204.47 81.28 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 204.47 81.28 0)
 			(effects
@@ -14848,14 +14344,6 @@
 				(hide yes)
 			)
 		)
-		(property "Characteristics " ""
-			(at 67.31 105.41 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 67.31 105.41 0)
 			(effects
@@ -14958,14 +14446,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 142.24 50.8 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Characteristics " ""
 			(at 142.24 50.8 0)
 			(effects
 				(font
@@ -15088,14 +14568,6 @@
 				)
 			)
 		)
-		(property "Characteristics " ""
-			(at 167.64 66.04 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 167.64 66.04 0)
 			(effects
@@ -15210,14 +14682,6 @@
 				)
 			)
 		)
-		(property "Characteristics " ""
-			(at 143.51 127 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 143.51 127 0)
 			(effects
@@ -15325,14 +14789,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 167.64 157.48 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Characteristics " ""
 			(at 167.64 157.48 0)
 			(effects
 				(font
@@ -15473,14 +14929,6 @@
 				)
 			)
 		)
-		(property "Characteristics " ""
-			(at 200.66 127 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 200.66 127 0)
 			(effects
@@ -15607,14 +15055,6 @@
 				)
 			)
 		)
-		(property "Characteristics " ""
-			(at 229.87 50.8 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 229.87 50.8 0)
 			(effects
@@ -15731,14 +15171,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Characteristics " ""
-			(at 80.01 105.41 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(property "Sim.Enable" ""
@@ -15860,14 +15292,6 @@
 				(hide yes)
 			)
 		)
-		(property "Characteristics " ""
-			(at 46.99 149.86 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 46.99 149.86 0)
 			(effects
@@ -15969,14 +15393,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 191.77 157.48 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Characteristics " ""
 			(at 191.77 157.48 0)
 			(effects
 				(font
@@ -16116,14 +15532,6 @@
 				)
 			)
 		)
-		(property "Characteristics " ""
-			(at 229.87 35.56 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 229.87 35.56 0)
 			(effects
@@ -16226,14 +15634,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 167.64 35.56 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Characteristics " ""
 			(at 167.64 35.56 0)
 			(effects
 				(font
@@ -16374,14 +15774,6 @@
 				)
 			)
 		)
-		(property "Characteristics " ""
-			(at 224.79 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 224.79 111.76 0)
 			(effects
@@ -16484,14 +15876,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 193.04 35.56 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Characteristics " ""
 			(at 193.04 35.56 0)
 			(effects
 				(font
@@ -16632,14 +16016,6 @@
 				)
 			)
 		)
-		(property "Characteristics " ""
-			(at 153.67 50.8 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 153.67 50.8 0)
 			(effects
@@ -16767,14 +16143,6 @@
 				)
 			)
 		)
-		(property "Characteristics " ""
-			(at 153.67 66.04 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 153.67 66.04 0)
 			(effects
@@ -16870,14 +16238,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 265.43 132.08 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Characteristics " ""
 			(at 265.43 132.08 0)
 			(effects
 				(font
@@ -16983,14 +16343,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 167.64 127 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Characteristics " ""
 			(at 167.64 127 0)
 			(effects
 				(font
@@ -17112,14 +16464,6 @@
 				)
 			)
 		)
-		(property "Characteristics " ""
-			(at 191.77 127 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 191.77 127 0)
 			(effects
@@ -17227,14 +16571,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 143.51 142.24 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Characteristics " ""
 			(at 143.51 142.24 0)
 			(effects
 				(font
@@ -17350,14 +16686,6 @@
 				)
 			)
 		)
-		(property "Characteristics " ""
-			(at 265.43 144.78 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 265.43 144.78 0)
 			(effects
@@ -17450,14 +16778,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 260.35 36.83 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Characteristics " ""
 			(at 260.35 36.83 0)
 			(effects
 				(font
@@ -17621,14 +16941,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 27.94 187.96 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Characteristics " ""
 			(at 27.94 187.96 0)
 			(effects
 				(font
@@ -17828,14 +17140,6 @@
 				)
 			)
 		)
-		(property "Characteristics " ""
-			(at 176.53 157.48 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 176.53 157.48 0)
 			(effects
@@ -17955,14 +17259,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 229.87 81.28 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Characteristics " ""
 			(at 229.87 81.28 0)
 			(effects
 				(font
@@ -18097,14 +17393,6 @@
 				)
 			)
 		)
-		(property "Characteristics " ""
-			(at 200.66 157.48 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 200.66 157.48 0)
 			(effects
@@ -18212,14 +17500,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Characteristics " ""
-			(at 236.22 149.86 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(property "Sim.Enable" ""
@@ -18342,14 +17622,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 176.53 127 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Characteristics " ""
 			(at 176.53 127 0)
 			(effects
 				(font
@@ -18484,14 +17756,6 @@
 				)
 			)
 		)
-		(property "Characteristics " ""
-			(at 176.53 142.24 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 176.53 142.24 0)
 			(effects
@@ -18619,14 +17883,6 @@
 				)
 			)
 		)
-		(property "Characteristics " ""
-			(at 179.07 66.04 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 179.07 66.04 0)
 			(effects
@@ -18729,14 +17985,6 @@
 			)
 		)
 		(property "Connector" ""
-			(at 193.04 50.8 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Characteristics " ""
 			(at 193.04 50.8 0)
 			(effects
 				(font

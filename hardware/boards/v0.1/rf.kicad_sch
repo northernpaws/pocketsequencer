@@ -2275,14 +2275,6 @@
 				(hide yes)
 			)
 		)
-		(property "Characteristics " ""
-			(at 137.16 109.22 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 137.16 109.22 0)
 			(effects
@@ -2475,14 +2467,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Characteristics " ""
-			(at 140.97 72.39 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(property "Sim.Enable" ""
@@ -2834,14 +2818,6 @@
 				(hide yes)
 			)
 		)
-		(property "Characteristics " ""
-			(at 149.86 72.39 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Sim.Enable" ""
 			(at 149.86 72.39 0)
 			(effects
@@ -3075,14 +3051,6 @@
 			)
 		)
 		(property "JLC" "C5382952"
-			(at 59.69 93.98 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Characteristics " ""
 			(at 59.69 93.98 0)
 			(effects
 				(font
