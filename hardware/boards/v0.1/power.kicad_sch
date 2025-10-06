@@ -12738,7 +12738,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
 			(at 248.92 40.64 0)
 			(effects
 				(font
@@ -12765,7 +12765,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" "C82219"
+		(property "JLC" "C1622"
 			(at 248.92 40.64 0)
 			(effects
 				(font
@@ -14002,9 +14002,9 @@
 		(at 166.37 137.16 0)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
-		(dnp no)
+		(dnp yes)
 		(uuid "679b0412-7a17-4f12-be5f-54dac8743d7f")
 		(property "Reference" "BT1"
 			(at 167.132 137.16 0)
@@ -17272,7 +17272,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
 			(at 135.89 184.15 0)
 			(effects
 				(font
@@ -17299,7 +17299,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" ""
+		(property "JLC" "C21117"
 			(at 135.89 184.15 0)
 			(effects
 				(font
