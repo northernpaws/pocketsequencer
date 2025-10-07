@@ -763,18 +763,6 @@
         },
         {
           "group_by": false,
-          "label": "Arrow Part Number",
-          "name": "Arrow Part Number",
-          "show": false
-        },
-        {
-          "group_by": false,
-          "label": "Arrow Price/Stock",
-          "name": "Arrow Price/Stock",
-          "show": false
-        },
-        {
-          "group_by": false,
           "label": "Characteristics",
           "name": "Characteristics",
           "show": false
@@ -787,8 +775,14 @@
         },
         {
           "group_by": false,
-          "label": "Connector",
-          "name": "Connector",
+          "label": "FT Position Offset",
+          "name": "FT Position Offset",
+          "show": false
+        },
+        {
+          "group_by": false,
+          "label": "FT Rotation Offset",
+          "name": "FT Rotation Offset",
           "show": false
         },
         {
@@ -805,38 +799,20 @@
         },
         {
           "group_by": false,
-          "label": "MANUFACTURER",
-          "name": "MANUFACTURER",
-          "show": false
-        },
-        {
-          "group_by": false,
-          "label": "MAXIMUM_PACKAGE_HEIGHT",
-          "name": "MAXIMUM_PACKAGE_HEIGHT",
-          "show": false
-        },
-        {
-          "group_by": false,
-          "label": "MFR",
-          "name": "MFR",
-          "show": false
-        },
-        {
-          "group_by": false,
           "label": "Sim.Device",
           "name": "Sim.Device",
           "show": false
         },
         {
           "group_by": false,
-          "label": "Sim.Pins",
-          "name": "Sim.Pins",
+          "label": "Sim.Enable",
+          "name": "Sim.Enable",
           "show": false
         },
         {
           "group_by": false,
-          "label": "Sim.Enable",
-          "name": "Sim.Enable",
+          "label": "Sim.Pins",
+          "name": "Sim.Pins",
           "show": false
         },
         {
