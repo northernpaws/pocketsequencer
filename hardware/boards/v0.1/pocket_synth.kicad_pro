@@ -775,6 +775,12 @@
         },
         {
           "group_by": false,
+          "label": "FT Layer Override",
+          "name": "FT Layer Override",
+          "show": false
+        },
+        {
+          "group_by": false,
           "label": "FT Position Offset",
           "name": "FT Position Offset",
           "show": false
@@ -816,7 +822,7 @@
           "show": false
         }
       ],
-      "filter_string": "J6",
+      "filter_string": "",
       "group_symbols": true,
       "include_excluded_from_bom": true,
       "name": "",

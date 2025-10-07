@@ -7029,7 +7029,7 @@
 		(unit 2)
 		(exclude_from_sim no)
 		(in_bom no)
-		(on_board yes)
+		(on_board no)
 		(dnp no)
 		(uuid "1d9e6744-878c-45bf-b3ae-fa9f12aec429")
 		(property "Reference" "SW16"
@@ -7076,6 +7076,15 @@
 			)
 		)
 		(property "JLC" "C5333465"
+			(at 215.9 157.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "FT Layer Override" "bottom"
 			(at 215.9 157.48 0)
 			(effects
 				(font
@@ -7332,7 +7341,7 @@
 		(unit 2)
 		(exclude_from_sim no)
 		(in_bom no)
-		(on_board yes)
+		(on_board no)
 		(dnp no)
 		(uuid "2ba8fc18-2137-46d5-9685-a4c00aab4063")
 		(property "Reference" "SW10"
@@ -7387,6 +7396,15 @@
 				(hide yes)
 			)
 		)
+		(property "FT Layer Override" "bottom"
+			(at 167.64 142.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "f35b760f-833b-4dd3-9731-99f63a0e3a3a")
 		)
@@ -7414,7 +7432,7 @@
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
-		(on_board yes)
+		(on_board no)
 		(dnp no)
 		(uuid "2bb95d14-9913-47ac-94bb-ea15aeeb71d0")
 		(property "Reference" "SW6"
@@ -7462,6 +7480,15 @@
 			)
 		)
 		(property "JLC" "C5333465"
+			(at 167.64 50.8 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "FT Layer Override" "bottom"
 			(at 167.64 50.8 0)
 			(effects
 				(font
@@ -7574,7 +7601,7 @@
 		(unit 2)
 		(exclude_from_sim no)
 		(in_bom no)
-		(on_board yes)
+		(on_board no)
 		(dnp no)
 		(uuid "2e7f5221-590a-44c9-b078-82def7c735da")
 		(property "Reference" "SW12"
@@ -7621,6 +7648,15 @@
 			)
 		)
 		(property "JLC" "C5333465"
+			(at 215.9 142.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "FT Layer Override" "bottom"
 			(at 215.9 142.24 0)
 			(effects
 				(font
@@ -7721,7 +7757,7 @@
 		(unit 2)
 		(exclude_from_sim no)
 		(in_bom no)
-		(on_board yes)
+		(on_board no)
 		(dnp no)
 		(uuid "2faababd-6ee7-4fe6-a988-e7ffa86dd67f")
 		(property "Reference" "SW11"
@@ -7768,6 +7804,15 @@
 			)
 		)
 		(property "JLC" "C5333465"
+			(at 191.77 142.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "FT Layer Override" "bottom"
 			(at 191.77 142.24 0)
 			(effects
 				(font
@@ -8151,7 +8196,7 @@
 		(unit 2)
 		(exclude_from_sim no)
 		(in_bom no)
-		(on_board yes)
+		(on_board no)
 		(dnp no)
 		(uuid "38aa55bb-80e6-4529-ab5d-a9646a4441d3")
 		(property "Reference" "SW8"
@@ -8206,6 +8251,15 @@
 				(hide yes)
 			)
 		)
+		(property "FT Layer Override" "bottom"
+			(at 215.9 127 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "13225cec-fc5e-4421-b1f4-a08a3ffb81b4")
 		)
@@ -8233,7 +8287,7 @@
 		(unit 2)
 		(exclude_from_sim no)
 		(in_bom no)
-		(on_board yes)
+		(on_board no)
 		(dnp no)
 		(uuid "399c7c33-6c0e-4ef0-9dfe-31e06f277460")
 		(property "Reference" "SW1"
@@ -8280,6 +8334,15 @@
 			)
 		)
 		(property "JLC" "C5333465"
+			(at 143.51 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "FT Layer Override" "bottom"
 			(at 143.51 111.76 0)
 			(effects
 				(font
@@ -8368,6 +8431,7 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(pin "1"
@@ -8613,7 +8677,7 @@
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
-		(on_board yes)
+		(on_board no)
 		(dnp no)
 		(uuid "4c0572e7-2d7e-48c8-8e99-4d69fb0cd23a")
 		(property "Reference" "SW13"
@@ -8661,6 +8725,15 @@
 			)
 		)
 		(property "JLC" "C5333465"
+			(at 142.24 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "FT Layer Override" "bottom"
 			(at 142.24 81.28 0)
 			(effects
 				(font
@@ -8761,7 +8834,7 @@
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
-		(on_board yes)
+		(on_board no)
 		(dnp no)
 		(uuid "5190521d-43d2-43d8-ad80-c7c8ddf3a0b0")
 		(property "Reference" "SW11"
@@ -8817,6 +8890,15 @@
 				(hide yes)
 			)
 		)
+		(property "FT Layer Override" "bottom"
+			(at 193.04 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "c628fc94-f891-41dc-962c-fd90c769d442")
 		)
@@ -8844,7 +8926,7 @@
 		(unit 2)
 		(exclude_from_sim no)
 		(in_bom no)
-		(on_board yes)
+		(on_board no)
 		(dnp no)
 		(uuid "52415a27-c3a2-488c-8dab-a510dd3df8c9")
 		(property "Reference" "SW3"
@@ -8899,6 +8981,15 @@
 				(hide yes)
 			)
 		)
+		(property "FT Layer Override" "bottom"
+			(at 191.77 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "3d035ce8-d6d6-489f-b479-74873fda7b2f")
 		)
@@ -8926,7 +9017,7 @@
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
-		(on_board yes)
+		(on_board no)
 		(dnp no)
 		(uuid "53a478a5-fb5e-403c-a865-25b1491ecabb")
 		(property "Reference" "SW4"
@@ -8974,6 +9065,15 @@
 			)
 		)
 		(property "JLC" "C5333465"
+			(at 218.44 35.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "FT Layer Override" "bottom"
 			(at 218.44 35.56 0)
 			(effects
 				(font
@@ -9086,7 +9186,7 @@
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
-		(on_board yes)
+		(on_board no)
 		(dnp no)
 		(uuid "55e50c04-5d77-4f8d-b215-6ac11af1add2")
 		(property "Reference" "SW15"
@@ -9134,6 +9234,15 @@
 			)
 		)
 		(property "JLC" "C5333465"
+			(at 193.04 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "FT Layer Override" "bottom"
 			(at 193.04 81.28 0)
 			(effects
 				(font
@@ -9794,7 +9903,7 @@
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
-		(on_board yes)
+		(on_board no)
 		(dnp no)
 		(uuid "63160132-be19-43aa-9337-31dacd1fe54c")
 		(property "Reference" "SW16"
@@ -9842,6 +9951,15 @@
 			)
 		)
 		(property "JLC" "C5333465"
+			(at 218.44 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "FT Layer Override" "bottom"
 			(at 218.44 81.28 0)
 			(effects
 				(font
@@ -9944,7 +10062,7 @@
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
-		(on_board yes)
+		(on_board no)
 		(dnp no)
 		(uuid "6a62e4d3-5e79-4ae0-a425-fde9c2f5b9ff")
 		(property "Reference" "SW1"
@@ -9992,6 +10110,15 @@
 			)
 		)
 		(property "JLC" "C5333465"
+			(at 142.24 35.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "FT Layer Override" "bottom"
 			(at 142.24 35.56 0)
 			(effects
 				(font
@@ -10393,7 +10520,7 @@
 		(unit 2)
 		(exclude_from_sim no)
 		(in_bom no)
-		(on_board yes)
+		(on_board no)
 		(dnp no)
 		(uuid "8600858f-265f-40d8-b417-7b831dd8c073")
 		(property "Reference" "SW2"
@@ -10440,6 +10567,15 @@
 			)
 		)
 		(property "JLC" "C5333465"
+			(at 167.64 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "FT Layer Override" "bottom"
 			(at 167.64 111.76 0)
 			(effects
 				(font
@@ -10540,7 +10676,7 @@
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
-		(on_board yes)
+		(on_board no)
 		(dnp no)
 		(uuid "8a242a84-3655-4ce9-8f88-ff997cab139c")
 		(property "Reference" "SW8"
@@ -10588,6 +10724,15 @@
 			)
 		)
 		(property "JLC" "C5333465"
+			(at 218.44 50.8 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "FT Layer Override" "bottom"
 			(at 218.44 50.8 0)
 			(effects
 				(font
@@ -10909,7 +11054,7 @@
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
-		(on_board yes)
+		(on_board no)
 		(dnp no)
 		(uuid "9730d66f-47c6-40bc-9b75-aad5e17a2eff")
 		(property "Reference" "SW12"
@@ -10957,6 +11102,15 @@
 			)
 		)
 		(property "JLC" "C5333465"
+			(at 218.44 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "FT Layer Override" "bottom"
 			(at 218.44 66.04 0)
 			(effects
 				(font
@@ -11069,7 +11223,7 @@
 		(unit 2)
 		(exclude_from_sim no)
 		(in_bom no)
-		(on_board yes)
+		(on_board no)
 		(dnp no)
 		(uuid "9976ab48-4142-4cc4-82bc-67acad15a652")
 		(property "Reference" "SW4"
@@ -11124,6 +11278,15 @@
 				(hide yes)
 			)
 		)
+		(property "FT Layer Override" "bottom"
+			(at 215.9 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "e12de457-0105-4683-ab77-79eb7b59c2ac")
 		)
@@ -11151,7 +11314,7 @@
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
-		(on_board yes)
+		(on_board no)
 		(dnp no)
 		(uuid "9a3c5d2a-d020-4d18-9ddd-0fadb8223401")
 		(property "Reference" "SW14"
@@ -11199,6 +11362,15 @@
 			)
 		)
 		(property "JLC" "C5333465"
+			(at 167.64 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "FT Layer Override" "bottom"
 			(at 167.64 81.28 0)
 			(effects
 				(font
@@ -11376,7 +11548,7 @@
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
-		(on_board yes)
+		(on_board no)
 		(dnp no)
 		(uuid "a9b973ec-679a-4f0e-b1b8-ad4ff418ecee")
 		(property "Reference" "SW9"
@@ -11424,6 +11596,15 @@
 			)
 		)
 		(property "JLC" "C5333465"
+			(at 142.24 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "FT Layer Override" "bottom"
 			(at 142.24 66.04 0)
 			(effects
 				(font
@@ -11613,7 +11794,7 @@
 		(unit 2)
 		(exclude_from_sim no)
 		(in_bom no)
-		(on_board yes)
+		(on_board no)
 		(dnp no)
 		(uuid "b2fceedd-8e10-40d8-9f8e-0f5dd7d39bd7")
 		(property "Reference" "SW13"
@@ -11660,6 +11841,15 @@
 			)
 		)
 		(property "JLC" "C5333465"
+			(at 143.51 157.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "FT Layer Override" "bottom"
 			(at 143.51 157.48 0)
 			(effects
 				(font
@@ -12005,7 +12195,7 @@
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
-		(on_board yes)
+		(on_board no)
 		(dnp no)
 		(uuid "bc8af26b-7fa6-46e9-962c-efae76585b99")
 		(property "Reference" "SW5"
@@ -12061,6 +12251,15 @@
 				(hide yes)
 			)
 		)
+		(property "FT Layer Override" "bottom"
+			(at 142.24 50.8 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "6a7e1267-378d-4edb-801b-b4edcc7dabe7")
 		)
@@ -12088,7 +12287,7 @@
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
-		(on_board yes)
+		(on_board no)
 		(dnp no)
 		(uuid "bcd2bcfd-f69e-4786-a738-00e8f0ba859b")
 		(property "Reference" "SW10"
@@ -12144,6 +12343,15 @@
 				(hide yes)
 			)
 		)
+		(property "FT Layer Override" "bottom"
+			(at 167.64 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "f35b760f-833b-4dd3-9731-99f63a0e3a39")
 		)
@@ -12171,7 +12379,7 @@
 		(unit 2)
 		(exclude_from_sim no)
 		(in_bom no)
-		(on_board yes)
+		(on_board no)
 		(dnp no)
 		(uuid "c0529686-fd0a-4755-9a09-77e972e1781d")
 		(property "Reference" "SW5"
@@ -12226,6 +12434,15 @@
 				(hide yes)
 			)
 		)
+		(property "FT Layer Override" "bottom"
+			(at 143.51 127 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "6a7e1267-378d-4edb-801b-b4edcc7dabe8")
 		)
@@ -12253,7 +12470,7 @@
 		(unit 2)
 		(exclude_from_sim no)
 		(in_bom no)
-		(on_board yes)
+		(on_board no)
 		(dnp no)
 		(uuid "c08ee461-b4b5-4e43-9e76-09e182a7ba74")
 		(property "Reference" "SW14"
@@ -12300,6 +12517,15 @@
 			)
 		)
 		(property "JLC" "C5333465"
+			(at 167.64 157.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "FT Layer Override" "bottom"
 			(at 167.64 157.48 0)
 			(effects
 				(font
@@ -12465,6 +12691,7 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(pin "1"
@@ -12645,7 +12872,7 @@
 		(unit 2)
 		(exclude_from_sim no)
 		(in_bom no)
-		(on_board yes)
+		(on_board no)
 		(dnp no)
 		(uuid "ca343367-ef49-4691-b5cb-9997c9618e8e")
 		(property "Reference" "SW15"
@@ -12692,6 +12919,15 @@
 			)
 		)
 		(property "JLC" "C5333465"
+			(at 191.77 157.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "FT Layer Override" "bottom"
 			(at 191.77 157.48 0)
 			(effects
 				(font
@@ -12780,6 +13016,7 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(pin "1"
@@ -12803,7 +13040,7 @@
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
-		(on_board yes)
+		(on_board no)
 		(dnp no)
 		(uuid "cb354008-ba2f-4681-8a26-f65bfffb4f05")
 		(property "Reference" "SW2"
@@ -12851,6 +13088,15 @@
 			)
 		)
 		(property "JLC" "C5333465"
+			(at 167.64 35.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "FT Layer Override" "bottom"
 			(at 167.64 35.56 0)
 			(effects
 				(font
@@ -12963,7 +13209,7 @@
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
-		(on_board yes)
+		(on_board no)
 		(dnp no)
 		(uuid "d0c5d618-6f84-416f-8984-7b7192325dbc")
 		(property "Reference" "SW3"
@@ -13011,6 +13257,15 @@
 			)
 		)
 		(property "JLC" "C5333465"
+			(at 193.04 35.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "FT Layer Override" "bottom"
 			(at 193.04 35.56 0)
 			(effects
 				(font
@@ -13267,7 +13522,7 @@
 		(unit 2)
 		(exclude_from_sim no)
 		(in_bom no)
-		(on_board yes)
+		(on_board no)
 		(dnp no)
 		(uuid "dd6a4559-2d3a-4fcb-9185-6768e47a0a95")
 		(property "Reference" "SW6"
@@ -13322,6 +13577,15 @@
 				(hide yes)
 			)
 		)
+		(property "FT Layer Override" "bottom"
+			(at 167.64 127 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "d5fc6ca7-5110-4ca2-9396-53978b62fb75")
 		)
@@ -13349,7 +13613,7 @@
 		(unit 2)
 		(exclude_from_sim no)
 		(in_bom no)
-		(on_board yes)
+		(on_board no)
 		(dnp no)
 		(uuid "de33d39e-b523-4e16-a5e4-9d473bb22843")
 		(property "Reference" "SW7"
@@ -13404,6 +13668,15 @@
 				(hide yes)
 			)
 		)
+		(property "FT Layer Override" "bottom"
+			(at 191.77 127 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "1697a1b6-b1c4-4e2f-b034-fc7ec8774ff4")
 		)
@@ -13431,7 +13704,7 @@
 		(unit 2)
 		(exclude_from_sim no)
 		(in_bom no)
-		(on_board yes)
+		(on_board no)
 		(dnp no)
 		(uuid "de54cf14-1bf3-4713-a02a-c88dd88f4574")
 		(property "Reference" "SW9"
@@ -13478,6 +13751,15 @@
 			)
 		)
 		(property "JLC" "C5333465"
+			(at 143.51 142.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "FT Layer Override" "bottom"
 			(at 143.51 142.24 0)
 			(effects
 				(font
@@ -13976,6 +14258,7 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(pin "1"
@@ -14384,7 +14667,7 @@
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
-		(on_board yes)
+		(on_board no)
 		(dnp no)
 		(uuid "ff2b07eb-7d97-4b67-ac61-4aff12eea8cf")
 		(property "Reference" "SW7"
@@ -14432,6 +14715,15 @@
 			)
 		)
 		(property "JLC" "C5333465"
+			(at 193.04 50.8 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "FT Layer Override" "bottom"
 			(at 193.04 50.8 0)
 			(effects
 				(font
