@@ -4777,14 +4777,6 @@
 				(hide yes)
 			)
 		)
-		(property "Connector" ""
-			(at 39.37 43.18 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "JLC" "C25908"
 			(at 39.37 43.18 0)
 			(effects
@@ -5044,6 +5036,15 @@
 				(hide yes)
 			)
 		)
+		(property "FT Rotation Offset" "-90"
+			(at 245.11 96.52 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(property "Sim.Enable" ""
 			(at 245.11 96.52 0)
 			(effects
@@ -5198,6 +5199,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Sim.Enable" ""
+			(at 60.96 144.78 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -5494,6 +5503,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Sim.Enable" ""
+			(at 63.5 168.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "8"
@@ -5924,14 +5941,6 @@
 				(hide yes)
 			)
 		)
-		(property "Connector" ""
-			(at 62.23 59.69 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "JLC" "C2155359"
 			(at 62.23 59.69 0)
 			(effects
@@ -6230,7 +6239,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "SDA"
+		(property "Value" "SDA4"
 			(at 168.402 193.04 90)
 			(effects
 				(font
@@ -6349,6 +6358,14 @@
 				(hide yes)
 			)
 		)
+		(property "Sim.Enable" ""
+			(at 50.8 175.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "d639eba9-a729-4acc-9a25-244354593974")
 		)
@@ -6447,7 +6464,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "SCL"
+		(property "Value" "SCL4"
 			(at 168.402 187.96 90)
 			(effects
 				(font
@@ -6887,14 +6904,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Connector" ""
-			(at 77.47 33.02 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(property "JLC" "C1525"
@@ -7700,14 +7709,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Connector" ""
-			(at 69.85 33.02 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(property "JLC" "C15525"
