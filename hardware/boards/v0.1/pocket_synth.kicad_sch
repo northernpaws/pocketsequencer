@@ -205,9 +205,9 @@
 	(bus_alias "VELOCITY"
 		(members "ROW0" "ROW1" "ROW2" "ROW3" "COL0" "COL1" "COL2" "COL3")
 	)
-	(text "1MOhm resistor provides protection\nagainst ESD from the metal case."
+	(text "1MOhm resistor provides protection\nagainst ESD from the metal case?"
 		(exclude_from_sim no)
-		(at 38.862 172.212 0)
+		(at 46.736 173.482 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -216,6 +216,17 @@
 			(justify top)
 		)
 		(uuid "a5270b26-3183-4e32-848b-a710194de50e")
+	)
+	(text "These schematics are very poorly documented! \n\nEverything needed is there, just not organized very\nwell. This will be rectified in the next edition!"
+		(exclude_from_sim no)
+		(at 13.716 160.274 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "aff9fc65-e396-4870-857d-bffad90b8ee0")
 	)
 	(junction
 		(at 66.04 78.74)
@@ -230,19 +241,19 @@
 		(uuid "ba5e0a48-ea45-44a4-89e9-76c945c867f9")
 	)
 	(no_connect
-		(at 19.05 185.42)
+		(at 31.75 186.69)
 		(uuid "0c83da34-d102-47be-b7be-9661d4eae96e")
 	)
 	(no_connect
-		(at 29.21 185.42)
+		(at 41.91 186.69)
 		(uuid "0f26364e-6f6e-433c-b522-c71954f91f4e")
 	)
 	(no_connect
-		(at 48.26 185.42)
+		(at 60.96 186.69)
 		(uuid "4983d412-ac00-4c83-a38c-e19ac55d0c06")
 	)
 	(no_connect
-		(at 38.1 185.42)
+		(at 50.8 186.69)
 		(uuid "aa21547e-825e-4d7d-b68e-14ee0ffb732c")
 	)
 	(wire
@@ -935,7 +946,7 @@
 	)
 	(symbol
 		(lib_id "Mechanical:MountingHole_Pad")
-		(at 19.05 182.88 0)
+		(at 31.75 184.15 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
@@ -944,7 +955,7 @@
 		(fields_autoplaced yes)
 		(uuid "07a901f7-ccef-427f-b1a7-f9af4c502cce")
 		(property "Reference" "H1"
-			(at 21.59 180.3399 0)
+			(at 34.29 181.6099 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -953,7 +964,7 @@
 			)
 		)
 		(property "Value" "M3"
-			(at 21.59 182.8799 0)
+			(at 34.29 184.1499 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -962,7 +973,7 @@
 			)
 		)
 		(property "Footprint" "MountingHole:MountingHole_2.2mm_M2_Pad"
-			(at 19.05 182.88 0)
+			(at 31.75 184.15 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -971,7 +982,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 19.05 182.88 0)
+			(at 31.75 184.15 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -980,7 +991,7 @@
 			)
 		)
 		(property "Description" "Mounting Hole with connection"
-			(at 19.05 182.88 0)
+			(at 31.75 184.15 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1066,7 +1077,7 @@
 	)
 	(symbol
 		(lib_id "Mechanical:MountingHole_Pad")
-		(at 48.26 182.88 0)
+		(at 60.96 184.15 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
@@ -1075,7 +1086,7 @@
 		(fields_autoplaced yes)
 		(uuid "447781fd-23a7-4636-b142-7a17a60d9383")
 		(property "Reference" "H4"
-			(at 50.8 180.3399 0)
+			(at 63.5 181.6099 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1084,7 +1095,7 @@
 			)
 		)
 		(property "Value" "M3"
-			(at 50.8 182.8799 0)
+			(at 63.5 184.1499 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1093,7 +1104,7 @@
 			)
 		)
 		(property "Footprint" "MountingHole:MountingHole_2.2mm_M2_Pad"
-			(at 48.26 182.88 0)
+			(at 60.96 184.15 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1102,7 +1113,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 48.26 182.88 0)
+			(at 60.96 184.15 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1111,7 +1122,7 @@
 			)
 		)
 		(property "Description" "Mounting Hole with connection"
-			(at 48.26 182.88 0)
+			(at 60.96 184.15 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1133,7 +1144,7 @@
 	)
 	(symbol
 		(lib_id "Mechanical:MountingHole_Pad")
-		(at 29.21 182.88 0)
+		(at 41.91 184.15 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
@@ -1142,7 +1153,7 @@
 		(fields_autoplaced yes)
 		(uuid "51dd8671-e5da-4f44-8150-2628b4186d70")
 		(property "Reference" "H2"
-			(at 31.75 180.3399 0)
+			(at 44.45 181.6099 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1151,7 +1162,7 @@
 			)
 		)
 		(property "Value" "M3"
-			(at 31.75 182.8799 0)
+			(at 44.45 184.1499 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1160,7 +1171,7 @@
 			)
 		)
 		(property "Footprint" "MountingHole:MountingHole_2.2mm_M2_Pad"
-			(at 29.21 182.88 0)
+			(at 41.91 184.15 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1169,7 +1180,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 29.21 182.88 0)
+			(at 41.91 184.15 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1178,7 +1189,7 @@
 			)
 		)
 		(property "Description" "Mounting Hole with connection"
-			(at 29.21 182.88 0)
+			(at 41.91 184.15 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1200,7 +1211,7 @@
 	)
 	(symbol
 		(lib_id "Mechanical:MountingHole_Pad")
-		(at 38.1 182.88 0)
+		(at 50.8 184.15 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
@@ -1209,7 +1220,7 @@
 		(fields_autoplaced yes)
 		(uuid "5be85d77-d20b-4565-b906-b77b68077931")
 		(property "Reference" "H3"
-			(at 40.64 180.3399 0)
+			(at 53.34 181.6099 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1218,7 +1229,7 @@
 			)
 		)
 		(property "Value" "M3"
-			(at 40.64 182.8799 0)
+			(at 53.34 184.1499 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1227,7 +1238,7 @@
 			)
 		)
 		(property "Footprint" "MountingHole:MountingHole_2.2mm_M2_Pad"
-			(at 38.1 182.88 0)
+			(at 50.8 184.15 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1236,7 +1247,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 38.1 182.88 0)
+			(at 50.8 184.15 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1245,7 +1256,7 @@
 			)
 		)
 		(property "Description" "Mounting Hole with connection"
-			(at 38.1 182.88 0)
+			(at 50.8 184.15 0)
 			(effects
 				(font
 					(size 1.27 1.27)
