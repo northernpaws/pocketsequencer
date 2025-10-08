@@ -13522,19 +13522,6 @@
 		)
 		(uuid "2bd75775-2d06-4ccf-a917-a94db9a7bf10")
 	)
-	(text "VBAT NEEDS REGULATION!"
-		(exclude_from_sim no)
-		(at 95.25 38.354 0)
-		(effects
-			(font
-				(size 3.81 3.81)
-				(thickness 0.762)
-				(bold yes)
-				(color 194 0 0 1)
-			)
-		)
-		(uuid "392758d2-d943-4817-b7e4-a8cd07bdff46")
-	)
 	(text "1x 100nf per VDD"
 		(exclude_from_sim no)
 		(at 94.996 19.304 0)
