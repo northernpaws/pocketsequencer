@@ -4187,16 +4187,6 @@
 		)
 		(uuid "00cd34c8-6d40-4153-aec0-c52413009448")
 	)
-	(text "11"
-		(exclude_from_sim no)
-		(at 195.58 61.214 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		(uuid "02837359-016d-4a5b-9966-4bd6f3b2eff6")
-	)
 	(text "Audio CODEC"
 		(exclude_from_sim no)
 		(at 82.55 95.758 0)

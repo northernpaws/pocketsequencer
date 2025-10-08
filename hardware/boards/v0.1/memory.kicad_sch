@@ -2969,6 +2969,15 @@
 		(uuid "29e21346-8e69-489c-a255-f4533b377d98")
 	)
 	(bus_entry
+		(at 147.32 157.48)
+		(size -2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "333c7438-7e4d-41be-b8b9-010bcf342539")
+	)
+	(bus_entry
 		(at 76.2 120.65)
 		(size -2.54 -2.54)
 		(stroke
@@ -3167,6 +3176,15 @@
 		(uuid "8a712fc1-67ae-423d-8561-e21de876984f")
 	)
 	(bus_entry
+		(at 147.32 142.24)
+		(size -2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8c7d91a0-a603-498d-bedf-083649df936c")
+	)
+	(bus_entry
 		(at 134.62 80.01)
 		(size 2.54 -2.54)
 		(stroke
@@ -3221,6 +3239,15 @@
 		(uuid "a66e1cdb-0591-4083-be3b-78565669bd7f")
 	)
 	(bus_entry
+		(at 147.32 147.32)
+		(size -2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "aaec8fd2-2a4d-4493-8a2b-4d945b7d361e")
+	)
+	(bus_entry
 		(at 76.2 118.11)
 		(size -2.54 -2.54)
 		(stroke
@@ -3246,6 +3273,15 @@
 			(type default)
 		)
 		(uuid "af37da46-3a10-41f4-b39a-9c460125a807")
+	)
+	(bus_entry
+		(at 147.32 152.4)
+		(size -2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b13b53ed-2979-4e11-82f8-d3ceab2689ce")
 	)
 	(bus_entry
 		(at 76.2 77.47)
@@ -3282,6 +3318,15 @@
 			(type default)
 		)
 		(uuid "bb888653-a893-47b8-863e-c03135a1cec1")
+	)
+	(bus_entry
+		(at 147.32 137.16)
+		(size -2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c075bbe4-61d5-46ec-a5c3-95bc63d2df2a")
 	)
 	(bus_entry
 		(at 237.49 49.53)
@@ -3392,6 +3437,16 @@
 			(type default)
 		)
 		(uuid "01aa5e7f-d24c-4a8e-aefa-82dfbb21de3f")
+	)
+	(bus
+		(pts
+			(xy 144.78 139.7) (xy 144.78 144.78)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "024950b7-164d-4c13-bacf-6da9353edef8")
 	)
 	(wire
 		(pts
@@ -3572,6 +3627,16 @@
 			(type default)
 		)
 		(uuid "1cde6dc6-42af-4ddf-a36b-c1758db163d5")
+	)
+	(bus
+		(pts
+			(xy 144.78 134.62) (xy 144.78 139.7)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1dda05a4-205e-4d02-8287-337656e453ad")
 	)
 	(wire
 		(pts
@@ -3913,6 +3978,16 @@
 		)
 		(uuid "51c2c3ad-529c-4919-8815-fed8f15008dc")
 	)
+	(bus
+		(pts
+			(xy 144.78 149.86) (xy 144.78 154.94)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "525731db-fb4d-4b4c-9ed6-e864aca96e8c")
+	)
 	(wire
 		(pts
 			(xy 269.24 66.04) (xy 269.24 67.31)
@@ -4102,6 +4177,16 @@
 			(type default)
 		)
 		(uuid "6cb38dcb-a499-40e4-b558-930e2c1a452a")
+	)
+	(wire
+		(pts
+			(xy 147.32 152.4) (xy 161.29 152.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6cb66611-166f-4fcb-b09a-cd64bf940326")
 	)
 	(polyline
 		(pts
@@ -4302,6 +4387,16 @@
 			(type default)
 		)
 		(uuid "8bf33fbb-944f-4cca-9919-5e4c56fa690a")
+	)
+	(wire
+		(pts
+			(xy 147.32 147.32) (xy 161.29 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8c1893eb-a17e-4b3e-aeb5-dc34f60db78e")
 	)
 	(wire
 		(pts
@@ -4552,6 +4647,16 @@
 			(type default)
 		)
 		(uuid "a51d0562-063c-409c-8e4a-c514a7bb1eb9")
+	)
+	(bus
+		(pts
+			(xy 144.78 144.78) (xy 144.78 149.86)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a8100153-8216-4c26-8743-9ee546b75676")
 	)
 	(wire
 		(pts
@@ -4943,6 +5048,16 @@
 		)
 		(uuid "da0a764c-f4fa-4320-80ef-55f280819d5b")
 	)
+	(wire
+		(pts
+			(xy 147.32 157.48) (xy 161.29 157.48)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e18bd564-b9e1-45ff-b6ca-7821ccb2a89b")
+	)
 	(bus
 		(pts
 			(xy 73.66 107.95) (xy 73.66 110.49)
@@ -4962,6 +5077,16 @@
 			(type default)
 		)
 		(uuid "e28ae9a1-02b2-413b-b9be-61a31dc8dbfc")
+	)
+	(bus
+		(pts
+			(xy 144.78 130.81) (xy 144.78 134.62)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e318c779-e04c-49d5-82bb-8f47932e9fe7")
 	)
 	(wire
 		(pts
@@ -5085,6 +5210,16 @@
 	)
 	(wire
 		(pts
+			(xy 147.32 142.24) (xy 161.29 142.24)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f30db3bc-5d3b-4ebe-a3d9-e2771080e8a4")
+	)
+	(wire
+		(pts
 			(xy 76.2 85.09) (xy 88.9 85.09)
 		)
 		(stroke
@@ -5155,6 +5290,16 @@
 	)
 	(wire
 		(pts
+			(xy 147.32 137.16) (xy 161.29 137.16)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fd126c3e-239a-4a0d-ad81-e8a218662991")
+	)
+	(wire
+		(pts
 			(xy 194.31 58.42) (xy 196.85 58.42)
 		)
 		(stroke
@@ -5213,6 +5358,16 @@
 		)
 		(uuid "0bceb781-a53f-437d-86e6-2f26fc2e0427")
 	)
+	(label "QSPI.IO2"
+		(at 158.75 147.32 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "133c7ce5-43d7-41e1-a6a6-a14c61559f95")
+	)
 	(label "SPI.POCI"
 		(at 195.58 50.8 180)
 		(effects
@@ -5263,6 +5418,16 @@
 		)
 		(uuid "1e17bdb7-f1c4-4a50-a2ee-dec49b4b7f47")
 	)
+	(label "QSPI.IO0"
+		(at 158.75 137.16 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "23d12c41-5e1b-4f49-a9e5-f2b469fa713c")
+	)
 	(label "FMC.A12"
 		(at 87.63 100.33 180)
 		(effects
@@ -5293,6 +5458,16 @@
 		)
 		(uuid "34c2bf2a-17da-4589-b5c2-5fad1a96ddca")
 	)
+	(label "QSPI.IO3"
+		(at 158.75 152.4 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "355afef7-e0a6-4d7d-b622-8086f1244858")
+	)
 	(label "SPI.PICO"
 		(at 233.68 115.57 180)
 		(effects
@@ -5302,6 +5477,16 @@
 			(justify right bottom)
 		)
 		(uuid "38c1e70e-1e46-41c0-89de-53081414967a")
+	)
+	(label "QSPI.IO1"
+		(at 158.75 142.24 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "395bffb8-5dd7-440e-90b5-a50fa4d4acec")
 	)
 	(label "FMC.D9"
 		(at 123.19 85.09 0)
@@ -5712,6 +5897,27 @@
 			(justify left bottom)
 		)
 		(uuid "f1c7ac88-fb47-4a8b-a2da-5acf2fc8fcfe")
+	)
+	(label "QSPI.CLK"
+		(at 158.75 157.48 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "fe5c795a-c763-4f9f-9ab1-88ebbe0c548f")
+	)
+	(hierarchical_label "{QSPI}"
+		(shape input)
+		(at 144.78 130.81 90)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "3fb2e8da-eb8e-4029-8360-48ae11224824")
 	)
 	(hierarchical_label "{FMC}"
 		(shape input)
@@ -7177,6 +7383,73 @@
 		)
 	)
 	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 161.29 142.24 270)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "bb98928c-9dbf-493b-a7dd-16869916bc0a")
+		(property "Reference" "TP59"
+			(at 166.37 140.9699 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "QIO1"
+			(at 166.37 143.5099 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+			(at 161.29 147.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 161.29 147.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "test point"
+			(at 161.29 142.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "fb5d751c-e22b-4d65-85d6-f2eb8cdb55a2")
+		)
+		(instances
+			(project "pocket_synth"
+				(path "/485383b8-00f4-4405-b270-de249939cff4/d641c287-d179-45c1-92b5-f0a3902e6ffa"
+					(reference "TP59")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "pocket_synth:IS42S16160J-7TLI")
 		(at 105.41 93.98 0)
 		(unit 1)
@@ -7498,6 +7771,73 @@
 		)
 	)
 	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 161.29 157.48 270)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "d98c6deb-675b-4b77-be9b-bb11e6af1539")
+		(property "Reference" "TP56"
+			(at 166.37 156.2099 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "QCLK"
+			(at 166.37 158.7499 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+			(at 161.29 162.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 161.29 162.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "test point"
+			(at 161.29 157.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "bca1cfc4-9c1f-4a76-902c-4fe06049cb7c")
+		)
+		(instances
+			(project "pocket_synth"
+				(path "/485383b8-00f4-4405-b270-de249939cff4/d641c287-d179-45c1-92b5-f0a3902e6ffa"
+					(reference "TP56")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:GND")
 		(at 214.63 33.02 0)
 		(unit 1)
@@ -7641,6 +7981,73 @@
 		)
 	)
 	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 161.29 147.32 270)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "e3fa7774-be32-42bb-8e51-8179b75a38f4")
+		(property "Reference" "TP58"
+			(at 166.37 146.0499 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "QIO2"
+			(at 166.37 148.5899 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+			(at 161.29 152.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 161.29 152.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "test point"
+			(at 161.29 147.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "a80dc960-1285-4abe-bcea-aaceec53755e")
+		)
+		(instances
+			(project "pocket_synth"
+				(path "/485383b8-00f4-4405-b270-de249939cff4/d641c287-d179-45c1-92b5-f0a3902e6ffa"
+					(reference "TP58")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:GND")
 		(at 105.41 135.89 0)
 		(unit 1)
@@ -7773,6 +8180,73 @@
 		)
 	)
 	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 161.29 137.16 270)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "f14256ea-100b-4712-a296-df6422f50817")
+		(property "Reference" "TP60"
+			(at 166.37 135.8899 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "QIO0"
+			(at 166.37 138.4299 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+			(at 161.29 142.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 161.29 142.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "test point"
+			(at 161.29 137.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "2b63a346-3055-4c18-b375-4facebf0114b")
+		)
+		(instances
+			(project "pocket_synth"
+				(path "/485383b8-00f4-4405-b270-de249939cff4/d641c287-d179-45c1-92b5-f0a3902e6ffa"
+					(reference "TP60")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:+3.3V")
 		(at 269.24 29.21 0)
 		(unit 1)
@@ -7832,6 +8306,73 @@
 			(project "pocket_synth"
 				(path "/485383b8-00f4-4405-b270-de249939cff4/d641c287-d179-45c1-92b5-f0a3902e6ffa"
 					(reference "#PWR031")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 161.29 152.4 270)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "f204e9c3-603c-4673-a3ac-38cbca378010")
+		(property "Reference" "TP57"
+			(at 166.37 151.1299 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "QIO3"
+			(at 166.37 153.6699 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+			(at 161.29 157.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 161.29 157.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "test point"
+			(at 161.29 152.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "f7a7e77c-018b-4271-bea5-aabb57e0cd78")
+		)
+		(instances
+			(project "pocket_synth"
+				(path "/485383b8-00f4-4405-b270-de249939cff4/d641c287-d179-45c1-92b5-f0a3902e6ffa"
+					(reference "TP57")
 					(unit 1)
 				)
 			)
