@@ -9749,7 +9749,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "SI4703-C19-GMR"
+		(property "Datasheet" "https://www.skyworksinc.com/-/media/Skyworks/SL/documents/public/data-sheets/Si4702-03-C19.pdf"
 			(at 231.14 57.15 0)
 			(effects
 				(font
