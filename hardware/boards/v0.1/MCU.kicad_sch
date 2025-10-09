@@ -15235,7 +15235,7 @@
 	)
 	(wire
 		(pts
-			(xy 24.13 77.47) (xy 19.05 77.47)
+			(xy 24.13 81.28) (xy 19.05 81.28)
 		)
 		(stroke
 			(width 0)
@@ -16235,7 +16235,7 @@
 	)
 	(wire
 		(pts
-			(xy 34.29 77.47) (xy 36.83 77.47)
+			(xy 34.29 81.28) (xy 36.83 81.28)
 		)
 		(stroke
 			(width 0)
@@ -18215,7 +18215,7 @@
 	)
 	(wire
 		(pts
-			(xy 19.05 74.93) (xy 19.05 77.47)
+			(xy 19.05 78.74) (xy 19.05 81.28)
 		)
 		(stroke
 			(width 0)
@@ -19015,7 +19015,7 @@
 		(uuid "863f46a0-e5f4-4359-9d8e-5f2d50725d9f")
 	)
 	(label "BOOT0"
-		(at 36.83 77.47 0)
+		(at 36.83 81.28 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20275,7 +20275,7 @@
 	)
 	(symbol
 		(lib_id "power:+3.3V")
-		(at 19.05 74.93 0)
+		(at 19.05 78.74 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -20283,7 +20283,7 @@
 		(dnp no)
 		(uuid "1c55f738-bd1d-47e0-b1c9-e7bb45bf2291")
 		(property "Reference" "#PWR0126"
-			(at 19.05 78.74 0)
+			(at 19.05 82.55 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -20292,7 +20292,7 @@
 			)
 		)
 		(property "Value" "+3.3V"
-			(at 19.05 70.612 0)
+			(at 19.05 74.422 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -20300,7 +20300,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 19.05 74.93 0)
+			(at 19.05 78.74 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -20309,7 +20309,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 19.05 74.93 0)
+			(at 19.05 78.74 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -20318,7 +20318,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"+3.3V\""
-			(at 19.05 74.93 0)
+			(at 19.05 78.74 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -20581,7 +20581,7 @@
 	)
 	(symbol
 		(lib_id "Switch:SW_Push")
-		(at 29.21 77.47 0)
+		(at 29.21 81.28 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -20589,7 +20589,7 @@
 		(dnp no)
 		(uuid "352d964a-60a4-4f04-b8cf-42c2915e0694")
 		(property "Reference" "SW25"
-			(at 33.02 74.676 0)
+			(at 33.02 78.486 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -20597,7 +20597,7 @@
 			)
 		)
 		(property "Value" "BOOT0"
-			(at 25.146 74.676 0)
+			(at 25.146 78.486 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -20605,7 +20605,7 @@
 			)
 		)
 		(property "Footprint" "Button_Switch_SMD:SW_SPST_B3U-1000P"
-			(at 29.21 72.39 0)
+			(at 29.21 76.2 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -20614,7 +20614,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 29.21 72.39 0)
+			(at 29.21 76.2 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -20623,7 +20623,7 @@
 			)
 		)
 		(property "Description" "Push button switch, generic, two pins"
-			(at 29.21 77.47 0)
+			(at 29.21 81.28 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -20632,7 +20632,7 @@
 			)
 		)
 		(property "JLC" "C231329"
-			(at 29.21 77.47 0)
+			(at 29.21 81.28 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -20641,7 +20641,7 @@
 			)
 		)
 		(property "FT Rotation Offset" "90"
-			(at 29.21 77.47 0)
+			(at 29.21 81.28 0)
 			(effects
 				(font
 					(size 1.27 1.27)

@@ -5298,6 +5298,16 @@
 	)
 	(wire
 		(pts
+			(xy 273.05 143.51) (xy 273.05 140.97)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "361f1a6b-f546-4f2c-bd16-f1f3fe9cbce8")
+	)
+	(wire
+		(pts
 			(xy 30.48 106.68) (xy 33.02 106.68)
 		)
 		(stroke
@@ -5515,6 +5525,16 @@
 			(type default)
 		)
 		(uuid "51ca5ffe-f3b7-4809-9118-e610b3a36a77")
+	)
+	(wire
+		(pts
+			(xy 271.78 74.93) (xy 271.78 72.39)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "53a923fe-703a-4f04-9948-e9d96da036af")
 	)
 	(wire
 		(pts
@@ -6248,6 +6268,16 @@
 	)
 	(wire
 		(pts
+			(xy 271.78 80.01) (xy 271.78 82.55)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9ab6d863-91c1-45fd-8cba-20a565b00162")
+	)
+	(wire
+		(pts
 			(xy 161.29 161.29) (xy 161.29 186.69)
 		)
 		(stroke
@@ -6428,6 +6458,16 @@
 	)
 	(wire
 		(pts
+			(xy 271.78 72.39) (xy 269.24 72.39)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ad5cc573-df37-45b6-91fe-c035c3246fdf")
+	)
+	(wire
+		(pts
 			(xy 271.78 45.72) (xy 273.05 45.72)
 		)
 		(stroke
@@ -6485,6 +6525,16 @@
 			(type default)
 		)
 		(uuid "b19621a6-98d5-4f30-8277-eac6402c0a5b")
+	)
+	(wire
+		(pts
+			(xy 273.05 140.97) (xy 270.51 140.97)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b1d33192-f286-47f9-92c6-a57706f4e6e1")
 	)
 	(wire
 		(pts
@@ -6565,6 +6615,16 @@
 			(type default)
 		)
 		(uuid "b968fd38-5f0d-43f5-b25d-40b5340386f0")
+	)
+	(wire
+		(pts
+			(xy 273.05 148.59) (xy 273.05 151.13)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bb7e0e53-002f-498d-a4e1-9c5aca786afe")
 	)
 	(wire
 		(pts
@@ -7636,6 +7696,17 @@
 		)
 		(uuid "dc256f08-b1d9-4b05-ac45-9dafddb68633")
 	)
+	(hierarchical_label "~{FM_TX_RST}"
+		(shape input)
+		(at 270.51 140.97 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "df0d4d4b-c636-44cf-8b87-8de0397e9281")
+	)
 	(hierarchical_label "FM_RECV_INT"
 		(shape input)
 		(at 259.08 57.15 0)
@@ -7646,6 +7717,17 @@
 			(justify left)
 		)
 		(uuid "ec651778-0d67-4d24-a7ca-fac3576f8c6f")
+	)
+	(hierarchical_label "~{FM_RX_RST}"
+		(shape input)
+		(at 269.24 72.39 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "fb2e5b9e-498b-4151-b362-3b6764872f23")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -7788,6 +7870,71 @@
 			(project "pocket_synth"
 				(path "/485383b8-00f4-4405-b270-de249939cff4/ac7a2cd5-8a17-4132-a50f-a1edfbc58e6d"
 					(reference "J8")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 273.05 151.13 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "06989bb7-bcec-4052-98af-76e77496f713")
+		(property "Reference" "#PWR0160"
+			(at 273.05 157.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 273.05 155.448 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 273.05 151.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 273.05 151.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 273.05 151.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "b92c1d73-8d80-4760-bde1-f4eb0759c59c")
+		)
+		(instances
+			(project "pocket_synth"
+				(path "/485383b8-00f4-4405-b270-de249939cff4/ac7a2cd5-8a17-4132-a50f-a1edfbc58e6d"
+					(reference "#PWR0160")
 					(unit 1)
 				)
 			)
@@ -8622,6 +8769,84 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:R_Small")
+		(at 273.05 146.05 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "2da01c3b-ee05-4c08-bb34-bb9a7bbb6c98")
+		(property "Reference" "R54"
+			(at 271.526 144.78 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "10k"
+			(at 271.526 147.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 273.05 146.05 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 273.05 146.05 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor, small symbol"
+			(at 273.05 146.05 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C25744"
+			(at 273.05 146.05 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "4f2da282-56bb-4020-ad62-00b6196f9975")
+		)
+		(pin "1"
+			(uuid "2f31941c-68c0-445a-806f-bc23769d67cd")
+		)
+		(instances
+			(project "pocket_synth"
+				(path "/485383b8-00f4-4405-b270-de249939cff4/ac7a2cd5-8a17-4132-a50f-a1edfbc58e6d"
+					(reference "R54")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:GND")
 		(at 120.65 72.39 0)
 		(unit 1)
@@ -9083,6 +9308,84 @@
 			(project ""
 				(path "/485383b8-00f4-4405-b270-de249939cff4/ac7a2cd5-8a17-4132-a50f-a1edfbc58e6d"
 					(reference "U29")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R_Small")
+		(at 271.78 77.47 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "39a9c850-1d85-41a2-be04-2c469bd8df43")
+		(property "Reference" "R53"
+			(at 270.256 76.2 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "10k"
+			(at 270.256 78.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 271.78 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 271.78 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor, small symbol"
+			(at 271.78 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C25744"
+			(at 271.78 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "bc9694a1-8c1b-4881-90fd-6b59e0aedeb2")
+		)
+		(pin "1"
+			(uuid "dbda9ea5-15cc-4989-9c2d-7a96c085eb1f")
+		)
+		(instances
+			(project "pocket_synth"
+				(path "/485383b8-00f4-4405-b270-de249939cff4/ac7a2cd5-8a17-4132-a50f-a1edfbc58e6d"
+					(reference "R53")
 					(unit 1)
 				)
 			)
@@ -11124,6 +11427,71 @@
 			(project "pocket_synth"
 				(path "/485383b8-00f4-4405-b270-de249939cff4/ac7a2cd5-8a17-4132-a50f-a1edfbc58e6d"
 					(reference "R10")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 271.78 82.55 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "8ddd8ae5-06b3-416c-80c1-e4ef67874c43")
+		(property "Reference" "#PWR0152"
+			(at 271.78 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 271.78 86.868 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 271.78 82.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 271.78 82.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 271.78 82.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "d967e6dc-1e8c-4f2f-a5f5-788dd58e37be")
+		)
+		(instances
+			(project "pocket_synth"
+				(path "/485383b8-00f4-4405-b270-de249939cff4/ac7a2cd5-8a17-4132-a50f-a1edfbc58e6d"
+					(reference "#PWR0152")
 					(unit 1)
 				)
 			)
