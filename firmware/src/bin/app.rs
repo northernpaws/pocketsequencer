@@ -7,20 +7,33 @@ use embassy_stm32::gpio::{Level, Output, Speed};
 use embassy_time::Timer;
 use {defmt_rtt as _, panic_probe as _};
 
+use firmware::{
+    split_resources,
+    hardware::{
+        self,
+        preamble::*
+    }
+};
+
 #[embassy_executor::main]
 async fn main(_spawner: Spawner) {
-    let p = embassy_stm32::init(Default::default());
+    let p = hardware::init();
+
     info!("Hello World!");
 
-    let mut led = Output::new(p.PB14, Level::High, Speed::Low);
+    let r = split_resources!(p);
 
-    loop {
-        info!("high");
-        led.set_high();
-        Timer::after_millis(500).await;
+    loop {}
 
-        info!("low");
-        led.set_low();
-        Timer::after_millis(500).await;
-    }
+    // let mut led = Output::new(p.PB14, Level::High, Speed::Low);
+
+    // loop {
+    //     info!("high");
+    //     led.set_high();
+    //     Timer::after_millis(500).await;
+
+    //     info!("low");
+    //     led.set_low();
+    //     Timer::after_millis(500).await;
+    // }
 }

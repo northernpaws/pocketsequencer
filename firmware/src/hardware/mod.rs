@@ -1,0 +1,462 @@
+pub mod is42s16160j_7;
+
+use core::{
+    default::Default,
+    option::Option::Some
+};
+
+use assign_resources::assign_resources;
+
+use embassy_stm32::{
+    bind_interrupts,
+    fmc::Fmc,
+    mode,
+    qspi::{
+        self,
+        Qspi
+    },
+    peripherals,
+    time::Hertz,
+    usart::{
+        self,
+        Uart
+    },
+    Config,
+    Peri,
+    Peripherals
+};
+
+assign_resources! {
+    // For debug logging via Black Magic Probe's alternate pins 9/7.
+    // see: https://black-magic.org/knowledge/pinouts.html
+    uart_debug: UartDebugResources {
+        peri: UART5 = UartDebugPeri,
+        rx_pin: PD2,
+        tx_pin: PC12,
+        rx_dma: DMA1_CH0,
+        tx_dma: DMA1_CH1,
+    }
+
+    /// For TRS MIDI in and out/thru connections.
+    uart_midi: UartMIDIResources {
+        peri: USART1 = UartMIDIPeri,
+        rx_pin: PA10,
+        tx_pin: PA9,
+        rx_dma: DMA1_CH2,
+        tx_dma: DMA1_CH3,
+    }
+
+    /// For Bluetooth and WiFi connections.
+    uart_rf: UartRFResources {
+        peri: UART4 = UartRFPeri,
+        rx_pin: PA1,
+        tx_pin: PA0,
+        rx_dma: DMA1_CH4,
+        tx_dma: DMA1_CH5,
+    }
+
+    /// NOR Flash chip.
+    flash: FlashResources {
+        peri: QUADSPI = FlashPeri,
+        cs: PD6,
+        sck: PF10,
+        d0: PD11,
+        d1: PD12,
+        d2: PE2,
+        d3: PD13,
+        dma: BDMA_CH0 = FlashDma,
+    }
+
+    /// Primary I2S interface, to NAU88C22YG audio codec.
+    codec: CodecResources {
+        peri: SAI1 = CodecPeri,
+        mclk: PG7, // SAI1_MCLK_A
+        adcdat: PE3, // SAI1_SD_B
+        fs: PE4, // SAI1_FS_A
+        sck: PE5, // SAI1_SCK_A,
+        dacdat: PE6, //  SAI1_SD_A
+
+        mic_l: PC8, // HIGH = mic-level input
+        mic_r: PC7, // HIGH = mic-level input
+    }
+
+    /// Wireless I2S interface, nRF5340 Bluetooth and nRF7002 WiFi.
+    rf_audio: RFAudioResources {
+        peri: SAI4 = RFAudioPeri,
+        dacdat: PF6, //SAI4_SD_B
+        mclk: PF7, // SAI4_MCLK_B
+        sck: PF8, // SAI4_SCK_B
+        fs: PF9, // SAI4_FS_B
+        adcdat: PC1, //SAT1_SD_A
+    }
+
+    /// For USB storage, USB audio interface, and DFU.
+    usb: UsbResources {
+        peri: USB_OTG_HS = UsbPeri,
+        dm: PB14,
+        dp: PB15,
+        vbus: PB13, // Supplied with 3.3v when in device mode and USB cable connected.
+    }
+
+    /// SDRAM and 16-bit parallel display
+    fmc: FMCResources {
+        peri: FMC = FMCPeri,
+
+        a0: PF0, // A0 / Dispaly D/CX(SCL)
+        a1: PF1,
+        a2: PF2,
+        a3: PF3,
+        a4: PF4,
+        a5: PF5,
+        a6: PF12,
+        a7: PF13,
+        a8: PF14,
+        a9: PF15,
+        a10: PG0,
+        a11: PG1,
+        a12: PG2,
+
+        d0: PD14,
+        d1: PD15,
+        d2: PD0,
+        d3: PD1,
+        d4: PE7,
+        d5: PE8,
+        d6: PE9,
+        d7: PE10,
+        d8: PE11,
+        d9: PE12,
+        d10: PE13,
+        d11: PE14,
+        d12: PE15,
+        d13: PD8,
+        d14: PD9,
+        d15: PD10,
+
+        nbl0: PE0, // DQML
+        nbl1: PE1, // DQMH
+
+        ba0: PG4,
+        ba1: PG5,
+
+        sdclk: PG8, // SDRAM CLK
+        sdncas: PG15, // SDRAM CAS
+        sdnwe: PC0, // SDRAM WE
+        sdne0: PC4, // NE0 / SDRAM CS
+        sdne1: PD7, // NE1 / Display CS
+        sdcke0: PC5, // SDRAM CKE
+        sdnras: PF11, // SDRAM RAS
+        
+        noe: PD4, // NOW / Display RD
+        nwe: PD5, // NWE / Display WRX(D/CX)
+    }
+
+    // Micro-SD card and internal SD-format NAND flash.
+    spi_storage: SPIStorageResources {
+        peri: SPI1 = SPIStoragePeri,
+        clk: PA5, // SCK
+        poci: PA6, // MISO
+        pico: PA7, // MOSI
+        sd_cs: PA4, // Micro-SD card
+        xtsdg_cs: PC13, // SD-protocol NAND flash
+    }
+
+    /// Power management resources.
+    power: PowerResources {
+        int: PA2, // Raises int when power button pressed
+        psel: PA8, // 
+        pwr_hold: PC6, // Hold HIGH to keep power enabled
+        pbout: PG3, // Current power button state
+    }
+
+    /// NAU88C22YG Audio Codec, FM SI4703-C19-GMR RX / SI4710-B30-GMR TX
+    i2c1: I2C1Resources {
+        peri: I2C1 = I2C1Peri,
+        scl: PB6,
+        sda: PB7,
+
+        fm_rx_rst: PA12,
+        rm_rx_int: PA11,
+        fm_tx_rst: PA15,
+    }
+    
+    /// BQ24193 battery charger, BQ27531YZFR-G1 fuel gauge, FUSB302B USB-PD.
+    i2c2: I2C2Resources {
+        peri: I2C2 = I2C2Peri,
+        scl: PB10,
+        sda: PB11,
+
+        fuel_int: PB1,
+        pd_int: PG6,
+    }
+
+    /// FT6206 Capacitive Touch, TCA8418RTWR Keypad, ADS7128IRTER Velocity, DA7280 Haptics, MMA8653FCR1 9DOF
+    i2c4: I2C4Resources {
+        peri: I2C4 = I2C4Peri,
+        scl: PB8,
+        sda: PB9,
+
+        touch_int: PC3,
+        keypad_int: PB0,
+        velocity_int: PG13,
+        int1_9dof: PB5,
+    }
+
+    display: DisplayResources {
+        display_reset: PC11,
+        display_te: PB4,
+        backlight_ctrl: PC9, // PWM
+        touch_rst: PC2,
+    }
+}
+
+pub mod preamble {
+    pub use crate::hardware;
+    pub use super::{
+        AssignedResources,
+        UartDebugResources,
+        UartMIDIResources,
+        UartRFResources,
+        FlashResources,
+        CodecResources,
+        RFAudioResources,
+        UsbResources,
+        FMCResources,
+        SPIStorageResources,
+        PowerResources,
+        I2C1Resources,
+        I2C2Resources,
+        I2C4Resources,
+        DisplayResources,
+    };
+}
+
+bind_interrupts!(struct UartIrqs {
+    USART1 => usart::InterruptHandler<peripherals::USART1>;
+    UART4 => usart::InterruptHandler<peripherals::UART4>;
+    UART5 => usart::InterruptHandler<peripherals::UART5>;
+});
+
+/// Initializes the Embassy STM32 HAL by configuring
+/// the RCC, PLL, voltage, and clock matrix.
+pub fn init() -> Peripherals {
+    let mut config = Config::default();
+    {
+        use embassy_stm32::rcc::*;
+        
+        config.rcc.hsi = Some(HSIPrescaler::DIV1);
+        config.rcc.hse = Some(Hse {
+            freq: Hertz::mhz(25), // 25Mhz crystal
+            mode: HseMode::Oscillator,
+        });
+        config.rcc.csi = false;
+        
+        config.rcc.hsi48 = Some(Hsi48Config{
+            sync_from_usb: true, // correct?
+        });
+        
+        config.rcc.sys = Sysclk::PLL1_P;
+        
+        config.rcc.pll1 = Some(Pll{
+            source: PllSource::HSE,
+            prediv: PllPreDiv::DIV5,
+            mul: PllMul::MUL192,
+            divp: Some(PllDiv::DIV2),
+            divq: Some(PllDiv::DIV7),
+            divr: Some(PllDiv::DIV2),
+        });
+        
+        config.rcc.pll2 = Some(Pll{
+            source: PllSource::HSE,
+            prediv: PllPreDiv::DIV2,
+            mul:  PllMul::MUL12,
+            divp: Some(PllDiv::DIV2),
+            divq: Some(PllDiv::DIV2),
+            divr: Some(PllDiv::DIV2),
+        });
+        
+        config.rcc.pll3 = Some(Pll{
+            source: PllSource::HSE,
+            prediv: PllPreDiv::DIV32,
+            mul:  PllMul::MUL129,
+            divp: Some(PllDiv::DIV2),
+            divq: Some(PllDiv::DIV2),
+            divr: Some(PllDiv::DIV2),
+        });
+
+        config.rcc.d1c_pre = AHBPrescaler::DIV1; // D1CPRE - 480MHz
+        config.rcc.ahb_pre = AHBPrescaler::DIV2; // HPRE 140Mhz (todo: double check)
+        config.rcc.apb1_pre = APBPrescaler::DIV2; // D2PPRE1 120Mhz
+        config.rcc.apb2_pre = APBPrescaler::DIV2; // D2PPRE2 120Mhz
+        config.rcc.apb3_pre = APBPrescaler::DIV2; // D1PPRE 120Mhz
+        config.rcc.apb4_pre = APBPrescaler::DIV2; // D3PPRE 120Mhz
+        
+        config.rcc.timer_prescaler = TimerPrescaler::DefaultX2; // TODO: double check
+        
+        config.rcc.voltage_scale = VoltageScale::Scale0; // 
+        
+        config.rcc.ls = LsConfig {
+            rtc: RtcClockSource::LSI, // TODO: should be LSE ocillator?
+            lsi: true,
+            lse: Some(LseConfig{
+                frequency: Hertz(32_768),
+                mode: LseMode::Oscillator(LseDrive::Low),
+            }),
+        };
+
+        // config.rcc.mux = mux::ClockMux {
+        config.rcc.mux.rtcsel = RtcClockSource::LSI;
+        config.rcc.mux.fmcsel = mux::Fmcsel::HCLK3;
+        config.rcc.mux.persel = mux::Persel::HSI;
+        config.rcc.mux.quadspisel = mux::Fmcsel::HCLK3;
+        config.rcc.mux.sdmmcsel = mux::Sdmmcsel::PLL1_Q; // Unused
+        config.rcc.mux.fdcansel = mux::Fdcansel::PLL1_Q; // Unused
+        config.rcc.mux.sai1sel = mux::Saisel::PLL1_Q;
+        config.rcc.mux.sai23sel = mux::Saisel::PLL1_Q; // Unused
+        config.rcc.mux.spdifrxsel = mux::Spdifrxsel::PLL1_Q;
+        config.rcc.mux.spi123sel = mux::Saisel::PLL1_Q;
+        config.rcc.mux.spi45sel = mux::Spi45sel::PCLK2; // Unused
+        config.rcc.mux.cecsel = mux::Cecsel::LSI;
+        config.rcc.mux.i2c1235sel = mux::I2c1235sel::PCLK1;
+        config.rcc.mux.lptim1sel = mux::Lptim1sel::PCLK1; // Unused?
+        config.rcc.mux.rngsel = mux::Rngsel::HSI48;
+        config.rcc.mux.usart16910sel = mux::Usart16910sel::PCLK2;
+        config.rcc.mux.usart234578sel = mux::Usart234578sel::PCLK1;
+        config.rcc.mux.usbsel = mux::Usbsel::HSI48;
+        config.rcc.mux.adcsel = mux::Adcsel::PLL2_P;
+        config.rcc.mux.i2c4sel = mux::I2c4sel::PCLK4;
+        config.rcc.mux.lptim2sel = mux::Lptim2sel::PCLK4; // Unused?
+        config.rcc.mux.lpuart1sel = mux::Lpuartsel::PCLK4; // TODO: is this correct? unused anyways
+        config.rcc.mux.spi6sel = mux::Spi6sel::PCLK4;
+    }
+
+    embassy_stm32::init(config)
+}
+
+pub fn get_uart_debug_blocking<'a>(r: UartDebugResources) -> Uart<'a, mode::Blocking> {
+    let config = usart::Config::default();
+    Uart::new_blocking(r.peri, r.rx_pin, r.tx_pin, config).unwrap()
+}
+
+pub fn get_uart_debug<'a>(r: UartDebugResources) -> Uart<'a, mode::Async> {
+    let config = usart::Config::default();
+    Uart::new(r.peri, r.rx_pin, r.tx_pin, UartIrqs, r.tx_dma, r.rx_dma, config).unwrap()
+}
+
+pub fn get_uart_midi_blocking<'a>(r: UartMIDIResources) -> Uart<'a, mode::Blocking> {
+    let config = usart::Config::default();
+    Uart::new_blocking(r.peri, r.rx_pin, r.tx_pin, config).unwrap()
+}
+
+pub fn get_uart_midi<'a>(r: UartMIDIResources) -> Uart<'a, mode::Async> {
+    let config = usart::Config::default();
+    Uart::new(r.peri, r.rx_pin, r.tx_pin, UartIrqs, r.tx_dma, r.rx_dma, config).unwrap()
+}
+
+
+pub fn get_uart_rf_blocking<'a>(r: UartRFResources) -> Uart<'a, mode::Blocking> {
+    let config = usart::Config::default();
+    Uart::new_blocking(r.peri, r.rx_pin, r.tx_pin, config).unwrap()
+}
+
+pub fn get_uart_rf<'a>(r: UartRFResources) -> Uart<'a, mode::Async> {
+    let config = usart::Config::default();
+    Uart::new(r.peri, r.rx_pin, r.tx_pin, UartIrqs, r.tx_dma, r.rx_dma, config).unwrap()
+}
+
+
+// TODO: need to fix NSS pin
+// pub fn get_flash_blocking<'a>(r: FlashResources) -> Ospi<'a, peripherals::QUADSPI1, mode::Blocking> {
+//     let config = qspi::Config {
+//         memory_size: qspi::enums::MemorySize::_512MiB,
+//         address_size: qspi::enums::AddressSize::_16Bit,
+//         //prescaler: 160, // AHB 160Mhz => SCK 1MHz
+//         ..Default::default()
+//     };
+
+//     Qspi::new_blocking_quadspi(
+//         r.peri,
+//         r.sck,
+//         r.d0,
+//         r.d1,
+//         r.d2,
+//         r.d3,
+//         r.cs,
+//         config)
+// }
+
+// TODO: need to fix NSS pin
+/*pub fn get_flash<'a>(r: FlashResources) -> Ospi<'a, peripherals::QUADSPI1, mode::Async> {
+    let config = qspi::Config {
+        memory_size: qspi::enums::MemorySize::_512MiB,
+        address_size: qspi::enums::AddressSize::_16Bit,
+        //prescaler: 160, // AHB 160Mhz => SCK 1MHz
+        ..Default::default()
+    };
+
+    Qspi::new_bank1(
+        r.peri,
+        r.sck,
+        r.d0,
+        r.d1,
+        r.d2,
+        r.d3,
+        r.cs, // tODO: optional?
+        r.dma,
+        config)
+}*/
+
+/// Returns a handle to the FMC peripheral configured for use with the ISSI is42s16160j-7 SDRAM.
+pub fn get_sdram<'a>(r: FMCResources) -> stm32_fmc::Sdram<Fmc<'a, peripherals::FMC>, is42s16160j_7::Is42s16160j> {
+    // Configured for the is42s16160j-7
+    Fmc::sdram_a13bits_d16bits_4banks_bank1(
+        r.peri,
+        // A0-A11
+        r.a0,
+        r.a1,
+        r.a2,
+        r.a3,
+        r.a4,
+        r.a5,
+        r.a6,
+        r.a7,
+        r.a8,
+        r.a9,
+        r.a10,
+        r.a11,
+        r.a12,
+        // BA0-BA1
+        r.ba0,
+        r.ba1,
+        // D0-D15
+        r.d0,
+        r.d1,
+        r.d2,
+        r.d3,
+        r.d4,
+        r.d5,
+        r.d6,
+        r.d7,
+        r.d8,
+        r.d9,
+        r.d10,
+        r.d11,
+        r.d12,
+        r.d13,
+        r.d14,
+        r.d15,
+        // NBL0 - NBL1
+        r.nbl0,
+        r.nbl1,
+        r.sdcke0,  // SDCKE0
+        r.sdclk, // SDCLK
+        r.sdncas, // SDNCAS
+        r.sdne0, // SDNE1 (!CS)
+        r.sdnras, // SDRAS
+        r.sdnwe,  // SDNWE 
+
+        // Supplies the timing and mode registry
+        // parameters for the specific SDRAM IC.
+        is42s16160j_7::Is42s16160j {},
+    )
+}

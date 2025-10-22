@@ -73,3 +73,15 @@ embassy-executor = { version = "0.9.0", features = ["arch-cortex-m", "executor-t
 embassy-time = { version = "0.5.0", features = ["defmt", "defmt-timestamp-uptime", "tick-hz-32_768"] }
 embassy-futures = { version = "0.1.2" }
 embassy-usb = { version = "0.5.1", features = ["defmt"] }
+assign-resources = "0.5.0"
+stm32-fmc = "0.3.0"
+critical-section = "1.2.0"
+
+[patch.crates-io]
+# Adds additional FMC constructors.. requires patching ALL embassy packages for compatability to work correctly.
+embassy-stm32 = { git = 'https://github.com/northernpaws/embassy', branch = "main" }
+embassy-embedded-hal = { git = 'https://github.com/northernpaws/embassy', branch = "main" }
+embassy-executor = { git = 'https://github.com/northernpaws/embassy', branch = "main" }
+embassy-time = { git = 'https://github.com/northernpaws/embassy', branch = "main" }
+embassy-futures = { git = 'https://github.com/northernpaws/embassy', branch = "main" }
+embassy-usb = { git = 'https://github.com/northernpaws/embassy', branch = "main" }
