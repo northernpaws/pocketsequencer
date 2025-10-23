@@ -124,7 +124,11 @@ async fn main(_spawner: Spawner) {
     //
     // This communicates with the internal storage and Micro SD card.
     info!("initializing storage spi1 bus");
-    let (spi1, mut sd_cs, xtsdg_cs) = hardware::get_spi1(r.spi_storage);
+    let (
+        spi1,
+        mut sd_cs,
+        mut xtsdg_cs
+    ) = hardware::get_spi1(r.spi_storage);
 
     // Convert the SPI1 peripheral handle into a bus handle that can be consumed by multiple devices.
     let spi_bus = SPI_BUS.init(Mutex::new(spi1));

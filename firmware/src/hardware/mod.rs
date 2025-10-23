@@ -1,6 +1,6 @@
 pub mod is42s16160j_7; // SDRAM
 pub mod stm6601; // power button manager
-pub mod tca8418rtwr; // Keypad matrix
+pub mod tca8418; // Keypad matrix
 
 use defmt::trace;
 
@@ -88,9 +88,14 @@ use sdspi::{
 use embassy_embedded_hal::{
     SetConfig,
     GetConfig,
-    shared_bus::asynch::spi::SpiDeviceWithConfig
+    shared_bus::asynch::{
+        self,
+        spi::SpiDeviceWithConfig,
+        i2c::I2cDeviceWithConfig
+    }
 };
 
+use crate::hardware::tca8418::Tca8418;
 use crate::hardware::stm6601::Stm6601;
 
 assign_resources! {
@@ -708,9 +713,22 @@ pub fn get_i2c4<'a>(r: I2C4Resources) -> embassy_sync::blocking_mutex::Mutex<Noo
     NoopMutex::new(RefCell::new(i2c))
 }
 
-/// Gets a handle to the TCA8418RTWR keypad decoder on I2C4.
-pub fn get_tca8418rtwr<'a> () {
+/// Gets a handle to the TCA8418 keypad decoder on I2C4.
+pub fn get_tca8418_async<'a, 
+    M: RawMutex,
+    BUS: SetConfig<Config = i2c::Config> + embedded_hal_async::i2c::I2c,
+> (
+    i2c_bus: &'a Mutex<M, BUS>,
+) -> Tca8418<'a, asynch::i2c::I2cDeviceWithConfig<'a, M, BUS>> {
+    let mut int = ExtiInput::new(r.int, r.int_exit, Pull::Down);
 
+    // Initialize the I2C config for the device.
+    let config: i2c::Config = Default::default();
+
+    // Create the I2C device for the keypad decoder.
+    let device = asynch::i2c::I2cDeviceWithConfig::new(i2c_bus, config);
+
+    Tca8418::new(int, device)
 }
 
 /// Create the SPI1 peripheral interface for interacting
