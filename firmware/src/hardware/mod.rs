@@ -15,15 +15,10 @@ use assign_resources::assign_resources;
 use embassy_stm32::{
     i2c::{self, I2c},
     bind_interrupts, fmc::Fmc, gpio::{
-        Input, Level, Output, OutputType, Speed, Pull
-    }, mode, peripherals, qspi::{
-        self,
-        Qspi
-    }, time::{
+        Input, Level, Output, Speed, Pull
+    }, mode, peripherals, time::{
         khz, mhz, Hertz
-    }, timer::simple_pwm::{
-            PwmPin, SimplePwm, SimplePwmChannel
-        }, usart::{
+    }, usart::{
         self,
         Uart
     }, usb, Config, Peri, Peripherals,
@@ -43,8 +38,7 @@ use embassy_sync::{
         NoopMutex,
         raw::{
             RawMutex,
-            NoopRawMutex,
-            CriticalSectionRawMutex,
+            NoopRawMutex
         }
     },
     mutex::Mutex
@@ -78,20 +72,16 @@ use mipidsi::{
 
 
 // blocking SDMMC over SPI support.
-use embedded_sdmmc::{sdcard::proto::Csd, SdCard};
+use embedded_sdmmc::{SdCard};
 
 // Async SDMMC over SPI support.
-use sdspi::{
-    sd_init,
-    SdSpi
-};
+use sdspi::SdSpi;
+
 use embassy_embedded_hal::{
     SetConfig,
-    GetConfig,
     shared_bus::asynch::{
         self,
         spi::SpiDeviceWithConfig,
-        i2c::I2cDeviceWithConfig
     }
 };
 
@@ -281,9 +271,12 @@ assign_resources! {
 
         tx_dma: BDMA_CH1,
         rx_dma: BDMA_CH2,
+    }
 
+    i2c4_interrupts: I2C4Interrupts {
         touch_int: PC3,
         keypad_int: PB0,
+        keypad_exti: EXTI0,
         velocity_int: PG13,
         int1_9dof: PB5,
     }
@@ -314,6 +307,7 @@ pub mod preamble {
         I2C1Resources,
         I2C2Resources,
         I2C4Resources,
+        I2C4Interrupts,
         DisplayResources,
     };
 }
@@ -684,7 +678,7 @@ pub fn get_usb_hs_driver<'a> (r: UsbResources, ep_out_buffer: &'a mut [u8; 256])
 
 /// Returns the STM6601 driver for managing the system power state.
 pub fn get_stm6601<'a> (r: PowerResources) -> Stm6601<'a, Output<'a>, Input<'a>>{
-    let mut int = ExtiInput::new(r.int, r.int_exit, Pull::Down);
+    let int = ExtiInput::new(r.int, r.int_exit, Pull::Down);
     let ps_hold = Output::new(r.pwr_hold, Level::High, Speed::Low);
     let pb_state = Input::new(r.pbout, Pull::Down);
 
@@ -708,25 +702,30 @@ pub fn get_i2c2<'a>(r: I2C2Resources) -> embassy_sync::blocking_mutex::Mutex<Noo
 /// Creates the I2C4 interface for communicating with the FT6206 Capacitive
 /// Touch, TCA8418RTWR Keypad, ADS7128IRTER GPIO Breakout for Velocity
 /// Grid, DA7280 Haptics, and MMA8653FCR1 9DOF.
-pub fn get_i2c4<'a>(r: I2C4Resources) -> embassy_sync::blocking_mutex::Mutex<NoopRawMutex, RefCell<I2c<'a, embassy_stm32::mode::Async, embassy_stm32::i2c::Master>>> {
-    let i2c = I2c::new(r.peri, r.scl, r.sda, Irqs, r.tx_dma, r.rx_dma, Default::default());
-    NoopMutex::new(RefCell::new(i2c))
+//embassy_sync::blocking_mutex::Mutex<NoopRawMutex, RefCell<I2c<'a, embassy_stm32::mode::Async, embassy_stm32::i2c::Master>>>
+pub fn get_i2c4<'a>(r: I2C4Resources) -> embassy_stm32::i2c::I2c<'static, embassy_stm32::mode::Async, embassy_stm32::i2c::Master> {
+    I2c::new(r.peri, r.scl, r.sda, Irqs, r.tx_dma, r.rx_dma, Default::default())
 }
 
 /// Gets a handle to the TCA8418 keypad decoder on I2C4.
 pub fn get_tca8418_async<'a, 
+    INT: gpio::Pin,
     M: RawMutex,
-    BUS: SetConfig<Config = i2c::Config> + embedded_hal_async::i2c::I2c,
+    //BUS: SetConfig<Config = i2c::Config> + embedded_hal_async::i2c::I2c,
+    BUS: embedded_hal_async::i2c::I2c,
 > (
+    int: Peri<'a, INT>,
+    exti: Peri<'a, INT::ExtiChannel>,
     i2c_bus: &'a Mutex<M, BUS>,
-) -> Tca8418<'a, asynch::i2c::I2cDeviceWithConfig<'a, M, BUS>> {
-    let mut int = ExtiInput::new(r.int, r.int_exit, Pull::Down);
+) -> Tca8418<'a, asynch::i2c::I2cDevice<'a, M, BUS>> {
+    let int = ExtiInput::new(int, exti, Pull::Down);
 
     // Initialize the I2C config for the device.
-    let config: i2c::Config = Default::default();
+    // let config: i2c::Config = Default::default();
 
     // Create the I2C device for the keypad decoder.
-    let device = asynch::i2c::I2cDeviceWithConfig::new(i2c_bus, config);
+    // let device = asynch::i2c::I2cDeviceWithConfig::new(i2c_bus, config);
+    let device = asynch::i2c::I2cDevice::new(i2c_bus);
 
     Tca8418::new(int, device)
 }
@@ -789,7 +788,7 @@ pub async fn get_sdcard_async<'a,
     DELAY: embedded_hal_async::delay::DelayNs + Clone
 > (
     spi_bus: &'a Mutex<M, BUS>,
-    mut cs: gpio::Output<'a>,
+    cs: gpio::Output<'a>,
     delay: DELAY,
 ) -> SdSpi<
         embassy_embedded_hal::shared_bus::asynch::spi::SpiDeviceWithConfig<'a,

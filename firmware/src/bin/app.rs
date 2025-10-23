@@ -1,6 +1,8 @@
 #![no_std]
 #![no_main]
 
+// https://medium.com/@carlmkadie/how-rust-embassy-shine-on-embedded-devices-part-1-9f4911c92007
+
 use core::cell::RefCell;
 
 use defmt::*;
@@ -8,41 +10,25 @@ use defmt::*;
 use embassy_executor::Spawner;
 
 use embassy_stm32::{
-    gpio::{Level, Output, Speed},
     i2c::{
         self,
         I2c
     },
     mode::Async,
-    peripherals::SPI1,
     spi::{
         self, Spi
     },
     time::mhz
 };
 
-use embassy_time::Timer;
-
 use embassy_sync::{
     blocking_mutex::{
         NoopMutex,
         raw::{
-            NoopRawMutex,
             CriticalSectionRawMutex
         }
     },
     mutex::Mutex
-};
-
-// SDMMC over SPI support.
-use embedded_sdmmc::{
-    SdCard,
-    Mode,
-    VolumeIdx
-};
-
-use embassy_time::{
-    Delay
 };
 
 use embedded_hal_async::delay::DelayNs;
@@ -80,13 +66,23 @@ static I2C2_BUS: StaticCell<NoopMutex<RefCell<I2c<'static, Async, i2c::Master>>>
 //
 // This communicates with the FT6206 Capacitive Touch sensor, TCA8418RTWR Keypad matrix,
 // ADS7128IRTER GPIO Breakout for Velocity Grid, DA7280 Haptics driver, and MMA8653FCR1 9DOF.
-static I2C4_BUS: StaticCell<NoopMutex<RefCell<I2c<'static, Async, i2c::Master>>>> = StaticCell::new();
+// static I2C4_BUS: StaticCell<NoopMutex<RefCell<I2c<'static, Async, i2c::Master>>>> = StaticCell::new();
+static I2C4_BUS: StaticCell<Mutex<CriticalSectionRawMutex, I2c<'static, Async, i2c::Master>>> = StaticCell::new();
 
 /// SPI bus for internal and SD card storage.
 static SPI_BUS: StaticCell<Mutex<CriticalSectionRawMutex, Spi<'static, Async>>> = StaticCell::new();
 
 #[embassy_executor::main]
-async fn main(_spawner: Spawner) {
+async fn main(spawner: Spawner) {
+    // If it returns, something went wrong.
+    let err = inner_main(spawner).await.unwrap_err();
+    defmt::panic!("{}", err);
+}
+
+// Inner-main allows us us to returns errors via Result instead of relying on panics.
+#[expect(clippy::future_not_send, reason = "Safe in single-threaded, bare-metal embedded context")]
+#[expect(clippy::items_after_statements, reason = "Keeps related code together")]
+async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error type
     info!("initializing clocks and PLL to 480Mhz");
     let p = hardware::init();
 
@@ -96,21 +92,21 @@ async fn main(_spawner: Spawner) {
     // possible to make sure the STM6601 won't power the system regulator off.
     info!("configuring stm6601");
     let mut stm6601 = hardware::get_stm6601(r.power);
-    stm6601.power_enable().unwrap();
+    stm6601.power_enable().unwrap(); // TODO: change to result error
 
     // Initialize the bus for the I2C1 peripheral.
     //
     // This communicates with the NAU88C22YG Audio Codec,
     // FM SI4703-C19-GMR RX / SI4710-B30-GMR TX.
     info!("initializing audio i2c1 bus");
-    let i2c1_bus = I2C1_BUS.init(hardware::get_i2c1(r.i2c1));
+    let _i2c1_bus = I2C1_BUS.init(hardware::get_i2c1(r.i2c1));
 
     // Initialize the bus for the I2C2 peripheral.
     //
     // This communicates with the BQ24193 battery charger,
     // BQ27531YZFR-G1 fuel gauge, FUSB302B USB-PD.
     info!("initializing power i2c2 bus");
-    let i2c2_bus = I2C2_BUS.init(hardware::get_i2c2(r.i2c2));
+    let _i2c2_bus = I2C2_BUS.init(hardware::get_i2c2(r.i2c2));
 
     // Initialize the bus for the I2C4 peripheral.
     //
@@ -118,7 +114,16 @@ async fn main(_spawner: Spawner) {
     // TCA8418RTWR Keypad matrix, ADS7128IRTER GPIO Breakout for
     // Velocity Grid, DA7280 Haptics driver, and MMA8653FCR1 9DOF.
     info!("initializing input i2c4 bus");
-    let i2c4_bus = I2C4_BUS.init(hardware::get_i2c4(r.i2c4));
+    let i2c4 = hardware::get_i2c4(r.i2c4);
+    let i2c4_bus = I2C4_BUS.init(Mutex::new(i2c4));
+
+    info!("initializing tca8418 device");
+    let mut keypad = hardware::get_tca8418_async(
+        r.i2c4_interrupts.keypad_int,
+        r.i2c4_interrupts.keypad_exti,
+        i2c4_bus);
+    info!("initializing tca8418 registers");
+    keypad.init().await.unwrap(); // TODO: change to result errror
 
     // Initialize the bus for the SPI1 peripheral.
     //
@@ -126,7 +131,7 @@ async fn main(_spawner: Spawner) {
     info!("initializing storage spi1 bus");
     let (
         spi1,
-        mut sd_cs,
+        sd_cs,
         mut xtsdg_cs
     ) = hardware::get_spi1(r.spi_storage);
 
@@ -141,7 +146,7 @@ async fn main(_spawner: Spawner) {
     loop {
         match sd_init(spi_bus.get_mut(), &mut xtsdg_cs).await {
             Ok(_) => break,
-            Err(e) => {
+            Err(_e) => {
                 defmt::warn!("SD card init error!"); // TODO: log the error
                 embassy_time::Timer::after_millis(10).await;
             }
@@ -234,3 +239,7 @@ async fn main(_spawner: Spawner) {
     //     Timer::after_millis(500).await;
     // }
 }
+
+/// Rust's `!` is unstable.  This is a locally-defined equivalent which is stable.
+#[derive(Debug)]
+pub enum Never {}

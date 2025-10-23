@@ -1,9 +1,7 @@
+
 /// ISSI IS42S16160J-7 SDRAM
 /// 256MBit 16Mx16 143MHz
 /// see: https://www.issi.com/WW/pdf/42-45S83200J-16160J.pdf
-
-/// Some constants are only used for specific mode register combinations.
-#[allow(unused)] 
 
 use stm32_fmc;
 
@@ -14,16 +12,27 @@ use stm32_fmc::{
 };
 
 // https://www.issi.com/WW/pdf/42-45S83200J-16160J.pdf (p.g. 25)
+#[allow(unused)] 
 const BURST_LENGTH_1: u16 = 0x0000; // 000
+#[allow(unused)] 
 const BURST_LENGTH_2: u16 = 0x0001; // 001
+#[allow(unused)] 
 const BURST_LENGTH_4: u16 = 0x0002; // 010
+#[allow(unused)] 
 const BURST_LENGTH_8: u16 = 0x0003; // 011
+#[allow(unused)] 
 const BURST_TYPE_SEQUENTIAL: u16 = 0x0000;
+#[allow(unused)] 
 const BURST_TYPE_INTERLEAVED: u16 = 0x0008;
+#[allow(unused)] 
 const CAS_LATENCY_2: u16 = 0x0020;
+#[allow(unused)] 
 const CAS_LATENCY_3: u16 = 0x0030;
+#[allow(unused)] 
 const OPERATING_MODE_STANDARD: u16 = 0x0000;
+#[allow(unused)] 
 const WRITEBURST_MODE_PROGRAMMED: u16 = 0x0000;
+#[allow(unused)] 
 const WRITEBURST_MODE_SINGLE: u16 = 0x0200;
 
 /// Is42s16160j with Speed Grade 7

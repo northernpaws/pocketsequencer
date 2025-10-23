@@ -2,155 +2,286 @@
 // Helper that allows us to write registers as structs and read
 // them directly as their corrosponding binary representation.
 use bit_struct::*; 
+use concat_idents::concat_idents;
+
+const RESERVED_ADDRESS: u8 = 0x00;
+/// Configuration register (interrupt processor, interrupt enables).
+const CONFIGURATION_ADDRESS: u8 = 0x01;
+
+/// Interrupt status register.
+const INT_STAT_ADDRESS: u8 = 0x02;
+
+/// Key lock and event counter register.
+const KEY_LOCK_EVENT_COUNTER_ADDRESS: u8 = 0x03;
+/// Key event register A.
+const KEY_EVENT_A_ADDRESS: u8 = 0x04;
+/// Key event register B.
+const KEY_EVENT_B_ADDRESS: u8 = 0x05;
+/// Key event register C.
+const KEY_EVENT_C_ADDRESS: u8 = 0x06;
+/// Key event register D.
+const KEY_EVENT_D_ADDRESS: u8 = 0x07;
+/// Key event register E.
+const KEY_EVENT_E_ADDRESS: u8 = 0x08;
+/// Key event register F.
+const KEY_EVENT_F_ADDRESS: u8 = 0x09;
+/// Key event register G.
+const KEY_EVENT_G_ADDRESS: u8 = 0x0A;
+/// Key event register H.
+const KEY_EVENT_H_ADDRESS: u8 = 0x0B;
+/// Key event register I.
+const KEY_EVENT_I_ADDRESS: u8 = 0x0C;
+/// Key event register J.
+const KEY_EVENT_J_ADDRESS: u8 = 0x0D;
+/// Keypad lock 1 to lock 2 timer.
+const KEYPAD_LOCK_TIMER_ADDRESS: u8 = 0x0E;
+/// Unlock key 1.
+const UNLOCK1_ADDRESS: u8 = 0x0F;
+/// Unlock key 2.
+const UNLOCK2_ADDRESS: u8 = 0x10;
+/// GPIO interrupt status.
+const GPIO_INTERRUPT_STATUS1_ADDRESS: u8 = 0x11;
+/// GPIO interrupt status.
+const GPIO_INTERRUPT_STATUS2_ADDRESS: u8 = 0x12;
+/// GPIO interrupt status.
+const GPIO_INTERRUPT_STATUS3_ADDRESS: u8 = 0x13;
+/// GPIO data status (read twice to clear).
+const GPIO_DATA_STATUS1_ADDRESS: u8 = 0x14;
+/// GPIO data status (read twice to clear).
+const GPIO_DATA_STATUS2_ADDRESS: u8 = 0x15;
+/// GPIO data status (read twice to clear).
+const GPIO_DATA_STATUS3_ADDRESS: u8 = 0x16;
+/// GPIO data out.
+const GPIO_DATA_OUT1_ADDRESS: u8 = 0x17;
+/// GPIO data out.
+const GPIO_DATA_OUT2_ADDRESS: u8 = 0x18;
+/// GPIO data out.
+const GPIO_DATA_OUT3_ADDRESS: u8  = 0x19;
+/// GPIO interrupt enable.
+const GPIO_INTERRUPT_ENABLE1_ADDRESS: u8 = 0x1A;
+/// GPIO interrupt enable.
+const GPIO_INTERRUPT_ENABLE2_ADDRESS: u8 = 0x1B;
+/// GPIO interrupt enable.
+const GPIO_INTERRUPT_ENABLE3_ADDRESS: u8 = 0x1C;
+/// Keypad or GPIO selection.
+///  0: GPIO
+///  1: KP matrix
+const KEYPAD_GPIO1_ADDRESS: u8 = 0x1D;
+/// Keypad or GPIO selection.
+///  0: GPIO
+///  1: KP matrix
+const KEYPAD_GPIO2_ADDRESS: u8 = 0x1E;
+/// Keypad or GPIO selection.
+///  0: GPIO
+///  1: KP matrix
+const KEYPAD_GPIO3_ADDRESS: u8 = 0x1F;
+/// GPI event mode 1.
+const GPI_EVENT_MODE1_ADDRESS: u8 = 0x20;
+/// GPI event mode 2.
+const GPI_EVENT_MODE2_ADDRESS: u8 = 0x21;
+/// GPI event mode 3.
+const GPI_EVENT_MODE3_ADDRESS: u8 = 0x22;
+/// GPIO data direction.
+///  0: input
+///  1: output
+const GPIO_DIRECTION1_ADDRESS: u8 = 0x23;
+/// GPIO data direction.
+///  0: input
+///  1: output
+const GPIO_DIRECTION2_ADDRESS: u8 = 0x24;
+/// GPIO data direction.
+///  0: input
+///  1: output
+const GPIO_DIRECTION3_ADDRESS: u8 = 0x25;
+/// GPIO edge/level detect
+///  0: falling/low
+///  1: rising/high
+const GPIO_INTERRUPT_LEVEL1_ADDRESS: u8 = 0x26;
+/// GPIO edge/level detect
+///  0: falling/low
+///  1: rising/high
+const GPIO_INTERRUPT_LEVEL2_ADDRESS: u8 = 0x27;
+/// GPIO edge/level detect
+///  0: falling/low
+///  1: rising/high
+const GPIO_INTERRUPT_LEVEL3_ADDRESS: u8 = 0x28;
+/// Debounce disable
+///  0: debounce enabled
+///  1: debounce disabled
+const DEBOUNCE_DISABLE1_ADDRESS: u8 = 0x29;
+/// Debounce disable
+///  0: debounce enabled
+///  1: debounce disabled
+const DEBOUNCE_DISABLE2_ADDRESS: u8 = 0x2A;
+/// Debounce disable
+///  0: debounce enabled
+///  1: debounce disabled
+const DEBOUNCE_DISABLE3_ADDRESS: u8 = 0x2B;
+/// GPIO pull-up disable
+///  0: pull-up enabled
+///  1: pull-up disabled
+const GPIO_PULL_UP_DISABLE1_ADDRESS: u8 = 0x2C;
+/// GPIO pull-up disable
+///  0: pull-up enabled
+///  1: pull-up disabled
+const GPIO_PULL_UP_DISABLE2_ADDRESS: u8 = 0x2D;
+/// GPIO pull-up disable
+///  0: pull-up enabled
+///  1: pull-up disabled
+const GPIO_PULL_UP_DISABLE3_ADDRESS: u8 = 0x2E;
+const RESERVED2_ADDRESS: u8 = 0x2F;
 
 /// Mapping of the Tca8418rtwr register names to addresses.
+#[repr(u8)]
 pub enum Address {
-    Reserved = 0x00,
+    Reserved = RESERVED_ADDRESS,
 
     /// Configuration register (interrupt processor, interrupt enables).
-    Configuration = 0x01,
+    Configuration = CONFIGURATION_ADDRESS,
 
     /// Interrupt status register.
-    IntStat = 0x02,
+    IntStat = INT_STAT_ADDRESS,
 
     /// Key lock and event counter register.
-    KeyLockEventCounter = 0x03,
+    KeyLockEventCounter = KEY_LOCK_EVENT_COUNTER_ADDRESS,
 
     /// Key event register A.
-    KeyEventA = 0x04,
+    KeyEventA = KEY_EVENT_A_ADDRESS,
     /// Key event register B.
-    KeyEventB = 0x05,
+    KeyEventB = KEY_EVENT_B_ADDRESS,
     /// Key event register C.
-    KeyEventC = 0x06,
+    KeyEventC = KEY_EVENT_C_ADDRESS,
     /// Key event register D.
-    KeyEventD = 0x07,
+    KeyEventD = KEY_EVENT_D_ADDRESS,
     /// Key event register E.
-    KeyEventE = 0x08,
+    KeyEventE = KEY_EVENT_E_ADDRESS,
     /// Key event register F.
-    KeyEventF = 0x09,
+    KeyEventF = KEY_EVENT_F_ADDRESS,
     /// Key event register G.
-    KeyEventG = 0x0A,
+    KeyEventG = KEY_EVENT_G_ADDRESS,
     /// Key event register H.
-    KeyEventH = 0x0B,
+    KeyEventH = KEY_EVENT_H_ADDRESS,
     /// Key event register I.
-    KeyEventI = 0x0C,
+    KeyEventI = KEY_EVENT_I_ADDRESS,
     /// Key event register J.
-    KeyEventJ = 0x0D,
+    KeyEventJ = KEY_EVENT_J_ADDRESS,
 
     /// Keypad lock 1 to lock 2 timer.
-    KeypadLockTimer = 0x0E,
+    KeypadLockTimer = KEYPAD_LOCK_TIMER_ADDRESS,
 
     /// Unlock key 1.
-    Unlock1 = 0x0F,
+    Unlock1 = UNLOCK1_ADDRESS,
     /// Unlock key 2.
-    Unlock2 = 0x10,
+    Unlock2 = UNLOCK2_ADDRESS,
 
     /// GPIO interrupt status.
-    GPIOInterruptStatus1 = 0x11,
+    GPIOInterruptStatus1 = GPIO_INTERRUPT_STATUS1_ADDRESS,
     /// GPIO interrupt status.
-    GPIOInterruptStatus2 = 0x12,
+    GPIOInterruptStatus2 = GPIO_INTERRUPT_STATUS2_ADDRESS,
     /// GPIO interrupt status.
-    GPIOInterruptStatus3 = 0x13,
+    GPIOInterruptStatus3 = GPIO_INTERRUPT_STATUS3_ADDRESS,
     /// GPIO data status (read twice to clear).
-    GPIODataStatus1 = 0x14,
+    GPIODataStatus1 = GPIO_DATA_STATUS1_ADDRESS,
     /// GPIO data status (read twice to clear).
-    GPIODataStatus2 = 0x15,
+    GPIODataStatus2 = GPIO_DATA_STATUS2_ADDRESS,
     /// GPIO data status (read twice to clear).
-    GPIODataStatus3 = 0x16,
+    GPIODataStatus3 = GPIO_DATA_STATUS3_ADDRESS,
 
     /// GPIO data out.
-    GPIODataOut1 = 0x17, 
+    GPIODataOut1 = GPIO_DATA_OUT1_ADDRESS, 
     /// GPIO data out.
-    GPIODataOut2 = 0x18,
+    GPIODataOut2 = GPIO_DATA_OUT2_ADDRESS,
     /// GPIO data out.
-    GPIODataOut3  = 0x19,
+    GPIODataOut3  = GPIO_DATA_OUT3_ADDRESS,
 
     /// GPIO interrupt enable.
-    GPIOInterruptEnable1 = 0x1A,
+    GPIOInterruptEnable1 = GPIO_INTERRUPT_ENABLE1_ADDRESS,
     /// GPIO interrupt enable.
-    GPIOInterruptEnable2 = 0x1B,
+    GPIOInterruptEnable2 = GPIO_INTERRUPT_ENABLE2_ADDRESS,
     /// GPIO interrupt enable.
-    GPIOInterruptEnable3 = 0x1C,
+    GPIOInterruptEnable3 = GPIO_INTERRUPT_ENABLE3_ADDRESS,
 
     /// Keypad or GPIO selection.
     ///  0: GPIO
     ///  1: KP matrix
-    KeypadGPIO1 = 0x1D,
+    KeypadGPIO1 = KEYPAD_GPIO1_ADDRESS,
     /// Keypad or GPIO selection.
     ///  0: GPIO
     ///  1: KP matrix
-    KeypadGPIO2 = 0x1E,
+    KeypadGPIO2 = KEYPAD_GPIO2_ADDRESS,
     /// Keypad or GPIO selection.
     ///  0: GPIO
     ///  1: KP matrix
-    KeypadGPIO3 = 0x1F,
+    KeypadGPIO3 = KEYPAD_GPIO3_ADDRESS,
 
     /// GPI event mode 1.
-    GPIEventMode1 = 0x20,
+    GPIEventMode1 = GPI_EVENT_MODE1_ADDRESS,
     /// GPI event mode 2.
-    GPIEventMode2 = 0x21,
+    GPIEventMode2 = GPI_EVENT_MODE2_ADDRESS,
     /// GPI event mode 3.
-    GPIEventMode3 = 0x22,
+    GPIEventMode3 = GPI_EVENT_MODE3_ADDRESS,
 
     /// GPIO data direction.
     ///  0: input
     ///  1: output
-    GPIODirection1 = 0x23,
+    GPIODirection1 = GPIO_DIRECTION1_ADDRESS,
     /// GPIO data direction.
     ///  0: input
     ///  1: output
-    GPIODirection2 = 0x24,
+    GPIODirection2 = GPIO_DIRECTION2_ADDRESS,
     /// GPIO data direction.
     ///  0: input
     ///  1: output
-    GPIODirection3 = 0x25,
+    GPIODirection3 = GPIO_DIRECTION3_ADDRESS,
 
     /// GPIO edge/level detect
     ///  0: falling/low
     ///  1: rising/high
-    GPIOInterruptLevel1 = 0x26,
+    GPIOInterruptLevel1 = GPIO_INTERRUPT_LEVEL1_ADDRESS,
     /// GPIO edge/level detect
     ///  0: falling/low
     ///  1: rising/high
-    GPIOInterruptLevel2 = 0x27,
+    GPIOInterruptLevel2 = GPIO_INTERRUPT_LEVEL2_ADDRESS,
     /// GPIO edge/level detect
     ///  0: falling/low
     ///  1: rising/high
-    GPIOInterruptLevel3 = 0x28,
+    GPIOInterruptLevel3 = GPIO_INTERRUPT_LEVEL3_ADDRESS,
 
     /// Debounce disable
     ///  0: debounce enabled
     ///  1: debounce disabled
-    DebounceDisable1 = 0x29,
+    DebounceDisable1 = DEBOUNCE_DISABLE1_ADDRESS,
     /// Debounce disable
     ///  0: debounce enabled
     ///  1: debounce disabled
-    DebounceDisable2 = 0x2A,
+    DebounceDisable2 = DEBOUNCE_DISABLE2_ADDRESS,
     /// Debounce disable
     ///  0: debounce enabled
     ///  1: debounce disabled
-    DebounceDisable3 = 0x2B,
+    DebounceDisable3 = DEBOUNCE_DISABLE3_ADDRESS,
 
     /// GPIO pull-up disable
     ///  0: pull-up enabled
     ///  1: pull-up disabled
-    GPIOPullUpDisable1 = 0x2C,
+    GPIOPullUpDisable1 = GPIO_PULL_UP_DISABLE1_ADDRESS,
     /// GPIO pull-up disable
     ///  0: pull-up enabled
     ///  1: pull-up disabled
-    GPIOPullUpDisable2 = 0x2D,
+    GPIOPullUpDisable2 = GPIO_PULL_UP_DISABLE2_ADDRESS,
     /// GPIO pull-up disable
     ///  0: pull-up enabled
     ///  1: pull-up disabled
-    GPIOPullUpDisable3 = 0x2E,
+    GPIOPullUpDisable3 = GPIO_PULL_UP_DISABLE3_ADDRESS,
 
-    Reserved2 = 0x2F,
+    Reserved2 = RESERVED2_ADDRESS,
 }
 
 /// A trait representing a register.
 /// 
 /// All registers for the TCA8418 are 8 bit fields.
-pub trait Register: BitStruct<true, Kind = u8> {
+pub trait Register: BitStruct<true, Kind = u8> + BitStructExt + Into<u8> {
+    const ADDRESS: u8;
+
     /// Returns the address of the register.
     fn address() -> Address;
 }
@@ -196,7 +327,15 @@ bit_struct! {
     }
 }
 
+impl Into<u8> for Configuration {
+    fn into(self) -> u8 {
+        self.raw()
+    }
+}
+
 impl Register for Configuration {
+    const ADDRESS: u8 = CONFIGURATION_ADDRESS;
+
     fn address() -> Address {
         Address::Configuration
     }
@@ -250,7 +389,15 @@ bit_struct! {
     }
 }
 
+impl Into<u8> for InterruptStatus {
+    fn into(self) -> u8 {
+        self.raw()
+    }
+}
+
 impl Register for InterruptStatus {
+    const ADDRESS: u8 = INT_STAT_ADDRESS;
+
     fn address() -> Address {
         Address::IntStat
     }
@@ -278,16 +425,23 @@ bit_struct! {
     }
 }
 
+impl Into<u8> for KeyLockAndEventCounter {
+    fn into(self) -> u8 {
+        self.raw()
+    }
+}
+
 impl Register for KeyLockAndEventCounter {
+    const ADDRESS: u8 = KEY_LOCK_EVENT_COUNTER_ADDRESS;
+
     fn address() -> Address {
         Address::KeyLockEventCounter
     }
 }
 
-
 // Helper to write all the GPIOx registers that have the same field names.
-macro_rules! gpio_register {
-    ($name:ident) => {
+macro_rules! key_event {
+    ($name:ident, $addr:ident) => {
         bit_struct! {
             // KEY_EVENT_A–J (Address 0x04–0x0D)
             //
@@ -313,8 +467,17 @@ macro_rules! gpio_register {
             }
         }
 
+        impl Into<u8> for $name {
+            fn into(self) -> u8 {
+                self.raw()
+            }
+        }
 
         impl Register for $name {
+            concat_idents!(address_name = $addr, _ADDRESS {
+                const ADDRESS: u8 = address_name;
+            });
+
             fn address() -> Address {
                 Address::$name
             }
@@ -322,16 +485,16 @@ macro_rules! gpio_register {
     }
 }
 
-gpio_register!(KeyEventA);
-gpio_register!(KeyEventB);
-gpio_register!(KeyEventC);
-gpio_register!(KeyEventD);
-gpio_register!(KeyEventE);
-gpio_register!(KeyEventF);
-gpio_register!(KeyEventG);
-gpio_register!(KeyEventH);
-gpio_register!(KeyEventI);
-gpio_register!(KeyEventJ);
+key_event!(KeyEventA, KEY_EVENT_A);
+key_event!(KeyEventB, KEY_EVENT_B);
+key_event!(KeyEventC, KEY_EVENT_C);
+key_event!(KeyEventD, KEY_EVENT_D);
+key_event!(KeyEventE, KEY_EVENT_E);
+key_event!(KeyEventF, KEY_EVENT_F);
+key_event!(KeyEventG, KEY_EVENT_G);
+key_event!(KeyEventH, KEY_EVENT_H);
+key_event!(KeyEventI, KEY_EVENT_I);
+key_event!(KeyEventJ, KEY_EVENT_J);
 
 bit_struct! {
     // KP_LCK_TIMER (Address 0x0E)
@@ -357,7 +520,15 @@ bit_struct! {
     }
 }
 
+impl Into<u8> for KeypadLockTimer {
+    fn into(self) -> u8 {
+        self.raw()
+    }
+}
+
 impl Register for KeypadLockTimer {
+    const ADDRESS: u8 = KEYPAD_LOCK_TIMER_ADDRESS;
+
     fn address() -> Address {
         Address::KeypadLockTimer
     }
@@ -373,7 +544,15 @@ bit_struct! {
     }
 }
 
+impl Into<u8> for Unlock1 {
+    fn into(self) -> u8 {
+        self.raw()
+    }
+}
+
 impl Register for Unlock1 {
+    const ADDRESS: u8 = UNLOCK1_ADDRESS;
+
     fn address() -> Address {
         Address::Unlock1
     }
@@ -389,7 +568,15 @@ bit_struct! {
     }
 }
 
+impl Into<u8> for Unlock2 {
+    fn into(self) -> u8 {
+        self.raw()
+    }
+}
+
 impl Register for Unlock2 {
+    const ADDRESS: u8 = UNLOCK2_ADDRESS;
+
     fn address() -> Address {
         Address::Unlock2
     }
@@ -397,7 +584,7 @@ impl Register for Unlock2 {
 
 // Helper to write all the GPIOx registers that have the same field names.
 macro_rules! gpio_register {
-    ($name1:ident, $name2:ident, $name3:ident, $typename:ident) => {
+    ($name1:ident, $name2:ident, $name3:ident, $addr_base:ident, $typename:ident) => {
         bit_struct! {
             pub struct $name1(u8) {
                 row_7: $typename,
@@ -407,10 +594,21 @@ macro_rules! gpio_register {
                 row_3: $typename,
                 row_2: $typename,
                 row_1: $typename,
+                row_0: $typename,
+            }
+        }
+
+        impl Into<u8> for $name1 {
+            fn into(self) -> u8 {
+                self.raw()
             }
         }
 
         impl Register for $name1 {
+            concat_idents!(address_name = $addr_base, 1, _ADDRESS {
+                const ADDRESS: u8 = address_name;
+            });
+
             fn address() -> Address {
                 Address::$name1
             }
@@ -425,10 +623,21 @@ macro_rules! gpio_register {
                 column_3: $typename,
                 column_2: $typename,
                 column_1: $typename,
+                column_0: $typename,
+            }
+        }
+
+        impl Into<u8> for $name2 {
+            fn into(self) -> u8 {
+                self.raw()
             }
         }
 
         impl Register for $name2 {
+            concat_idents!(address_name = $addr_base, 2, _ADDRESS {
+                const ADDRESS: u8 = address_name;
+            });
+
             fn address() -> Address {
                 Address::$name2
             }
@@ -447,7 +656,17 @@ macro_rules! gpio_register {
             }
         }
 
+        impl Into<u8> for $name3 {
+            fn into(self) -> u8 {
+                self.raw()
+            }
+        }
+
         impl Register for $name3 {
+            concat_idents!(address_name = $addr_base, 3, _ADDRESS {
+                const ADDRESS: u8 = address_name;
+            });
+
             fn address() -> Address {
                 Address::$name3
             }
@@ -457,11 +676,11 @@ macro_rules! gpio_register {
 
 
 // All these registers have 3 common sets of fields.
-gpio_register!(GPIOInterruptStatus1, GPIOInterruptStatus2, GPIOInterruptStatus3, bool);
+gpio_register!(GPIOInterruptStatus1, GPIOInterruptStatus2, GPIOInterruptStatus3, GPIO_INTERRUPT_STATUS, bool);
 
-gpio_register!(GPIODataStatus1, GPIODataStatus2, GPIODataStatus3, bool);
+gpio_register!(GPIODataStatus1, GPIODataStatus2, GPIODataStatus3, GPIO_DATA_STATUS, bool);
 
-gpio_register!(GPIODataOut1, GPIODataOut2, GPIODataOut3, bool);
+gpio_register!(GPIODataOut1, GPIODataOut2, GPIODataOut3, GPIO_DATA_OUT, bool);
 
 enums! {
     /// A bit value of '0' in any of the unreserved bits disables the
@@ -473,7 +692,7 @@ enums! {
     /// the state of the input changes.
     pub GPIOInterruptEnable { Disabled, Enabled }
 }
-gpio_register!(GPIOInterruptEnable1, GPIOInterruptEnable2, GPIOInterruptEnable3, GPIOInterruptEnable);
+gpio_register!(GPIOInterruptEnable1, GPIOInterruptEnable2, GPIOInterruptEnable3, GPIO_INTERRUPT_ENABLE, GPIOInterruptEnable);
 
 
 enums! {
@@ -487,7 +706,7 @@ enums! {
     /// then it is configured as a row or column accordingly (this is not adjustable).
     pub GPIOMode { GPIOMode, KeyScanMode }
 }
-gpio_register!(KeypadGPIO1, KeypadGPIO2, KeypadGPIO3, GPIOMode);
+gpio_register!(KeypadGPIO1, KeypadGPIO2, KeypadGPIO3, KEYPAD_GPIO, GPIOMode);
 
 enums! {
     /// A bit value of '0' in any of the unreserved bits indicates that
@@ -499,7 +718,7 @@ enums! {
     /// and has a value of 1 in information.
     pub GPIEventMode { FIFODisabled, FIFOEnabled }
 }
-gpio_register!(GPIEventMode1, GPIEventMode2, GPIEventMode3, GPIEventMode);
+gpio_register!(GPIEventMode1, GPIEventMode2, GPIEventMode3, GPI_EVENT_MODE, GPIEventMode);
 
 enums! {
     /// A bit value of '0' in any of the unreserved bits sets the corresponding pin as an input.
@@ -507,7 +726,7 @@ enums! {
     /// This is the default value. A 1 in any of these bits sets the pin as an output.
     pub GPIODirection { Input, Output }
 }
-gpio_register!(GPIODirection1, GPIODirection2, GPIODirection3, GPIODirection);
+gpio_register!(GPIODirection1, GPIODirection2, GPIODirection3, GPIO_DIRECTION, GPIODirection);
 
 enums! {
     /// A bit value of '0' indicates that interrupt will be triggered
@@ -518,7 +737,7 @@ enums! {
     /// a low-to-high/high-level value for the inputs in GPIO mode.
     pub GPIOInterruptLevel { HighToLow, LoWToHigh }
 }
-gpio_register!(GPIOInterruptLevel1, GPIOInterruptLevel2, GPIOInterruptLevel3, GPIOInterruptLevel);
+gpio_register!(GPIOInterruptLevel1, GPIOInterruptLevel2, GPIOInterruptLevel3, GPIO_INTERRUPT_LEVEL, GPIOInterruptLevel);
 
 enums! {
     /// This is for pins configured as inputs. A bit value of ‘0’ in any of
@@ -527,7 +746,7 @@ enums! {
     /// A bit value of ‘1’ disables the debounce.
     pub GPIODebounce { Enabled, Disabled }
 }
-gpio_register!(DebounceDisable1, DebounceDisable2, DebounceDisable3, GPIODebounce);
+gpio_register!(DebounceDisable1, DebounceDisable2, DebounceDisable3, DEBOUNCE_DISABLE, GPIODebounce);
 
 enums! {
     /// This register enables or disables pull-up registers from inputs.
@@ -537,433 +756,433 @@ enums! {
     /// A bit value of 1 will disable the internal pull-up resistors.
     pub GPIOPullUp { Enabled, Disabled }
 }
-gpio_register!(GPIOPullUpDisable1, GPIOPullUpDisable2, GPIOPullUpDisable3, GPIOPullUp);
+gpio_register!(GPIOPullUpDisable1, GPIOPullUpDisable2, GPIOPullUpDisable3, GPIO_PULL_UP_DISABLE, GPIOPullUp);
 
 
-#[repr(u8)]
-pub enum Registers {
-    Reserved(u8),
+// #[repr(u8)]
+// pub enum Registers {
+//     Reserved(u8),
 
-    /// Configuration register (interrupt processor, interrupt enables).
-    Configuration(Configuration),
+//     /// Configuration register (interrupt processor, interrupt enables).
+//     Configuration(Configuration),
 
-    /// Interrupt status register.
-    IntStat(InterruptStatus),
+//     /// Interrupt status register.
+//     IntStat(InterruptStatus),
 
-    /// Key lock and event counter register.
-    KeyLockEventCounter(KeyLockAndEventCounter),
+//     /// Key lock and event counter register.
+//     KeyLockEventCounter(KeyLockAndEventCounter),
 
-    /// Key event register A.
-    KeyEventA(KeyEventA),
-    /// Key event register B.
-    KeyEventB(KeyEventB),
-    /// Key event register C.
-    KeyEventC(KeyEventC),
-    /// Key event register D.
-    KeyEventD(KeyEventD),
-    /// Key event register E.
-    KeyEventE(KeyEventE),
-    /// Key event register F.
-    KeyEventF(KeyEventF),
-    /// Key event register G.
-    KeyEventG(KeyEventG),
-    /// Key event register H.
-    KeyEventH(KeyEventH),
-    /// Key event register I.
-    KeyEventI(KeyEventI),
-    /// Key event register J.
-    KeyEventJ(KeyEventJ),
+//     /// Key event register A.
+//     KeyEventA(KeyEventA),
+//     /// Key event register B.
+//     KeyEventB(KeyEventB),
+//     /// Key event register C.
+//     KeyEventC(KeyEventC),
+//     /// Key event register D.
+//     KeyEventD(KeyEventD),
+//     /// Key event register E.
+//     KeyEventE(KeyEventE),
+//     /// Key event register F.
+//     KeyEventF(KeyEventF),
+//     /// Key event register G.
+//     KeyEventG(KeyEventG),
+//     /// Key event register H.
+//     KeyEventH(KeyEventH),
+//     /// Key event register I.
+//     KeyEventI(KeyEventI),
+//     /// Key event register J.
+//     KeyEventJ(KeyEventJ),
 
-    /// Keypad lock 1 to lock 2 timer.
-    KeypadLockTimer(KeypadLockTimer),
+//     /// Keypad lock 1 to lock 2 timer.
+//     KeypadLockTimer(KeypadLockTimer),
 
-    /// Unlock key 1.
-    Unlock1(Unlock1),
-    /// Unlock key 2.
-    Unlock2(Unlock2),
+//     /// Unlock key 1.
+//     Unlock1(Unlock1),
+//     /// Unlock key 2.
+//     Unlock2(Unlock2),
 
-    /// GPIO interrupt status (row 7 - row 0).
-    /// 
-    /// These registers are used to check GPIO interrupt status.
-    /// 
-    /// If the GPI_INT bit is set in INT_STAT register, then the GPI which
-    /// set the interrupt is marked with a 1 in the corresponding table.
-    ///
-    /// To clear the GPI_INT bit, these registers must all be 0x00.
-    ///
-    /// A read to the register clears the bit.
-    GPIOInterruptStatus1(GPIOInterruptStatus1),
-    /// GPIO interrupt status (column 7 - column 0).
-    /// 
-    /// These registers are used to check GPIO interrupt status.
-    /// 
-    /// If the GPI_INT bit is set in INT_STAT register, then the GPI which
-    /// set the interrupt is marked with a 1 in the corresponding table.
-    ///
-    /// To clear the GPI_INT bit, these registers must all be 0x00.
-    ///
-    /// A read to the register clears the bit.
-    GPIOInterruptStatus2(GPIOInterruptStatus2),
-    /// GPIO interrupt status.
-    /// 
-    /// These registers are used to check GPIO interrupt status.
-    /// 
-    /// If the GPI_INT bit is set in INT_STAT register, then the GPI which
-    /// set the interrupt is marked with a 1 in the corresponding table.
-    ///
-    /// To clear the GPI_INT bit, these registers must all be 0x00.
-    ///
-    /// A read to the register clears the bit.
-    GPIOInterruptStatus3(GPIOInterruptStatus3),
+//     /// GPIO interrupt status (row 7 - row 0).
+//     /// 
+//     /// These registers are used to check GPIO interrupt status.
+//     /// 
+//     /// If the GPI_INT bit is set in INT_STAT register, then the GPI which
+//     /// set the interrupt is marked with a 1 in the corresponding table.
+//     ///
+//     /// To clear the GPI_INT bit, these registers must all be 0x00.
+//     ///
+//     /// A read to the register clears the bit.
+//     GPIOInterruptStatus1(GPIOInterruptStatus1),
+//     /// GPIO interrupt status (column 7 - column 0).
+//     /// 
+//     /// These registers are used to check GPIO interrupt status.
+//     /// 
+//     /// If the GPI_INT bit is set in INT_STAT register, then the GPI which
+//     /// set the interrupt is marked with a 1 in the corresponding table.
+//     ///
+//     /// To clear the GPI_INT bit, these registers must all be 0x00.
+//     ///
+//     /// A read to the register clears the bit.
+//     GPIOInterruptStatus2(GPIOInterruptStatus2),
+//     /// GPIO interrupt status.
+//     /// 
+//     /// These registers are used to check GPIO interrupt status.
+//     /// 
+//     /// If the GPI_INT bit is set in INT_STAT register, then the GPI which
+//     /// set the interrupt is marked with a 1 in the corresponding table.
+//     ///
+//     /// To clear the GPI_INT bit, these registers must all be 0x00.
+//     ///
+//     /// A read to the register clears the bit.
+//     GPIOInterruptStatus3(GPIOInterruptStatus3),
 
-    /// GPIO data status (read twice to clear) (row 7 - row 0).
-    /// 
-    /// These registers show the GPIO state when read for inputs and outputs.
-    /// 
-    /// Read these twice to clear them.
-    /// 
-    /// If debouncing is enabled, these registers return their
-    /// default values until a change of state occurs at an input.
-    /// 
-    /// Initial pin states can be read by disabling debouncing.
-    GPIODataStatus1(GPIODataStatus1),
-    /// GPIO data status (read twice to clear) (column 7 - column 0).
-    /// 
-    /// These registers show the GPIO state when read for inputs and outputs.
-    /// 
-    /// Read these twice to clear them.
-    /// 
-    /// If debouncing is enabled, these registers return their
-    /// default values until a change of state occurs at an input.
-    /// 
-    /// Initial pin states can be read by disabling debouncing.
-    GPIODataStatus2(GPIODataStatus2),
-    /// GPIO data status (read twice to clear) (column 9 - column 8).
-    /// 
-    /// These registers show the GPIO state when read for inputs and outputs.
-    /// 
-    /// Read these twice to clear them.
-    /// 
-    /// If debouncing is enabled, these registers return their
-    /// default values until a change of state occurs at an input.
-    /// 
-    /// Initial pin states can be read by disabling debouncing.
-    GPIODataStatus3(GPIODataStatus3),
+//     /// GPIO data status (read twice to clear) (row 7 - row 0).
+//     /// 
+//     /// These registers show the GPIO state when read for inputs and outputs.
+//     /// 
+//     /// Read these twice to clear them.
+//     /// 
+//     /// If debouncing is enabled, these registers return their
+//     /// default values until a change of state occurs at an input.
+//     /// 
+//     /// Initial pin states can be read by disabling debouncing.
+//     GPIODataStatus1(GPIODataStatus1),
+//     /// GPIO data status (read twice to clear) (column 7 - column 0).
+//     /// 
+//     /// These registers show the GPIO state when read for inputs and outputs.
+//     /// 
+//     /// Read these twice to clear them.
+//     /// 
+//     /// If debouncing is enabled, these registers return their
+//     /// default values until a change of state occurs at an input.
+//     /// 
+//     /// Initial pin states can be read by disabling debouncing.
+//     GPIODataStatus2(GPIODataStatus2),
+//     /// GPIO data status (read twice to clear) (column 9 - column 8).
+//     /// 
+//     /// These registers show the GPIO state when read for inputs and outputs.
+//     /// 
+//     /// Read these twice to clear them.
+//     /// 
+//     /// If debouncing is enabled, these registers return their
+//     /// default values until a change of state occurs at an input.
+//     /// 
+//     /// Initial pin states can be read by disabling debouncing.
+//     GPIODataStatus3(GPIODataStatus3),
 
-    /// GPIO data out (row 7 - row 0).
-    /// 
-    /// These registers contain GPIO data to be written
-    /// to GPIO out driver; inputs are not affected.
-    /// 
-    /// This sets the output for the corresponding GPIO output.
-    GPIODataOut1(GPIODataOut1), 
-    /// GPIO data out (column 7 - column 0).
-    /// 
-    /// These registers contain GPIO data to be written
-    /// to GPIO out driver; inputs are not affected.
-    /// 
-    /// This sets the output for the corresponding GPIO output.
-    GPIODataOut2(GPIODataOut2),
-    /// GPIO data out (column 9 - column 8).
-    /// 
-    /// These registers contain GPIO data to be written
-    /// to GPIO out driver; inputs are not affected.
-    /// 
-    /// This sets the output for the corresponding GPIO output.
-    GPIODataOut3(GPIODataOut3),
+//     /// GPIO data out (row 7 - row 0).
+//     /// 
+//     /// These registers contain GPIO data to be written
+//     /// to GPIO out driver; inputs are not affected.
+//     /// 
+//     /// This sets the output for the corresponding GPIO output.
+//     GPIODataOut1(GPIODataOut1), 
+//     /// GPIO data out (column 7 - column 0).
+//     /// 
+//     /// These registers contain GPIO data to be written
+//     /// to GPIO out driver; inputs are not affected.
+//     /// 
+//     /// This sets the output for the corresponding GPIO output.
+//     GPIODataOut2(GPIODataOut2),
+//     /// GPIO data out (column 9 - column 8).
+//     /// 
+//     /// These registers contain GPIO data to be written
+//     /// to GPIO out driver; inputs are not affected.
+//     /// 
+//     /// This sets the output for the corresponding GPIO output.
+//     GPIODataOut3(GPIODataOut3),
 
-    /// GPIO interrupt enable (row 7 - row 0).
-    /// 
-    /// These registers enable interrupts (bit value 1) or disable
-    /// interrupts (bit value '0') for general purpose inputs (GPI)
-    /// only. If the input changes on a pin which is setup as a GPI,
-    /// then the GPI_INT bit will be set in the INT_STAT register.
-    /// 
-    /// A bit value of '0' in any of the unreserved bits disables the
-    /// corresponding pin's ability to generate an interrupt when the
-    /// state of the input changes. This is the default value.
-    /// 
-    /// A bit value of 1 in any of the unreserved bits enables the
-    /// corresponding pin's ability to generate an interrupt when
-    /// the state of the input changes.
-    GPIOInterruptEnable1(GPIOInterruptEnable1),
-    /// GPIO interrupt enable (column 7 - column 0).
-    /// 
-    /// These registers enable interrupts (bit value 1) or disable
-    /// interrupts (bit value '0') for general purpose inputs (GPI)
-    /// only. If the input changes on a pin which is setup as a GPI,
-    /// then the GPI_INT bit will be set in the INT_STAT register.
-    /// 
-    /// A bit value of '0' in any of the unreserved bits disables the
-    /// corresponding pin's ability to generate an interrupt when the
-    /// state of the input changes. This is the default value.
-    /// 
-    /// A bit value of 1 in any of the unreserved bits enables the
-    /// corresponding pin's ability to generate an interrupt when
-    /// the state of the input changes.
-    GPIOInterruptEnable2(GPIOInterruptEnable2),
-    /// GPIO interrupt enable (column 9 - column 8).
-    /// 
-    /// These registers enable interrupts (bit value 1) or disable
-    /// interrupts (bit value '0') for general purpose inputs (GPI)
-    /// only. If the input changes on a pin which is setup as a GPI,
-    /// then the GPI_INT bit will be set in the INT_STAT register.
-    /// 
-    /// A bit value of '0' in any of the unreserved bits disables the
-    /// corresponding pin's ability to generate an interrupt when the
-    /// state of the input changes. This is the default value.
-    /// 
-    /// A bit value of 1 in any of the unreserved bits enables the
-    /// corresponding pin's ability to generate an interrupt when
-    /// the state of the input changes.
-    GPIOInterruptEnable3(GPIOInterruptEnable3),
+//     /// GPIO interrupt enable (row 7 - row 0).
+//     /// 
+//     /// These registers enable interrupts (bit value 1) or disable
+//     /// interrupts (bit value '0') for general purpose inputs (GPI)
+//     /// only. If the input changes on a pin which is setup as a GPI,
+//     /// then the GPI_INT bit will be set in the INT_STAT register.
+//     /// 
+//     /// A bit value of '0' in any of the unreserved bits disables the
+//     /// corresponding pin's ability to generate an interrupt when the
+//     /// state of the input changes. This is the default value.
+//     /// 
+//     /// A bit value of 1 in any of the unreserved bits enables the
+//     /// corresponding pin's ability to generate an interrupt when
+//     /// the state of the input changes.
+//     GPIOInterruptEnable1(GPIOInterruptEnable1),
+//     /// GPIO interrupt enable (column 7 - column 0).
+//     /// 
+//     /// These registers enable interrupts (bit value 1) or disable
+//     /// interrupts (bit value '0') for general purpose inputs (GPI)
+//     /// only. If the input changes on a pin which is setup as a GPI,
+//     /// then the GPI_INT bit will be set in the INT_STAT register.
+//     /// 
+//     /// A bit value of '0' in any of the unreserved bits disables the
+//     /// corresponding pin's ability to generate an interrupt when the
+//     /// state of the input changes. This is the default value.
+//     /// 
+//     /// A bit value of 1 in any of the unreserved bits enables the
+//     /// corresponding pin's ability to generate an interrupt when
+//     /// the state of the input changes.
+//     GPIOInterruptEnable2(GPIOInterruptEnable2),
+//     /// GPIO interrupt enable (column 9 - column 8).
+//     /// 
+//     /// These registers enable interrupts (bit value 1) or disable
+//     /// interrupts (bit value '0') for general purpose inputs (GPI)
+//     /// only. If the input changes on a pin which is setup as a GPI,
+//     /// then the GPI_INT bit will be set in the INT_STAT register.
+//     /// 
+//     /// A bit value of '0' in any of the unreserved bits disables the
+//     /// corresponding pin's ability to generate an interrupt when the
+//     /// state of the input changes. This is the default value.
+//     /// 
+//     /// A bit value of 1 in any of the unreserved bits enables the
+//     /// corresponding pin's ability to generate an interrupt when
+//     /// the state of the input changes.
+//     GPIOInterruptEnable3(GPIOInterruptEnable3),
 
-    /// Keypad or GPIO selection (row 7 - row 0).
-    ///  0: GPIO
-    ///  1: KP matrix
-    /// 
-    /// A bit value of '0' in any of the unreserved bits puts the corresponding pin in GPIO mode.
-    /// 
-    /// A pin in GPIO mode can be configured as an input or an output in the GPIO_DIR1-3 registers.
-    /// 
-    /// This is the default value.
-    /// 
-    /// A 1 in any of these bits puts the pin in key scan mode and becomes part of the keypad array,
-    /// then it is configured as a row or column accordingly (this is not adjustable).
-    KeypadGPIO1(KeypadGPIO1),
-    /// Keypad or GPIO selection (column 7 - column 0).
-    ///  0: GPIO
-    ///  1: KP matrix
-    /// 
-    /// 
-    /// A bit value of '0' in any of the unreserved bits puts the corresponding pin in GPIO mode.
-    /// 
-    /// A pin in GPIO mode can be configured as an input or an output in the GPIO_DIR1-3 registers.
-    /// 
-    /// This is the default value.
-    /// 
-    /// A 1 in any of these bits puts the pin in key scan mode and becomes part of the keypad array,
-    /// then it is configured as a row or column accordingly (this is not adjustable).
-    KeypadGPIO2(KeypadGPIO2),
-    /// Keypad or GPIO selection (column 9 - column 8).
-    ///  0: GPIO
-    ///  1: KP matrix
-    /// 
-    /// 
-    /// A bit value of '0' in any of the unreserved bits puts the corresponding pin in GPIO mode.
-    /// 
-    /// A pin in GPIO mode can be configured as an input or an output in the GPIO_DIR1-3 registers.
-    /// 
-    /// This is the default value.
-    /// 
-    /// A 1 in any of these bits puts the pin in key scan mode and becomes part of the keypad array,
-    /// then it is configured as a row or column accordingly (this is not adjustable).
-    KeypadGPIO3(KeypadGPIO3),
+//     /// Keypad or GPIO selection (row 7 - row 0).
+//     ///  0: GPIO
+//     ///  1: KP matrix
+//     /// 
+//     /// A bit value of '0' in any of the unreserved bits puts the corresponding pin in GPIO mode.
+//     /// 
+//     /// A pin in GPIO mode can be configured as an input or an output in the GPIO_DIR1-3 registers.
+//     /// 
+//     /// This is the default value.
+//     /// 
+//     /// A 1 in any of these bits puts the pin in key scan mode and becomes part of the keypad array,
+//     /// then it is configured as a row or column accordingly (this is not adjustable).
+//     KeypadGPIO1(KeypadGPIO1),
+//     /// Keypad or GPIO selection (column 7 - column 0).
+//     ///  0: GPIO
+//     ///  1: KP matrix
+//     /// 
+//     /// 
+//     /// A bit value of '0' in any of the unreserved bits puts the corresponding pin in GPIO mode.
+//     /// 
+//     /// A pin in GPIO mode can be configured as an input or an output in the GPIO_DIR1-3 registers.
+//     /// 
+//     /// This is the default value.
+//     /// 
+//     /// A 1 in any of these bits puts the pin in key scan mode and becomes part of the keypad array,
+//     /// then it is configured as a row or column accordingly (this is not adjustable).
+//     KeypadGPIO2(KeypadGPIO2),
+//     /// Keypad or GPIO selection (column 9 - column 8).
+//     ///  0: GPIO
+//     ///  1: KP matrix
+//     /// 
+//     /// 
+//     /// A bit value of '0' in any of the unreserved bits puts the corresponding pin in GPIO mode.
+//     /// 
+//     /// A pin in GPIO mode can be configured as an input or an output in the GPIO_DIR1-3 registers.
+//     /// 
+//     /// This is the default value.
+//     /// 
+//     /// A 1 in any of these bits puts the pin in key scan mode and becomes part of the keypad array,
+//     /// then it is configured as a row or column accordingly (this is not adjustable).
+//     KeypadGPIO3(KeypadGPIO3),
 
-    /// GPI event mode 1 (row 7 - row 0).
-    /// 
-    /// A bit value of '0' in any of the unreserved bits indicates that
-    /// it is not part of the event FIFO. This is the default value.
-    /// 
-    /// A 1 in any of these bits means it is part of the event FIFO. When
-    /// the Event Mode register, then any key presses will be added to the
-    /// FIFO. Please see Key Event Table for more a pin is setup as a GPI
-    /// and has a value of 1 in information.
-    GPIEventMode1(GPIEventMode1),
-    /// GPI event mode 2 (column 7 - column 0).
-    /// 
-    /// A bit value of '0' in any of the unreserved bits indicates that
-    /// it is not part of the event FIFO. This is the default value.
-    /// 
-    /// A 1 in any of these bits means it is part of the event FIFO. When
-    /// the Event Mode register, then any key presses will be added to the
-    /// FIFO. Please see Key Event Table for more a pin is setup as a GPI
-    /// and has a value of 1 in information.
-    GPIEventMode2(GPIEventMode2),
-    /// GPI event mode 3 (column 9 - column 8).
-    /// 
-    /// A bit value of '0' in any of the unreserved bits indicates that
-    /// it is not part of the event FIFO. This is the default value.
-    /// 
-    /// A 1 in any of these bits means it is part of the event FIFO. When
-    /// the Event Mode register, then any key presses will be added to the
-    /// FIFO. Please see Key Event Table for more a pin is setup as a GPI
-    /// and has a value of 1 in information.
-    GPIEventMode3(GPIEventMode3),
+//     /// GPI event mode 1 (row 7 - row 0).
+//     /// 
+//     /// A bit value of '0' in any of the unreserved bits indicates that
+//     /// it is not part of the event FIFO. This is the default value.
+//     /// 
+//     /// A 1 in any of these bits means it is part of the event FIFO. When
+//     /// the Event Mode register, then any key presses will be added to the
+//     /// FIFO. Please see Key Event Table for more a pin is setup as a GPI
+//     /// and has a value of 1 in information.
+//     GPIEventMode1(GPIEventMode1),
+//     /// GPI event mode 2 (column 7 - column 0).
+//     /// 
+//     /// A bit value of '0' in any of the unreserved bits indicates that
+//     /// it is not part of the event FIFO. This is the default value.
+//     /// 
+//     /// A 1 in any of these bits means it is part of the event FIFO. When
+//     /// the Event Mode register, then any key presses will be added to the
+//     /// FIFO. Please see Key Event Table for more a pin is setup as a GPI
+//     /// and has a value of 1 in information.
+//     GPIEventMode2(GPIEventMode2),
+//     /// GPI event mode 3 (column 9 - column 8).
+//     /// 
+//     /// A bit value of '0' in any of the unreserved bits indicates that
+//     /// it is not part of the event FIFO. This is the default value.
+//     /// 
+//     /// A 1 in any of these bits means it is part of the event FIFO. When
+//     /// the Event Mode register, then any key presses will be added to the
+//     /// FIFO. Please see Key Event Table for more a pin is setup as a GPI
+//     /// and has a value of 1 in information.
+//     GPIEventMode3(GPIEventMode3),
 
-    /// GPIO data direction (row 7 - row 0).
-    ///  0: input
-    ///  1: output
-    /// 
-    /// A bit value of '0' in any of the unreserved bits sets the corresponding pin as an input.
-    /// 
-    /// This is the default value. A 1 in any of these bits sets the pin as an output.
-    GPIODirection1(GPIODirection1),
-    /// GPIO data direction (column 7 - column 0).
-    ///  0: input
-    ///  1: output
-    /// 
-    /// A bit value of '0' in any of the unreserved bits sets the corresponding pin as an input.
-    /// 
-    /// This is the default value. A 1 in any of these bits sets the pin as an output.
-    GPIODirection2(GPIODirection2),
-    /// GPIO data direction (column 9 - column 8).
-    ///  0: input
-    ///  1: output
-    /// 
-    /// A bit value of '0' in any of the unreserved bits sets the corresponding pin as an input.
-    /// 
-    /// This is the default value. A 1 in any of these bits sets the pin as an output.
-    GPIODirection3(GPIODirection3),
+//     /// GPIO data direction (row 7 - row 0).
+//     ///  0: input
+//     ///  1: output
+//     /// 
+//     /// A bit value of '0' in any of the unreserved bits sets the corresponding pin as an input.
+//     /// 
+//     /// This is the default value. A 1 in any of these bits sets the pin as an output.
+//     GPIODirection1(GPIODirection1),
+//     /// GPIO data direction (column 7 - column 0).
+//     ///  0: input
+//     ///  1: output
+//     /// 
+//     /// A bit value of '0' in any of the unreserved bits sets the corresponding pin as an input.
+//     /// 
+//     /// This is the default value. A 1 in any of these bits sets the pin as an output.
+//     GPIODirection2(GPIODirection2),
+//     /// GPIO data direction (column 9 - column 8).
+//     ///  0: input
+//     ///  1: output
+//     /// 
+//     /// A bit value of '0' in any of the unreserved bits sets the corresponding pin as an input.
+//     /// 
+//     /// This is the default value. A 1 in any of these bits sets the pin as an output.
+//     GPIODirection3(GPIODirection3),
 
-    /// GPIO edge/level detect (row 7 - row 0).
-    ///  0: falling/low
-    ///  1: rising/high
-    /// 
-    /// A bit value of '0' indicates that interrupt will be triggered
-    /// on a high-to-low/low-level transition for the inputs in GPIO
-    /// mode. This is the default value.
-    /// 
-    /// A bit value of 1 indicates that interrupt will be triggered on
-    /// a low-to-high/high-level value for the inputs in GPIO mode.
-    GPIOInterruptLevel1(GPIOInterruptLevel1),
-    /// GPIO edge/level detect (column 7 - column 0).
-    ///  0: falling/low
-    ///  1: rising/high
-    /// 
-    /// A bit value of '0' indicates that interrupt will be triggered
-    /// on a high-to-low/low-level transition for the inputs in GPIO
-    /// mode. This is the default value.
-    /// 
-    /// A bit value of 1 indicates that interrupt will be triggered on
-    /// a low-to-high/high-level value for the inputs in GPIO mode.
-    GPIOInterruptLevel2(GPIOInterruptLevel2),
-    /// GPIO edge/level detect (column 9 - column 8).
-    ///  0: falling/low
-    ///  1: rising/high
-    /// 
-    /// A bit value of '0' indicates that interrupt will be triggered
-    /// on a high-to-low/low-level transition for the inputs in GPIO
-    /// mode. This is the default value.
-    /// 
-    /// A bit value of 1 indicates that interrupt will be triggered on
-    /// a low-to-high/high-level value for the inputs in GPIO mode.
-    GPIOInterruptLevel3(GPIOInterruptLevel3),
+//     /// GPIO edge/level detect (row 7 - row 0).
+//     ///  0: falling/low
+//     ///  1: rising/high
+//     /// 
+//     /// A bit value of '0' indicates that interrupt will be triggered
+//     /// on a high-to-low/low-level transition for the inputs in GPIO
+//     /// mode. This is the default value.
+//     /// 
+//     /// A bit value of 1 indicates that interrupt will be triggered on
+//     /// a low-to-high/high-level value for the inputs in GPIO mode.
+//     GPIOInterruptLevel1(GPIOInterruptLevel1),
+//     /// GPIO edge/level detect (column 7 - column 0).
+//     ///  0: falling/low
+//     ///  1: rising/high
+//     /// 
+//     /// A bit value of '0' indicates that interrupt will be triggered
+//     /// on a high-to-low/low-level transition for the inputs in GPIO
+//     /// mode. This is the default value.
+//     /// 
+//     /// A bit value of 1 indicates that interrupt will be triggered on
+//     /// a low-to-high/high-level value for the inputs in GPIO mode.
+//     GPIOInterruptLevel2(GPIOInterruptLevel2),
+//     /// GPIO edge/level detect (column 9 - column 8).
+//     ///  0: falling/low
+//     ///  1: rising/high
+//     /// 
+//     /// A bit value of '0' indicates that interrupt will be triggered
+//     /// on a high-to-low/low-level transition for the inputs in GPIO
+//     /// mode. This is the default value.
+//     /// 
+//     /// A bit value of 1 indicates that interrupt will be triggered on
+//     /// a low-to-high/high-level value for the inputs in GPIO mode.
+//     GPIOInterruptLevel3(GPIOInterruptLevel3),
 
-    /// Debounce disable  (row 7 - row 0).
-    ///  0: debounce enabled
-    ///  1: debounce disabled
-    /// 
-    /// This is for pins configured as inputs. A bit value of ‘0’ in any of
-    /// the unreserved bits enables the debounce. This is the default value.
-    /// 
-    /// A bit value of ‘1’ disables the debounce.
-    DebounceDisable1(DebounceDisable1),
-    /// Debounce disable (column 7 - column 0).
-    ///  0: debounce enabled
-    ///  1: debounce disabled
-    /// 
-    /// This is for pins configured as inputs. A bit value of ‘0’ in any of
-    /// the unreserved bits enables the debounce. This is the default value.
-    /// 
-    /// A bit value of ‘1’ disables the debounce.
-    DebounceDisable2(DebounceDisable2),
-    /// Debounce disable (column 9 - column 8).
-    ///  0: debounce enabled
-    ///  1: debounce disabled
-    /// 
-    /// This is for pins configured as inputs. A bit value of ‘0’ in any of
-    /// the unreserved bits enables the debounce. This is the default value.
-    /// 
-    /// A bit value of ‘1’ disables the debounce.
-    DebounceDisable3(DebounceDisable3),
+//     /// Debounce disable  (row 7 - row 0).
+//     ///  0: debounce enabled
+//     ///  1: debounce disabled
+//     /// 
+//     /// This is for pins configured as inputs. A bit value of ‘0’ in any of
+//     /// the unreserved bits enables the debounce. This is the default value.
+//     /// 
+//     /// A bit value of ‘1’ disables the debounce.
+//     DebounceDisable1(DebounceDisable1),
+//     /// Debounce disable (column 7 - column 0).
+//     ///  0: debounce enabled
+//     ///  1: debounce disabled
+//     /// 
+//     /// This is for pins configured as inputs. A bit value of ‘0’ in any of
+//     /// the unreserved bits enables the debounce. This is the default value.
+//     /// 
+//     /// A bit value of ‘1’ disables the debounce.
+//     DebounceDisable2(DebounceDisable2),
+//     /// Debounce disable (column 9 - column 8).
+//     ///  0: debounce enabled
+//     ///  1: debounce disabled
+//     /// 
+//     /// This is for pins configured as inputs. A bit value of ‘0’ in any of
+//     /// the unreserved bits enables the debounce. This is the default value.
+//     /// 
+//     /// A bit value of ‘1’ disables the debounce.
+//     DebounceDisable3(DebounceDisable3),
 
-    /// GPIO pull-up disable (row 7 - row 0).
-    ///  0: pull-up enabled
-    ///  1: pull-up disabled
-    /// 
-    /// This register enables or disables pull-up registers from inputs.
-    /// 
-    /// A bit value of '0' will enable the internal pull-up resistors. This is the default value.
-    /// 
-    /// A bit value of 1 will disable the internal pull-up resistors.
-    GPIOPullUpDisable1(GPIOPullUpDisable1),
-    /// GPIO pull-up disable (column 7 - column 0).
-    ///  0: pull-up enabled
-    ///  1: pull-up disabled
-    /// 
-    /// This register enables or disables pull-up registers from inputs.
-    /// 
-    /// A bit value of '0' will enable the internal pull-up resistors. This is the default value.
-    /// 
-    /// A bit value of 1 will disable the internal pull-up resistors.
-    GPIOPullUpDisable2(GPIOPullUpDisable2),
-    /// GPIO pull-up disable (column 9 - column 8).
-    ///  0: pull-up enabled
-    ///  1: pull-up disabled
-    /// 
-    /// This register enables or disables pull-up registers from inputs.
-    /// 
-    /// A bit value of '0' will enable the internal pull-up resistors. This is the default value.
-    /// 
-    /// A bit value of 1 will disable the internal pull-up resistors.
-    GPIOPullUpDisable3(GPIOPullUpDisable3),
+//     /// GPIO pull-up disable (row 7 - row 0).
+//     ///  0: pull-up enabled
+//     ///  1: pull-up disabled
+//     /// 
+//     /// This register enables or disables pull-up registers from inputs.
+//     /// 
+//     /// A bit value of '0' will enable the internal pull-up resistors. This is the default value.
+//     /// 
+//     /// A bit value of 1 will disable the internal pull-up resistors.
+//     GPIOPullUpDisable1(GPIOPullUpDisable1),
+//     /// GPIO pull-up disable (column 7 - column 0).
+//     ///  0: pull-up enabled
+//     ///  1: pull-up disabled
+//     /// 
+//     /// This register enables or disables pull-up registers from inputs.
+//     /// 
+//     /// A bit value of '0' will enable the internal pull-up resistors. This is the default value.
+//     /// 
+//     /// A bit value of 1 will disable the internal pull-up resistors.
+//     GPIOPullUpDisable2(GPIOPullUpDisable2),
+//     /// GPIO pull-up disable (column 9 - column 8).
+//     ///  0: pull-up enabled
+//     ///  1: pull-up disabled
+//     /// 
+//     /// This register enables or disables pull-up registers from inputs.
+//     /// 
+//     /// A bit value of '0' will enable the internal pull-up resistors. This is the default value.
+//     /// 
+//     /// A bit value of 1 will disable the internal pull-up resistors.
+//     GPIOPullUpDisable3(GPIOPullUpDisable3),
     
-    Reserved2(u8),
-}
+//     Reserved2(u8),
+// }
 
-impl Registers {
-    /// Returns the register address for the associated register.
-    pub fn address(&self) -> Address {
-        match self {
-            Registers::Reserved(_) => Address::Reserved,
-            Registers::Configuration(_) => Address::Configuration,
-            Registers::IntStat(_) => Address::IntStat,
-            Registers::KeyLockEventCounter(_) => Address::KeyLockEventCounter,
-            Registers::KeyEventA(_) => Address::KeyEventA,
-            Registers::KeyEventB(_) => Address::KeyEventB,
-            Registers::KeyEventC(_) => Address::KeyEventC,
-            Registers::KeyEventD(_) => Address::KeyEventD,
-            Registers::KeyEventE(_) => Address::KeyEventE,
-            Registers::KeyEventF(_) => Address::KeyEventF,
-            Registers::KeyEventG(_) => Address::KeyEventG,
-            Registers::KeyEventH(_) => Address::KeyEventH,
-            Registers::KeyEventI(_) => Address::KeyEventI,
-            Registers::KeyEventJ(_) => Address::KeyEventJ,
-            Registers::KeypadLockTimer(_) => Address::KeypadLockTimer,
-            Registers::Unlock1(_) => Address::Unlock1,
-            Registers::Unlock2(_) => Address::Unlock2,
-            Registers::GPIOInterruptStatus1(_) => Address::GPIOInterruptStatus1,
-            Registers::GPIOInterruptStatus2(_) => Address::GPIOInterruptStatus2,
-            Registers::GPIOInterruptStatus3(_) => Address::GPIOInterruptStatus3,
-            Registers::GPIODataStatus1(_) => Address::GPIODataStatus1,
-            Registers::GPIODataStatus2(_) => Address::GPIODataStatus2,
-            Registers::GPIODataStatus3(_) => Address::GPIODataStatus3,
-            Registers::GPIODataOut1(_) => Address::GPIODataOut1,
-            Registers::GPIODataOut2(_) => Address::GPIODataOut2,
-            Registers::GPIODataOut3(_) => Address::GPIODataOut3,
-            Registers::GPIOInterruptEnable1(_) => Address::GPIOInterruptEnable1,
-            Registers::GPIOInterruptEnable2(_) => Address::GPIOInterruptEnable2,
-            Registers::GPIOInterruptEnable3(_) => Address::GPIOInterruptEnable3,
-            Registers::KeypadGPIO1(_) => Address::KeypadGPIO1,
-            Registers::KeypadGPIO2(_) => Address::KeypadGPIO2,
-            Registers::KeypadGPIO3(_) => Address::KeypadGPIO3,
-            Registers::GPIEventMode1(_) => Address::GPIEventMode1,
-            Registers::GPIEventMode2(_) => Address::GPIEventMode2,
-            Registers::GPIEventMode3(_) => Address::GPIEventMode3,
-            Registers::GPIODirection1(_) => Address::GPIODirection1,
-            Registers::GPIODirection2(_) => Address::GPIODirection2,
-            Registers::GPIODirection3(_) => Address::GPIODirection3,
-            Registers::GPIOInterruptLevel1(_) => Address::GPIOInterruptLevel1,
-            Registers::GPIOInterruptLevel2(_) => Address::GPIOInterruptLevel2,
-            Registers::GPIOInterruptLevel3(_) => Address::GPIOInterruptLevel3,
-            Registers::DebounceDisable1(_) => Address::DebounceDisable1,
-            Registers::DebounceDisable2(_) => Address::DebounceDisable2,
-            Registers::DebounceDisable3(_) => Address::DebounceDisable3,
-            Registers::GPIOPullUpDisable1(_) => Address::GPIOPullUpDisable1,
-            Registers::GPIOPullUpDisable2(_) => Address::GPIOPullUpDisable2,
-            Registers::GPIOPullUpDisable3(_) => Address::GPIOPullUpDisable3,
-            Registers::Reserved2(_) => Address::Reserved2,
-        }
-    }
-}
+// impl Registers {
+//     /// Returns the register address for the associated register.
+//     pub fn address(&self) -> Address {
+//         match self {
+//             Registers::Reserved(_) => Address::Reserved,
+//             Registers::Configuration(_) => Address::Configuration,
+//             Registers::IntStat(_) => Address::IntStat,
+//             Registers::KeyLockEventCounter(_) => Address::KeyLockEventCounter,
+//             Registers::KeyEventA(_) => Address::KeyEventA,
+//             Registers::KeyEventB(_) => Address::KeyEventB,
+//             Registers::KeyEventC(_) => Address::KeyEventC,
+//             Registers::KeyEventD(_) => Address::KeyEventD,
+//             Registers::KeyEventE(_) => Address::KeyEventE,
+//             Registers::KeyEventF(_) => Address::KeyEventF,
+//             Registers::KeyEventG(_) => Address::KeyEventG,
+//             Registers::KeyEventH(_) => Address::KeyEventH,
+//             Registers::KeyEventI(_) => Address::KeyEventI,
+//             Registers::KeyEventJ(_) => Address::KeyEventJ,
+//             Registers::KeypadLockTimer(_) => Address::KeypadLockTimer,
+//             Registers::Unlock1(_) => Address::Unlock1,
+//             Registers::Unlock2(_) => Address::Unlock2,
+//             Registers::GPIOInterruptStatus1(_) => Address::GPIOInterruptStatus1,
+//             Registers::GPIOInterruptStatus2(_) => Address::GPIOInterruptStatus2,
+//             Registers::GPIOInterruptStatus3(_) => Address::GPIOInterruptStatus3,
+//             Registers::GPIODataStatus1(_) => Address::GPIODataStatus1,
+//             Registers::GPIODataStatus2(_) => Address::GPIODataStatus2,
+//             Registers::GPIODataStatus3(_) => Address::GPIODataStatus3,
+//             Registers::GPIODataOut1(_) => Address::GPIODataOut1,
+//             Registers::GPIODataOut2(_) => Address::GPIODataOut2,
+//             Registers::GPIODataOut3(_) => Address::GPIODataOut3,
+//             Registers::GPIOInterruptEnable1(_) => Address::GPIOInterruptEnable1,
+//             Registers::GPIOInterruptEnable2(_) => Address::GPIOInterruptEnable2,
+//             Registers::GPIOInterruptEnable3(_) => Address::GPIOInterruptEnable3,
+//             Registers::KeypadGPIO1(_) => Address::KeypadGPIO1,
+//             Registers::KeypadGPIO2(_) => Address::KeypadGPIO2,
+//             Registers::KeypadGPIO3(_) => Address::KeypadGPIO3,
+//             Registers::GPIEventMode1(_) => Address::GPIEventMode1,
+//             Registers::GPIEventMode2(_) => Address::GPIEventMode2,
+//             Registers::GPIEventMode3(_) => Address::GPIEventMode3,
+//             Registers::GPIODirection1(_) => Address::GPIODirection1,
+//             Registers::GPIODirection2(_) => Address::GPIODirection2,
+//             Registers::GPIODirection3(_) => Address::GPIODirection3,
+//             Registers::GPIOInterruptLevel1(_) => Address::GPIOInterruptLevel1,
+//             Registers::GPIOInterruptLevel2(_) => Address::GPIOInterruptLevel2,
+//             Registers::GPIOInterruptLevel3(_) => Address::GPIOInterruptLevel3,
+//             Registers::DebounceDisable1(_) => Address::DebounceDisable1,
+//             Registers::DebounceDisable2(_) => Address::DebounceDisable2,
+//             Registers::DebounceDisable3(_) => Address::DebounceDisable3,
+//             Registers::GPIOPullUpDisable1(_) => Address::GPIOPullUpDisable1,
+//             Registers::GPIOPullUpDisable2(_) => Address::GPIOPullUpDisable2,
+//             Registers::GPIOPullUpDisable3(_) => Address::GPIOPullUpDisable3,
+//             Registers::Reserved2(_) => Address::Reserved2,
+//         }
+//     }
+// }
