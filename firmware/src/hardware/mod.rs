@@ -16,14 +16,61 @@ use embassy_stm32::{
         Qspi
     },
     peripherals,
-    time::Hertz,
+    time::{
+        Hertz,
+        khz
+    },
     usart::{
         self,
         Uart
     },
     Config,
     Peri,
-    Peripherals
+    Peripherals,
+    gpio::{
+        Output,
+        Speed,
+        Level,
+        OutputType
+    },
+    timer::{
+        simple_pwm::{
+            SimplePwm,
+            PwmPin,
+            SimplePwmChannel
+        },
+    },
+    usb
+};
+
+use embassy_time::{
+    Delay
+};
+
+// Provides types and interfaces common to display and graphics operations.
+use embedded_graphics::{
+    prelude::RgbColor,
+    // Provides the necessary functions to draw on the display
+    draw_target::DrawTarget,
+    // Provides colors from the Rgb565 color space.
+    //
+    // Rgb565 fits a single pixel into the
+    // 8080 parallel 16-bit data-bus.
+    pixelcolor::Rgb565,
+};
+
+// Provides support for displays that support
+// MIPI commands over SPI or 8080 parallal.
+use mipidsi::{
+    interface::{
+        Generic16BitBus,
+        ParallelInterface
+    },
+    models::{
+        ILI9341Rgb565
+    },
+    options::ColorOrder,
+    Builder
 };
 
 assign_resources! {
@@ -203,9 +250,10 @@ assign_resources! {
     }
 
     display: DisplayResources {
-        display_reset: PC11,
-        display_te: PB4,
+        reset: PC11,
+        te: PB4,
         backlight_ctrl: PC9, // PWM
+        backlight_tim: TIM3,
         touch_rst: PC2,
     }
 }
@@ -231,10 +279,11 @@ pub mod preamble {
     };
 }
 
-bind_interrupts!(struct UartIrqs {
+bind_interrupts!(struct Irqs {
     USART1 => usart::InterruptHandler<peripherals::USART1>;
     UART4 => usart::InterruptHandler<peripherals::UART4>;
     UART5 => usart::InterruptHandler<peripherals::UART5>;
+    OTG_HS => usb::InterruptHandler<peripherals::USB_OTG_HS>;
 });
 
 /// Initializes the Embassy STM32 HAL by configuring
@@ -340,7 +389,7 @@ pub fn get_uart_debug_blocking<'a>(r: UartDebugResources) -> Uart<'a, mode::Bloc
 
 pub fn get_uart_debug<'a>(r: UartDebugResources) -> Uart<'a, mode::Async> {
     let config = usart::Config::default();
-    Uart::new(r.peri, r.rx_pin, r.tx_pin, UartIrqs, r.tx_dma, r.rx_dma, config).unwrap()
+    Uart::new(r.peri, r.rx_pin, r.tx_pin, Irqs, r.tx_dma, r.rx_dma, config).unwrap()
 }
 
 pub fn get_uart_midi_blocking<'a>(r: UartMIDIResources) -> Uart<'a, mode::Blocking> {
@@ -350,7 +399,7 @@ pub fn get_uart_midi_blocking<'a>(r: UartMIDIResources) -> Uart<'a, mode::Blocki
 
 pub fn get_uart_midi<'a>(r: UartMIDIResources) -> Uart<'a, mode::Async> {
     let config = usart::Config::default();
-    Uart::new(r.peri, r.rx_pin, r.tx_pin, UartIrqs, r.tx_dma, r.rx_dma, config).unwrap()
+    Uart::new(r.peri, r.rx_pin, r.tx_pin, Irqs, r.tx_dma, r.rx_dma, config).unwrap()
 }
 
 
@@ -361,9 +410,8 @@ pub fn get_uart_rf_blocking<'a>(r: UartRFResources) -> Uart<'a, mode::Blocking> 
 
 pub fn get_uart_rf<'a>(r: UartRFResources) -> Uart<'a, mode::Async> {
     let config = usart::Config::default();
-    Uart::new(r.peri, r.rx_pin, r.tx_pin, UartIrqs, r.tx_dma, r.rx_dma, config).unwrap()
+    Uart::new(r.peri, r.rx_pin, r.tx_pin, Irqs, r.tx_dma, r.rx_dma, config).unwrap()
 }
-
 
 // TODO: need to fix NSS pin
 // pub fn get_flash_blocking<'a>(r: FlashResources) -> Ospi<'a, peripherals::QUADSPI1, mode::Blocking> {
@@ -459,4 +507,128 @@ pub fn get_sdram<'a>(r: FMCResources) -> stm32_fmc::Sdram<Fmc<'a, peripherals::F
         // parameters for the specific SDRAM IC.
         is42s16160j_7::Is42s16160j {},
     )
+}
+
+/// Returns a handle to 
+pub fn get_display<'a>(
+    r: FMCResources,
+    display: DisplayResources,
+    delay: &mut Delay,
+) -> mipidsi::Display<
+        ParallelInterface<
+            Generic16BitBus<
+                embassy_stm32::gpio::Output<'a>, // d0
+                embassy_stm32::gpio::Output<'a>, // d1
+                embassy_stm32::gpio::Output<'a>, // d2
+                embassy_stm32::gpio::Output<'a>, // d3
+                embassy_stm32::gpio::Output<'a>, // d4
+                embassy_stm32::gpio::Output<'a>, // d5
+                embassy_stm32::gpio::Output<'a>, // d6
+                embassy_stm32::gpio::Output<'a>, // d7
+                embassy_stm32::gpio::Output<'a>, // d8
+                embassy_stm32::gpio::Output<'a>, // d9
+                embassy_stm32::gpio::Output<'a>, // d10
+                embassy_stm32::gpio::Output<'a>, // d11
+                embassy_stm32::gpio::Output<'a>, // d12
+                embassy_stm32::gpio::Output<'a>, // d13
+                embassy_stm32::gpio::Output<'a>, // d14
+                embassy_stm32::gpio::Output<'a>  // d15
+            >,
+            embassy_stm32::gpio::Output<'a>, // data/command
+            embassy_stm32::gpio::Output<'a>  // write enable
+        >,
+        ILI9341Rgb565,
+        embassy_stm32::gpio::Output<'a>>{
+    // Digital reset signal for the display.
+    //
+    // Pull to VDD to make sure datasheet is satisfied.
+    // let rst = display.reset.into_push_pull_output_in_state(gpio::PinState::High);
+    let rst = Output::new(display.reset, Level::High, Speed::Low);
+    
+    // Write enable pin.
+    //
+    // Pull to VDD to make sure datasheet is satisfied.
+    // let wr = r.nwe.into_push_pull_output_in_state(gpio::PinState::High);
+    let wr = Output::new(r.nwe, Level::High, Speed::High);
+
+    // Data/Command digital output
+    // let dc = r.a0.into_push_pull_output();
+    let dc = Output::new(r.a0, Level::High, Speed::High);
+
+    // Configure the data pins as high-speed outputs.
+    let d0 = Output::new(r.d0, Level::High, Speed::VeryHigh);
+    let d1 = Output::new(r.d1, Level::High, Speed::VeryHigh);
+    let d2 = Output::new(r.d2, Level::High, Speed::VeryHigh);
+    let d3 = Output::new(r.d3, Level::High, Speed::VeryHigh);
+    let d4 = Output::new(r.d4, Level::High, Speed::VeryHigh);
+    let d5 = Output::new(r.d5, Level::High, Speed::VeryHigh);
+    let d6 = Output::new(r.d6, Level::High, Speed::VeryHigh);
+    let d7 = Output::new(r.d7, Level::High, Speed::VeryHigh);
+    let d8 = Output::new(r.d8, Level::High, Speed::VeryHigh);
+    let d9 = Output::new(r.d9, Level::High, Speed::VeryHigh);
+    let d10 = Output::new(r.d10, Level::High, Speed::VeryHigh);
+    let d11 = Output::new(r.d11, Level::High, Speed::VeryHigh);
+    let d12 = Output::new(r.d12, Level::High, Speed::VeryHigh);
+    let d13 = Output::new(r.d13, Level::High, Speed::VeryHigh);
+    let d14 = Output::new(r.d14, Level::High, Speed::VeryHigh);
+    let d15 = Output::new(r.d15, Level::High, Speed::VeryHigh);
+
+    // Define the parallal bus for display communication.
+    let bus = Generic16BitBus::new((
+        d0, d1, d2, d3, d4, d5, d6, d7, d8,
+        d9, d10, d11, d12, d13, d14, d15,
+    ));
+
+    // Create the parallel display interface using the previously
+    // created bus and Data/Command and write enable pins.
+    let di = ParallelInterface::new(bus, dc, wr);
+
+    // Build the display interface using the parallal bus and interface.
+    //
+    // RB565 utilizies the entire 16-bit data bus
+    // to transfer 1 pixel for every clock cycle.
+    let mut display = Builder::new(ILI9341Rgb565, di)
+        .display_size(240, 320)
+        .reset_pin(rst)
+        .color_order(ColorOrder::Bgr)
+        .init(delay)
+        .unwrap();
+
+    // Clear the dispaly before returning the handle.
+    display.clear(Rgb565::BLACK).unwrap();
+
+    return display;
+}
+
+/// Returns the analog PWN channel that
+/// drives the TPS92360 backlight driver.
+// fn get_display_backlight<'a>(display: DisplayResources) -> SimplePwmChannel<'a, peripherals::TIM3> {
+//     let backlight_pin = PwmPin::new(display.backlight_ctrl, OutputType::PushPull);
+
+//     // Create the timer interface for the driving the PWM pin.
+//     let mut pwm = SimplePwm::new(
+//         display.backlight_tim,
+//         None,
+//         None, None, Some(backlight_pin),
+//         khz(10),
+//         Default::default());
+    
+//     let mut ch4 = pwm.ch4();
+//     ch4.enable();
+
+//     ch4
+// }
+
+/// Constructs the USB high-speed driver.
+fn get_usb_hs_driver<'a> (r: UsbResources, ep_out_buffer: &'a mut [u8; 256]) -> usb::Driver<'a, peripherals::USB_OTG_HS>{
+    // Create the USB driver config.
+    let mut config = embassy_stm32::usb::Config::default();
+
+    // If your USB device is self-powered (can stay powered on if USB is unplugged), you need
+    // to enable vbus_detection to comply with the USB spec. If you enable it, the board
+    // has to support it or USB won't work at all. See docs on `vbus_detection` for details.
+    config.vbus_detection = true;
+    
+    // Create the HS USB driver.
+    usb::Driver::new_fs(r.peri, Irqs, r.dp, r.dm, ep_out_buffer, config)
 }

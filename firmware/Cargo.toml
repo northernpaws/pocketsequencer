@@ -74,8 +74,17 @@ embassy-time = { version = "0.5.0", features = ["defmt", "defmt-timestamp-uptime
 embassy-futures = { version = "0.1.2" }
 embassy-usb = { version = "0.5.1", features = ["defmt"] }
 assign-resources = "0.5.0"
-stm32-fmc = "0.3.0"
 critical-section = "1.2.0"
+
+# Provides an interface to the STM32's FMC for SDRAM access.
+stm32-fmc = "0.4.0"
+
+# Provides graphics types for embedded programming.
+embedded-graphics = { version = "0.8.1", features = ["defmt"] }
+embedded-graphics-core = "0.4.0"
+
+# Provides MIPI over parallel command set for display.
+mipidsi = { version = "0.9.0" }
 
 [patch.crates-io]
 # Adds additional FMC constructors.. requires patching ALL embassy packages for compatability to work correctly.
