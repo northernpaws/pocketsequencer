@@ -1,6 +1,11 @@
-pub mod is42s16160j_7;
+pub mod is42s16160j_7; // SDRAM
+pub mod stm6601; // power button manager
+pub mod tca8418rtwr; // Keypad matrix
+
+use defmt::trace;
 
 use core::{
+    cell::RefCell,
     default::Default,
     option::Option::Some
 };
@@ -8,43 +13,41 @@ use core::{
 use assign_resources::assign_resources;
 
 use embassy_stm32::{
-    bind_interrupts,
-    fmc::Fmc,
-    mode,
-    qspi::{
+    i2c::{self, I2c},
+    bind_interrupts, fmc::Fmc, gpio::{
+        Input, Level, Output, OutputType, Speed, Pull
+    }, mode, peripherals, qspi::{
         self,
         Qspi
-    },
-    peripherals,
-    time::{
-        Hertz,
-        khz
-    },
-    usart::{
+    }, time::{
+        khz, mhz, Hertz
+    }, timer::simple_pwm::{
+            PwmPin, SimplePwm, SimplePwmChannel
+        }, usart::{
         self,
         Uart
+    }, usb, Config, Peri, Peripherals,
+    exti::ExtiInput,
+    spi::{
+        self
     },
-    Config,
-    Peri,
-    Peripherals,
-    gpio::{
-        Output,
-        Speed,
-        Level,
-        OutputType
-    },
-    timer::{
-        simple_pwm::{
-            SimplePwm,
-            PwmPin,
-            SimplePwmChannel
-        },
-    },
-    usb
+    gpio
 };
 
 use embassy_time::{
     Delay
+};
+
+use embassy_sync::{
+    blocking_mutex::{
+        NoopMutex,
+        raw::{
+            RawMutex,
+            NoopRawMutex,
+            CriticalSectionRawMutex,
+        }
+    },
+    mutex::Mutex
 };
 
 // Provides types and interfaces common to display and graphics operations.
@@ -72,6 +75,23 @@ use mipidsi::{
     options::ColorOrder,
     Builder
 };
+
+
+// blocking SDMMC over SPI support.
+use embedded_sdmmc::{sdcard::proto::Csd, SdCard};
+
+// Async SDMMC over SPI support.
+use sdspi::{
+    sd_init,
+    SdSpi
+};
+use embassy_embedded_hal::{
+    SetConfig,
+    GetConfig,
+    shared_bus::asynch::spi::SpiDeviceWithConfig
+};
+
+use crate::hardware::stm6601::Stm6601;
 
 assign_resources! {
     // For debug logging via Black Magic Probe's alternate pins 9/7.
@@ -204,6 +224,10 @@ assign_resources! {
         clk: PA5, // SCK
         poci: PA6, // MISO
         pico: PA7, // MOSI
+
+        rx_dma: DMA2_CH0,
+        tx_dma: DMA2_CH1,
+
         sd_cs: PA4, // Micro-SD card
         xtsdg_cs: PC13, // SD-protocol NAND flash
     }
@@ -211,7 +235,8 @@ assign_resources! {
     /// Power management resources.
     power: PowerResources {
         int: PA2, // Raises int when power button pressed
-        psel: PA8, // 
+        int_exit: EXTI2,
+        psel: PA8, // Charger power source selection input. High indicates a USB host source and Low indicates an adapter source.
         pwr_hold: PC6, // Hold HIGH to keep power enabled
         pbout: PG3, // Current power button state
     }
@@ -221,6 +246,9 @@ assign_resources! {
         peri: I2C1 = I2C1Peri,
         scl: PB6,
         sda: PB7,
+
+        tx_dma: DMA1_CH6,
+        rx_dma: DMA1_CH7,
 
         fm_rx_rst: PA12,
         rm_rx_int: PA11,
@@ -233,6 +261,9 @@ assign_resources! {
         scl: PB10,
         sda: PB11,
 
+        tx_dma: DMA2_CH2,
+        rx_dma: DMA2_CH3,
+
         fuel_int: PB1,
         pd_int: PG6,
     }
@@ -242,6 +273,9 @@ assign_resources! {
         peri: I2C4 = I2C4Peri,
         scl: PB8,
         sda: PB9,
+
+        tx_dma: BDMA_CH1,
+        rx_dma: BDMA_CH2,
 
         touch_int: PC3,
         keypad_int: PB0,
@@ -283,6 +317,16 @@ bind_interrupts!(struct Irqs {
     USART1 => usart::InterruptHandler<peripherals::USART1>;
     UART4 => usart::InterruptHandler<peripherals::UART4>;
     UART5 => usart::InterruptHandler<peripherals::UART5>;
+
+    I2C1_EV => i2c::EventInterruptHandler<peripherals::I2C1>;
+    I2C1_ER => i2c::ErrorInterruptHandler<peripherals::I2C1>;
+
+    I2C2_EV => i2c::EventInterruptHandler<peripherals::I2C2>;
+    I2C2_ER => i2c::ErrorInterruptHandler<peripherals::I2C2>;
+
+    I2C4_EV => i2c::EventInterruptHandler<peripherals::I2C4>;
+    I2C4_ER => i2c::ErrorInterruptHandler<peripherals::I2C4>;
+
     OTG_HS => usb::InterruptHandler<peripherals::USB_OTG_HS>;
 });
 
@@ -620,7 +664,7 @@ pub fn get_display<'a>(
 // }
 
 /// Constructs the USB high-speed driver.
-fn get_usb_hs_driver<'a> (r: UsbResources, ep_out_buffer: &'a mut [u8; 256]) -> usb::Driver<'a, peripherals::USB_OTG_HS>{
+pub fn get_usb_hs_driver<'a> (r: UsbResources, ep_out_buffer: &'a mut [u8; 256]) -> usb::Driver<'a, peripherals::USB_OTG_HS>{
     // Create the USB driver config.
     let mut config = embassy_stm32::usb::Config::default();
 
@@ -631,4 +675,118 @@ fn get_usb_hs_driver<'a> (r: UsbResources, ep_out_buffer: &'a mut [u8; 256]) -> 
     
     // Create the HS USB driver.
     usb::Driver::new_fs(r.peri, Irqs, r.dp, r.dm, ep_out_buffer, config)
+}
+
+/// Returns the STM6601 driver for managing the system power state.
+pub fn get_stm6601<'a> (r: PowerResources) -> Stm6601<'a, Output<'a>, Input<'a>>{
+    let mut int = ExtiInput::new(r.int, r.int_exit, Pull::Down);
+    let ps_hold = Output::new(r.pwr_hold, Level::High, Speed::Low);
+    let pb_state = Input::new(r.pbout, Pull::Down);
+
+    Stm6601::new(int, ps_hold, pb_state)
+}
+
+/// Creates the I2C1 interface for communicating with the NAU88C22YG
+/// Audio Codec, FM SI4703-C19-GMR RX / SI4710-B30-GMR TX.
+pub fn get_i2c1<'a>(r: I2C1Resources) -> embassy_sync::blocking_mutex::Mutex<NoopRawMutex, RefCell<I2c<'a, embassy_stm32::mode::Async, embassy_stm32::i2c::Master>>> {
+    let i2c = I2c::new(r.peri, r.scl, r.sda, Irqs, r.tx_dma, r.rx_dma, Default::default());
+    NoopMutex::new(RefCell::new(i2c))
+}
+
+/// Creates the I2C2 interface for communicating with the BQ24193
+/// battery charger, BQ27531YZFR-G1 fuel gauge, FUSB302B USB-PD.
+pub fn get_i2c2<'a>(r: I2C2Resources) -> embassy_sync::blocking_mutex::Mutex<NoopRawMutex, RefCell<I2c<'a, embassy_stm32::mode::Async, embassy_stm32::i2c::Master>>> {
+    let i2c = I2c::new(r.peri, r.scl, r.sda, Irqs, r.tx_dma, r.rx_dma, Default::default());
+    NoopMutex::new(RefCell::new(i2c))
+}
+
+/// Creates the I2C4 interface for communicating with the FT6206 Capacitive
+/// Touch, TCA8418RTWR Keypad, ADS7128IRTER GPIO Breakout for Velocity
+/// Grid, DA7280 Haptics, and MMA8653FCR1 9DOF.
+pub fn get_i2c4<'a>(r: I2C4Resources) -> embassy_sync::blocking_mutex::Mutex<NoopRawMutex, RefCell<I2c<'a, embassy_stm32::mode::Async, embassy_stm32::i2c::Master>>> {
+    let i2c = I2c::new(r.peri, r.scl, r.sda, Irqs, r.tx_dma, r.rx_dma, Default::default());
+    NoopMutex::new(RefCell::new(i2c))
+}
+
+/// Gets a handle to the TCA8418RTWR keypad decoder on I2C4.
+pub fn get_tca8418rtwr<'a> () {
+
+}
+
+/// Create the SPI1 peripheral interface for interacting
+/// with the Micro SD card and onboard storage.
+pub fn get_spi1<'a> (r: SPIStorageResources) -> (
+    embassy_stm32::spi::Spi<'a, embassy_stm32::mode::Async>,
+    embassy_stm32::gpio::Output<'a>,
+    embassy_stm32::gpio::Output<'a>
+) {
+    // Initialize the output pins for SPI1 peripheral's chip selects.
+    let sd_cs = Output::new(r.sd_cs, Level::High, Speed::Low);
+    let xtsdg_cs = Output::new(r.xtsdg_cs, Level::High, Speed::Low);
+
+    // Initialize the SPI1 peripheral.
+    let mut spi_config = spi::Config::default();
+    trace!("setting spi1 frequency to {}mhz", mhz(1));
+    spi_config.frequency = mhz(1);
+
+    (
+        spi::Spi::new(r.peri, r.clk, r.pico, r.poci, r.rx_dma, r.tx_dma, spi_config),
+        sd_cs,
+        xtsdg_cs
+    )
+}
+
+/// Uses the embedded-sdmmc crate which is a blocking API.
+/// 
+/// ```
+/// let spi_bus = RefCell::new(spi1);
+/// ```
+pub fn get_sdcard_blocking<'a, DELAY: embedded_hal::delay::DelayNs + core::marker::Copy> (
+    spi_bus: &'a RefCell<spi::Spi<'a, mode::Async> >,
+    sd_cs: embassy_stm32::gpio::Output<'a>,
+    delay: DELAY,
+)  -> embedded_sdmmc::SdCard<
+        embedded_hal_bus::spi::RefCellDevice<'a,
+            embassy_stm32::spi::Spi<'a,
+                embassy_stm32::mode::Async
+            >,
+            embassy_stm32::gpio::Output<'a>,
+            DELAY
+        >,
+        DELAY
+> {
+    let sdmmc_spi = embedded_hal_bus::spi::RefCellDevice::new(
+        spi_bus, sd_cs, delay).unwrap();
+    
+    SdCard::new(sdmmc_spi, delay)
+
+    // Triggers card initialization and read bytes.
+    // println!("SD card size is {} bytes", sdcard.num_bytes()?);
+}
+
+/// Uses the embedded-fatfs crate which is async.
+pub async fn get_sdcard_async<'a,
+    M: RawMutex,
+    BUS: SetConfig<Config = spi::Config> + embedded_hal_async::spi::SpiBus,
+    DELAY: embedded_hal_async::delay::DelayNs + Clone
+> (
+    spi_bus: &'a Mutex<M, BUS>,
+    mut cs: gpio::Output<'a>,
+    delay: DELAY,
+) -> SdSpi<
+        embassy_embedded_hal::shared_bus::asynch::spi::SpiDeviceWithConfig<'a,
+            M, BUS, embassy_stm32::gpio::Output<'a>>,
+        DELAY, aligned::A1
+> {
+    // Configure the SPI settings for the SD card.
+    //
+    // Before knowing the SD card's capabilities we need to start with a 400khz clock.
+    let mut spi_config: spi::Config = spi::Config::default();
+    spi_config.frequency = khz(400);
+
+    // Create the SPI device for the SD card, using the SD card's CS pin.
+    let spid = SpiDeviceWithConfig::new(spi_bus, cs, spi_config);
+    
+    // Initialize the SD-over-SPI wrapper.
+    SdSpi::<_, _, aligned::A1>::new(spid, delay)
 }

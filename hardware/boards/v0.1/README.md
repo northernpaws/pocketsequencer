@@ -29,4 +29,5 @@
 ## Errata
 
  - QUADSPI CS should be NSS capable pin for automatic hardware peripheral control. Use PG6 and swap USB_INT to PD6.
- 
+ - Micro SD Card detect pins weren't connected, card detection needs to happen in software.
+ - SPI1 hardward CS pins should be PA4, PA15, or PG10. Currently using PA4 (SD CARD) and PC13 (internal flash).

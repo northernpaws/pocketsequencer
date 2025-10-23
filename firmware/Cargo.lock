@@ -69,6 +69,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "bit-struct"
+version = "0.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "270fbbb014407467f7a2c9b1fa0b74057d5cbc452f18bac3bb5aad601e590521"
+dependencies = [
+ "num-traits",
+ "serde",
+]
+
+[[package]]
 name = "bit_field"
 version = "0.10.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -87,6 +97,26 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2d7e60934ceec538daadb9d8432424ed043a904d8e0243f3c6446bce549a46ac"
 
 [[package]]
+name = "bitfield"
+version = "0.19.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6bf79f42d21f18b5926a959280215903e659760da994835d27c3a0c5ff4f898f"
+dependencies = [
+ "bitfield-macros",
+]
+
+[[package]]
+name = "bitfield-macros"
+version = "0.19.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6115af052c7914c0cbb97195e5c72cb61c511527250074f5c041d1048b0d8b16"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.106",
+]
+
+[[package]]
 name = "bitflags"
 version = "1.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -103,6 +133,14 @@ name = "block-device-driver"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "44c051592f59fe68053524b4c4935249b806f72c1f544cfb7abe4f57c3be258e"
+dependencies = [
+ "aligned",
+]
+
+[[package]]
+name = "block-device-driver"
+version = "0.2.0"
+source = "git+https://github.com/MabezDev/embedded-fatfs?branch=master#428ad03cee555d9636f061d7bca7a62c4889cc63"
 dependencies = [
  "aligned",
 ]
@@ -372,7 +410,7 @@ dependencies = [
  "aligned",
  "bit_field",
  "bitflags 2.9.4",
- "block-device-driver",
+ "block-device-driver 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "cfg-if",
  "chrono",
  "cortex-m",
@@ -507,6 +545,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "embedded-fatfs"
+version = "0.1.0"
+source = "git+https://github.com/MabezDev/embedded-fatfs?branch=master#428ad03cee555d9636f061d7bca7a62c4889cc63"
+dependencies = [
+ "bitflags 1.3.2",
+ "defmt 0.3.100",
+ "embedded-io-async",
+]
+
+[[package]]
 name = "embedded-graphics"
 version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -557,6 +605,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "embedded-hal-bus"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "513e0b3a8fb7d3013a8ae17a834283f170deaf7d0eeab0a7c1a36ad4dd356d22"
+dependencies = [
+ "critical-section",
+ "embedded-hal 1.0.0",
+]
+
+[[package]]
 name = "embedded-hal-nb"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -583,6 +641,19 @@ checksum = "3ff09972d4073aa8c299395be75161d582e7629cd663171d62af73c8d50dba3f"
 dependencies = [
  "defmt 0.3.100",
  "embedded-io",
+]
+
+[[package]]
+name = "embedded-sdmmc"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ce3c7f9ea039eeafc4a49597b7bd5ae3a1c8e51b2803a381cb0f29ce90fe1ec6"
+dependencies = [
+ "byteorder",
+ "embedded-hal 1.0.0",
+ "embedded-io",
+ "heapless 0.8.0",
+ "log",
 ]
 
 [[package]]
@@ -616,7 +687,10 @@ checksum = "52051878f80a721bb68ebfbc930e07b65ba72f2da88968ea5c06fd6ca3d3a127"
 name = "firmware"
 version = "0.1.0"
 dependencies = [
+ "aligned",
  "assign-resources",
+ "bit-struct",
+ "bitfield 0.19.3",
  "cortex-m",
  "cortex-m-rt",
  "critical-section",
@@ -626,14 +700,21 @@ dependencies = [
  "embassy-executor",
  "embassy-futures",
  "embassy-stm32",
+ "embassy-sync",
  "embassy-time",
  "embassy-usb",
+ "embedded-fatfs",
  "embedded-graphics",
  "embedded-graphics-core",
  "embedded-hal 1.0.0",
+ "embedded-hal-async",
+ "embedded-hal-bus",
+ "embedded-sdmmc",
  "heapless 0.9.1",
  "mipidsi",
  "panic-probe",
+ "sdspi",
+ "static_cell",
  "stm32-fmc",
 ]
 
@@ -974,6 +1055,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b328e2cb950eeccd55b7f55c3a963691455dcd044cfb5354f0c5e68d2c2d6ee2"
 
 [[package]]
+name = "sdspi"
+version = "0.1.0"
+source = "git+https://github.com/MabezDev/embedded-fatfs?branch=master#428ad03cee555d9636f061d7bca7a62c4889cc63"
+dependencies = [
+ "aligned",
+ "block-device-driver 0.2.0 (git+https://github.com/MabezDev/embedded-fatfs?branch=master)",
+ "embassy-futures",
+ "embedded-hal 1.0.0",
+ "embedded-hal-async",
+ "sdio-host",
+]
+
+[[package]]
 name = "semver"
 version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1050,6 +1144,15 @@ name = "static_assertions"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
+
+[[package]]
+name = "static_cell"
+version = "2.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0530892bb4fa575ee0da4b86f86c667132a94b74bb72160f58ee5a4afec74c23"
+dependencies = [
+ "portable-atomic",
+]
 
 [[package]]
 name = "stm32-fmc"
