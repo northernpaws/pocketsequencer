@@ -1,6 +1,6 @@
 pub mod register;
 
-use defmt::trace;
+use defmt::{trace, warn};
 
 use embassy_stm32::exti::ExtiInput;
 
@@ -16,6 +16,8 @@ const DEFAULT_ADDRESS: SevenBitAddress = 0b0110100;
 /// ROW0-ROW3 is configured as the matrix rows
 /// COL3 - COL3 are configured as columns 3-9 (inverted)
 pub enum Button {
+    Unknown,
+
     // Standalone buttons
     Menu0,
     Menu1,
@@ -81,6 +83,18 @@ impl<'a, I2C: embedded_hal_async::i2c::I2c> Tca8418<'a, I2C> {
     pub async fn init (&mut self) -> Result<(), I2C::Error> {
         trace!("configuring TCA8418");
 
+        let configuration_register = register::Configuration::new(
+            true, // auto increment for read-write operations
+            false, // GPI evens tracked when keypad locked
+            false, // overflowed data is lost
+            true, // IC will pulse INT on new interrupts
+            false, // don't assert INT on overflow
+            false, // don't assert interrupt after keypad unlock
+            true, // assert INT for GPI events
+            true, // assert INT for keypad events
+        );
+        self.write_register(configuration_register).await?;
+
         { // Enable interrupts for the pins in use.
             let gpio_int_en_1 = register::GPIOInterruptEnable1::new(
                 // Enable interrupts for the menu buttons.
@@ -142,7 +156,108 @@ impl<'a, I2C: embedded_hal_async::i2c::I2c> Tca8418<'a, I2C> {
             trace!("enabling keyscan for keypad matrix");
             self.write_register(kp_gpio_1).await?;
             self.write_register(kp_gpio_2).await?;
+
+            // "Once the TCA8418 has had the keypad array configured, it will enter idle mode when no keys are being pressed.
+            // All columns configured as part of the keypad array will be driven low and all rows configured as part of the
+            // keypad array will be set to inputs, with pull-up resistors enabled. During idle mode, the internal oscillator is turned
+            // off so that power consumption is low as the device awaits a key press."
+            //
+            // TODO: think rows and columns are configured in reverse, will need to swap in the software config.
         }
+
+        Ok(())
+    }
+
+    /// Wait for the next interrupt and process it.
+    pub async fn process(&mut self) -> Result<(), I2C::Error> {
+        // INT is active-low.
+        self._int.wait_for_falling_edge().await;
+        
+        // When the interrupt is triggered, we need to read
+        // the interrupt status table to see what it was.
+        let mut int_status: register::InterruptStatus = self.read_register().await?;
+
+        // If there are logged events for the FIFO stack, then we need to read it.
+        if int_status.key_event_interrupt_status().get() || int_status.gpi_interrupt_status().get() {
+            // Process the key events in a loop to ensure we're catching any events
+            // that came in while we where still processing the FIFO stack.
+            loop {
+                // Check the event counter fields to see how many key pressed are stored in the FIFO stack.
+                let mut event_register: register::KeyLockAndEventCounter = self.read_register().await?;
+                let key_events_count = event_register.key_event_count().get().value();
+                trace!("found {} stored keypressed", defmt::Display2Format(&key_events_count));
+
+                // Stop processing the FIFO stack if there are
+                // no keypresses left in the status register.
+                if key_events_count == 0 {
+                    break;
+                }
+
+                for _n in 0..key_events_count {
+                    // The KEY_EVENT_A (0x04) is the head of the FIFO stack.
+                    //
+                    // Each read of KEY_EVENT_A will deincrement the key event count
+                    // by one, and move all the data in the stack down by one.
+                    let mut key_event: register::KeyEventA = self.read_register().await?;
+
+                    // Read the key index.
+                    //
+                    // A value of 0 to 80 indicate which key has been
+                    // pressed or released in a keypad matrix.
+                    // 
+                    // Values of 97 to 114 are for GPI events.
+                    //
+                    // A value of 0 indicates that there are no more events in the FIFO stack.
+                    let key_index = key_event.key_index().get().value();
+                    if key_index == 0 {
+                        // Warn because hitting this unessessarily will cause a per-frame performance hit.
+                        warn!("somehow we read more key events then there where in the FIFO stack?");
+                        break;
+                    }
+
+                    let key_pressed = key_event.key_pressed().get();
+
+                    trace!("key {} pressed: {}", defmt::Display2Format(&key_index), key_pressed);
+
+                    // Match the key event table index to it's corresponding matrix cell or GPI input.
+                    // https://www.ti.com/lit/ds/symlink/tca8418.pdf?ts=1754456323928 (p.g. 15)
+                    let button: Button = match key_index {
+                        4 => Button::Trig1,
+                        3 => Button::Trig2,
+                        2 => Button::Trig3,
+                        1 => Button::Trig4,
+                        14 => Button::Trig5,
+                        13 => Button::Trig6,
+                        12 => Button::Trig7,
+                        11 => Button::Trig8,
+                        24 => Button::Trig9,
+                        23 => Button::Trig10,
+                        22 => Button::Trig11,
+                        21 => Button::Trig12,
+                        34 => Button::Trig13,
+                        33 => Button::Trig14,
+                        32 => Button::Trig15,
+                        31 => Button::Trig16,
+
+                        // GPIs are represented with decimal value of 97 and run through decimal value of 114.
+                        // R0-R7 are represented by 97-104 and C0-C9 are represented by 105-114.
+                        //
+                        // R0 R1 R2 R3  R4  R5  R6  R7
+                        // 97 98 99 100 101 102 103 104
+                        101 => Button::Menu3,
+                        102 => Button::Menu2,
+                        103 => Button::Menu1,
+                        104 => Button::Menu0,
+
+                        _ => Button::Unknown,  
+                    };
+
+                    // TODO: emit some sort of button event
+                } 
+            }
+        }
+        
+        self._int.wait_for_rising_edge().await;
 
         Ok(())
     }

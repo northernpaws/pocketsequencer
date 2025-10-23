@@ -90,23 +90,12 @@ async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error
 
     // Get a handle to the STM6601 power manager and enable PS_HOLD as early as
     // possible to make sure the STM6601 won't power the system regulator off.
+    //
+    // This MUST be configured as early as possible to ensure that the
+    // PS_HOLD pin is held high by the MCU to keep the power enabled.
     info!("configuring stm6601");
     let mut stm6601 = hardware::get_stm6601(r.power);
     stm6601.power_enable().unwrap(); // TODO: change to result error
-
-    // Initialize the bus for the I2C1 peripheral.
-    //
-    // This communicates with the NAU88C22YG Audio Codec,
-    // FM SI4703-C19-GMR RX / SI4710-B30-GMR TX.
-    info!("initializing audio i2c1 bus");
-    let _i2c1_bus = I2C1_BUS.init(hardware::get_i2c1(r.i2c1));
-
-    // Initialize the bus for the I2C2 peripheral.
-    //
-    // This communicates with the BQ24193 battery charger,
-    // BQ27531YZFR-G1 fuel gauge, FUSB302B USB-PD.
-    info!("initializing power i2c2 bus");
-    let _i2c2_bus = I2C2_BUS.init(hardware::get_i2c2(r.i2c2));
 
     // Initialize the bus for the I2C4 peripheral.
     //
@@ -117,13 +106,21 @@ async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error
     let i2c4 = hardware::get_i2c4(r.i2c4);
     let i2c4_bus = I2C4_BUS.init(Mutex::new(i2c4));
 
-    info!("initializing tca8418 device");
+    // Next, initialize the device wrapper for the keypad decoder IC.
+    //
+    // We also do this as early as possible so that we can check for keypresses
+    // that modify startup, such as to toggle as debug mode, DFU update mode, etc.
+    info!("Tnitializing tca8418 keypad decoder...");
     let mut keypad = hardware::get_tca8418_async(
         r.i2c4_interrupts.keypad_int,
         r.i2c4_interrupts.keypad_exti,
         i2c4_bus);
-    info!("initializing tca8418 registers");
+    // Then, immediately configure the registers for the keypad so that
+    // we can start processing keypress events as soon as possible.
+    info!("Initializing tca8418 registers...");
     keypad.init().await.unwrap(); // TODO: change to result errror
+
+    info!("TCA8418 initialized!");
 
     // Initialize the bus for the SPI1 peripheral.
     //
@@ -142,7 +139,7 @@ async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error
     // on their SPI clock with the CS pin held HIGH.
     //
     // sd_init is a helper function that does this for us.
-    info!("clocking spi1 74 cyles before initializing SD devices");
+    info!("Clocking SPI1 74 cyles before initializing SD devices...");
     loop {
         match sd_init(spi_bus.get_mut(), &mut xtsdg_cs).await {
             Ok(_) => break,
@@ -153,26 +150,29 @@ async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error
         }
     }
 
+    // Initialize the internal and SD card storage next.
+    //
+    // We also want to initialize storage fairly early in the startup process so that
+    // we can check for key files on the device, such as firmware update indicators.
+
     // Initialize the internal storage.
     //
     // The device internal storage uses an XTSDG IC
     // that acts as a soldered SD card.
-    info!("initializing sd card spi device");
+    info!("Initializing internal storage...");
     let mut internal_storage = hardware::get_sdcard_async(spi_bus, xtsdg_cs, embassy_time::Delay).await;
     {   
-        // Attempt to initialize the connected SD card.
+        // Attempt to initialize the connected internal SD storage.
         //
-        // If this fails, either there's a problem with the
-        // SPI bus or timing, there is an incompatible card
-        // attached, or there is no card attached. 
-        info!("attempting to initialize micro sd card");
+        // If this fails, either there's a problem with the SPI bus or timing 
+        info!("Attempting to initialize internal storage...");
         loop {
-            // Attempt to initialize the card.
+            // Attempt to initialize the internal storage.
             //
             // Init also supplies CMD0 which is required when
             // using the XTSDG device with a SPI host.
             if internal_storage.init().await.is_ok() {
-                info!("Initialization succeeded, increasing clock to 25Mhz..");
+                info!("Initialization succeeded, increasing internal storage clock to 25Mhz..");
 
                 // If the initialization succeeds then we can
                 // increase the speed up to the SD max of 25mhz.
@@ -187,13 +187,13 @@ async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error
                 break;
             }
 
-            info!("Failed to init card, retrying...");
+            info!("Failed to initialize internal storage, retrying...");
             embassy_time::Delay.delay_ns(5000u32).await;
         }
     }
 
     // Initialize the Micro SD card.
-    info!("configuring sd card spi device");
+    info!("Configuring SD card...");
     let mut sdcard = hardware::get_sdcard_async(spi_bus, sd_cs, embassy_time::Delay).await;
     {
         // Attempt to initialize the connected SD card.
@@ -201,7 +201,7 @@ async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error
         // If this fails, either there's a problem with the
         // SPI bus or timing, there is an incompatible card
         // attached, or there is no card attached. 
-        info!("attempting to initialize micro sd card");
+        info!("Attempting to initialize SD card...");
         loop {
             // Attempt to initialize the card.
             if sdcard.init().await.is_ok() {
@@ -219,12 +219,31 @@ async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error
                 break;
             }
 
-            info!("Failed to init card, retrying...");
+            info!("Failed to initialize SD card, retrying...");
             embassy_time::Delay.delay_ns(5000u32).await;
         }
     }
 
-    
+    // Next initialize the bus for the I2C2 peripheral that
+    // has all the power management peripherals attatched.
+    //
+    // This communicates with the BQ24193 battery charger,
+    // BQ27531YZFR-G1 fuel gauge, FUSB302B USB-PD.
+    //
+    // Note that the communication with the BQ24193 charger happens
+    // THROUGH the BQ27531YZFR-G1 fuel gauge. They're interconnected
+    // on their own I2C bus with a special set of registers on the
+    // fuel gauge to interact with the charger.
+    info!("Initializing power i2c2 bus...");
+    let _i2c2_bus = I2C2_BUS.init(hardware::get_i2c2(r.i2c2));
+
+    // Initialize the bus for the I2C1 peripheral.
+    //
+    // This communicates with the NAU88C22YG Audio Codec,
+    // FM SI4703-C19-GMR RX / SI4710-B30-GMR TX.
+    info!("initializing audio i2c1 bus");
+    let _i2c1_bus = I2C1_BUS.init(hardware::get_i2c1(r.i2c1));
+
     loop {}
 
     // let mut led = Output::new(p.PB14, Level::High, Speed::Low);

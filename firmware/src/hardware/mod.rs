@@ -718,7 +718,8 @@ pub fn get_tca8418_async<'a,
     exti: Peri<'a, INT::ExtiChannel>,
     i2c_bus: &'a Mutex<M, BUS>,
 ) -> Tca8418<'a, asynch::i2c::I2cDevice<'a, M, BUS>> {
-    let int = ExtiInput::new(int, exti, Pull::Down);
+    // Pulled up to compensate for missing pull-up resistor in board design.
+    let int = ExtiInput::new(int, exti, Pull::Up);
 
     // Initialize the I2C config for the device.
     // let config: i2c::Config = Default::default();
