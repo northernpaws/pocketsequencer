@@ -2,6 +2,7 @@ pub mod is42s16160j_7; // SDRAM
 pub mod stm6601; // power button manager
 pub mod tca8418; // Keypad matrix
 pub mod bq27531_g1;
+pub mod fusb302b;
 
 use defmt::trace;
 
@@ -86,7 +87,7 @@ use embassy_embedded_hal::{
     }
 };
 
-use crate::hardware::{bq27531_g1::Bq27531, tca8418::Tca8418};
+use crate::hardware::{bq27531_g1::Bq27531, fusb302b::Fusb302b, tca8418::Tca8418};
 use crate::hardware::stm6601::Stm6601;
 
 assign_resources! {
@@ -235,9 +236,11 @@ assign_resources! {
         psel: PA8, // Charger power source selection input. High indicates a USB host source and Low indicates an adapter source.
         pwr_hold: PC6, // Hold HIGH to keep power enabled
         pbout: PG3, // Current power button state
+    }
 
-        
-        pd_int: PG6,
+    usb_pd: USBPDResources {
+        int: PG6,
+        int_exti: EXTI6,
     }
 
     fuel_gauge: FuelGaugeResources {
@@ -311,6 +314,7 @@ pub mod preamble {
         SPIStorageResources,
         PowerResources,
         FuelGaugeResources,
+        USBPDResources,
         I2C1Resources,
         I2C2Resources,
         I2C4Resources,
@@ -733,6 +737,25 @@ pub fn get_bq27531_g1_async<'a,
     let device = asynch::i2c::I2cDevice::new(i2c_bus);
 
     Bq27531::new(int, device, delay)
+}
+
+/// Gets a handle to the FUSB302B USB-PD controller on I2C2.
+pub fn get_fusb302b_async<'a, 
+    INT: gpio::Pin,
+    M: RawMutex,
+    BUS: embedded_hal_async::i2c::I2c,
+> (
+    int: Peri<'a, INT>,
+    exti: Peri<'a, INT::ExtiChannel>,
+    i2c_bus: &'a Mutex<M, BUS>,
+) -> Fusb302b<'a, asynch::i2c::I2cDevice<'a, M, BUS>> {
+    // Pulled up to compensate for missing pull-up resistor in board design.
+    let int = ExtiInput::new(int, exti, Pull::Up);
+
+    // Create the I2C device for the fuel gauge.
+    let device = asynch::i2c::I2cDevice::new(i2c_bus);
+
+    Fusb302b::new(int, device)
 }
 
 

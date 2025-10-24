@@ -50,6 +50,8 @@ impl<'a, I2C: I2c, DELAY: DelayNs> Bq27531<'a, I2C, DELAY> {
         }
     }
 
+    // TODO: add Control subcommands
+
     // Reads an unsigned byte from the specified I2C command code.
     async fn read_u8(&mut self, code: command::CommandCode) -> Result<u8, I2C::Error> {
         let mut result = [0u8; 1];

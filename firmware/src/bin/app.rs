@@ -103,7 +103,7 @@ async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error
     // This communicates with the FT6206 Capacitive Touch sensor,
     // TCA8418RTWR Keypad matrix, ADS7128IRTER GPIO Breakout for
     // Velocity Grid, DA7280 Haptics driver, and MMA8653FCR1 9DOF.
-    info!("initializing input i2c4 bus");
+    info!("initializing input I2C4 bus");
     let i2c4 = hardware::get_i2c4(r.i2c4);
     let i2c4_bus = I2C4_BUS.init(Mutex::new(i2c4));
 
@@ -111,14 +111,14 @@ async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error
     //
     // We also do this as early as possible so that we can check for keypresses
     // that modify startup, such as to toggle as debug mode, DFU update mode, etc.
-    info!("Tnitializing tca8418 keypad decoder...");
+    info!("Initializing TCA8418 keypad decoder...");
     let mut keypad = hardware::get_tca8418_async(
         r.i2c4_interrupts.keypad_int,
         r.i2c4_interrupts.keypad_exti,
         i2c4_bus);
     // Then, immediately configure the registers for the keypad so that
     // we can start processing keypress events as soon as possible.
-    info!("Initializing tca8418 registers...");
+    info!("Initializing TCA8418 registers...");
     keypad.init().await.unwrap(); // TODO: change to result errror
 
     info!("TCA8418 initialized!");
@@ -126,7 +126,7 @@ async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error
     // Initialize the bus for the SPI1 peripheral.
     //
     // This communicates with the internal storage and Micro SD card.
-    info!("initializing storage spi1 bus");
+    info!("initializing storage SPI1 bus");
     let (
         spi1,
         sd_cs,
@@ -239,11 +239,23 @@ async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error
     let i2c2_bus = I2C2_BUS.init(Mutex::new(hardware::get_i2c2(r.i2c2)));
 
     // Get a handle to the battery fuel gauge peripheral.
-    let fuel_gauge = hardware::get_bq27531_g1_async(
+    let mut fuel_gauge = hardware::get_bq27531_g1_async(
         r.fuel_gauge.int,
         r.fuel_gauge.int_exti,
         i2c2_bus,
         embassy_time::Delay);
+
+    info!("Attempting to read battery charger internal temp...");
+    if let Ok(temp) = fuel_gauge.read_internal_temperature().await {
+        info!("Battery charger internal temp: {}", temp);
+    } else {
+        error!("Failed to read battery charger temp!");
+    }
+
+    // Get a handle to the FUSB302B device for managing the USB-PD interface.
+    let mut fusb302b = hardware::get_fusb302b_async(r.usb_pd.int, r.usb_pd.int_exti, i2c2_bus);
+
+    
 
     // Initialize the bus for the I2C1 peripheral.
     //
