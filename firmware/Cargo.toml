@@ -102,6 +102,7 @@ bit-struct = "0.3.2"
 concat-idents = "1.1.5"
 
 byteorder = { version = "1.5.0", default-features = false }
+proc-bitfield = "0.5.2"
 
 [patch.crates-io]
 # Adds additional FMC constructors.. requires patching ALL embassy packages for compatability to work correctly.
