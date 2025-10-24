@@ -95,9 +95,13 @@ embedded-fatfs = { version = "0.1.0", default-features = false, features = ["def
 sdspi = { version = "0.1.0"} # defmt feature seems to cause issue
 aligned = "0.4.2"
 embedded-hal-async = "1.0.0"
+
 bitfield = "0.19.3"
 bit-struct = "0.3.2"
+
 concat-idents = "1.1.5"
+
+byteorder = { version = "1.5.0", default-features = false }
 
 [patch.crates-io]
 # Adds additional FMC constructors.. requires patching ALL embassy packages for compatability to work correctly.

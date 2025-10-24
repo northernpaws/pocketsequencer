@@ -701,6 +701,7 @@ dependencies = [
  "assign-resources",
  "bit-struct",
  "bitfield 0.19.3",
+ "byteorder",
  "concat-idents",
  "cortex-m",
  "cortex-m-rt",

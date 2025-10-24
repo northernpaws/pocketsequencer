@@ -60,7 +60,8 @@ static I2C1_BUS: StaticCell<NoopMutex<RefCell<I2c<'static, Async, i2c::Master>>>
 // Power management bus.
 //
 // This communicates with the BQ24193 battery charger, BQ27531YZFR-G1 fuel gauge, and FUSB302B USB-PD manager.
-static I2C2_BUS: StaticCell<NoopMutex<RefCell<I2c<'static, Async, i2c::Master>>>> = StaticCell::new();
+// static I2C2_BUS: StaticCell<NoopMutex<RefCell<I2c<'static, Async, i2c::Master>>>> = StaticCell::new();
+static I2C2_BUS: StaticCell<Mutex<CriticalSectionRawMutex, I2c<'static, Async, i2c::Master>>> = StaticCell::new();
 
 // Input bus.
 //
@@ -235,7 +236,14 @@ async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error
     // on their own I2C bus with a special set of registers on the
     // fuel gauge to interact with the charger.
     info!("Initializing power i2c2 bus...");
-    let _i2c2_bus = I2C2_BUS.init(hardware::get_i2c2(r.i2c2));
+    let i2c2_bus = I2C2_BUS.init(Mutex::new(hardware::get_i2c2(r.i2c2)));
+
+    // Get a handle to the battery fuel gauge peripheral.
+    let fuel_gauge = hardware::get_bq27531_g1_async(
+        r.fuel_gauge.int,
+        r.fuel_gauge.int_exti,
+        i2c2_bus,
+        embassy_time::Delay);
 
     // Initialize the bus for the I2C1 peripheral.
     //

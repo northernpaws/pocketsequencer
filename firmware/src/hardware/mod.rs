@@ -1,6 +1,7 @@
 pub mod is42s16160j_7; // SDRAM
 pub mod stm6601; // power button manager
 pub mod tca8418; // Keypad matrix
+pub mod bq27531_g1;
 
 use defmt::trace;
 
@@ -85,7 +86,7 @@ use embassy_embedded_hal::{
     }
 };
 
-use crate::hardware::tca8418::Tca8418;
+use crate::hardware::{bq27531_g1::Bq27531, tca8418::Tca8418};
 use crate::hardware::stm6601::Stm6601;
 
 assign_resources! {
@@ -234,6 +235,14 @@ assign_resources! {
         psel: PA8, // Charger power source selection input. High indicates a USB host source and Low indicates an adapter source.
         pwr_hold: PC6, // Hold HIGH to keep power enabled
         pbout: PG3, // Current power button state
+
+        
+        pd_int: PG6,
+    }
+
+    fuel_gauge: FuelGaugeResources {
+        int: PB1,
+        int_exti: EXTI1,
     }
 
     /// NAU88C22YG Audio Codec, FM SI4703-C19-GMR RX / SI4710-B30-GMR TX
@@ -257,10 +266,7 @@ assign_resources! {
         sda: PB11,
 
         tx_dma: DMA2_CH2,
-        rx_dma: DMA2_CH3,
-
-        fuel_int: PB1,
-        pd_int: PG6,
+        rx_dma: DMA2_CH3,       
     }
 
     /// FT6206 Capacitive Touch, TCA8418RTWR Keypad, ADS7128IRTER Velocity, DA7280 Haptics, MMA8653FCR1 9DOF
@@ -304,6 +310,7 @@ pub mod preamble {
         FMCResources,
         SPIStorageResources,
         PowerResources,
+        FuelGaugeResources,
         I2C1Resources,
         I2C2Resources,
         I2C4Resources,
@@ -694,10 +701,40 @@ pub fn get_i2c1<'a>(r: I2C1Resources) -> embassy_sync::blocking_mutex::Mutex<Noo
 
 /// Creates the I2C2 interface for communicating with the BQ24193
 /// battery charger, BQ27531YZFR-G1 fuel gauge, FUSB302B USB-PD.
-pub fn get_i2c2<'a>(r: I2C2Resources) -> embassy_sync::blocking_mutex::Mutex<NoopRawMutex, RefCell<I2c<'a, embassy_stm32::mode::Async, embassy_stm32::i2c::Master>>> {
-    let i2c = I2c::new(r.peri, r.scl, r.sda, Irqs, r.tx_dma, r.rx_dma, Default::default());
-    NoopMutex::new(RefCell::new(i2c))
+pub fn get_i2c2<'a>(
+    r: I2C2Resources
+) -> I2c<'a, embassy_stm32::mode::Async, embassy_stm32::i2c::Master> {
+    let mut config: i2c::Config = Default::default();
+
+    // The frequency can probably be set faster, but needs to take
+    // into account the timing requirements for 100kHz<freq<400kHz
+    // on https://www.ti.com/lit/ds/symlink/bq27531-g1.pdf page 20.
+    config.frequency = Hertz::khz(100);
+
+    I2c::new(r.peri, r.scl, r.sda, Irqs, r.tx_dma, r.rx_dma, config)
 }
+
+/// Gets a handle to the BQ27531 fuel gauge on I2C2.
+pub fn get_bq27531_g1_async<'a, 
+    INT: gpio::Pin,
+    M: RawMutex,
+    BUS: embedded_hal_async::i2c::I2c,
+    DELAY: embedded_hal::delay::DelayNs
+> (
+    int: Peri<'a, INT>,
+    exti: Peri<'a, INT::ExtiChannel>,
+    i2c_bus: &'a Mutex<M, BUS>,
+    delay: DELAY,
+) -> Bq27531<'a, asynch::i2c::I2cDevice<'a, M, BUS>, DELAY> {
+    // Pulled up to compensate for missing pull-up resistor in board design.
+    let int = ExtiInput::new(int, exti, Pull::Up);
+
+    // Create the I2C device for the fuel gauge.
+    let device = asynch::i2c::I2cDevice::new(i2c_bus);
+
+    Bq27531::new(int, device, delay)
+}
+
 
 /// Creates the I2C4 interface for communicating with the FT6206 Capacitive
 /// Touch, TCA8418RTWR Keypad, ADS7128IRTER GPIO Breakout for Velocity

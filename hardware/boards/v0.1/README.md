@@ -38,3 +38,4 @@
       keypad array will be set to inputs, with pull-up resistors enabled. During idle mode, the internal oscillator is turned
       off so that power consumption is low as the device awaits a key press."
   - Missing pull-up on keypad interrupt. Compensated for in software.
+  - Fuel gauge interrupt missing pull-up resistor.

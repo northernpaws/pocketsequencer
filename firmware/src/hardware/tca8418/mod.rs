@@ -84,7 +84,7 @@ impl<'a, I2C: embedded_hal_async::i2c::I2c> Tca8418<'a, I2C> {
         trace!("configuring TCA8418");
 
         let configuration_register = register::Configuration::new(
-            true, // auto increment for read-write operations
+            false, // auto increment for read-write operations
             false, // GPI evens tracked when keypad locked
             false, // overflowed data is lost
             true, // IC will pulse INT on new interrupts
