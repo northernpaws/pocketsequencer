@@ -6,38 +6,45 @@ use bit_struct::*;
 
 use embassy_stm32::pac::spi::vals::Comm;
 
-pub type CommandCode = [u8; 2];
+/// The command codes in the documentation are fairly
+/// confusing, showing 2 codes for most commands.
+/// 
+/// However, upon inspecting some drivers it appears that
+/// for the vast magority of the codes only the first command
+/// byte is actually used and the second code byte is irrelevant. 
+pub type CommandCode = u8;
 
-pub const CONTROL_COMMAND_CODE: CommandCode = [0x00, 0x01];
-pub const AT_RATE_COMMAND_CODE: CommandCode = [0x02, 0x03];
-pub const AT_RATE_TIME_TO_EMPTY_COMMAND_CODE: CommandCode = [0x04, 0x05];
-pub const TEMPERATURE_COMMAND_CODE: CommandCode = [0x06, 0x07];
-pub const VOLTAGE_COMMAND_CODE: CommandCode = [0x08, 0x09];
-pub const FLAGS_COMMAND_CODE: CommandCode = [0x0A, 0x0B];
-pub const NOMINAL_AVAILABLE_CAPACITY_COMMAND_CODE: CommandCode = [0x0C, 0x0D];
-pub const FULL_AVAILABLE_CAPACITY_COMMAND_CODE: CommandCode = [0x0E, 0x0F];
-pub const REMAINING_CAPACIY_COMMAND_CODE: CommandCode = [0x10, 0x11];
-pub const FULL_CHARGE_CAPACITY_COMMAND_CODE: CommandCode = [0x12, 0x13];
-pub const AVERAGE_CURRENT_COMMAND_CODE: CommandCode = [0x14, 0x15];
-pub const TIME_TO_EMPTY_CODE: CommandCode = [0x16, 0x17];
-pub const REMAINING_CAPACITY_UNFILTERED_COMMAND_CODE: CommandCode = [0x18, 0x19];
-pub const STANDBY_CURRENT_COMMAND_CODE: CommandCode = [0x1A, 0x1B];
-pub const REMAINING_CAPACITY_FILTERED_COMMAND_CODE: CommandCode = [0x1C, 0x1D];
-pub const PROG_CHARGING_CURRENT_COMMAND_CODE: CommandCode = [0x1E, 0x1F];
-pub const PROG_CHARGING_VOLTAGE_COMMAND_CODE: CommandCode = [0x20, 0x21];
-pub const FULL_CHARGE_CAPACITY_UNFILTERED_COMMAND_CODE: CommandCode = [0x22, 0x23];
-pub const AVERAGE_POWER_COMMAND_CODE: CommandCode = [0x24, 0x25];
-pub const FULL_CHARGE_CAPACITY_FILTERED_COMMAND_CODE: CommandCode = [0x26, 0x27];
-pub const STATE_OF_HEALTH_COMMAND_CODE: CommandCode = [0x28, 0x29];
-pub const CYCLE_COUNT_COMMAND_CODE: CommandCode = [0x2A, 0x2B];
-pub const STATE_OF_CHARGE_COMMAND_CODE: CommandCode = [0x2C, 0x2D];
-pub const TRUE_SOC_COMMAND_CODE: CommandCode = [0x2E, 0x2F];
-pub const INSTANTANEOUS_CURRENT_READING_COMMAND_CODE: CommandCode = [0x30, 0x31];
-pub const INTERNAL_TEMPERATURE_COMMAND_CODE: CommandCode = [0x32, 0x33];
-pub const CHARGING_LEVEL_COMMAND_CODE: CommandCode = [0x34, 0x35];
-pub const LEVEL_TAPER_CURRENT_COMMAND_CODE: CommandCode = [0x6E, 0x6F];
-pub const CALC_CHARGING_CURRENT_COMMAND_CODE: CommandCode = [0x70, 0x71];
-pub const CALC_CHARGING_VOLTAGE_COMMAND_CODE: CommandCode = [0x72, 0x73];
+pub const CONTROL_COMMAND_CODE: CommandCode = 0x00;
+pub const AT_RATE_COMMAND_CODE: CommandCode = 0x02;
+pub const AT_RATE_TIME_TO_EMPTY_COMMAND_CODE: CommandCode = 0x04;
+pub const TEMPERATURE_COMMAND_CODE: CommandCode = 0x06;
+pub const VOLTAGE_COMMAND_CODE: CommandCode = 0x08;
+pub const FLAGS_COMMAND_CODE: CommandCode = 0x0A;
+pub const NOMINAL_AVAILABLE_CAPACITY_COMMAND_CODE: CommandCode = 0x0C;
+pub const FULL_AVAILABLE_CAPACITY_COMMAND_CODE: CommandCode = 0x0E;
+pub const REMAINING_CAPACIY_COMMAND_CODE: CommandCode = 0x10;
+pub const FULL_CHARGE_CAPACITY_COMMAND_CODE: CommandCode = 0x12;
+pub const AVERAGE_CURRENT_COMMAND_CODE: CommandCode = 0x14;
+pub const TIME_TO_EMPTY_CODE: CommandCode = 0x16;
+pub const REMAINING_CAPACITY_UNFILTERED_COMMAND_CODE: CommandCode = 0x18;
+pub const STANDBY_CURRENT_COMMAND_CODE: CommandCode = 0x1A;
+pub const REMAINING_CAPACITY_FILTERED_COMMAND_CODE: CommandCode = 0x1C;
+pub const PROG_CHARGING_CURRENT_COMMAND_CODE: CommandCode = 0x1E;
+pub const PROG_CHARGING_VOLTAGE_COMMAND_CODE: CommandCode = 0x20;
+pub const FULL_CHARGE_CAPACITY_UNFILTERED_COMMAND_CODE: CommandCode = 0x22;
+pub const AVERAGE_POWER_COMMAND_CODE: CommandCode = 0x24;
+pub const FULL_CHARGE_CAPACITY_FILTERED_COMMAND_CODE: CommandCode = 0x26;
+pub const STATE_OF_HEALTH_COMMAND_CODE_PERCENTAGE: CommandCode = 0x28;
+pub const STATE_OF_HEALTH_COMMAND_CODE_STATUS: CommandCode = 0x29;
+pub const CYCLE_COUNT_COMMAND_CODE: CommandCode = 0x2A;
+pub const STATE_OF_CHARGE_COMMAND_CODE: CommandCode = 0x2C;
+pub const TRUE_SOC_COMMAND_CODE: CommandCode = 0x2E;
+pub const INSTANTANEOUS_CURRENT_READING_COMMAND_CODE: CommandCode = 0x30;
+pub const INTERNAL_TEMPERATURE_COMMAND_CODE: CommandCode = 0x32;
+pub const CHARGING_LEVEL_COMMAND_CODE: CommandCode = 0x34;
+pub const LEVEL_TAPER_CURRENT_COMMAND_CODE: CommandCode = 0x6E;
+pub const CALC_CHARGING_CURRENT_COMMAND_CODE: CommandCode = 0x70;
+pub const CALC_CHARGING_VOLTAGE_COMMAND_CODE: CommandCode = 0x72;
 
 pub const CONTROL_STATUS_SUBCOMMAND: u16 = 0x0000;
 pub const CONTROL_DEVICE_TYPE_SUBCOMMAND: u16 = 0x0001;
