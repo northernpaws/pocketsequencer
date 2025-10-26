@@ -10,7 +10,7 @@ use defmt::*;
 use embassy_executor::Spawner;
 
 use embassy_stm32::{
-    gpio::OutputType, i2c::{
+    gpio::{Level, Output, OutputType, Speed}, i2c::{
         self,
         I2c
     }, mode::Async, rcc::clocks, spi::{
@@ -20,10 +20,7 @@ use embassy_stm32::{
 
 use embassy_sync::{
     blocking_mutex::{
-        NoopMutex,
-        raw::{
-            CriticalSectionRawMutex
-        }
+        self, raw::CriticalSectionRawMutex, NoopMutex
     },
     mutex::Mutex
 };
@@ -75,6 +72,7 @@ static I2C4_BUS: StaticCell<Mutex<CriticalSectionRawMutex, I2c<'static, Async, i
 
 /// SPI bus for internal and SD card storage.
 static SPI_BUS: StaticCell<Mutex<CriticalSectionRawMutex, Spi<'static, Async>>> = StaticCell::new();
+// static SPI_BUS: StaticCell<blocking_mutex::Mutex<CriticalSectionRawMutex, RefCell<Spi<'static, Async>>>> = StaticCell::new();
 
 #[embassy_executor::main]
 async fn main(spawner: Spawner) {
@@ -158,6 +156,81 @@ async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error
 
     let mut led_color: RGB = RGB::new(255, 255, 0);
 
+//     {
+//         use embedded_sdmmc::sdcard::{SdCard};
+//         use embedded_hal_bus::spi::ExclusiveDevice;
+
+//         struct DummyTimesource();
+
+//         impl embedded_sdmmc::TimeSource for DummyTimesource {
+//             fn get_timestamp(&self) -> embedded_sdmmc::Timestamp {
+//                 embedded_sdmmc::Timestamp {
+//                     year_since_1970: 0,
+//                     zero_indexed_month: 0,
+//                     zero_indexed_day: 0,
+//                     hours: 0,
+//                     minutes: 0,
+//                     seconds: 0,
+//                 }
+//             }
+//         }
+
+//         info!("initializing storage SPI1 bus");
+//         let (
+//             spi1,
+//             sd_cs,
+//             mut xtsdg_cs
+//         ) = hardware::get_spi1(r.spi_storage);
+
+//         // Convert the SPI1 peripheral handle into a bus handle that can be consumed by multiple devices.
+//         let spi_bus = SPI_BUS.init(blocking_mutex::Mutex::new(RefCell::new(spi1)));
+// // SPI clock needs to be running at <= 400kHz during initialization
+//         let mut config = spi::Config::default();
+//         config.frequency = Hertz(400_000);
+//         // let sd_cs = Output::new(r.spi_storage.sd_cs, Level::High, Speed::VeryHigh); // to make sure it's high
+//         // let cs = Output::new(r.spi_storage.xtsdg_cs, Level::High, Speed::VeryHigh);
+//         let spid = embassy_embedded_hal::shared_bus::blocking::spi::SpiDeviceWithConfig::new(spi_bus, xtsdg_cs, config);
+
+        
+//         // let spi = Spi::new_blocking(r.spi_storage.peri, r.spi_storage.clk, r.spi_storage.pico, r.spi_storage.poci, config);
+        
+//         // let spi_dev = ExclusiveDevice::new_no_delay(spid, cs);
+//         let sdcard = embedded_sdmmc::SdCard::new(spid, embassy_time::Delay);
+//         let size_bytes = sdcard.num_bytes().unwrap();
+//         info!("Card size is {} bytes", size_bytes);
+
+//         // Now that the card is initialized, the SPI clock can go faster
+//         let mut config = spi::Config::default();
+//         config.frequency = Hertz(16_000_000);
+//         sdcard.spi(|dev| dev.set_config(config));
+
+//         // Now let's look for volumes (also known as partitions) on our block device.
+//         // To do this we need a Volume Manager. It will take ownership of the block device.
+//         let mut volume_mgr = embedded_sdmmc::VolumeManager::new(sdcard, DummyTimesource());
+
+//         // Try and access Volume 0 (i.e. the first partition).
+//         // The volume object holds information about the filesystem on that volume.
+//         let mut volume0 = volume_mgr.open_volume(embedded_sdmmc::VolumeIdx(0)).unwrap();
+//         info!("Volume 0: {:?}", defmt::Debug2Format(&volume0));
+
+//         // Open the root directory (mutably borrows from the volume).
+//         let mut root_dir = volume0.open_root_dir().unwrap();
+
+//         // Open a file called "MY_FILE.TXT" in the root directory
+//         // This mutably borrows the directory.
+//         let mut my_file = root_dir
+//             .open_file_in_dir("MY_FILE.TXT", embedded_sdmmc::Mode::ReadOnly)
+//             .unwrap();
+
+//         // Print the contents of the file
+//         while !my_file.is_eof() {
+//             let mut buf = [0u8; 32];
+//             if let Ok(n) = my_file.read(&mut buf) {
+//                 info!("{:a}", buf[..n]);
+//             }
+//         }
+//     }
+
     // Initialize the bus for the SPI1 peripheral.
     //
     // This communicates with the internal storage and Micro SD card.
@@ -181,7 +254,7 @@ async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error
             Ok(_) => break,
             Err(_e) => {
                 led_color = RGB::new(255, 0, 0);
-                defmt::warn!("SD card init error!"); // TODO: log the error
+                defmt::panic!("internal storage init error!"); // TODO: log the error
                 embassy_time::Timer::after_millis(10).await;
             }
         }
@@ -217,7 +290,7 @@ async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error
                 // NOTE: XTSDG supports a high-speed mode of 50MHz.
                 // TODO: test the high-speed mode over SPI.
                 let mut config = spi::Config::default();
-                config.frequency = mhz(1);
+                config.frequency = mhz(25);
                 internal_storage.spi().set_config(config);
                 info!("Initialization complete!");
 
@@ -236,13 +309,11 @@ async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error
     // let size2 = size * (1 << 4 as u64);
     // TODO: why is mul2 required to get accurate
     //  size? something to do with block sizes?
-    info!("SD card storage size: {}B", size_2);
+    info!("internal storage size: {}B", size_2);
 
      info!("Failed to mount, formatting sd card...");
     let mut format_inner = BufStream::<_, 512>::new(&mut internal_storage);
-    let format_options = FormatVolumeOptions::new()
-        .volume_id(1)
-        .volume_label(*b"sd_card    ");
+    let format_options = FormatVolumeOptions::new();
     format_volume(&mut format_inner, format_options).await.unwrap();
 
     // info!("Formatting internal storage...");

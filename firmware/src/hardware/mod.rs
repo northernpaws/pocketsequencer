@@ -862,7 +862,7 @@ pub async fn get_sdcard_async<'a,
 ) -> SdSpi<
         embassy_embedded_hal::shared_bus::asynch::spi::SpiDeviceWithConfig<'a,
             M, BUS, embassy_stm32::gpio::Output<'a>>,
-        DELAY, aligned::A1
+        DELAY, aligned::A4
 > {
     // Configure the SPI settings for the SD card.
     //
@@ -874,7 +874,7 @@ pub async fn get_sdcard_async<'a,
     let spid = SpiDeviceWithConfig::new(spi_bus, cs, spi_config);
     
     // Initialize the SD-over-SPI wrapper.
-    SdSpi::<_, _, aligned::A1>::new(spid, delay)
+    SdSpi::<_, _, aligned::A4>::new(spid, delay)
 }
 
 pub fn get_keypad<'a> (r: LEDResources) -> Keypad<'a, peripherals::TIM5> {
