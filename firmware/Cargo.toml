@@ -111,6 +111,7 @@ mbr-nostd = "0.1.0"
 defmt-serial = "0.10.0"
 
 fatfs = { version = "0.4", default-features = false }
+sdio-host = "0.9.0"
 
 [patch.crates-io]
 # Adds additional FMC constructors.. requires patching ALL embassy packages for compatability to work correctly.

@@ -4,6 +4,7 @@ pub mod tca8418; // Keypad matrix
 pub mod bq27531_g1;
 pub mod fusb302b;
 pub mod keypad;
+pub mod sd_card;
 
 use defmt::trace;
 
@@ -875,6 +876,30 @@ pub async fn get_sdcard_async<'a,
     
     // Initialize the SD-over-SPI wrapper.
     SdSpi::<_, _, aligned::A4>::new(spid, delay)
+}
+
+pub fn get_sdcard_async2<'a,
+    M: RawMutex,
+    BUS: SetConfig<Config = spi::Config> + embedded_hal_async::spi::SpiBus,
+    DELAY: embedded_hal_async::delay::DelayNs + Clone
+> (
+    spi_bus: &'a Mutex<M, BUS>,
+    cs: gpio::Output<'a>,
+    delay: DELAY,
+) -> sd_card::SdCard<'a, M, BUS, DELAY> {
+    // Configure the SPI settings for the SD card.
+    //
+    // Before knowing the SD card's capabilities we need to start with a 400khz clock.
+    let mut spi_config: spi::Config = spi::Config::default();
+    spi_config.frequency = khz(400);
+
+    // Create the SPI device for the SD card, using the SD card's CS pin.
+    let spid = SpiDeviceWithConfig::new(spi_bus, cs, spi_config);
+    
+    // Initialize the SD-over-SPI wrapper.
+    let spi_sd: SdSpi<SpiDeviceWithConfig<'a, M, BUS, Output<'a>>, DELAY, aligned::A4> = SdSpi::new(spid, delay);
+    
+    sd_card::SdCard::new(spi_sd)
 }
 
 pub fn get_keypad<'a> (r: LEDResources) -> Keypad<'a, peripherals::TIM5> {

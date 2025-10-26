@@ -25,12 +25,13 @@ use embassy_sync::{
     mutex::Mutex
 };
 
-use embassy_time::{Duration, Ticker, Timer};
+use embassy_time::{with_timeout, Duration, Ticker, Timer};
 use embedded_fatfs::{format_volume, FormatVolumeOptions, FsOptions};
 use embedded_hal_async::delay::DelayNs;
 
 use heapless::format;
 use rgb_led_pwm_dma_maker::{calc_dma_buffer_length, LedDataComposition, LedDmaBuffer, RgbLedColor, RGB};
+use sdio_host::{common_cmd::{select_card, set_block_length}, sd::BlockSize};
 use sdspi::{
     sd_init
 };
@@ -259,6 +260,20 @@ async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error
             }
         }
     }
+    
+    let mut sd_card = hardware::get_sdcard_async2(spi_bus, sd_cs, embassy_time::Delay);
+
+    // TODO: timeout doens't seem to be working?
+    match with_timeout(Duration::from_millis(500), sd_card.init()).await {
+        Ok(_) => {
+            info!("SD Card successfully initialized!")
+        },
+        Err(err) => {
+            error!("SD Card initialization failed, no card present?")
+        },
+    }    
+    
+    /*
 
     // Initialize the internal and SD card storage next.
     //
@@ -281,7 +296,7 @@ async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error
             //
             // Init also supplies CMD0 which is required when
             // using the XTSDG device with a SPI host.
-            if internal_storage.init().await.is_ok() {
+            if internal_storage.init(true).await.is_ok() {
                 info!("Initialization succeeded, increasing internal storage clock to 25Mhz..");
 
                 // If the initialization succeeds then we can
@@ -309,12 +324,38 @@ async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error
     // let size2 = size * (1 << 4 as u64);
     // TODO: why is mul2 required to get accurate
     //  size? something to do with block sizes?
-    info!("internal storage size: {}B", size_2);
+    info!("Internal storage size: {}B", size_2);
 
-     info!("Failed to mount, formatting sd card...");
-    let mut format_inner = BufStream::<_, 512>::new(&mut internal_storage);
-    let format_options = FormatVolumeOptions::new();
-    format_volume(&mut format_inner, format_options).await.unwrap();
+    if let Some(card) = internal_storage.card() {
+        // info!("Selecting card");
+        // internal_storage.cmd(select_card(card.rca)).await.unwrap();
+
+        // info!("Setting storage block length to 1024");
+        // internal_storage.cmd(set_block_length(1024)).await.unwrap();
+        
+        info!("Formatting internal storage...");
+        let mut format_inner = BufStream::<_, 512>::new(&mut internal_storage);
+        let mut format_options = FormatVolumeOptions::new();
+        // let mut format_options = FormatVolumeOptions::new()
+        //     .bytes_per_sector(match card.csd.block_length() {
+        //         BlockSize::B512 => {
+        //             trace!("using 512 bytes_per_sector");
+        //             512
+        //         }
+        //         BlockSize::B1024 => {
+        //             trace!("using 1024 bytes_per_sector");
+        //             1024
+        //         },
+        //         _ => defmt::panic!("Unexpected block size!")
+        //     });        
+
+        format_volume(&mut format_inner, format_options).await.unwrap();
+    } else {
+        error!("Failed to get card registers!");
+    }
+
+
+    */
 
     // info!("Formatting internal storage...");
     // {
