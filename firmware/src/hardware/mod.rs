@@ -3,6 +3,7 @@ pub mod stm6601; // power button manager
 pub mod tca8418; // Keypad matrix
 pub mod bq27531_g1;
 pub mod fusb302b;
+pub mod keypad;
 
 use defmt::trace;
 
@@ -15,20 +16,16 @@ use core::{
 use assign_resources::assign_resources;
 
 use embassy_stm32::{
-    i2c::{self, I2c},
-    bind_interrupts, fmc::Fmc, gpio::{
-        Input, Level, Output, Speed, Pull
-    }, mode, peripherals, time::{
+    bind_interrupts, exti::ExtiInput, fmc::Fmc, gpio::{
+        self, Input, Level, Output, OutputType, Pull, Speed
+    }, i2c::{self, I2c}, mode, peripherals, spi::{
+        self
+    }, time::{
         khz, mhz, Hertz
-    }, usart::{
+    }, timer::{self, low_level::CountingMode, simple_pwm::{PwmPin, SimplePwm}, GeneralInstance4Channel}, usart::{
         self,
         Uart
-    }, usb, Config, Peri, Peripherals,
-    exti::ExtiInput,
-    spi::{
-        self
-    },
-    gpio
+    }, usb, Config, Peri, Peripherals
 };
 
 use embassy_time::{
@@ -87,7 +84,7 @@ use embassy_embedded_hal::{
     }
 };
 
-use crate::hardware::{bq27531_g1::Bq27531, fusb302b::Fusb302b, tca8418::Tca8418};
+use crate::hardware::{bq27531_g1::Bq27531, fusb302b::Fusb302b, keypad::Keypad, tca8418::Tca8418};
 use crate::hardware::stm6601::Stm6601;
 
 assign_resources! {
@@ -238,6 +235,12 @@ assign_resources! {
         pbout: PG3, // Current power button state
     }
 
+    led: LEDResources {
+        dat: PA3,
+        tim: TIM5,
+        dma: DMA2_CH4,
+    }
+
     usb_pd: USBPDResources {
         int: PG6,
         int_exti: EXTI6,
@@ -313,6 +316,7 @@ pub mod preamble {
         FMCResources,
         SPIStorageResources,
         PowerResources,
+        LEDResources,
         FuelGaugeResources,
         USBPDResources,
         I2C1Resources,
@@ -378,14 +382,14 @@ pub fn init() -> Peripherals {
             divr: Some(PllDiv::DIV2),
         });
         
-        config.rcc.pll3 = Some(Pll{
+        config.rcc.pll3 = None; /* Some(Pll{
             source: PllSource::HSE,
             prediv: PllPreDiv::DIV32,
             mul:  PllMul::MUL129,
             divp: Some(PllDiv::DIV2),
             divq: Some(PllDiv::DIV2),
             divr: Some(PllDiv::DIV2),
-        });
+        }); */
 
         config.rcc.d1c_pre = AHBPrescaler::DIV1; // D1CPRE - 480MHz
         config.rcc.ahb_pre = AHBPrescaler::DIV2; // HPRE 140Mhz (todo: double check)
@@ -401,10 +405,10 @@ pub fn init() -> Peripherals {
         config.rcc.ls = LsConfig {
             rtc: RtcClockSource::LSI, // TODO: should be LSE ocillator?
             lsi: true,
-            lse: Some(LseConfig{
+            lse: None,/*Some(LseConfig{
                 frequency: Hertz(32_768),
                 mode: LseMode::Oscillator(LseDrive::Low),
-            }),
+            }),*/
         };
 
         // config.rcc.mux = mux::ClockMux {
@@ -465,6 +469,10 @@ pub fn get_uart_rf_blocking<'a>(r: UartRFResources) -> Uart<'a, mode::Blocking> 
 pub fn get_uart_rf<'a>(r: UartRFResources) -> Uart<'a, mode::Async> {
     let config = usart::Config::default();
     Uart::new(r.peri, r.rx_pin, r.tx_pin, Irqs, r.tx_dma, r.rx_dma, config).unwrap()
+}
+
+pub fn get_leds<'a>(r: LEDResources) {
+    
 }
 
 // TODO: need to fix NSS pin
@@ -867,4 +875,26 @@ pub async fn get_sdcard_async<'a,
     
     // Initialize the SD-over-SPI wrapper.
     SdSpi::<_, _, aligned::A1>::new(spid, delay)
+}
+
+pub fn get_keypad<'a> (r: LEDResources) -> Keypad<'a, peripherals::TIM5> {
+    // Configure the pin to PWM
+    let pwm_pin = PwmPin::new(r.dat, OutputType::PushPull);
+
+    // Obtain a PWM handler, configure the Timer and Frequency.
+    // The prescaler and ARR are automatically set.
+    // Given this system frequency and pwm frequency the max duty cycle will be 300.
+    let mut pwm = SimplePwm::new(
+        r.tim,
+        None,
+        None,
+        None,
+        Some(pwm_pin),
+        // PWM_FREQ = 1 / data_transfer_time = 1 / 1.25us = 800kHz
+        Hertz::khz(800),
+        CountingMode::EdgeAlignedUp,
+    );
+    
+
+    Keypad::<'a, peripherals::TIM5>::new(pwm, r.dma, timer::Channel::Ch4)
 }

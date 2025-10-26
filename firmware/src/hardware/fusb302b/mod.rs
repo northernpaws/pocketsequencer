@@ -50,13 +50,13 @@ impl<'a, I2C: embedded_hal_async::i2c::I2c> Fusb302b<'a, I2C> {
         self.write_read_buf[0] = REG::ADDRESS;
         self.device.write_read(self.address, self.write_buf.as_ref(), &mut self.read_buf).await?;
 
-        Ok(REG::exact_from(self.read_buf[0]))
+        Ok(REG::from_storage(self.read_buf[0]))
     }
 
     /// Writes a new value for a register.
     pub async fn write_register<REG: register::Register>(&mut self, reg: REG) -> Result<(), I2C::Error> {
         self.write_buf[0] = REG::ADDRESS;
-        self.write_buf[1] = reg.into();
+        self.write_buf[1] = reg.into_storage();
         self.device.write(self.address, self.write_buf.as_ref()).await
     }
 }

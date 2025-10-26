@@ -8,9 +8,10 @@
             "type": "probe-rs-debug",
             "request": "launch",
             "name": "probe-rs Test",
-            "cwd": "${workspaceFolder}/firmware",
-            "connectUnderReset": true,
-            "chip": "STM32H745ZITx",
+            "cwd": "${workspaceFolder}",
+            "connectUnderReset": false,
+            "chip": "STM32H743ZITx",
+            "wireProtocol": "Swd",
             "flashingConfig": {
                 "flashingEnabled": true,
                 "haltAfterReset": true
@@ -21,6 +22,55 @@
                     "programBinary": "./firmware/target/thumbv7em-none-eabihf/debug/app"
                 }
             ]
+        },
+        {
+            "name": "BMP Attach",
+            "type": "cortex-debug",
+            "servertype": "bmp",
+            "request": "attach",
+            "cwd": "${workspaceRoot}",
+            "executable": "${workspaceRoot}/firmware/target/thumbv7em-none-eabihf/debug/app", // replace with your executable
+            "interface": "swd",
+            "device": "STM32H743",
+            "BMPGDBSerialPort": "/dev/tty.usbmodemBEEF9ADE1", // Use whatever serial port makes sense for your OS and BMP setup
+            "runToEntryPoint": "main",
+            "showDevDebugOutput": "raw"
+        },
+        {
+            "name": "BMP Debug",
+            "type": "cortex-debug",
+            "servertype": "bmp",
+            "request": "launch",
+            "cwd": "${workspaceRoot}",
+            "executable": "${workspaceRoot}/firmware/target/thumbv7em-none-eabihf/debug/app", // replace with your executable
+            "preLaunchTask": "cargo build", // using stm32-for-vscode extension, this is the build task
+            "interface": "swd",
+            "device": "STM32H743",
+            "BMPGDBSerialPort": "/dev/tty.usbmodemBEEF9ADE1", // Use whatever serial port makes sense for your OS and BMP setup
+            "runToEntryPoint": "main", // runToMain is deprecated.
+            "showDevDebugOutput": "raw",
+            // "postLaunchCommands": [
+            //     "monitor rtt",
+            //     "monitor rtt status"
+            // ],
+            // power the board via the BMP to override the power manager IC
+            // TODO: there is too large of a voltage drop for some reason caused by the board..
+            // "powerOverBMP": "enable",
+            "rttConfig": {
+                "enabled": true,
+                "address": "auto",
+                "clearSearch": false,
+                "polling_interval": 20,
+                "rtt_start_retry": 200,
+                "decoders": [
+                    {
+                        "label": "RTT channel 0",
+                        "port": 0,
+                        "timestamp": true,
+                        "type": "console"
+                    }
+                ]
+            },
         }
     ]
 }

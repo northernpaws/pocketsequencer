@@ -39,3 +39,6 @@
       off so that power consumption is low as the device awaits a key press."
   - Missing pull-up on keypad interrupt. Compensated for in software.
   - Fuel gauge interrupt missing pull-up resistor.
+  - Mounting holes are not grounded, oops..
+  - PG and cahrger lights are on regardless of power state
+  - Should have a 3v3 power light

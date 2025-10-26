@@ -10,15 +10,12 @@ use defmt::*;
 use embassy_executor::Spawner;
 
 use embassy_stm32::{
-    i2c::{
+    gpio::OutputType, i2c::{
         self,
         I2c
-    },
-    mode::Async,
-    spi::{
+    }, mode::Async, rcc::clocks, spi::{
         self, Spi
-    },
-    time::mhz
+    }, time::{khz, mhz, Hertz}, timer::{self, low_level::CountingMode, simple_pwm::{PwmPin, SimplePwm}}
 };
 
 use embassy_sync::{
@@ -31,8 +28,10 @@ use embassy_sync::{
     mutex::Mutex
 };
 
+use embassy_time::{Duration, Ticker, Timer};
 use embedded_hal_async::delay::DelayNs;
 
+use rgb_led_pwm_dma_maker::{calc_dma_buffer_length, LedDataComposition, LedDmaBuffer, RgbLedColor, RGB};
 use sdspi::{
     sd_init
 };
@@ -75,6 +74,7 @@ static SPI_BUS: StaticCell<Mutex<CriticalSectionRawMutex, Spi<'static, Async>>> 
 
 #[embassy_executor::main]
 async fn main(spawner: Spawner) {
+    info!("program start!");
     // If it returns, something went wrong.
     let err = inner_main(spawner).await.unwrap_err();
     defmt::panic!("{}", err);
@@ -87,6 +87,7 @@ async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error
     info!("initializing clocks and PLL to 480Mhz");
     let p = hardware::init();
 
+    info!("getting handles to hardware peripherals");
     let r = split_resources!(p);
 
     // Get a handle to the STM6601 power manager and enable PS_HOLD as early as
@@ -94,10 +95,23 @@ async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error
     //
     // This MUST be configured as early as possible to ensure that the
     // PS_HOLD pin is held high by the MCU to keep the power enabled.
-    info!("configuring stm6601");
+    //
+    // NOTE: PLL errors before this point will cause the power controller to shut
+    // off the paniced MCU after 5 seconds, leaving little time for debugging.
+    info!("Configuring stm6601...");
     let mut stm6601 = hardware::get_stm6601(r.power);
     stm6601.power_enable().unwrap(); // TODO: change to result error
 
+    info!("Power good confirmed!");
+
+    let clocks = clocks(&p.RCC);
+    println!("System clock speed: {}", clocks.sys);
+    println!("APB1  clock speed: {}", clocks.pclk1);
+    println!("APB1 Timer clock speed: {}", clocks.pclk1_tim);
+    println!("APB2  clock speed: {}", clocks.pclk2);
+    println!("APB2 Timer clock speed: {}", clocks.pclk2_tim);
+
+    /*
     // Initialize the bus for the I2C4 peripheral.
     //
     // This communicates with the FT6206 Capacitive Touch sensor,
@@ -263,8 +277,238 @@ async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error
     // FM SI4703-C19-GMR RX / SI4710-B30-GMR TX.
     info!("initializing audio i2c1 bus");
     let _i2c1_bus = I2C1_BUS.init(hardware::get_i2c1(r.i2c1));
+*/
 
-    loop {}
+    /*let mut ws2812_pwm = SimplePwm::new(
+        r.led.tim,
+        None,
+        None,
+        None,
+        Some(PwmPin::new(r.led.dat, OutputType::PushPull)),
+        khz(800), // data rate of ws2812
+        CountingMode::EdgeAlignedUp,
+    );
+
+    // construct ws2812 non-return-to-zero (NRZ) code bit by bit
+    // ws2812 only need 24 bits for each LED, but we add one bit more to keep PWM output low
+
+    let max_duty = ws2812_pwm.max_duty_cycle();
+    let n0 = 8 * max_duty / 25; // ws2812 Bit 0 high level timing
+    let n1 = 2 * n0; // ws2812 Bit 1 high level timing
+
+    let turn_off = [
+        n0, n0, n0, n0, n0, n0, n0, n0, // Green
+        n0, n0, n0, n0, n0, n0, n0, n0, // Red
+        n0, n0, n0, n0, n0, n0, n0, n0, // Blue
+        0,  // keep PWM output low after a transfer
+    ];
+
+    let dim_white = [
+        n0, n0, n0, n0, n0, n0, n1, n0, // Green
+        n0, n0, n0, n0, n0, n0, n1, n0, // Red
+        n0, n0, n0, n0, n0, n0, n1, n0, // Blue
+        0,  // keep PWM output low after a transfer
+    ];
+
+    let color_list = &[&turn_off, &dim_white];
+
+    let pwm_channel = timer::Channel::Ch1;
+
+    // make sure PWM output keep low on first start
+    ws2812_pwm.channel(pwm_channel).set_duty_cycle(0);
+
+    // flip color at 2 Hz
+    let mut ticker = Ticker::every(Duration::from_millis(500));
+
+    let mut led_dma = r.led.dma;
+    loop {
+        for &color in color_list {
+            // with &mut, we can easily reuse same DMA channel multiple times
+            ws2812_pwm.waveform_up(led_dma.reborrow(), pwm_channel, color).await;
+            // ws2812 need at least 50 us low level input to confirm the input data and change it's state
+            Timer::after_micros(50).await;
+            // wait until ticker tick
+            ticker.next().await;
+        }
+    }*/
+
+    // let ch1_pin = PwmPin::new(r.led.dat, OutputType::PushPull);
+    // let mut pwm = SimplePwm::new(
+    //     r.led.tim,
+    //     None,
+    //     None,
+    //     None,
+    //     Some(ch1_pin),
+    //     khz(10),
+    //     Default::default()
+    // );
+    // let mut ch1 = pwm.ch4();
+    // ch1.enable();
+
+    // info!("PWM initialized");
+    // info!("PWM max duty {}", ch1.max_duty_cycle());
+
+    //     ch1.set_duty_cycle_fraction(1, 2);
+    // loop {
+    //     ch1.set_duty_cycle_fully_off();
+    //     Timer::after_millis(300).await;
+    //     ch1.set_duty_cycle_fraction(1, 4);
+    //     Timer::after_millis(300).await;
+    //     ch1.set_duty_cycle_fraction(1, 2);
+    //     Timer::after_millis(300).await;
+    //     ch1.set_duty_cycle(ch1.max_duty_cycle() - 1);
+    //     Timer::after_millis(300).await;
+    // }
+
+    info!("Initializing keypad...");
+    let mut keypad = hardware::get_keypad(r.led);
+    keypad.init();
+
+    loop {
+        keypad.refresh_leds().await;
+    }
+
+    /*// TIM5 is 32bit timer off APB1 @ 120MHz max
+    // 
+
+    // Configure the pin to PWM
+    let pwm_pin = PwmPin::new(r.led.dat, OutputType::PushPull);
+
+    // Obtain a PWM handler, configure the Timer and Frequency.
+    // The prescaler and ARR are automatically set.
+    // Given this system frequency and pwm frequency the max duty cycle will be 300.
+    let mut pwm = SimplePwm::new(
+        r.led.tim,
+        None,
+        None,
+        None,
+        Some(pwm_pin),
+        // PWM_FREQ = 1 / data_transfer_time = 1 / 1.25us = 800kHz
+        Hertz::khz(800),
+        CountingMode::EdgeAlignedUp,
+    );
+    
+    // Enable the channel corresponding to the PWM channel above.
+    let mut pwm_channel = pwm.ch4();
+    pwm_channel.enable();
+    
+    /*// Set it off when we're not transmitting LED data.
+    //
+    // This state is "restored" after a DMA transfer.
+    // pwm_channel.set_duty_cycle_fully_off();
+
+    // pwm_channel.set_duty_cycle_fraction(1, 2);
+    // Make sure PWM output keep low on first start.
+    //
+    // This duty cycle is reset to after the DMA waveform has been transmitter.
+    pwm_channel.set_duty_cycle(0);
+
+    let mut led_dma = r.led.dma;
+    let duty = &[300, 0, 0, 0, 150, 0, 0, 0];
+    loop {
+        pwm.waveform::<embassy_stm32::timer::Ch4>(led_dma.reborrow(), duty)
+            .await;
+        Timer::after_millis(600).await;
+    }*/
+
+    const RED: RGB = RGB::new(255, 0, 0);
+    const GREEN: RGB = RGB::new(0, 255, 0);
+    const BLUE: RGB = RGB::new(0, 0, 255);
+    const MAGENTA: RGB = RGB::new(255, 0, 255);
+    const CYAN: RGB = RGB::new(0, 255, 255);
+    const YELLOW: RGB = RGB::new(255, 255, 0);
+    const ORANGE: RGB = RGB::new(255, 20, 0);
+
+    const RAINBOW: [RGB; 1] = [RED];
+    const LED_COUNT: usize = RAINBOW.len();
+
+    // APB1 = 120MHz
+    // doubled for clocks = 240MHz
+    // max duty cycle = 240MHz/0.800MHz (pwm freq) = 300 cycles
+
+    // PWM_FREQ = 1 / data_transfer_time = 1 / 1.25us = 800kHz
+    // |-------- 1.25us --------|
+    // 0%         duty       100%
+    // 0 ->  max duty cycle = 300
+
+    // Information needed from datasheet:
+    // Data Transfer Time = 1.25us
+    //     * Used to calculate pwm frequency, t1h, and t0h values
+    // T1H = 0.6us
+    // T0H = 0.3us
+    // Reset Period = RES >= 80us
+    
+    //
+    // |-------T-------| Symbol Period
+    // |-T0H-|_________| 0 symbol
+    // |---T1H----|____| 1 Symbol
+    // |------- RESET ------|
+    /// `t1h` = `T1H / data_transfer_time * max_duty_value`
+    /// `t0h` = `T0H / data_transfer_time * max_duty_value`
+    /// 
+    /// `t1h` = `0.6us / 1.25us * 300` = 144
+    /// `t0h` = `0.3us / 1.25us * 300` = 72
+
+    /// NEED TO UPDATE IF SYSTEM CLOCK SPEED CHANGES
+    // max_duty_cycle = ?? calculated from PWM
+    let max_duty = pwm_channel.max_duty_cycle();
+    info!("LED Max Duty Cycle: {}", max_duty);
+
+    // RESET_LENGTH = reset_period / data_transfer_time = 80us / 1.25us = 64
+    const RESET_LENGTH: usize = 64; // 64 frames
+
+    // Calculate the dma buffer's length at compile time
+    const DMA_BUFFER_LEN: usize = calc_dma_buffer_length(RGB::BIT_COUNT, LED_COUNT, RESET_LENGTH);
+    
+    // t1h = T1H / data_transfer_time * max_duty_cycle = 0.6us / 1.25us * 300 = 144
+    let t1h: u16 = 144; // 144;
+    // t0h = T0H / data_transfer_time * max_duty_cycle = 0.3us / 1.25us * 300 = 72
+    let t0h: u16 = 72; // 72;
+
+    // Create a DMA buffer for the led strip
+    // From datasheet, data structure of 24 bit data is green -> red -> blue, so use LedDataComposition::GRB
+    let mut dma_buffer = LedDmaBuffer::<DMA_BUFFER_LEN>::new(t1h, t0h, LedDataComposition::GRB);
+
+    let mut led_dma: embassy_stm32::Peri<'static, embassy_stm32::peripherals::DMA2_CH4> = r.led.dma;
+    let mut brightness = 100u8;
+    let mut increase = true;
+
+    let mut u32_dma_buffer: [u16; DMA_BUFFER_LEN*2] = [0u16; DMA_BUFFER_LEN*2];
+    loop {
+        // Set the DMA buffer
+        dma_buffer
+            .set_dma_buffer_with_brightness(&RAINBOW, None, brightness)
+            .unwrap();
+        let mut i = 0;
+        for d in dma_buffer.get_dma_buffer() {
+            u32_dma_buffer[i*2] = *d;
+            i += 1;
+        }
+
+        // Create a pwm waveform usng the dma buffer
+        // pwm.waveform::<embassy_stm32::timer::Ch4>(led_dma.reborrow(), dma_buffer.get_dma_buffer())
+        //     .await;
+        pwm.waveform::<embassy_stm32::timer::Ch4>(led_dma.reborrow(), &u32_dma_buffer)
+            .await;
+
+        // Increase or Decrease brightness accordingly
+        if brightness >= 100 {
+            increase = false;
+        } else if brightness == 0 {
+            increase = true;
+        }
+        if increase {
+            brightness += 1;
+        } else {
+            brightness = brightness.saturating_sub(1);
+        }
+        if brightness > 100 {
+            brightness = 100;
+        }
+         Timer::after_millis(10).await;
+    }*/
+
+    // loop {}
 
     // let mut led = Output::new(p.PB14, Level::High, Speed::Low);
 
