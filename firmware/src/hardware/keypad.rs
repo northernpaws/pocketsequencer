@@ -124,7 +124,7 @@ where
         self.led_matrix = leds;
     }
 
-    pub fn set_led(&mut self, led: u8, color: RGB) {
+    pub fn set_led(&mut self, led: usize, color: RGB) {
         assert!(led < LED_COUNT);
         self.led_matrix[led] = color;
     }

@@ -129,6 +129,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2261d10cca569e4643e526d8dc2e62e433cc8aba21ab764233731f8d369bf394"
 
 [[package]]
+name = "block-device-adapters"
+version = "0.2.0"
+source = "git+https://github.com/MabezDev/embedded-fatfs?branch=master#428ad03cee555d9636f061d7bca7a62c4889cc63"
+dependencies = [
+ "aligned",
+ "block-device-driver 0.2.0 (git+https://github.com/MabezDev/embedded-fatfs?branch=master)",
+ "embedded-io-async",
+]
+
+[[package]]
 name = "block-device-driver"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -319,6 +329,17 @@ checksum = "b2cac3b8a5644a9e02b75085ebad3b6deafdbdbdec04bb25086523828aa4dfd1"
 dependencies = [
  "critical-section",
  "defmt 1.0.1",
+]
+
+[[package]]
+name = "defmt-serial"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f58b953e44512ad9e2a5cbd0924d975619e84d017e7f77eb0c94955f73d19813"
+dependencies = [
+ "critical-section",
+ "defmt 0.3.100",
+ "embedded-io",
 ]
 
 [[package]]
@@ -688,6 +709,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a357d28ed41a50f9c765dbfe56cbc04a64e53e5fc58ba79fbc34c10ef3df831f"
 
 [[package]]
+name = "fatfs"
+version = "0.4.0"
+source = "git+https://github.com/rafalh/rust-fatfs?branch=master#4eccb50d011146fbed20e133d33b22f3c27292e7"
+dependencies = [
+ "bitflags 2.9.4",
+ "log",
+]
+
+[[package]]
 name = "find-msvc-tools"
 version = "0.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -701,6 +731,7 @@ dependencies = [
  "assign-resources",
  "bit-struct",
  "bitfield 0.19.3",
+ "block-device-adapters",
  "byteorder",
  "concat-idents",
  "cortex-m",
@@ -708,6 +739,7 @@ dependencies = [
  "critical-section",
  "defmt 1.0.1",
  "defmt-rtt",
+ "defmt-serial",
  "embassy-embedded-hal",
  "embassy-executor",
  "embassy-futures",
@@ -722,7 +754,9 @@ dependencies = [
  "embedded-hal-async",
  "embedded-hal-bus",
  "embedded-sdmmc",
+ "fatfs",
  "heapless 0.9.1",
+ "mbr-nostd",
  "mipidsi",
  "panic-probe",
  "proc-bitfield",
@@ -879,6 +913,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d1525a2a28c7f4fa0fc98bb91ae755d1e2d1505079e05539e35bc876b5d65ae9"
 dependencies = [
  "regex-automata",
+]
+
+[[package]]
+name = "mbr-nostd"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "70e7b12e539fe14d6423dc8864bd5b5fc1f04fd14f5d9152a137de285e4329f7"
+dependencies = [
+ "byteorder",
 ]
 
 [[package]]

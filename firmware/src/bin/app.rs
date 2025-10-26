@@ -3,7 +3,7 @@
 
 // https://medium.com/@carlmkadie/how-rust-embassy-shine-on-embedded-devices-part-1-9f4911c92007
 
-use core::cell::RefCell;
+use core::{cell::RefCell, fmt::Debug};
 
 use defmt::*;
 
@@ -15,7 +15,7 @@ use embassy_stm32::{
         I2c
     }, mode::Async, rcc::clocks, spi::{
         self, Spi
-    }, time::{khz, mhz, Hertz}, timer::{self, low_level::CountingMode, simple_pwm::{PwmPin, SimplePwm}}
+    }, time::{khz, mhz, Hertz}, timer::{self, low_level::CountingMode, simple_pwm::{PwmPin, SimplePwm}}, usart::Uart
 };
 
 use embassy_sync::{
@@ -29,17 +29,21 @@ use embassy_sync::{
 };
 
 use embassy_time::{Duration, Ticker, Timer};
+use embedded_fatfs::{format_volume, FormatVolumeOptions, FsOptions};
 use embedded_hal_async::delay::DelayNs;
 
+use heapless::format;
 use rgb_led_pwm_dma_maker::{calc_dma_buffer_length, LedDataComposition, LedDmaBuffer, RgbLedColor, RGB};
 use sdspi::{
     sd_init
 };
+use block_device_adapters::BufStream;
+use block_device_adapters::BufStreamError;
 
 use static_cell::StaticCell;
 
 use {
-    defmt_rtt as _,
+    // defmt_rtt as _,
     panic_probe as _
 };
 
@@ -80,6 +84,8 @@ async fn main(spawner: Spawner) {
     defmt::panic!("{}", err);
 }
 
+static DEBUG_SERIAL: StaticCell<Uart<'static, Async>> = StaticCell::new();
+
 // Inner-main allows us us to returns errors via Result instead of relying on panics.
 #[expect(clippy::future_not_send, reason = "Safe in single-threaded, bare-metal embedded context")]
 #[expect(clippy::items_after_statements, reason = "Keeps related code together")]
@@ -103,6 +109,19 @@ async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error
     stm6601.power_enable().unwrap(); // TODO: change to result error
 
     info!("Power good confirmed!");
+
+    // Initialize the debug UART connection to the BMP
+    // header and configure it for use with defmt.
+    //
+    // Baud: 115200
+    // DataBits8
+    // ParityNone
+    // Stop1
+    let mut debug_uart = hardware::get_uart_debug(r.uart_debug);
+    debug_uart.blocking_write(
+        b"debug serial ready"
+    ).unwrap();
+    defmt_serial::defmt_serial(DEBUG_SERIAL.init(debug_uart));
 
     let clocks = clocks(&p.RCC);
     println!("System clock speed: {}", clocks.sys);
@@ -135,7 +154,9 @@ async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error
     info!("Initializing TCA8418 registers...");
     keypad.init().await.unwrap(); // TODO: change to result errror
 
-    info!("TCA8418 initialized!");
+    info!("TCA8418 initialized!");*/
+
+    let mut led_color: RGB = RGB::new(255, 255, 0);
 
     // Initialize the bus for the SPI1 peripheral.
     //
@@ -159,6 +180,7 @@ async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error
         match sd_init(spi_bus.get_mut(), &mut xtsdg_cs).await {
             Ok(_) => break,
             Err(_e) => {
+                led_color = RGB::new(255, 0, 0);
                 defmt::warn!("SD card init error!"); // TODO: log the error
                 embassy_time::Timer::after_millis(10).await;
             }
@@ -195,20 +217,171 @@ async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error
                 // NOTE: XTSDG supports a high-speed mode of 50MHz.
                 // TODO: test the high-speed mode over SPI.
                 let mut config = spi::Config::default();
-                config.frequency = mhz(25);
+                config.frequency = mhz(1);
                 internal_storage.spi().set_config(config);
                 info!("Initialization complete!");
+
+                led_color = RGB::new(0, 255, 0);
 
                 break;
             }
 
+            led_color = RGB::new(255, 0, 0);
             info!("Failed to initialize internal storage, retrying...");
             embassy_time::Delay.delay_ns(5000u32).await;
         }
     }
 
+    let size_2 = internal_storage.size().await.unwrap();
+    // let size2 = size * (1 << 4 as u64);
+    // TODO: why is mul2 required to get accurate
+    //  size? something to do with block sizes?
+    info!("SD card storage size: {}B", size_2);
+
+     info!("Failed to mount, formatting sd card...");
+    let mut format_inner = BufStream::<_, 512>::new(&mut internal_storage);
+    let format_options = FormatVolumeOptions::new()
+        .volume_id(1)
+        .volume_label(*b"sd_card    ");
+    format_volume(&mut format_inner, format_options).await.unwrap();
+
+    // info!("Formatting internal storage...");
+    // {
+    //     // Configure the SPI settings for the SD card.
+    //     //
+    //     // Before knowing the SD card's capabilities we need to start with a 400khz clock.
+    //     let mut spi_config: spi::Config = spi::Config::default();
+    //     spi_config.frequency = khz(400);
+
+    //     // Create the SPI device for the SD card, using the SD card's CS pin.
+    //     let spid = embassy_embedded_hal::shared_bus::blocking::spi::SpiDeviceWithConfig::new(spi_bus, xtsdg_cs, spi_config);
+        
+    //     use embedded_sdmmc::{Error, Mode, SdCard, SdCardError, TimeSource, VolumeIdx, VolumeManager};
+    //     let internal_storage = SdCard::new(spid, embassy_time::Delay);
+    //     into!("Initializing internal storage..");
+    //     info!("Card size is {} bytes", internal_storage.num_bytes()?);
+    //     let volume_mgr = VolumeManager::new(internal_storage, ts);
+    //     let volume0 = volume_mgr.open_volume(VolumeIdx(0))?;
+    //     info!("Volume 0: {:?}", volume0);
+    //     let root_dir = volume0.open_root_dir()?;
+    //     let mut my_file = root_dir.open_file_in_dir("MY_FILE.TXT", Mode::ReadOnly)?;
+    //     while !my_file.is_eof() {
+    //         let mut buffer = [0u8; 32];
+    //         let num_read = my_file.read(&mut buffer)?;
+    //         for b in &buffer[0..num_read] {
+    //             info!("{}", *b as char);
+    //         }
+    //     }
+    // }
+
+    // let mut format_inner = BufStream::<_, 512>::new(&mut internal_storage);
+    // let result = fatfs::format_volume(&mut format_inner, fatfs::FormatVolumeOptions::new());
+    // match result {
+    //     Ok(_) => info!("formatting finished successfuly!"),
+    //     Err(err) => error!("error formatting!")
+    // }
+
+   /*info!("Failed to mount, formatting internal storage...");
+    let mut format_inner = BufStream::<_, 512>::new(&mut internal_storage);
+    let format_options = FormatVolumeOptions::new();
+    let result: Result<(), embedded_fatfs::Error<BufStreamError<sdspi::Error>>> = format_volume(&mut format_inner, format_options).await;
+    match result {
+        Err(err) => {
+            match err {
+                embedded_fatfs::Error::Io(ioerr) => match ioerr {
+                    BufStreamError::Io(ioerr2) => match ioerr2 {
+                        sdspi::Error::ChipSelect => error!("Chip select error!"),
+                        sdspi::Error::SpiError => error!("SPI Error!"),
+                        sdspi::Error::Timeout => error!("Timeout!"),
+                        sdspi::Error::UnsupportedCard => error!("Unsupported Card!"),
+                        sdspi::Error::Cmd58Error => error!("CMD58 Error!"),
+                        sdspi::Error::Cmd59Error => error!("CMD59 Error!"),
+                        sdspi::Error::RegisterError(_) => error!("Register error!"),
+                        sdspi::Error::CrcMismatch(_, _) => error!("CRC Missmatch!"),
+                        sdspi::Error::NotInitialized => error!("Not Initialized !"),
+                        sdspi::Error::WriteError => error!("Write Error!"),
+                        _ => error!("Unknown sdspi error!"),
+                    },
+                    _ => error!("Unexpected IO Error!"),
+                },
+                embedded_fatfs::Error::UnexpectedEof => error!("Unexpected EOF!"),
+                embedded_fatfs::Error::WriteZero => error!("Write 0!"),
+                embedded_fatfs::Error::InvalidInput => error!("Invalid Input!"),
+                embedded_fatfs::Error::NotFound => error!("Not Found!"),
+                embedded_fatfs::Error::AlreadyExists => error!("Already Exists!"),
+                embedded_fatfs::Error::DirectoryIsNotEmpty => error!("Directiory Not Empty!"),
+                embedded_fatfs::Error::CorruptedFileSystem => error!("Corrupted file System!"),
+                embedded_fatfs::Error::NotEnoughSpace => error!("Not Enough Space!"),
+                embedded_fatfs::Error::InvalidFileNameLength => error!("Invalid File Name Length!"),
+                embedded_fatfs::Error::UnsupportedFileNameCharacter => error!("Unsupported File Name Characte!"),
+                _ => error!("Unexpected FATFS Error!"),
+            }
+            defmt::panic!("Failed to format volume! ")
+        },
+        Ok(_) => {
+            info!("Successfuly finished formatting!")
+        }
+    }*/
+    
+    // {
+    //     info!("Attempting to mount internal storage...");
+    //     let mut inner = BufStream::<_, 512>::new(&mut internal_storage);
+    //     if let fs = embedded_fatfs::FileSystem::new(inner, FsOptions::new()).await.unwrap() {
+    //         {
+    //             let root = fs.root_dir();
+    //             let mut iter = root.iter();
+    //             loop {
+    //                 if let Some(Ok(entry)) = iter.next().await {
+    //                     let name = entry.short_file_name_as_bytes();
+    //                     defmt::info!("Name:{} Length:{}", &name, entry.len());
+    //                 } else {
+    //                     defmt::info!("end");
+    //                     break;
+    //                 }
+    //             }
+    //         }
+
+    //         fs.unmount().await.unwrap();
+    //     } else {
+    //         info!("Failed to mount, formatting internal storage...");
+    //         let mut format_inner = BufStream::<_, 512>::new(&mut internal_storage);
+    //         let format_options = FormatVolumeOptions::new()
+    //             .volume_id(1)
+    //             .volume_label(*b"sd_card    ");
+    //         format_volume(&mut format_inner, format_options).await.unwrap();
+    //     }
+    // }
+
+    // info!("Formatting internal storage...");
+    // let mut inner = BufStream::<_, 512>::new(internal_storage);
+    // let format_options = FormatVolumeOptions::new()
+    //     .volume_id(1)
+    //     .volume_label(*b"internal   ");
+    // format_volume(&mut inner, format_options).await.unwrap();
+    
+    // info!("Attempting to mount internal storage...");
+    // let fs = embedded_fatfs::FileSystem::new(inner, FsOptions::new()).await.unwrap();
+    // {
+    //     let root = fs.root_dir();
+    //     let mut iter = root.iter();
+    //     loop {
+    //         if let Some(Ok(entry)) = iter.next().await {
+    //             let name = entry.short_file_name_as_bytes();
+    //             // let name: String<256> = String::from_utf8(
+    //             //     Vec::from_slice(entry.short_file_name_as_bytes()).unwrap(),
+    //             // )
+    //             // .unwrap();
+    //             defmt::info!("Name:{} Length:{}", &name, entry.len());
+    //         } else {
+    //             defmt::info!("end");
+    //             break;
+    //         }
+    //     }
+    // }
+    // fs.unmount().await.unwrap();
+
     // Initialize the Micro SD card.
-    info!("Configuring SD card...");
+    /*info!("Configuring SD card...");
     let mut sdcard = hardware::get_sdcard_async(spi_bus, sd_cs, embassy_time::Delay).await;
     {
         // Attempt to initialize the connected SD card.
@@ -219,6 +392,9 @@ async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error
         info!("Attempting to initialize SD card...");
         loop {
             // Attempt to initialize the card.
+            //
+            // TODO: This hangs indefinetly waiting for a
+            //  reply on DMA if no SD card is connected!
             if sdcard.init().await.is_ok() {
                 info!("Initialization succeeded, increasing clock to 25Mhz..");
 
@@ -239,6 +415,77 @@ async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error
         }
     }
 
+    let size_2 = sdcard.size().await.unwrap();
+    // let size2 = size * (1 << 4 as u64);
+    // TODO: why is mul2 required to get accurate
+    //  size? something to do with block sizes?
+    info!("SD card storage size: {}B", size_2);
+
+     info!("Failed to mount, formatting sd card...");
+    let mut format_inner = BufStream::<_, 512>::new(&mut sdcard);
+    let format_options = FormatVolumeOptions::new()
+        .volume_id(1)
+        .volume_label(*b"sd_card    ");
+    format_volume(&mut format_inner, format_options).await.unwrap();*/
+    // {
+    //     info!("Attempting to mount sd card...");
+    //     let mut inner = BufStream::<_, 512>::new(&mut sdcard);
+    //     if let fs = embedded_fatfs::FileSystem::new(inner, FsOptions::new()).await.unwrap() {
+    //         {
+    //             let root = fs.root_dir();
+    //             let mut iter = root.iter();
+    //             loop {
+    //                 if let Some(Ok(entry)) = iter.next().await {
+    //                     let name = entry.short_file_name_as_bytes();
+    //                     // let name: String<256> = String::from_utf8(
+    //                     //     Vec::from_slice(entry.short_file_name_as_bytes()).unwrap(),
+    //                     // )
+    //                     // .unwrap();
+    //                     defmt::info!("Name:{} Length:{}", &name, entry.len());
+    //                 } else {
+    //                     defmt::info!("end");
+    //                     break;
+    //                 }
+    //             }
+    //         }
+
+    //         fs.unmount().await.unwrap();
+    //     } else {
+    //         info!("Failed to mount, formatting sd card...");
+    //         let mut format_inner = BufStream::<_, 512>::new(&mut sdcard);
+    //         let format_options = FormatVolumeOptions::new()
+    //             .volume_id(1)
+    //             .volume_label(*b"sd_card    ");
+    //         format_volume(&mut format_inner, format_options).await.unwrap();
+    //     }
+    // }
+
+    //TODO: need to read partition table and open the first FAT partition
+
+    // let inner = BufStream::<_, 512>::new(sdcard);
+    // let fs = embedded_fatfs::FileSystem::new(inner, FsOptions::new()).await.unwrap();
+    // {
+    //     let root = fs.root_dir();
+    //     let mut iter = root.iter();
+    //     loop {
+    //         if let Some(Ok(entry)) = iter.next().await {
+    //             let name = entry.short_file_name_as_bytes();
+    //             // let name: String<256> = String::from_utf8(
+    //             //     Vec::from_slice(entry.short_file_name_as_bytes()).unwrap(),
+    //             // )
+    //             // .unwrap();
+    //             defmt::info!("Name:{} Length:{}", &name, entry.len());
+    //         } else {
+    //             defmt::info!("end");
+    //             break;
+    //         }
+    //     }
+    // }
+    // fs.unmount().await.unwrap();
+
+
+
+/*
     // Next initialize the bus for the I2C2 peripheral that
     // has all the power management peripherals attatched.
     //
@@ -363,6 +610,7 @@ async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error
     info!("Initializing keypad...");
     let mut keypad = hardware::get_keypad(r.led);
     keypad.init();
+    keypad.set_led(0, led_color);
 
     loop {
         keypad.refresh_leds().await;

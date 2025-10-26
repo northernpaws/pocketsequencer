@@ -43,7 +43,7 @@
             "request": "launch",
             "cwd": "${workspaceRoot}",
             "executable": "${workspaceRoot}/firmware/target/thumbv7em-none-eabihf/debug/app", // replace with your executable
-            "preLaunchTask": "cargo build", // using stm32-for-vscode extension, this is the build task
+            "preLaunchTask": "BMP Launch", // using stm32-for-vscode extension, this is the build task
             "interface": "swd",
             "device": "STM32H743",
             "BMPGDBSerialPort": "/dev/tty.usbmodemBEEF9ADE1", // Use whatever serial port makes sense for your OS and BMP setup

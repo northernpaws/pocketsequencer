@@ -92,7 +92,10 @@ embedded-hal-bus = "0.3.0"
 
 # SD card FatFS with async support.
 embedded-fatfs = { version = "0.1.0", default-features = false, features = ["defmt"] }
-sdspi = { version = "0.1.0"} # defmt feature seems to cause issue
+
+sdspi = { version = "0.1.0" } # defmt feature seems to cause issue
+block-device-adapters = { version = "0.2.0" }
+
 aligned = "0.4.2"
 embedded-hal-async = "1.0.0"
 
@@ -104,6 +107,10 @@ concat-idents = "1.1.5"
 byteorder = { version = "1.5.0", default-features = false }
 proc-bitfield = "0.5.2"
 rgb-led-pwm-dma-maker = "0.1.3"
+mbr-nostd = "0.1.0"
+defmt-serial = "0.10.0"
+
+fatfs = { version = "0.4", default-features = false }
 
 [patch.crates-io]
 # Adds additional FMC constructors.. requires patching ALL embassy packages for compatability to work correctly.
@@ -117,3 +124,5 @@ embassy-sync = { git = 'https://github.com/northernpaws/embassy', branch = "main
 
 embedded-fatfs = { git = 'https://github.com/MabezDev/embedded-fatfs', branch = 'master'}
 sdspi = { git = 'https://github.com/MabezDev/embedded-fatfs', branch = 'master'}
+block-device-adapters = { git = 'https://github.com/MabezDev/embedded-fatfs', branch = 'master'}
+fatfs = { git = 'https://github.com/rafalh/rust-fatfs', branch = 'master'}
