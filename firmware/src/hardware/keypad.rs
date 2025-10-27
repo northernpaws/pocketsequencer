@@ -1,7 +1,8 @@
 
-use defmt::trace;
+use defmt::{unwrap, trace};
+use embassy_executor::{SpawnError, Spawner};
 use embassy_stm32::{
-    peripherals::DMA2_CH4, timer::{
+    peripherals::{self, DMA2_CH4}, timer::{
         self,
         low_level::CountingMode,
         simple_pwm::{PwmPin, SimplePwm, SimplePwmChannel},
@@ -9,6 +10,7 @@ use embassy_stm32::{
     }, Peri
 };
 
+use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, signal::Signal};
 use rgb_led_pwm_dma_maker::{
     calc_dma_buffer_length,
     LedDataComposition,
@@ -64,85 +66,97 @@ const CYAN: RGB = RGB::new(0, 255, 255);
 const YELLOW: RGB = RGB::new(255, 255, 0);
 const ORANGE: RGB = RGB::new(255, 20, 0);
 
-pub struct Keypad<'a, TIM: GeneralInstance4Channel> {
-    led_pwm: SimplePwm<'a, TIM>,
-    channel: timer::Channel,
-    // led_channel: SimplePwmChannel<'a, TIM>,
-    led_dma: Peri<'a, embassy_stm32::peripherals::DMA2_CH4>,
-    led_max_duty: u16,
-    
+static LEDS_UPDATED: Signal<CriticalSectionRawMutex, bool> = Signal::new();
+
+static LED_MAX_BRIGHTNESS: u8 = 5;
+
+pub type KeypadNotifier = Signal<CriticalSectionRawMutex, [RGB; LED_COUNT]>;
+
+pub struct Keypad<'a> {
+    notifier: &'a KeypadNotifier,
+
     // percentage from 0-100
     led_max_brightness: u8,
 
     led_matrix: [RGB; LED_COUNT],
-    dma_buffer: LedDmaBuffer<DMA_BUFFER_LEN>,
-    // ref: https://github.com/embassy-rs/embassy/issues/4788
-    u32_dma_buffer: [u16; DMA_BUFFER_LEN*2]
 }
 
-impl<'a, TIM: GeneralInstance4Channel> Keypad<'a, TIM>
-where
-    DMA2_CH4: embassy_stm32::timer::Dma<TIM, embassy_stm32::timer::Ch4> {
+impl<'a> Keypad<'a> {
+
+    #[must_use]
+    pub const fn notifier() -> KeypadNotifier {
+        Signal::new()
+    }
+
     pub fn new (
-        mut led_pwm: SimplePwm<'a, TIM>,
-        led_dma: Peri<'a, embassy_stm32::peripherals::DMA2_CH4>,
+        notifier: &'static KeypadNotifier,
+        mut led_pwm: SimplePwm<'static, peripherals::TIM5>,
+        led_dma: Peri<'static, embassy_stm32::peripherals::DMA2_CH4>,
         channel: timer::Channel,
-    ) -> Self {
-        Self {
-            led_pwm,
-            channel,
-            // led_channel,
-            led_dma,
+        spawner: Spawner,
+    ) -> Result<Self, SpawnError> {
+        spawner.spawn(unwrap!(leds_task(notifier, led_pwm, channel, led_dma)));
 
-            led_max_duty: 300, // 300 is default for 800kHz to 240MHz
-
+        Ok(Self {
+            notifier,
+          
             led_max_brightness: 1,
 
             led_matrix: [RED],
-            // Create a DMA buffer for the led strip
-            // From datasheet, data structure of 24 bit data is green -> red -> blue, so use LedDataComposition::GRB
-            dma_buffer: LedDmaBuffer::<DMA_BUFFER_LEN>::new(T1H, T0H, LedDataComposition::GRB),
-            // ref: https://github.com/embassy-rs/embassy/issues/4788
-            u32_dma_buffer: [0u16; DMA_BUFFER_LEN*2]
-        }
-    }
-
-    pub fn init (&mut self) {
-        // Enable the channel corresponding to the PWM channel above.
-        // self.led_channel = self.led_pwm.channel(self.channel.index());
-
-        self.led_max_duty = self.led_pwm.channel(self.channel).max_duty_cycle();
-        trace!("LED Max Duty Cycle: {}", self.led_max_duty);
-    
-        // TODO: calculate t0h and t1h here
-
-        // Enable the timer channel for the PWM pin.
-        self.led_pwm.channel(self.channel).enable();
+        })
     }
 
     pub fn set_leds(&mut self, leds: [RGB; LED_COUNT]) {
-        self.led_matrix = leds;
+        self.notifier.signal(leds);
     }
 
-    pub fn set_led(&mut self, led: usize, color: RGB) {
-        assert!(led < LED_COUNT);
-        self.led_matrix[led] = color;
-    }
+    // pub fn set_led(&mut self, led: usize, color: RGB) {
+    //     assert!(led < LED_COUNT);
+    //     self.led_matrix[led] = color;
+    //     LEDS_UPDATED.signal(true);
+    // }
+}
 
-    pub async fn refresh_leds (&mut self) {
-        self.dma_buffer
-            .set_dma_buffer_with_brightness(&self.led_matrix, None, self.led_max_brightness)
-            .unwrap();
+
+static LED_MATRIX: [RGB; LED_COUNT] = [RED];
+static LED_DMA_BUFFER: [u16; DMA_BUFFER_LEN*2] = [0u16; DMA_BUFFER_LEN*2];
+
+#[embassy_executor::task]
+pub async fn leds_task(
+    notifier: &'static KeypadNotifier,
+    mut led_pwm: SimplePwm<'static, peripherals::TIM5>,
+    channel: timer::Channel,
+    // led_channel: SimplePwmChannel<'a, TIM>,
+    mut led_dma: Peri<'static, embassy_stm32::peripherals::DMA2_CH4>,
+) -> ! {
+    let led_max_duty = led_pwm.channel(channel).max_duty_cycle();
+    trace!("LED Max Duty Cycle: {}", led_max_duty);
+
+    // TODO: calculate t0h and t1h here
+
+    // Enable the timer channel for the PWM pin.
+    led_pwm.channel(channel).enable();
+
+    // Create a DMA buffer for the led strip
+    // From datasheet, data structure of 24 bit data is green -> red -> blue, so use LedDataComposition::GRB
+    let mut dma_buffer = LedDmaBuffer::<DMA_BUFFER_LEN>::new(T1H, T0H, LedDataComposition::GRB);
+    
+    // ref: https://github.com/embassy-rs/embassy/issues/4788
+    let mut u32_dma_buffer: [u16; DMA_BUFFER_LEN*2] = [0u16; DMA_BUFFER_LEN*2];
+    loop {
+        // Wait for an LED update before refreshing the LEDs.
+        let matrix = notifier.wait().await;
+
+        dma_buffer.set_dma_buffer_with_brightness(&matrix, None, LED_MAX_BRIGHTNESS).unwrap();
         let mut i = 0;
-        for d in self.dma_buffer.get_dma_buffer() {
-            self.u32_dma_buffer[i*2] = *d;
+        for d in dma_buffer.get_dma_buffer() {
+            u32_dma_buffer[i*2] = *d;
             i += 1;
         }
 
         // Create a pwm waveform usng the dma buffer
         // pwm.waveform::<embassy_stm32::timer::Ch4>(led_dma.reborrow(), dma_buffer.get_dma_buffer())
         //     .await;
-        self.led_pwm.waveform::<embassy_stm32::timer::Ch4>(self.led_dma.reborrow(), &self.u32_dma_buffer)
-            .await;
+        led_pwm.waveform::<embassy_stm32::timer::Ch4>(led_dma.reborrow(), &u32_dma_buffer).await;
     }
 }

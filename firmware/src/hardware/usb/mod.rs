@@ -1,6 +1,13 @@
 use defmt::{unwrap, info, error};
 use embassy_executor::Spawner;
 use embassy_stm32::usb::{Driver, Instance};
+use embassy_sync::{
+    blocking_mutex::raw::ThreadModeRawMutex,
+    pubsub::{
+        PubSubChannel,
+        PubSubBehavior
+    }
+};
 use embassy_usb::{class::{cdc_acm::CdcAcmClass, midi::MidiClass}, driver::EndpointError, Builder, UsbDevice};
 use midly::{live::LiveEvent, MidiMessage};
 use static_cell::StaticCell;
@@ -8,14 +15,6 @@ use static_cell::StaticCell;
 use crate::hardware::{get_usb_hs_driver, UsbResources};
 
 static EP_OUT_BUFFER: StaticCell<[u8; 256]> = StaticCell::new();
-
-// static EP_OUT_BUFFER: StaticCell<[u8; 256]> = StaticCell::new();
-static USB_CONFIG_DESCRIPTOR: StaticCell<[u8; 256]> = StaticCell::new();
-static USB_BOS_DESCIRPTOR: StaticCell<[u8; 256]> = StaticCell::new();
-static USB_CONTROL_BUF: StaticCell<[u8; 64]> = StaticCell::new();
-
-/// USB Class for USB MIDI.
-// static USB_MIDI_CLASS: StaticCell<MidiClass<'static, Driver<'static, embassy_stm32::peripherals::USB_OTG_HS>>> = StaticCell::new();
 
 pub async fn start_usb (spawner: Spawner, r: UsbResources) {
     let ep_out_buffer = EP_OUT_BUFFER.init([0; 256]);
@@ -37,8 +36,11 @@ pub async fn start_usb (spawner: Spawner, r: UsbResources) {
 
     // Create embassy-usb DeviceBuilder using the driver and config.
     // It needs some buffers for building the descriptors.
+    static USB_CONFIG_DESCRIPTOR: StaticCell<[u8; 256]> = StaticCell::new();
     let config_descriptor = USB_CONFIG_DESCRIPTOR.init([0; 256]);
+    static USB_BOS_DESCIRPTOR: StaticCell<[u8; 256]> = StaticCell::new();
     let bos_descriptor = USB_BOS_DESCIRPTOR.init([0; 256]);
+    static USB_CONTROL_BUF: StaticCell<[u8; 64]> = StaticCell::new();
     let control_buf = USB_CONTROL_BUF.init([0; 64]);
 
     let mut builder = Builder::new(
@@ -131,7 +133,11 @@ async fn usb_midi_task(
     }
 }
 
+static MIDI_EVENTS: PubSubChannel<ThreadModeRawMutex, [u8; 64], 24, 2, 2> = PubSubChannel::new();
+
 async fn midi_echo<'d, T: Instance + 'd>(class: &mut MidiClass<'d, Driver<'d, T>>) -> Result<(), Disconnected> {
+    let events_publisher = MIDI_EVENTS.publisher().unwrap();
+
     let mut buf = [0; 64];
     loop {
         let n = class.read_packet(&mut buf).await?;
@@ -146,6 +152,11 @@ async fn midi_echo<'d, T: Instance + 'd>(class: &mut MidiClass<'d, Driver<'d, T>
         // Packet format see: 
         //  https://www.usb.org/sites/default/files/USB%20MIDI%20v2_0.pdf (p.g. 16)
         if let Ok(event) = LiveEvent::parse(&buf[1..n]) {
+            // We use publish_immediate to boot the last message off the channel if
+            // it's full. We don't want to wait if the channel is full, otherwise 
+            // we'll stall processing the messages from the USB bus.
+            MIDI_EVENTS.publish_immediate(buf.clone());
+
             match event {
                 LiveEvent::Midi { channel, message } => match message {
                     MidiMessage::NoteOn { key, vel } => info!("MIDI: note on {} on channel {}", key.as_int(), channel.as_int()),

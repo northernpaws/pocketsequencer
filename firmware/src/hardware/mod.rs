@@ -8,7 +8,8 @@ pub mod sd_card;
 pub mod internal_storage;
 pub mod usb;
 
-use defmt::trace;
+use defmt::{trace, unwrap};
+
 use embassy_usb::driver::Driver;
 
 use core::{
@@ -88,7 +89,11 @@ use embassy_embedded_hal::{
     }
 };
 
-use crate::hardware::{bq27531_g1::Bq27531, fusb302b::Fusb302b, keypad::Keypad, sd_card::InitError, tca8418::Tca8418};
+use embassy_executor::{SpawnError, Spawner};
+
+use static_cell::StaticCell;
+
+use crate::hardware::{bq27531_g1::Bq27531, fusb302b::Fusb302b, keypad::{Keypad, KeypadNotifier}, sd_card::InitError, tca8418::Tca8418};
 use crate::hardware::stm6601::Stm6601;
 
 assign_resources! {
@@ -903,7 +908,7 @@ pub fn get_internal_storage<'a,
     
 }
 
-pub fn get_keypad<'a> (r: LEDResources) -> Keypad<'a, peripherals::TIM5> {
+pub fn get_keypad<'a> (spawner: Spawner, r: LEDResources) -> Result<Keypad<'a>, SpawnError> {
     // Configure the pin to PWM
     let pwm_pin = PwmPin::new(r.dat, OutputType::PushPull);
 
@@ -920,9 +925,9 @@ pub fn get_keypad<'a> (r: LEDResources) -> Keypad<'a, peripherals::TIM5> {
         Hertz::khz(800),
         CountingMode::EdgeAlignedUp,
     );
-    
 
-    Keypad::<'a, peripherals::TIM5>::new(pwm, r.dma, timer::Channel::Ch4)
+    static NOTIFIER: KeypadNotifier = Keypad::notifier();
+    Keypad::new(&NOTIFIER, pwm, r.dma, timer::Channel::Ch4, spawner)
 }
 
 /// Constructs the USB high-speed driver.

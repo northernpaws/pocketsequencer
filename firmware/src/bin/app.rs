@@ -14,7 +14,7 @@ use embassy_stm32::{
     gpio::{Level, Output, OutputType, Speed}, i2c::{
         self,
         I2c
-    }, mode::Async, rcc::clocks, spi::{
+    }, mode::Async, peripherals, rcc::clocks, spi::{
         self, Spi
     }, time::{khz, mhz, Hertz}, timer::{self, low_level::CountingMode, simple_pwm::{PwmPin, SimplePwm}}, usart::Uart, usb::{self, Driver}
 };
@@ -49,8 +49,7 @@ use {
 
 use firmware::{
     hardware::{
-        self,
-        preamble::*, Irqs
+        self, keypad::Keypad, preamble::*, Irqs
     }, split_resources
 };
 
@@ -75,19 +74,6 @@ static I2C4_BUS: StaticCell<Mutex<CriticalSectionRawMutex, I2c<'static, Async, i
 /// SPI bus for internal and SD card storage.
 static SPI_BUS: StaticCell<Mutex<CriticalSectionRawMutex, Spi<'static, Async>>> = StaticCell::new();
 // static SPI_BUS: StaticCell<blocking_mutex::Mutex<CriticalSectionRawMutex, RefCell<Spi<'static, Async>>>> = StaticCell::new();
-
-// static mut USB_CONFIG_DESCRIPTOR: [u8; 256] = [0; 256];
-// static mut USB_BOS_DESCIRPTOR: [u8; 256] = [0; 256];
-// static mut USB_CONTROL_BUF: [u8; 64] = [0; 64];
-
-static EP_OUT_BUFFER: StaticCell<[u8; 256]> = StaticCell::new();
-static USB_CONFIG_DESCRIPTOR: StaticCell<[u8; 256]> = StaticCell::new();
-static USB_BOS_DESCIRPTOR: StaticCell<[u8; 256]> = StaticCell::new();
-static USB_CONTROL_BUF: StaticCell<[u8; 64]> = StaticCell::new();
-
-/// USB Class for USB MIDI.
-static USB_MIDI_CLASS: StaticCell<MidiClass<'static, Driver<'static, embassy_stm32::peripherals::USB_OTG_HS>>> = StaticCell::new();
-// static USB_MIDI_CLASS: StaticCell<MidiClass<'static, Driver<'static, embassy_stm32::peripherals::USB_OTG_HS>>> = StaticCell::new();
 
 #[embassy_executor::main]
 async fn main(spawner: Spawner) {
@@ -260,12 +246,20 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> { // TODO: add error typ
 */
 
     info!("Initializing keypad...");
-    let mut keypad = hardware::get_keypad(r.led);
-    keypad.init();
-    keypad.set_led(0, led_color);
+    // let mut keypad = KEYPAD.init(hardware::get_keypad(r.led));
+    // keypad.init();
+    // keypad.set_led(0, led_color);
     
     // Update the keypad with the new colors,
-    keypad.refresh_leds().await;
+    // keypad.refresh_leds().await;
+
+    // Obtain a PWM handler, configure the Timer and Frequency.
+    // The prescaler and ARR are automatically set.
+    // Given this system frequency and pwm frequency the max duty cycle will be 300.
+
+    info!("Spawning keypad LED task...");
+    let mut keypad = hardware::get_keypad(spawner, r.led).unwrap();
+    keypad.set_leds([led_color]);
     
     info!("Starting USB device...");
     hardware::usb::start_usb(spawner, r.usb).await;
@@ -400,7 +394,6 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> { // TODO: add error typ
     // loop {}
 
     Ok(())
-
 }
 
 /// Rust's `!` is unstable.  This is a locally-defined equivalent which is stable.
