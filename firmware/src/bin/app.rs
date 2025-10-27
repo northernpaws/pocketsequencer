@@ -9,13 +9,14 @@ use defmt::*;
 
 use embassy_executor::Spawner;
 
+use embassy_futures::join::join;
 use embassy_stm32::{
     gpio::{Level, Output, OutputType, Speed}, i2c::{
         self,
         I2c
     }, mode::Async, rcc::clocks, spi::{
         self, Spi
-    }, time::{khz, mhz, Hertz}, timer::{self, low_level::CountingMode, simple_pwm::{PwmPin, SimplePwm}}, usart::Uart
+    }, time::{khz, mhz, Hertz}, timer::{self, low_level::CountingMode, simple_pwm::{PwmPin, SimplePwm}}, usart::Uart, usb::{self, Driver}
 };
 
 use embassy_sync::{
@@ -26,6 +27,7 @@ use embassy_sync::{
 };
 
 use embassy_time::{with_timeout, Duration, Ticker, Timer};
+use embassy_usb::{class::cdc_acm::{CdcAcmClass, State}, driver::EndpointError, Builder};
 use embedded_fatfs::{format_volume, FormatVolumeOptions, FsOptions};
 use embedded_hal_async::delay::DelayNs;
 
@@ -46,11 +48,10 @@ use {
 };
 
 use firmware::{
-    split_resources,
     hardware::{
         self,
-        preamble::*
-    }
+        preamble::*, Irqs
+    }, split_resources
 };
 
 // Audio I2C bus.
@@ -261,9 +262,11 @@ async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error
         }
     }
     
+    info!("Constructing SD card device..");
     let mut sd_card = hardware::get_sdcard_async2(spi_bus, sd_cs, embassy_time::Delay);
 
     // TODO: timeout doens't seem to be working?
+    info!("Initializing SD card...");
     match with_timeout(Duration::from_millis(500), sd_card.init()).await {
         Ok(_) => {
             info!("SD Card successfully initialized!")
@@ -273,6 +276,9 @@ async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error
         },
     }    
     
+    info!("Constructing internal storage device...");
+    let mut internal_storage = hardware::get_internal_storage(spi_bus, xtsdg_cs, embassy_time::Delay);
+
     /*
 
     // Initialize the internal and SD card storage next.
@@ -723,10 +729,72 @@ async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error
     let mut keypad = hardware::get_keypad(r.led);
     keypad.init();
     keypad.set_led(0, led_color);
+    
+    keypad.refresh_leds().await;
+    
+    // loop {
+    //     keypad.refresh_leds().await;
+    // }
 
-    loop {
-        keypad.refresh_leds().await;
-    }
+    // Create the driver, from the HAL.
+    let mut ep_out_buffer = [0u8; 256];
+    let mut config = embassy_stm32::usb::Config::default();
+
+    // Do not enable vbus_detection. This is a safe default that works in all boards.
+    // However, if your USB device is self-powered (can stay powered on if USB is unplugged), you need
+    // to enable vbus_detection to comply with the USB spec. If you enable it, the board
+    // has to support it or USB won't work at all. See docs on `vbus_detection` for details.
+    config.vbus_detection = true;
+
+    let driver = Driver::new_fs(r.usb.peri, Irqs, r.usb.dp, r.usb.dm, &mut ep_out_buffer, config);
+
+    // Create embassy-usb Config
+    let mut config = embassy_usb::Config::new(0xc0de, 0xcafe);
+    config.manufacturer = Some("Northernpaws");
+    config.product = Some("PocketSynth");
+    config.serial_number = Some("12345678");
+
+    // Create embassy-usb DeviceBuilder using the driver and config.
+    // It needs some buffers for building the descriptors.
+    let mut config_descriptor = [0; 256];
+    let mut bos_descriptor = [0; 256];
+    let mut control_buf = [0; 64];
+
+    let mut state = State::new();
+
+    let mut builder = Builder::new(
+        driver,
+        config,
+        &mut config_descriptor,
+        &mut bos_descriptor,
+        &mut [], // no msos descriptors
+        &mut control_buf,
+    );
+
+    // Create classes on the builder.
+    let mut class = CdcAcmClass::new(&mut builder, &mut state, 64);
+
+    // Build the builder.
+    let mut usb = builder.build();
+
+    // Run the USB device.
+    let usb_fut = usb.run();
+
+    // Do stuff with the class!
+    let echo_fut = async {
+        loop {
+            class.wait_connection().await;
+            info!("Connected");
+            let _ = echo(&mut class).await;
+            info!("Disconnected");
+        }
+    };
+
+    // Run everything concurrently.
+    // If we had made everything `'static` above instead, we could do this using separate tasks instead.
+    join(usb_fut, echo_fut).await;
+
+    loop {}
 
     /*// TIM5 is 32bit timer off APB1 @ 120MHz max
     // 
@@ -886,3 +954,24 @@ async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error
 /// Rust's `!` is unstable.  This is a locally-defined equivalent which is stable.
 #[derive(Debug)]
 pub enum Never {}
+
+struct Disconnected {}
+
+impl From<EndpointError> for Disconnected {
+    fn from(val: EndpointError) -> Self {
+        match val {
+            EndpointError::BufferOverflow => defmt::panic!("Buffer overflow"),
+            EndpointError::Disabled => Disconnected {},
+        }
+    }
+}
+
+async fn echo<'d, T: usb::Instance + 'd>(class: &mut CdcAcmClass<'d, Driver<'d, T>>) -> Result<(), Disconnected> {
+    let mut buf = [0; 64];
+    loop {
+        let n = class.read_packet(&mut buf).await?;
+        let data = &buf[..n];
+        info!("data: {:x}", data);
+        class.write_packet(data).await?;
+    }
+}

@@ -753,6 +753,7 @@ dependencies = [
  "embedded-hal 1.0.0",
  "embedded-hal-async",
  "embedded-hal-bus",
+ "embedded-io-async",
  "embedded-sdmmc",
  "fatfs",
  "heapless 0.9.1",

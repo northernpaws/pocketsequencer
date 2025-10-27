@@ -5,6 +5,7 @@ pub mod bq27531_g1;
 pub mod fusb302b;
 pub mod keypad;
 pub mod sd_card;
+pub mod internal_storage;
 
 use defmt::trace;
 
@@ -328,7 +329,7 @@ pub mod preamble {
     };
 }
 
-bind_interrupts!(struct Irqs {
+bind_interrupts!(pub struct Irqs {
     USART1 => usart::InterruptHandler<peripherals::USART1>;
     UART4 => usart::InterruptHandler<peripherals::UART4>;
     UART5 => usart::InterruptHandler<peripherals::UART5>;
@@ -878,7 +879,7 @@ pub async fn get_sdcard_async<'a,
     SdSpi::<_, _, aligned::A4>::new(spid, delay)
 }
 
-pub fn get_sdcard_async2<'a,
+pub fn get_sdcard_async2<'a,'b, 
     M: RawMutex,
     BUS: SetConfig<Config = spi::Config> + embedded_hal_async::spi::SpiBus,
     DELAY: embedded_hal_async::delay::DelayNs + Clone
@@ -886,7 +887,7 @@ pub fn get_sdcard_async2<'a,
     spi_bus: &'a Mutex<M, BUS>,
     cs: gpio::Output<'a>,
     delay: DELAY,
-) -> sd_card::SdCard<'a, M, BUS, DELAY> {
+) -> sd_card::SdCard<'a, 'b, M, BUS, DELAY> {
     // Configure the SPI settings for the SD card.
     //
     // Before knowing the SD card's capabilities we need to start with a 400khz clock.
@@ -900,6 +901,18 @@ pub fn get_sdcard_async2<'a,
     let spi_sd: SdSpi<SpiDeviceWithConfig<'a, M, BUS, Output<'a>>, DELAY, aligned::A4> = SdSpi::new(spid, delay);
     
     sd_card::SdCard::new(spi_sd)
+}
+
+pub fn get_internal_storage<'a,
+    M: RawMutex,
+    BUS: SetConfig<Config = spi::Config> + embedded_hal_async::spi::SpiBus,
+    DELAY: embedded_hal_async::delay::DelayNs + Clone
+> (
+    spi_bus: &'a Mutex<M, BUS>,
+    cs: gpio::Output<'a>,
+    delay: DELAY,
+) {
+    
 }
 
 pub fn get_keypad<'a> (r: LEDResources) -> Keypad<'a, peripherals::TIM5> {
