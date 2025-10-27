@@ -8,7 +8,7 @@ pub mod sd_card;
 pub mod internal_storage;
 pub mod usb;
 
-use defmt::{trace, unwrap};
+use defmt::{trace, unwrap, info};
 
 use embassy_usb::driver::Driver;
 
@@ -526,9 +526,97 @@ pub fn get_leds<'a>(r: LEDResources) {
 }*/
 
 /// Returns a handle to the FMC peripheral configured for use with the ISSI is42s16160j-7 SDRAM.
-pub fn get_sdram<'a>(r: FMCResources) -> stm32_fmc::Sdram<Fmc<'a, peripherals::FMC>, is42s16160j_7::Is42s16160j> {
+/// //stm32_fmc::Sdram<Fmc<'a, peripherals::FMC>, is42s16160j_7::Is42s16160j>
+pub fn get_sdram<'a>(r: FMCResources) -> &'a mut [u32] {
+    let mut core_peri = cortex_m::Peripherals::take().unwrap();
+
+    // taken from stm32h7xx-hal
+    core_peri.SCB.enable_icache();
+    // See Errata Sheet 2.2.1
+    // core_peri.SCB.enable_dcache(&mut core_peri.CPUID);
+    core_peri.DWT.enable_cycle_counter();
+
+    // ----------------------------------------------------------
+    // Configure MPU for external SDRAM
+    // MPU config for SDRAM write-through
+
+    // 256MB
+    let sdram_size = 256 * 1024 * 1024;
+
+    {
+        let mpu = core_peri.MPU;
+        let scb = &mut core_peri.SCB;
+        let size = sdram_size;
+
+        // Refer to ARM®v7-M Architecture Reference Manual ARM DDI 0403
+        // Version E.b Section B3.5
+        const MEMFAULTENA: u32 = 1 << 16;
+
+        unsafe {
+            /* Make sure outstanding transfers are done */
+            cortex_m::asm::dmb();
+
+            scb.shcsr.modify(|r| r & !MEMFAULTENA);
+
+            /* Disable the MPU and clear the control register*/
+            mpu.ctrl.write(0);
+        }
+
+        const REGION_NUMBER0: u32 = 0x00;
+        const REGION_BASE_ADDRESS: u32 = 0xD000_0000;
+
+        const REGION_FULL_ACCESS: u32 = 0x03;
+        const REGION_CACHEABLE: u32 = 0x01;
+        const REGION_WRITE_BACK: u32 = 0x01;
+        const REGION_ENABLE: u32 = 0x01;
+
+        assert_eq!(size & (size - 1), 0, "SDRAM memory region size must be a power of 2");
+        assert_eq!(size & 0x1F, 0, "SDRAM memory region size must be 32 bytes or more");
+
+        fn log2minus1(sz: u32) -> u32 {
+            for i in 5..=31 {
+                if sz == (1 << i) {
+                    return i - 1;
+                }
+            }
+            defmt::panic!("Unknown SDRAM memory region size!");
+        }
+
+        info!("SDRAM Memory Size 0x{:x}", log2minus1(size as u32));
+
+        // Configure region 0
+        //
+        // Cacheable, outer and inner write-back, no write allocate. So
+        // reads are cached, but writes always write all the way to SDRAM
+        unsafe {
+            mpu.rnr.write(REGION_NUMBER0);
+            mpu.rbar.write(REGION_BASE_ADDRESS);
+            mpu.rasr.write(
+                (REGION_FULL_ACCESS << 24)
+                    | (REGION_CACHEABLE << 17)
+                    | (REGION_WRITE_BACK << 16)
+                    | (log2minus1(size as u32) << 1)
+                    | REGION_ENABLE,
+            );
+        }
+
+        const MPU_ENABLE: u32 = 0x01;
+        const MPU_DEFAULT_MMAP_FOR_PRIVILEGED: u32 = 0x04;
+
+        // Enable
+        unsafe {
+            mpu.ctrl.modify(|r| r | MPU_DEFAULT_MMAP_FOR_PRIVILEGED | MPU_ENABLE);
+
+            scb.shcsr.modify(|r| r | MEMFAULTENA);
+
+            // Ensure MPU settings take effect
+            cortex_m::asm::dsb();
+            cortex_m::asm::isb();
+        }
+    }
+
     // Configured for the is42s16160j-7
-    Fmc::sdram_a13bits_d16bits_4banks_bank1(
+    let mut sdram = Fmc::sdram_a13bits_d16bits_4banks_bank1(
         r.peri,
         // A0-A11
         r.a0,
@@ -577,7 +665,37 @@ pub fn get_sdram<'a>(r: FMCResources) -> stm32_fmc::Sdram<Fmc<'a, peripherals::F
         // Supplies the timing and mode registry
         // parameters for the specific SDRAM IC.
         is42s16160j_7::Is42s16160j {},
-    )
+    );
+
+    let mut delay = Delay;
+
+    let ram_slice: &mut [u32] = unsafe {
+        // Initialise controller and SDRAM
+        let ram_ptr: *mut u32 = sdram.init(&mut delay) as *mut _;
+
+        // Convert raw pointer to slice
+        core::slice::from_raw_parts_mut(ram_ptr, sdram_size / core::mem::size_of::<u32>())
+    };
+
+    // // ----------------------------------------------------------
+    // // Use memory in SDRAM
+    info!("RAM contents before writing: {:x}", ram_slice[..10]);
+
+    ram_slice[0] = 1;
+    ram_slice[1] = 2;
+    ram_slice[2] = 3;
+    ram_slice[3] = 4;
+
+    info!("RAM contents after writing: {:x}", ram_slice[..10]);
+
+    assert_eq!(ram_slice[0], 1);
+    assert_eq!(ram_slice[1], 2);
+    assert_eq!(ram_slice[2], 3);
+    assert_eq!(ram_slice[3], 4);
+
+    info!("Assertions succeeded.");
+
+    ram_slice
 }
 
 /// Returns a handle to 

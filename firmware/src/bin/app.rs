@@ -130,6 +130,9 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> { // TODO: add error typ
     println!("APB2  clock speed: {}", clocks.pclk2);
     println!("APB2 Timer clock speed: {}", clocks.pclk2_tim);
 
+    info!("Initializing SDRAM...");
+    let mut sdram_ram = hardware::get_sdram(r.fmc);
+
     /*
     // Initialize the bus for the I2C4 peripheral.
     //

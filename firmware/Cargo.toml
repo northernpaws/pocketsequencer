@@ -77,7 +77,7 @@ assign-resources = "0.5.0"
 critical-section = "1.2.0"
 
 # Provides an interface to the STM32's FMC for SDRAM access.
-stm32-fmc = "0.4.0"
+stm32-fmc = { version = "0.4.0", features = ["defmt"] }
 
 # Provides graphics types for embedded programming.
 embedded-graphics = { version = "0.8.1", features = ["defmt"] }

@@ -67,7 +67,7 @@ impl SdramChip for Is42s16160j {
         column_bits: 8, // A0-A8 // updated
         row_bits: 12, // A0-A12 // updated
         memory_data_width: 16, // 16-bit // updated
-        internal_banks: 16,     // 16 internal banks // updated from 4 to 16
+        internal_banks: 4,
         cas_latency: 2,        // CAS latency = 2
         write_protection: false,
         read_burst: true,

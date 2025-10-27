@@ -117,7 +117,6 @@ impl<'a> Keypad<'a> {
     // }
 }
 
-
 static LED_MATRIX: [RGB; LED_COUNT] = [RED];
 static LED_DMA_BUFFER: [u16; DMA_BUFFER_LEN*2] = [0u16; DMA_BUFFER_LEN*2];
 
@@ -148,6 +147,9 @@ pub async fn leds_task(
         let matrix = notifier.wait().await;
 
         dma_buffer.set_dma_buffer_with_brightness(&matrix, None, LED_MAX_BRIGHTNESS).unwrap();
+
+        // Hack to fix DMA transfers
+        // ref: https://github.com/embassy-rs/embassy/issues/4788
         let mut i = 0;
         for d in dma_buffer.get_dma_buffer() {
             u32_dma_buffer[i*2] = *d;
@@ -155,8 +157,6 @@ pub async fn leds_task(
         }
 
         // Create a pwm waveform usng the dma buffer
-        // pwm.waveform::<embassy_stm32::timer::Ch4>(led_dma.reborrow(), dma_buffer.get_dma_buffer())
-        //     .await;
         led_pwm.waveform::<embassy_stm32::timer::Ch4>(led_dma.reborrow(), &u32_dma_buffer).await;
     }
 }
