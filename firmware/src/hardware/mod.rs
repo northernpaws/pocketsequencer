@@ -1,12 +1,10 @@
-pub mod is42s16160j_7; // SDRAM
-pub mod stm6601; // power button manager
-pub mod tca8418; // Keypad matrix
-pub mod bq27531_g1;
-pub mod fusb302b;
+pub mod drivers;
+
 pub mod keypad;
 pub mod sd_card;
 pub mod internal_storage;
 pub mod usb;
+pub mod codec;
 
 use defmt::{trace, unwrap, info};
 
@@ -93,8 +91,13 @@ use embassy_executor::{SpawnError, Spawner};
 
 use static_cell::StaticCell;
 
-use crate::hardware::{bq27531_g1::Bq27531, fusb302b::Fusb302b, keypad::{Keypad, KeypadNotifier}, sd_card::InitError, tca8418::Tca8418};
-use crate::hardware::stm6601::Stm6601;
+use crate::hardware::{
+    drivers::{
+        bq27531_g1::Bq27531,
+        fusb302b::Fusb302b
+    },
+    keypad::{Keypad, KeypadNotifier}, sd_card::InitError, drivers::tca8418::Tca8418};
+use crate::hardware::drivers::stm6601::Stm6601;
 
 assign_resources! {
     // For debug logging via Black Magic Probe's alternate pins 9/7.
@@ -664,7 +667,7 @@ pub fn get_sdram<'a>(r: FMCResources) -> &'a mut [u32] {
 
         // Supplies the timing and mode registry
         // parameters for the specific SDRAM IC.
-        is42s16160j_7::Is42s16160j {},
+        drivers::is42s16160j_7::Is42s16160j {},
     );
 
     let mut delay = Delay;
