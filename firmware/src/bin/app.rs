@@ -27,7 +27,7 @@ use embassy_sync::{
 };
 
 use embassy_time::{with_timeout, Duration, Ticker, Timer};
-use embassy_usb::{class::cdc_acm::{CdcAcmClass, State}, driver::EndpointError, Builder};
+use embassy_usb::{class::{cdc_acm::{CdcAcmClass, State}, midi::MidiClass}, driver::EndpointError, Builder};
 use embedded_fatfs::{format_volume, FormatVolumeOptions, FsOptions};
 use embedded_hal_async::delay::DelayNs;
 
@@ -738,9 +738,61 @@ async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error
     //     keypad.refresh_leds().await;
     // }
 
-    // Create the driver, from the HAL.
+    
     let mut ep_out_buffer = [0u8; 256];
-    let mut config = embassy_stm32::usb::Config::default();
+    let usb_driver = hardware::get_usb_hs_driver(r.usb, &mut ep_out_buffer);
+
+    // Create embassy-usb Config
+    let mut usb_config = embassy_usb::Config::new(0xc0de, 0xcafe);
+    usb_config.manufacturer = Some("Northernpaws");
+    usb_config.product = Some("PocketSynth");
+    usb_config.serial_number = Some("12345678");
+
+    // Create embassy-usb DeviceBuilder using the driver and config.
+    // It needs some buffers for building the descriptors.
+    let mut config_descriptor = [0; 256];
+    let mut bos_descriptor = [0; 256];
+    let mut control_buf = [0; 64];
+
+    let mut builder = Builder::new(
+        usb_driver,
+        usb_config,
+        &mut config_descriptor,
+        &mut bos_descriptor,
+        &mut [], // no msos descriptors
+        &mut control_buf,
+    );
+
+    // Create classes on the builder.
+    let mut class = MidiClass::new(&mut builder, 1, 1, 64);
+
+    // The `MidiClass` can be split into `Sender` and `Receiver`, to be used in separate tasks.
+    // let (sender, receiver) = class.split();
+
+    // Build the builder.
+    let mut usb = builder.build();
+
+    // Run the USB device.
+    let usb_fut = usb.run();
+
+    // Use the Midi class!
+    let midi_fut = async {
+        loop {
+            class.wait_connection().await;
+            info!("Connected");
+            let _ = midi_echo(&mut class).await;
+            info!("Disconnected");
+        }
+    };
+
+    // Run everything concurrently.
+    // If we had made everything `'static` above instead, we could do this using separate tasks instead.
+    join(usb_fut, midi_fut).await;
+
+
+    // Create the driver, from the HAL.
+    
+    /*let mut config = embassy_stm32::usb::Config::default();
 
     // Do not enable vbus_detection. This is a safe default that works in all boards.
     // However, if your USB device is self-powered (can stay powered on if USB is unplugged), you need
@@ -795,7 +847,7 @@ async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error
     // Run everything concurrently.
     // If we had made everything `'static` above instead, we could do this using separate tasks instead.
     join(usb_fut, echo_fut).await;
-
+*/
     loop {}
 
     /*// TIM5 is 32bit timer off APB1 @ 120MHz max
@@ -969,6 +1021,16 @@ impl From<EndpointError> for Disconnected {
 }
 
 async fn echo<'d, T: usb::Instance + 'd>(class: &mut CdcAcmClass<'d, Driver<'d, T>>) -> Result<(), Disconnected> {
+    let mut buf = [0; 64];
+    loop {
+        let n = class.read_packet(&mut buf).await?;
+        let data = &buf[..n];
+        info!("data: {:x}", data);
+        class.write_packet(data).await?;
+    }
+}
+
+async fn midi_echo<'d, T: usb::Instance + 'd>(class: &mut MidiClass<'d, usb::Driver<'d, T>>) -> Result<(), Disconnected> {
     let mut buf = [0; 64];
     loop {
         let n = class.read_packet(&mut buf).await?;

@@ -8,6 +8,7 @@ pub mod sd_card;
 pub mod internal_storage;
 
 use defmt::trace;
+use embassy_usb::driver::Driver;
 
 use core::{
     cell::RefCell,
@@ -27,7 +28,7 @@ use embassy_stm32::{
     }, timer::{self, low_level::CountingMode, simple_pwm::{PwmPin, SimplePwm}, GeneralInstance4Channel}, usart::{
         self,
         Uart
-    }, usb, Config, Peri, Peripherals
+    }, Config, Peri, Peripherals
 };
 
 use embassy_time::{
@@ -343,7 +344,7 @@ bind_interrupts!(pub struct Irqs {
     I2C4_EV => i2c::EventInterruptHandler<peripherals::I2C4>;
     I2C4_ER => i2c::ErrorInterruptHandler<peripherals::I2C4>;
 
-    OTG_HS => usb::InterruptHandler<peripherals::USB_OTG_HS>;
+    OTG_HS => embassy_stm32::usb::InterruptHandler<peripherals::USB_OTG_HS>;
 });
 
 /// Initializes the Embassy STM32 HAL by configuring
@@ -683,20 +684,6 @@ pub fn get_display<'a>(
 //     ch4
 // }
 
-/// Constructs the USB high-speed driver.
-pub fn get_usb_hs_driver<'a> (r: UsbResources, ep_out_buffer: &'a mut [u8; 256]) -> usb::Driver<'a, peripherals::USB_OTG_HS>{
-    // Create the USB driver config.
-    let mut config = embassy_stm32::usb::Config::default();
-
-    // If your USB device is self-powered (can stay powered on if USB is unplugged), you need
-    // to enable vbus_detection to comply with the USB spec. If you enable it, the board
-    // has to support it or USB won't work at all. See docs on `vbus_detection` for details.
-    config.vbus_detection = true;
-    
-    // Create the HS USB driver.
-    usb::Driver::new_fs(r.peri, Irqs, r.dp, r.dm, ep_out_buffer, config)
-}
-
 /// Returns the STM6601 driver for managing the system power state.
 pub fn get_stm6601<'a> (r: PowerResources) -> Stm6601<'a, Output<'a>, Input<'a>>{
     let int = ExtiInput::new(r.int, r.int_exit, Pull::Down);
@@ -935,4 +922,23 @@ pub fn get_keypad<'a> (r: LEDResources) -> Keypad<'a, peripherals::TIM5> {
     
 
     Keypad::<'a, peripherals::TIM5>::new(pwm, r.dma, timer::Channel::Ch4)
+}
+
+/// Constructs the USB high-speed driver.
+pub fn get_usb_hs_driver<'a> (r: UsbResources, ep_out_buffer: &'a mut [u8; 256]) -> embassy_stm32::usb::Driver<'a, peripherals::USB_OTG_HS>{
+    // Create the USB driver config.
+    let mut config = embassy_stm32::usb::Config::default();
+
+    // If your USB device is self-powered (can stay powered on if USB is unplugged), you need
+    // to enable vbus_detection to comply with the USB spec. If you enable it, the board
+    // has to support it or USB won't work at all. See docs on `vbus_detection` for details.
+    config.vbus_detection = true;
+    
+    // Create the HS USB driver.
+    embassy_stm32::usb::Driver::new_fs(r.peri, Irqs, r.dp, r.dm, ep_out_buffer, config)
+}
+
+
+pub async fn get_usb<'a>(r: UsbResources, ep_out_buffer: &'a mut [u8; 256]) {
+    let driver = get_usb_hs_driver(r, ep_out_buffer);
 }
