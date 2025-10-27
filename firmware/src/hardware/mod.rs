@@ -6,6 +6,7 @@ pub mod fusb302b;
 pub mod keypad;
 pub mod sd_card;
 pub mod internal_storage;
+pub mod usb;
 
 use defmt::trace;
 use embassy_usb::driver::Driver;

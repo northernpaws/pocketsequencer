@@ -76,12 +76,26 @@ static I2C4_BUS: StaticCell<Mutex<CriticalSectionRawMutex, I2c<'static, Async, i
 static SPI_BUS: StaticCell<Mutex<CriticalSectionRawMutex, Spi<'static, Async>>> = StaticCell::new();
 // static SPI_BUS: StaticCell<blocking_mutex::Mutex<CriticalSectionRawMutex, RefCell<Spi<'static, Async>>>> = StaticCell::new();
 
+// static mut USB_CONFIG_DESCRIPTOR: [u8; 256] = [0; 256];
+// static mut USB_BOS_DESCIRPTOR: [u8; 256] = [0; 256];
+// static mut USB_CONTROL_BUF: [u8; 64] = [0; 64];
+
+static EP_OUT_BUFFER: StaticCell<[u8; 256]> = StaticCell::new();
+static USB_CONFIG_DESCRIPTOR: StaticCell<[u8; 256]> = StaticCell::new();
+static USB_BOS_DESCIRPTOR: StaticCell<[u8; 256]> = StaticCell::new();
+static USB_CONTROL_BUF: StaticCell<[u8; 64]> = StaticCell::new();
+
+/// USB Class for USB MIDI.
+static USB_MIDI_CLASS: StaticCell<MidiClass<'static, Driver<'static, embassy_stm32::peripherals::USB_OTG_HS>>> = StaticCell::new();
+// static USB_MIDI_CLASS: StaticCell<MidiClass<'static, Driver<'static, embassy_stm32::peripherals::USB_OTG_HS>>> = StaticCell::new();
+
 #[embassy_executor::main]
 async fn main(spawner: Spawner) {
     info!("program start!");
     // If it returns, something went wrong.
-    let err = inner_main(spawner).await.unwrap_err();
-    defmt::panic!("{}", err);
+    if let Err(err) = inner_main(spawner).await {
+        defmt::panic!("{}", err);
+    }    
 }
 
 static DEBUG_SERIAL: StaticCell<Uart<'static, Async>> = StaticCell::new();
@@ -89,7 +103,7 @@ static DEBUG_SERIAL: StaticCell<Uart<'static, Async>> = StaticCell::new();
 // Inner-main allows us us to returns errors via Result instead of relying on panics.
 #[expect(clippy::future_not_send, reason = "Safe in single-threaded, bare-metal embedded context")]
 #[expect(clippy::items_after_statements, reason = "Keeps related code together")]
-async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error type
+async fn inner_main(spawner: Spawner) -> Result<(), ()> { // TODO: add error type
     info!("initializing clocks and PLL to 480Mhz");
     let p = hardware::init();
 
@@ -158,81 +172,6 @@ async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error
 
     let mut led_color: RGB = RGB::new(255, 255, 0);
 
-//     {
-//         use embedded_sdmmc::sdcard::{SdCard};
-//         use embedded_hal_bus::spi::ExclusiveDevice;
-
-//         struct DummyTimesource();
-
-//         impl embedded_sdmmc::TimeSource for DummyTimesource {
-//             fn get_timestamp(&self) -> embedded_sdmmc::Timestamp {
-//                 embedded_sdmmc::Timestamp {
-//                     year_since_1970: 0,
-//                     zero_indexed_month: 0,
-//                     zero_indexed_day: 0,
-//                     hours: 0,
-//                     minutes: 0,
-//                     seconds: 0,
-//                 }
-//             }
-//         }
-
-//         info!("initializing storage SPI1 bus");
-//         let (
-//             spi1,
-//             sd_cs,
-//             mut xtsdg_cs
-//         ) = hardware::get_spi1(r.spi_storage);
-
-//         // Convert the SPI1 peripheral handle into a bus handle that can be consumed by multiple devices.
-//         let spi_bus = SPI_BUS.init(blocking_mutex::Mutex::new(RefCell::new(spi1)));
-// // SPI clock needs to be running at <= 400kHz during initialization
-//         let mut config = spi::Config::default();
-//         config.frequency = Hertz(400_000);
-//         // let sd_cs = Output::new(r.spi_storage.sd_cs, Level::High, Speed::VeryHigh); // to make sure it's high
-//         // let cs = Output::new(r.spi_storage.xtsdg_cs, Level::High, Speed::VeryHigh);
-//         let spid = embassy_embedded_hal::shared_bus::blocking::spi::SpiDeviceWithConfig::new(spi_bus, xtsdg_cs, config);
-
-        
-//         // let spi = Spi::new_blocking(r.spi_storage.peri, r.spi_storage.clk, r.spi_storage.pico, r.spi_storage.poci, config);
-        
-//         // let spi_dev = ExclusiveDevice::new_no_delay(spid, cs);
-//         let sdcard = embedded_sdmmc::SdCard::new(spid, embassy_time::Delay);
-//         let size_bytes = sdcard.num_bytes().unwrap();
-//         info!("Card size is {} bytes", size_bytes);
-
-//         // Now that the card is initialized, the SPI clock can go faster
-//         let mut config = spi::Config::default();
-//         config.frequency = Hertz(16_000_000);
-//         sdcard.spi(|dev| dev.set_config(config));
-
-//         // Now let's look for volumes (also known as partitions) on our block device.
-//         // To do this we need a Volume Manager. It will take ownership of the block device.
-//         let mut volume_mgr = embedded_sdmmc::VolumeManager::new(sdcard, DummyTimesource());
-
-//         // Try and access Volume 0 (i.e. the first partition).
-//         // The volume object holds information about the filesystem on that volume.
-//         let mut volume0 = volume_mgr.open_volume(embedded_sdmmc::VolumeIdx(0)).unwrap();
-//         info!("Volume 0: {:?}", defmt::Debug2Format(&volume0));
-
-//         // Open the root directory (mutably borrows from the volume).
-//         let mut root_dir = volume0.open_root_dir().unwrap();
-
-//         // Open a file called "MY_FILE.TXT" in the root directory
-//         // This mutably borrows the directory.
-//         let mut my_file = root_dir
-//             .open_file_in_dir("MY_FILE.TXT", embedded_sdmmc::Mode::ReadOnly)
-//             .unwrap();
-
-//         // Print the contents of the file
-//         while !my_file.is_eof() {
-//             let mut buf = [0u8; 32];
-//             if let Ok(n) = my_file.read(&mut buf) {
-//                 info!("{:a}", buf[..n]);
-//             }
-//         }
-//     }
-
     // Initialize the bus for the SPI1 peripheral.
     //
     // This communicates with the internal storage and Micro SD card.
@@ -245,6 +184,11 @@ async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error
 
     // Convert the SPI1 peripheral handle into a bus handle that can be consumed by multiple devices.
     let spi_bus = SPI_BUS.init(Mutex::new(spi1));
+
+    // Initialize the internal and SD card storage next.
+    //
+    // We also want to initialize storage fairly early in the startup process so that
+    // we can check for key files on the device, such as firmware update indicators.
 
     // SD cards need to be clocked with a at least 74 cycles
     // on their SPI clock with the CS pin held HIGH.
@@ -265,345 +209,14 @@ async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error
     info!("Constructing SD card device..");
     let mut sd_card = hardware::get_sdcard_async2(spi_bus, sd_cs, embassy_time::Delay).await.unwrap();
 
-    // // TODO: timeout doens't seem to be working?
-    // info!("Initializing SD card...");
-    // match with_timeout(Duration::from_millis(500), sd_card.init()).await {
-    //     Ok(_) => {
-    //         info!("SD Card successfully initialized!")
-    //     },
-    //     Err(err) => {
-    //         error!("SD Card initialization failed, no card present?")
-    //     },
-    // }    
-
-    sd_card.list_filesystem().await.unwrap();
+    // sd_card.list_filesystem().await.unwrap();
     
-    info!("Constructing internal storage device...");
-    let mut internal_storage = hardware::get_internal_storage(spi_bus, xtsdg_cs, embassy_time::Delay);
-
-    /*
-
-    // Initialize the internal and SD card storage next.
-    //
-    // We also want to initialize storage fairly early in the startup process so that
-    // we can check for key files on the device, such as firmware update indicators.
-
     // Initialize the internal storage.
     //
     // The device internal storage uses an XTSDG IC
     // that acts as a soldered SD card.
-    info!("Initializing internal storage...");
-    let mut internal_storage = hardware::get_sdcard_async(spi_bus, xtsdg_cs, embassy_time::Delay).await;
-    {   
-        // Attempt to initialize the connected internal SD storage.
-        //
-        // If this fails, either there's a problem with the SPI bus or timing 
-        info!("Attempting to initialize internal storage...");
-        loop {
-            // Attempt to initialize the internal storage.
-            //
-            // Init also supplies CMD0 which is required when
-            // using the XTSDG device with a SPI host.
-            if internal_storage.init(true).await.is_ok() {
-                info!("Initialization succeeded, increasing internal storage clock to 25Mhz..");
-
-                // If the initialization succeeds then we can
-                // increase the speed up to the SD max of 25mhz.
-                //
-                // NOTE: XTSDG supports a high-speed mode of 50MHz.
-                // TODO: test the high-speed mode over SPI.
-                let mut config = spi::Config::default();
-                config.frequency = mhz(25);
-                internal_storage.spi().set_config(config);
-                info!("Initialization complete!");
-
-                led_color = RGB::new(0, 255, 0);
-
-                break;
-            }
-
-            led_color = RGB::new(255, 0, 0);
-            info!("Failed to initialize internal storage, retrying...");
-            embassy_time::Delay.delay_ns(5000u32).await;
-        }
-    }
-
-    let size_2 = internal_storage.size().await.unwrap();
-    // let size2 = size * (1 << 4 as u64);
-    // TODO: why is mul2 required to get accurate
-    //  size? something to do with block sizes?
-    info!("Internal storage size: {}B", size_2);
-
-    if let Some(card) = internal_storage.card() {
-        // info!("Selecting card");
-        // internal_storage.cmd(select_card(card.rca)).await.unwrap();
-
-        // info!("Setting storage block length to 1024");
-        // internal_storage.cmd(set_block_length(1024)).await.unwrap();
-        
-        info!("Formatting internal storage...");
-        let mut format_inner = BufStream::<_, 512>::new(&mut internal_storage);
-        let mut format_options = FormatVolumeOptions::new();
-        // let mut format_options = FormatVolumeOptions::new()
-        //     .bytes_per_sector(match card.csd.block_length() {
-        //         BlockSize::B512 => {
-        //             trace!("using 512 bytes_per_sector");
-        //             512
-        //         }
-        //         BlockSize::B1024 => {
-        //             trace!("using 1024 bytes_per_sector");
-        //             1024
-        //         },
-        //         _ => defmt::panic!("Unexpected block size!")
-        //     });        
-
-        format_volume(&mut format_inner, format_options).await.unwrap();
-    } else {
-        error!("Failed to get card registers!");
-    }
-
-
-    */
-
-    // info!("Formatting internal storage...");
-    // {
-    //     // Configure the SPI settings for the SD card.
-    //     //
-    //     // Before knowing the SD card's capabilities we need to start with a 400khz clock.
-    //     let mut spi_config: spi::Config = spi::Config::default();
-    //     spi_config.frequency = khz(400);
-
-    //     // Create the SPI device for the SD card, using the SD card's CS pin.
-    //     let spid = embassy_embedded_hal::shared_bus::blocking::spi::SpiDeviceWithConfig::new(spi_bus, xtsdg_cs, spi_config);
-        
-    //     use embedded_sdmmc::{Error, Mode, SdCard, SdCardError, TimeSource, VolumeIdx, VolumeManager};
-    //     let internal_storage = SdCard::new(spid, embassy_time::Delay);
-    //     into!("Initializing internal storage..");
-    //     info!("Card size is {} bytes", internal_storage.num_bytes()?);
-    //     let volume_mgr = VolumeManager::new(internal_storage, ts);
-    //     let volume0 = volume_mgr.open_volume(VolumeIdx(0))?;
-    //     info!("Volume 0: {:?}", volume0);
-    //     let root_dir = volume0.open_root_dir()?;
-    //     let mut my_file = root_dir.open_file_in_dir("MY_FILE.TXT", Mode::ReadOnly)?;
-    //     while !my_file.is_eof() {
-    //         let mut buffer = [0u8; 32];
-    //         let num_read = my_file.read(&mut buffer)?;
-    //         for b in &buffer[0..num_read] {
-    //             info!("{}", *b as char);
-    //         }
-    //     }
-    // }
-
-    // let mut format_inner = BufStream::<_, 512>::new(&mut internal_storage);
-    // let result = fatfs::format_volume(&mut format_inner, fatfs::FormatVolumeOptions::new());
-    // match result {
-    //     Ok(_) => info!("formatting finished successfuly!"),
-    //     Err(err) => error!("error formatting!")
-    // }
-
-   /*info!("Failed to mount, formatting internal storage...");
-    let mut format_inner = BufStream::<_, 512>::new(&mut internal_storage);
-    let format_options = FormatVolumeOptions::new();
-    let result: Result<(), embedded_fatfs::Error<BufStreamError<sdspi::Error>>> = format_volume(&mut format_inner, format_options).await;
-    match result {
-        Err(err) => {
-            match err {
-                embedded_fatfs::Error::Io(ioerr) => match ioerr {
-                    BufStreamError::Io(ioerr2) => match ioerr2 {
-                        sdspi::Error::ChipSelect => error!("Chip select error!"),
-                        sdspi::Error::SpiError => error!("SPI Error!"),
-                        sdspi::Error::Timeout => error!("Timeout!"),
-                        sdspi::Error::UnsupportedCard => error!("Unsupported Card!"),
-                        sdspi::Error::Cmd58Error => error!("CMD58 Error!"),
-                        sdspi::Error::Cmd59Error => error!("CMD59 Error!"),
-                        sdspi::Error::RegisterError(_) => error!("Register error!"),
-                        sdspi::Error::CrcMismatch(_, _) => error!("CRC Missmatch!"),
-                        sdspi::Error::NotInitialized => error!("Not Initialized !"),
-                        sdspi::Error::WriteError => error!("Write Error!"),
-                        _ => error!("Unknown sdspi error!"),
-                    },
-                    _ => error!("Unexpected IO Error!"),
-                },
-                embedded_fatfs::Error::UnexpectedEof => error!("Unexpected EOF!"),
-                embedded_fatfs::Error::WriteZero => error!("Write 0!"),
-                embedded_fatfs::Error::InvalidInput => error!("Invalid Input!"),
-                embedded_fatfs::Error::NotFound => error!("Not Found!"),
-                embedded_fatfs::Error::AlreadyExists => error!("Already Exists!"),
-                embedded_fatfs::Error::DirectoryIsNotEmpty => error!("Directiory Not Empty!"),
-                embedded_fatfs::Error::CorruptedFileSystem => error!("Corrupted file System!"),
-                embedded_fatfs::Error::NotEnoughSpace => error!("Not Enough Space!"),
-                embedded_fatfs::Error::InvalidFileNameLength => error!("Invalid File Name Length!"),
-                embedded_fatfs::Error::UnsupportedFileNameCharacter => error!("Unsupported File Name Characte!"),
-                _ => error!("Unexpected FATFS Error!"),
-            }
-            defmt::panic!("Failed to format volume! ")
-        },
-        Ok(_) => {
-            info!("Successfuly finished formatting!")
-        }
-    }*/
-    
-    // {
-    //     info!("Attempting to mount internal storage...");
-    //     let mut inner = BufStream::<_, 512>::new(&mut internal_storage);
-    //     if let fs = embedded_fatfs::FileSystem::new(inner, FsOptions::new()).await.unwrap() {
-    //         {
-    //             let root = fs.root_dir();
-    //             let mut iter = root.iter();
-    //             loop {
-    //                 if let Some(Ok(entry)) = iter.next().await {
-    //                     let name = entry.short_file_name_as_bytes();
-    //                     defmt::info!("Name:{} Length:{}", &name, entry.len());
-    //                 } else {
-    //                     defmt::info!("end");
-    //                     break;
-    //                 }
-    //             }
-    //         }
-
-    //         fs.unmount().await.unwrap();
-    //     } else {
-    //         info!("Failed to mount, formatting internal storage...");
-    //         let mut format_inner = BufStream::<_, 512>::new(&mut internal_storage);
-    //         let format_options = FormatVolumeOptions::new()
-    //             .volume_id(1)
-    //             .volume_label(*b"sd_card    ");
-    //         format_volume(&mut format_inner, format_options).await.unwrap();
-    //     }
-    // }
-
-    // info!("Formatting internal storage...");
-    // let mut inner = BufStream::<_, 512>::new(internal_storage);
-    // let format_options = FormatVolumeOptions::new()
-    //     .volume_id(1)
-    //     .volume_label(*b"internal   ");
-    // format_volume(&mut inner, format_options).await.unwrap();
-    
-    // info!("Attempting to mount internal storage...");
-    // let fs = embedded_fatfs::FileSystem::new(inner, FsOptions::new()).await.unwrap();
-    // {
-    //     let root = fs.root_dir();
-    //     let mut iter = root.iter();
-    //     loop {
-    //         if let Some(Ok(entry)) = iter.next().await {
-    //             let name = entry.short_file_name_as_bytes();
-    //             // let name: String<256> = String::from_utf8(
-    //             //     Vec::from_slice(entry.short_file_name_as_bytes()).unwrap(),
-    //             // )
-    //             // .unwrap();
-    //             defmt::info!("Name:{} Length:{}", &name, entry.len());
-    //         } else {
-    //             defmt::info!("end");
-    //             break;
-    //         }
-    //     }
-    // }
-    // fs.unmount().await.unwrap();
-
-    // Initialize the Micro SD card.
-    /*info!("Configuring SD card...");
-    let mut sdcard = hardware::get_sdcard_async(spi_bus, sd_cs, embassy_time::Delay).await;
-    {
-        // Attempt to initialize the connected SD card.
-        //
-        // If this fails, either there's a problem with the
-        // SPI bus or timing, there is an incompatible card
-        // attached, or there is no card attached. 
-        info!("Attempting to initialize SD card...");
-        loop {
-            // Attempt to initialize the card.
-            //
-            // TODO: This hangs indefinetly waiting for a
-            //  reply on DMA if no SD card is connected!
-            if sdcard.init().await.is_ok() {
-                info!("Initialization succeeded, increasing clock to 25Mhz..");
-
-                // If the initialization succeeds then we can
-                // increase the speed up to the SD max of 25mhz.
-                //
-                // TODO: check if higher speed modes are available.
-                let mut config = spi::Config::default();
-                config.frequency = mhz(25);
-                sdcard.spi().set_config(config);
-                info!("Initialization complete!");
-
-                break;
-            }
-
-            info!("Failed to initialize SD card, retrying...");
-            embassy_time::Delay.delay_ns(5000u32).await;
-        }
-    }
-
-    let size_2 = sdcard.size().await.unwrap();
-    // let size2 = size * (1 << 4 as u64);
-    // TODO: why is mul2 required to get accurate
-    //  size? something to do with block sizes?
-    info!("SD card storage size: {}B", size_2);
-
-     info!("Failed to mount, formatting sd card...");
-    let mut format_inner = BufStream::<_, 512>::new(&mut sdcard);
-    let format_options = FormatVolumeOptions::new()
-        .volume_id(1)
-        .volume_label(*b"sd_card    ");
-    format_volume(&mut format_inner, format_options).await.unwrap();*/
-    // {
-    //     info!("Attempting to mount sd card...");
-    //     let mut inner = BufStream::<_, 512>::new(&mut sdcard);
-    //     if let fs = embedded_fatfs::FileSystem::new(inner, FsOptions::new()).await.unwrap() {
-    //         {
-    //             let root = fs.root_dir();
-    //             let mut iter = root.iter();
-    //             loop {
-    //                 if let Some(Ok(entry)) = iter.next().await {
-    //                     let name = entry.short_file_name_as_bytes();
-    //                     // let name: String<256> = String::from_utf8(
-    //                     //     Vec::from_slice(entry.short_file_name_as_bytes()).unwrap(),
-    //                     // )
-    //                     // .unwrap();
-    //                     defmt::info!("Name:{} Length:{}", &name, entry.len());
-    //                 } else {
-    //                     defmt::info!("end");
-    //                     break;
-    //                 }
-    //             }
-    //         }
-
-    //         fs.unmount().await.unwrap();
-    //     } else {
-    //         info!("Failed to mount, formatting sd card...");
-    //         let mut format_inner = BufStream::<_, 512>::new(&mut sdcard);
-    //         let format_options = FormatVolumeOptions::new()
-    //             .volume_id(1)
-    //             .volume_label(*b"sd_card    ");
-    //         format_volume(&mut format_inner, format_options).await.unwrap();
-    //     }
-    // }
-
-    //TODO: need to read partition table and open the first FAT partition
-
-    // let inner = BufStream::<_, 512>::new(sdcard);
-    // let fs = embedded_fatfs::FileSystem::new(inner, FsOptions::new()).await.unwrap();
-    // {
-    //     let root = fs.root_dir();
-    //     let mut iter = root.iter();
-    //     loop {
-    //         if let Some(Ok(entry)) = iter.next().await {
-    //             let name = entry.short_file_name_as_bytes();
-    //             // let name: String<256> = String::from_utf8(
-    //             //     Vec::from_slice(entry.short_file_name_as_bytes()).unwrap(),
-    //             // )
-    //             // .unwrap();
-    //             defmt::info!("Name:{} Length:{}", &name, entry.len());
-    //         } else {
-    //             defmt::info!("end");
-    //             break;
-    //         }
-    //     }
-    // }
-    // fs.unmount().await.unwrap();
-
-
+    info!("Constructing internal storage device...");
+    let mut internal_storage = hardware::get_internal_storage(spi_bus, xtsdg_cs, embassy_time::Delay);
 
 /*
     // Next initialize the bus for the I2C2 peripheral that
@@ -646,101 +259,21 @@ async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error
     let _i2c1_bus = I2C1_BUS.init(hardware::get_i2c1(r.i2c1));
 */
 
-    /*let mut ws2812_pwm = SimplePwm::new(
-        r.led.tim,
-        None,
-        None,
-        None,
-        Some(PwmPin::new(r.led.dat, OutputType::PushPull)),
-        khz(800), // data rate of ws2812
-        CountingMode::EdgeAlignedUp,
-    );
-
-    // construct ws2812 non-return-to-zero (NRZ) code bit by bit
-    // ws2812 only need 24 bits for each LED, but we add one bit more to keep PWM output low
-
-    let max_duty = ws2812_pwm.max_duty_cycle();
-    let n0 = 8 * max_duty / 25; // ws2812 Bit 0 high level timing
-    let n1 = 2 * n0; // ws2812 Bit 1 high level timing
-
-    let turn_off = [
-        n0, n0, n0, n0, n0, n0, n0, n0, // Green
-        n0, n0, n0, n0, n0, n0, n0, n0, // Red
-        n0, n0, n0, n0, n0, n0, n0, n0, // Blue
-        0,  // keep PWM output low after a transfer
-    ];
-
-    let dim_white = [
-        n0, n0, n0, n0, n0, n0, n1, n0, // Green
-        n0, n0, n0, n0, n0, n0, n1, n0, // Red
-        n0, n0, n0, n0, n0, n0, n1, n0, // Blue
-        0,  // keep PWM output low after a transfer
-    ];
-
-    let color_list = &[&turn_off, &dim_white];
-
-    let pwm_channel = timer::Channel::Ch1;
-
-    // make sure PWM output keep low on first start
-    ws2812_pwm.channel(pwm_channel).set_duty_cycle(0);
-
-    // flip color at 2 Hz
-    let mut ticker = Ticker::every(Duration::from_millis(500));
-
-    let mut led_dma = r.led.dma;
-    loop {
-        for &color in color_list {
-            // with &mut, we can easily reuse same DMA channel multiple times
-            ws2812_pwm.waveform_up(led_dma.reborrow(), pwm_channel, color).await;
-            // ws2812 need at least 50 us low level input to confirm the input data and change it's state
-            Timer::after_micros(50).await;
-            // wait until ticker tick
-            ticker.next().await;
-        }
-    }*/
-
-    // let ch1_pin = PwmPin::new(r.led.dat, OutputType::PushPull);
-    // let mut pwm = SimplePwm::new(
-    //     r.led.tim,
-    //     None,
-    //     None,
-    //     None,
-    //     Some(ch1_pin),
-    //     khz(10),
-    //     Default::default()
-    // );
-    // let mut ch1 = pwm.ch4();
-    // ch1.enable();
-
-    // info!("PWM initialized");
-    // info!("PWM max duty {}", ch1.max_duty_cycle());
-
-    //     ch1.set_duty_cycle_fraction(1, 2);
-    // loop {
-    //     ch1.set_duty_cycle_fully_off();
-    //     Timer::after_millis(300).await;
-    //     ch1.set_duty_cycle_fraction(1, 4);
-    //     Timer::after_millis(300).await;
-    //     ch1.set_duty_cycle_fraction(1, 2);
-    //     Timer::after_millis(300).await;
-    //     ch1.set_duty_cycle(ch1.max_duty_cycle() - 1);
-    //     Timer::after_millis(300).await;
-    // }
-
     info!("Initializing keypad...");
     let mut keypad = hardware::get_keypad(r.led);
     keypad.init();
     keypad.set_led(0, led_color);
     
+    // Update the keypad with the new colors,
     keypad.refresh_leds().await;
     
-    // loop {
-    //     keypad.refresh_leds().await;
-    // }
+    info!("Starting USB device...");
+    hardware::usb::start_usb(spawner, r.usb).await;
 
-    
-    let mut ep_out_buffer = [0u8; 256];
-    let usb_driver = hardware::get_usb_hs_driver(r.usb, &mut ep_out_buffer);
+    /*static EP_OUT_BUFFER: StaticCell<[u8; 256]> = StaticCell::new();
+    let ep_out_buffer = EP_OUT_BUFFER.init([0; 256]);
+
+    let usb_driver: Driver<'static, embassy_stm32::peripherals::USB_OTG_HS> = hardware::get_usb_hs_driver(r.usb, ep_out_buffer);
 
     // Create embassy-usb Config
     let mut usb_config = embassy_usb::Config::new(0xc0de, 0xcafe);
@@ -748,26 +281,36 @@ async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error
     usb_config.product = Some("PocketSynth");
     usb_config.serial_number = Some("12345678");
 
+    // Required for windows compatibility.
+    // https://developer.nordicsemi.com/nRF_Connect_SDK/doc/1.9.1/kconfig/CONFIG_CDC_ACM_IAD.html#help
+    usb_config.device_class = 0xEF;
+    usb_config.device_sub_class = 0x02;
+    usb_config.device_protocol = 0x01;
+    usb_config.composite_with_iads = true;
+
     // Create embassy-usb DeviceBuilder using the driver and config.
     // It needs some buffers for building the descriptors.
-    let mut config_descriptor = [0; 256];
-    let mut bos_descriptor = [0; 256];
-    let mut control_buf = [0; 64];
+    let config_descriptor = USB_CONFIG_DESCRIPTOR.init([0; 256]);
+    let bos_descriptor = USB_BOS_DESCIRPTOR.init([0; 256]);
+    let control_buf = USB_CONTROL_BUF.init([0; 64]);
 
     let mut builder = Builder::new(
         usb_driver,
         usb_config,
-        &mut config_descriptor,
-        &mut bos_descriptor,
+        config_descriptor,
+        bos_descriptor,
         &mut [], // no msos descriptors
-        &mut control_buf,
+        control_buf,
     );
 
     // Create classes on the builder.
-    let mut class = MidiClass::new(&mut builder, 1, 1, 64);
-
+    // let mut midi_class: MidiClass<'_, Driver<'_, embassy_stm32::peripherals::USB_OTG_HS>> = MidiClass::new(&mut builder, 1, 1, 64);
     // The `MidiClass` can be split into `Sender` and `Receiver`, to be used in separate tasks.
-    // let (sender, receiver) = class.split();
+    // let (sender, receiver) = midi_class.split();
+
+
+    let mut midi_class: &'static mut MidiClass<'static, Driver<'static, embassy_stm32::peripherals::USB_OTG_HS>> = USB_MIDI_CLASS.init(MidiClass::new(&mut builder, 1, 1, 64));
+    
 
     // Build the builder.
     let mut usb = builder.build();
@@ -776,18 +319,22 @@ async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error
     let usb_fut = usb.run();
 
     // Use the Midi class!
-    let midi_fut = async {
-        loop {
-            class.wait_connection().await;
-            info!("Connected");
-            let _ = midi_echo(&mut class).await;
-            info!("Disconnected");
-        }
-    };
+    // let midi_fut = async {
+    //     loop {
+    //         midi_class.wait_connection().await;
+    //         info!("Connected");
+    //         let _ = midi_echo(&mut midi_class).await;
+    //         info!("Disconnected");
+    //     }
+    // };
+
+    spawner.spawn(unwrap!(usb_midi(midi_class)));
+
+    usb_fut.await;*/
 
     // Run everything concurrently.
     // If we had made everything `'static` above instead, we could do this using separate tasks instead.
-    join(usb_fut, midi_fut).await;
+    // join(usb_fut, midi_fut).await;
 
 
     // Create the driver, from the HAL.
@@ -848,194 +395,59 @@ async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error
     // If we had made everything `'static` above instead, we could do this using separate tasks instead.
     join(usb_fut, echo_fut).await;
 */
-    loop {}
-
-    /*// TIM5 is 32bit timer off APB1 @ 120MHz max
-    // 
-
-    // Configure the pin to PWM
-    let pwm_pin = PwmPin::new(r.led.dat, OutputType::PushPull);
-
-    // Obtain a PWM handler, configure the Timer and Frequency.
-    // The prescaler and ARR are automatically set.
-    // Given this system frequency and pwm frequency the max duty cycle will be 300.
-    let mut pwm = SimplePwm::new(
-        r.led.tim,
-        None,
-        None,
-        None,
-        Some(pwm_pin),
-        // PWM_FREQ = 1 / data_transfer_time = 1 / 1.25us = 800kHz
-        Hertz::khz(800),
-        CountingMode::EdgeAlignedUp,
-    );
     
-    // Enable the channel corresponding to the PWM channel above.
-    let mut pwm_channel = pwm.ch4();
-    pwm_channel.enable();
-    
-    /*// Set it off when we're not transmitting LED data.
-    //
-    // This state is "restored" after a DMA transfer.
-    // pwm_channel.set_duty_cycle_fully_off();
-
-    // pwm_channel.set_duty_cycle_fraction(1, 2);
-    // Make sure PWM output keep low on first start.
-    //
-    // This duty cycle is reset to after the DMA waveform has been transmitter.
-    pwm_channel.set_duty_cycle(0);
-
-    let mut led_dma = r.led.dma;
-    let duty = &[300, 0, 0, 0, 150, 0, 0, 0];
-    loop {
-        pwm.waveform::<embassy_stm32::timer::Ch4>(led_dma.reborrow(), duty)
-            .await;
-        Timer::after_millis(600).await;
-    }*/
-
-    const RED: RGB = RGB::new(255, 0, 0);
-    const GREEN: RGB = RGB::new(0, 255, 0);
-    const BLUE: RGB = RGB::new(0, 0, 255);
-    const MAGENTA: RGB = RGB::new(255, 0, 255);
-    const CYAN: RGB = RGB::new(0, 255, 255);
-    const YELLOW: RGB = RGB::new(255, 255, 0);
-    const ORANGE: RGB = RGB::new(255, 20, 0);
-
-    const RAINBOW: [RGB; 1] = [RED];
-    const LED_COUNT: usize = RAINBOW.len();
-
-    // APB1 = 120MHz
-    // doubled for clocks = 240MHz
-    // max duty cycle = 240MHz/0.800MHz (pwm freq) = 300 cycles
-
-    // PWM_FREQ = 1 / data_transfer_time = 1 / 1.25us = 800kHz
-    // |-------- 1.25us --------|
-    // 0%         duty       100%
-    // 0 ->  max duty cycle = 300
-
-    // Information needed from datasheet:
-    // Data Transfer Time = 1.25us
-    //     * Used to calculate pwm frequency, t1h, and t0h values
-    // T1H = 0.6us
-    // T0H = 0.3us
-    // Reset Period = RES >= 80us
-    
-    //
-    // |-------T-------| Symbol Period
-    // |-T0H-|_________| 0 symbol
-    // |---T1H----|____| 1 Symbol
-    // |------- RESET ------|
-    /// `t1h` = `T1H / data_transfer_time * max_duty_value`
-    /// `t0h` = `T0H / data_transfer_time * max_duty_value`
-    /// 
-    /// `t1h` = `0.6us / 1.25us * 300` = 144
-    /// `t0h` = `0.3us / 1.25us * 300` = 72
-
-    /// NEED TO UPDATE IF SYSTEM CLOCK SPEED CHANGES
-    // max_duty_cycle = ?? calculated from PWM
-    let max_duty = pwm_channel.max_duty_cycle();
-    info!("LED Max Duty Cycle: {}", max_duty);
-
-    // RESET_LENGTH = reset_period / data_transfer_time = 80us / 1.25us = 64
-    const RESET_LENGTH: usize = 64; // 64 frames
-
-    // Calculate the dma buffer's length at compile time
-    const DMA_BUFFER_LEN: usize = calc_dma_buffer_length(RGB::BIT_COUNT, LED_COUNT, RESET_LENGTH);
-    
-    // t1h = T1H / data_transfer_time * max_duty_cycle = 0.6us / 1.25us * 300 = 144
-    let t1h: u16 = 144; // 144;
-    // t0h = T0H / data_transfer_time * max_duty_cycle = 0.3us / 1.25us * 300 = 72
-    let t0h: u16 = 72; // 72;
-
-    // Create a DMA buffer for the led strip
-    // From datasheet, data structure of 24 bit data is green -> red -> blue, so use LedDataComposition::GRB
-    let mut dma_buffer = LedDmaBuffer::<DMA_BUFFER_LEN>::new(t1h, t0h, LedDataComposition::GRB);
-
-    let mut led_dma: embassy_stm32::Peri<'static, embassy_stm32::peripherals::DMA2_CH4> = r.led.dma;
-    let mut brightness = 100u8;
-    let mut increase = true;
-
-    let mut u32_dma_buffer: [u16; DMA_BUFFER_LEN*2] = [0u16; DMA_BUFFER_LEN*2];
-    loop {
-        // Set the DMA buffer
-        dma_buffer
-            .set_dma_buffer_with_brightness(&RAINBOW, None, brightness)
-            .unwrap();
-        let mut i = 0;
-        for d in dma_buffer.get_dma_buffer() {
-            u32_dma_buffer[i*2] = *d;
-            i += 1;
-        }
-
-        // Create a pwm waveform usng the dma buffer
-        // pwm.waveform::<embassy_stm32::timer::Ch4>(led_dma.reborrow(), dma_buffer.get_dma_buffer())
-        //     .await;
-        pwm.waveform::<embassy_stm32::timer::Ch4>(led_dma.reborrow(), &u32_dma_buffer)
-            .await;
-
-        // Increase or Decrease brightness accordingly
-        if brightness >= 100 {
-            increase = false;
-        } else if brightness == 0 {
-            increase = true;
-        }
-        if increase {
-            brightness += 1;
-        } else {
-            brightness = brightness.saturating_sub(1);
-        }
-        if brightness > 100 {
-            brightness = 100;
-        }
-         Timer::after_millis(10).await;
-    }*/
-
+    // info!("Running main infinite loop...");
     // loop {}
 
-    // let mut led = Output::new(p.PB14, Level::High, Speed::Low);
+    Ok(())
 
-    // loop {
-    //     info!("high");
-    //     led.set_high();
-    //     Timer::after_millis(500).await;
-
-    //     info!("low");
-    //     led.set_low();
-    //     Timer::after_millis(500).await;
-    // }
 }
 
 /// Rust's `!` is unstable.  This is a locally-defined equivalent which is stable.
 #[derive(Debug)]
 pub enum Never {}
 
-struct Disconnected {}
+// struct Disconnected {}
 
-impl From<EndpointError> for Disconnected {
-    fn from(val: EndpointError) -> Self {
-        match val {
-            EndpointError::BufferOverflow => defmt::panic!("Buffer overflow"),
-            EndpointError::Disabled => Disconnected {},
-        }
-    }
-}
+// impl From<EndpointError> for Disconnected {
+//     fn from(val: EndpointError) -> Self {
+//         match val {
+//             EndpointError::BufferOverflow => defmt::panic!("Buffer overflow"),
+//             EndpointError::Disabled => Disconnected {},
+//         }
+//     }
+// }
 
-async fn echo<'d, T: usb::Instance + 'd>(class: &mut CdcAcmClass<'d, Driver<'d, T>>) -> Result<(), Disconnected> {
-    let mut buf = [0; 64];
-    loop {
-        let n = class.read_packet(&mut buf).await?;
-        let data = &buf[..n];
-        info!("data: {:x}", data);
-        class.write_packet(data).await?;
-    }
-}
+// async fn echo<'d, T: usb::Instance + 'd>(class: &mut CdcAcmClass<'d, Driver<'d, T>>) -> Result<(), Disconnected> {
+//     let mut buf = [0; 64];
+//     loop {
+//         let n = class.read_packet(&mut buf).await?;
+//         let data = &buf[..n];
+//         info!("data: {:x}", data);
+//         class.write_packet(data).await?;
+//     }
+// }
 
-async fn midi_echo<'d, T: usb::Instance + 'd>(class: &mut MidiClass<'d, usb::Driver<'d, T>>) -> Result<(), Disconnected> {
-    let mut buf = [0; 64];
-    loop {
-        let n = class.read_packet(&mut buf).await?;
-        let data = &buf[..n];
-        info!("data: {:x}", data);
-        class.write_packet(data).await?;
-    }
-}
+// async fn midi_echo<'d, T: usb::Instance + 'd>(class: &mut MidiClass<'d, usb::Driver<'d, T>>) -> Result<(), Disconnected> {
+//     let mut buf = [0; 64];
+//     loop {
+//         let n = class.read_packet(&mut buf).await?;
+//         let data = &buf[..n];
+//         info!("data: {:x}", data);
+//         class.write_packet(data).await?;
+//     }
+// }
+
+// #[embassy_executor::task]
+// async fn usb_midi(
+//     mut midi_class: &'static mut MidiClass<'static, Driver<'static, embassy_stm32::peripherals::USB_OTG_HS>>
+// ) {
+//     loop {
+//         midi_class.wait_connection().await;
+//         info!("Connected");
+//         let _ = midi_echo(&mut midi_class).await;
+//         info!("Disconnected");
+//     }
+// }
+
+
