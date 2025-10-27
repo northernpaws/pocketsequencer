@@ -263,18 +263,20 @@ async fn inner_main(_spawner: Spawner) -> Result<Never, ()> { // TODO: add error
     }
     
     info!("Constructing SD card device..");
-    let mut sd_card = hardware::get_sdcard_async2(spi_bus, sd_cs, embassy_time::Delay);
+    let mut sd_card = hardware::get_sdcard_async2(spi_bus, sd_cs, embassy_time::Delay).await.unwrap();
 
-    // TODO: timeout doens't seem to be working?
-    info!("Initializing SD card...");
-    match with_timeout(Duration::from_millis(500), sd_card.init()).await {
-        Ok(_) => {
-            info!("SD Card successfully initialized!")
-        },
-        Err(err) => {
-            error!("SD Card initialization failed, no card present?")
-        },
-    }    
+    // // TODO: timeout doens't seem to be working?
+    // info!("Initializing SD card...");
+    // match with_timeout(Duration::from_millis(500), sd_card.init()).await {
+    //     Ok(_) => {
+    //         info!("SD Card successfully initialized!")
+    //     },
+    //     Err(err) => {
+    //         error!("SD Card initialization failed, no card present?")
+    //     },
+    // }    
+
+    sd_card.list_filesystem().await.unwrap();
     
     info!("Constructing internal storage device...");
     let mut internal_storage = hardware::get_internal_storage(spi_bus, xtsdg_cs, embassy_time::Delay);

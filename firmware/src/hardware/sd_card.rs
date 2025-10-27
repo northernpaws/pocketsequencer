@@ -29,6 +29,7 @@ use embedded_hal_async::delay::DelayNs;
 
 use mbr_nostd::{MasterBootRecord, PartitionTable};
 
+#[derive(Debug)]
 pub enum InitError {
     SDSPIError(embedded_fatfs::Error<BufStreamError<sdspi::Error>>),
     BufStreamError(BufStreamError<sdspi::Error>),
@@ -54,45 +55,36 @@ impl From<sdspi::Error> for InitError {
     }
 }
 
-pub struct SdCard<'a, 'b,
+pub struct SdCard<'a,
     M: RawMutex,
     BUS: SetConfig<Config = spi::Config> + embedded_hal_async::spi::SpiBus,
     DELAY: embedded_hal_async::delay::DelayNs + Clone
 > {
-    spi_sd: SdSpi<
-                SpiDeviceWithConfig<'a, M, BUS, embassy_stm32::gpio::Output<'a>>,
-                DELAY,
-                aligned::A4>,
+    // spi_sd: SdSpi<
+    //             SpiDeviceWithConfig<'a, M, BUS, embassy_stm32::gpio::Output<'a>>,
+    //             DELAY,
+    //             aligned::A4>,
     // buf_stream: Option<&'b mut BufStream::<&'a mut SdSpi<SpiDeviceWithConfig<'a, M, BUS, Output<'a>>, DELAY, aligned::A4>, 512>>,
-    filesystem: Option<
-                    FileSystem<
+    filesystem: FileSystem<
                         StreamSlice<
                             BufStream<
-                                &'b mut SdSpi<SpiDeviceWithConfig<'a, M, BUS, Output<'a>>, DELAY, aligned::A4
+                                SdSpi<SpiDeviceWithConfig<'a, M, BUS, Output<'a>>, DELAY, aligned::A4
                             >, 512>
                         >, embedded_fatfs::NullTimeProvider, embedded_fatfs::LossyOemCpConverter>
-                    >
+                    
 }
 
-impl<'a, 'b,
+impl<'a,
     M: RawMutex,
     BUS: SetConfig<Config = spi::Config> + embedded_hal_async::spi::SpiBus,
     DELAY: embedded_hal_async::delay::DelayNs + Clone
-> SdCard<'a, 'b, M, BUS, DELAY> {
-    pub fn new (
+> SdCard<'a, M, BUS, DELAY> {
+    pub async fn init (
         mut spi_sd: SdSpi<
             SpiDeviceWithConfig<'a, M, BUS, embassy_stm32::gpio::Output<'a>>,
             DELAY,
             aligned::A4>,
-    ) -> Self {
-        Self {
-            spi_sd,
-            // buf_stream: None,
-            filesystem: None
-        }
-    }
-
-    pub async fn init (&mut self) -> Result<(), InitError> {
+    ) -> Result<Self, InitError> {
         // Initialize the Micro SD card.
         info!("Configuring SD card...");
 
@@ -107,7 +99,7 @@ impl<'a, 'b,
             //
             // TODO: This hangs indefinetly waiting for a
             //  reply on DMA if no SD card is connected!
-            if self.spi_sd.init(true).await.is_ok() {
+            if spi_sd.init(true).await.is_ok() {
                 info!("Initialization succeeded, increasing clock to 25Mhz..");
 
                 // If the initialization succeeds then we can
@@ -116,7 +108,7 @@ impl<'a, 'b,
                 // TODO: check if higher speed modes are available.
                 let mut config = spi::Config::default();
                 config.frequency = mhz(25);
-                self.spi_sd.spi().set_config(config);
+                spi_sd.spi().set_config(config);
                 info!("Initialization complete!");
 
                 break;
@@ -126,10 +118,10 @@ impl<'a, 'b,
             embassy_time::Delay.delay_ns(5000u32).await;
         }
         
-        let size = self.spi_sd.size().await?;
+        let size = spi_sd.size().await?;
         info!("SD card storage size: {}B", size);
 
-        let mut buf_stream: BufStream<&'b mut SdSpi<SpiDeviceWithConfig<'a, M, BUS, Output<'a>>, DELAY, aligned::A4>, 512> = BufStream::new(&mut self.spi_sd);
+        let mut buf_stream = BufStream::new(spi_sd);
 
         trace!("Attempting to read MBR...");
         let mut buf = [0; 512];
@@ -156,19 +148,28 @@ impl<'a, 'b,
 
         // Create a filesystem using the stream slice from the partition table.
         info!("Loading partition 0 as FATFS...");
-        let fs = FileSystem::new(inner, FsOptions::new()).await?;
-        self.filesystem = Some(fs); // move into the struct field
+        let filesystem = FileSystem::new(inner, FsOptions::new()).await?;
+        
+        // info!("Attempting to read from filesystem...");
+        // let root_dir = filesystem.root_dir();
+        // let mut iter = root_dir.iter();
+        // while let Some(r) = iter.next().await {
+        //     let e = r?;
+        //     info!("found file: {}", e.short_file_name_as_bytes());
+        // }
 
-        if let Some(filesystem) = &self.filesystem {
-            info!("Attempting to read from filesystem...");
-            let root_dir = filesystem.root_dir();
-            let mut iter = root_dir.iter();
-            while let Some(r) = iter.next().await {
-                let e = r?;
-                info!("found file: {}", e.short_file_name_as_bytes());
-            }
-        } else {
-            error!("Failed to load filesystem!");
+        Ok(Self {
+            filesystem
+         })
+    }
+
+    pub async fn list_filesystem (&mut self) -> Result<(), embedded_fatfs::Error<StreamSliceError<BufStreamError<sdspi::Error>>>>{
+        info!("Attempting to read from filesystem...");
+        let root_dir = self.filesystem.root_dir();
+        let mut iter = root_dir.iter();
+        while let Some(r) = iter.next().await {
+            let e = r?;
+            info!("found file: {}", e.short_file_name_as_bytes());
         }
 
         Ok(())

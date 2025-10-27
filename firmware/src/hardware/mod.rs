@@ -86,7 +86,7 @@ use embassy_embedded_hal::{
     }
 };
 
-use crate::hardware::{bq27531_g1::Bq27531, fusb302b::Fusb302b, keypad::Keypad, tca8418::Tca8418};
+use crate::hardware::{bq27531_g1::Bq27531, fusb302b::Fusb302b, keypad::Keypad, sd_card::InitError, tca8418::Tca8418};
 use crate::hardware::stm6601::Stm6601;
 
 assign_resources! {
@@ -879,7 +879,7 @@ pub async fn get_sdcard_async<'a,
     SdSpi::<_, _, aligned::A4>::new(spid, delay)
 }
 
-pub fn get_sdcard_async2<'a,'b, 
+pub async fn get_sdcard_async2<'a,'b, 
     M: RawMutex,
     BUS: SetConfig<Config = spi::Config> + embedded_hal_async::spi::SpiBus,
     DELAY: embedded_hal_async::delay::DelayNs + Clone
@@ -887,7 +887,7 @@ pub fn get_sdcard_async2<'a,'b,
     spi_bus: &'a Mutex<M, BUS>,
     cs: gpio::Output<'a>,
     delay: DELAY,
-) -> sd_card::SdCard<'a, 'b, M, BUS, DELAY> {
+) -> Result<sd_card::SdCard<'a, M, BUS, DELAY>, InitError> {
     // Configure the SPI settings for the SD card.
     //
     // Before knowing the SD card's capabilities we need to start with a 400khz clock.
@@ -900,7 +900,7 @@ pub fn get_sdcard_async2<'a,'b,
     // Initialize the SD-over-SPI wrapper.
     let spi_sd: SdSpi<SpiDeviceWithConfig<'a, M, BUS, Output<'a>>, DELAY, aligned::A4> = SdSpi::new(spid, delay);
     
-    sd_card::SdCard::new(spi_sd)
+    sd_card::SdCard::init(spi_sd).await
 }
 
 pub fn get_internal_storage<'a,
