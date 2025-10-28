@@ -43,3 +43,4 @@
   - PG and cahrger lights are on regardless of power state
   - Should have a 3v3 power light
   - Somehow connect vref from the BMP port to the power button on confirmation
+  - Should add flow control pins to RF UART "H:4 HCI transport protocol (requires HW flow control from the UART)".

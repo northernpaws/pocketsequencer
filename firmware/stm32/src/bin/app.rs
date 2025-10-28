@@ -16,7 +16,7 @@ use embassy_stm32::{
         I2c
     }, mode::Async, peripherals, rcc::clocks, spi::{
         self, Spi
-    }, time::{khz, mhz, Hertz}, timer::{self, low_level::CountingMode, simple_pwm::{PwmPin, SimplePwm}}, usart::Uart, usb::{self, Driver}
+    }, time::{khz, mhz, Hertz}, timer::{self, low_level::CountingMode, simple_pwm::{PwmPin, SimplePwm}}, usart::{Uart, UartRx, UartTx}, usb::{self, Driver}
 };
 
 use embassy_sync::{
@@ -84,7 +84,8 @@ async fn main(spawner: Spawner) {
     }    
 }
 
-static DEBUG_SERIAL: StaticCell<Uart<'static, Async>> = StaticCell::new();
+static DEBUG_SERIAL_TX: StaticCell<UartTx<'static, Async>> = StaticCell::new();
+static DEBUG_SERIAL_RX: StaticCell<UartRx<'static, Async>> = StaticCell::new();
 
 // Inner-main allows us us to returns errors via Result instead of relying on panics.
 #[expect(clippy::future_not_send, reason = "Safe in single-threaded, bare-metal embedded context")]
@@ -121,7 +122,10 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> { // TODO: add error typ
     debug_uart.blocking_write(
         b"debug serial ready"
     ).unwrap();
-    defmt_serial::defmt_serial(DEBUG_SERIAL.init(debug_uart));
+    let (mut debug_tx_raw, mut debug_rx_raw) = debug_uart.split();
+    let mut debug_tx = DEBUG_SERIAL_TX.init(debug_tx_raw);
+    let mut debug_rx = DEBUG_SERIAL_RX.init(debug_rx_raw);
+    defmt_serial::defmt_serial(debug_tx);
 
     let clocks = clocks(&p.RCC);
     println!("System clock speed: {}", clocks.sys);
@@ -267,134 +271,28 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> { // TODO: add error typ
     info!("Starting USB device...");
     hardware::usb::start_usb(spawner, r.usb).await;
 
-    /*static EP_OUT_BUFFER: StaticCell<[u8; 256]> = StaticCell::new();
-    let ep_out_buffer = EP_OUT_BUFFER.init([0; 256]);
-
-    let usb_driver: Driver<'static, embassy_stm32::peripherals::USB_OTG_HS> = hardware::get_usb_hs_driver(r.usb, ep_out_buffer);
-
-    // Create embassy-usb Config
-    let mut usb_config = embassy_usb::Config::new(0xc0de, 0xcafe);
-    usb_config.manufacturer = Some("Northernpaws");
-    usb_config.product = Some("PocketSynth");
-    usb_config.serial_number = Some("12345678");
-
-    // Required for windows compatibility.
-    // https://developer.nordicsemi.com/nRF_Connect_SDK/doc/1.9.1/kconfig/CONFIG_CDC_ACM_IAD.html#help
-    usb_config.device_class = 0xEF;
-    usb_config.device_sub_class = 0x02;
-    usb_config.device_protocol = 0x01;
-    usb_config.composite_with_iads = true;
-
-    // Create embassy-usb DeviceBuilder using the driver and config.
-    // It needs some buffers for building the descriptors.
-    let config_descriptor = USB_CONFIG_DESCRIPTOR.init([0; 256]);
-    let bos_descriptor = USB_BOS_DESCIRPTOR.init([0; 256]);
-    let control_buf = USB_CONTROL_BUF.init([0; 64]);
-
-    let mut builder = Builder::new(
-        usb_driver,
-        usb_config,
-        config_descriptor,
-        bos_descriptor,
-        &mut [], // no msos descriptors
-        control_buf,
-    );
-
-    // Create classes on the builder.
-    // let mut midi_class: MidiClass<'_, Driver<'_, embassy_stm32::peripherals::USB_OTG_HS>> = MidiClass::new(&mut builder, 1, 1, 64);
-    // The `MidiClass` can be split into `Sender` and `Receiver`, to be used in separate tasks.
-    // let (sender, receiver) = midi_class.split();
-
-
-    let mut midi_class: &'static mut MidiClass<'static, Driver<'static, embassy_stm32::peripherals::USB_OTG_HS>> = USB_MIDI_CLASS.init(MidiClass::new(&mut builder, 1, 1, 64));
+    info!("Starting wireless UART peripheral...");
+    let wireless_uart = hardware::get_uart_rf(r.uart_rf);
+    let (mut wireless_tx, mut wireless_rx) = wireless_uart.split();
     
-
-    // Build the builder.
-    let mut usb = builder.build();
-
-    // Run the USB device.
-    let usb_fut = usb.run();
-
-    // Use the Midi class!
-    // let midi_fut = async {
-    //     loop {
-    //         midi_class.wait_connection().await;
-    //         info!("Connected");
-    //         let _ = midi_echo(&mut midi_class).await;
-    //         info!("Disconnected");
-    //     }
-    // };
-
-    spawner.spawn(unwrap!(usb_midi(midi_class)));
-
-    usb_fut.await;*/
-
-    // Run everything concurrently.
-    // If we had made everything `'static` above instead, we could do this using separate tasks instead.
-    // join(usb_fut, midi_fut).await;
-
-
-    // Create the driver, from the HAL.
-    
-    /*let mut config = embassy_stm32::usb::Config::default();
-
-    // Do not enable vbus_detection. This is a safe default that works in all boards.
-    // However, if your USB device is self-powered (can stay powered on if USB is unplugged), you need
-    // to enable vbus_detection to comply with the USB spec. If you enable it, the board
-    // has to support it or USB won't work at all. See docs on `vbus_detection` for details.
-    config.vbus_detection = true;
-
-    let driver = Driver::new_fs(r.usb.peri, Irqs, r.usb.dp, r.usb.dm, &mut ep_out_buffer, config);
-
-    // Create embassy-usb Config
-    let mut config = embassy_usb::Config::new(0xc0de, 0xcafe);
-    config.manufacturer = Some("Northernpaws");
-    config.product = Some("PocketSynth");
-    config.serial_number = Some("12345678");
-
-    // Create embassy-usb DeviceBuilder using the driver and config.
-    // It needs some buffers for building the descriptors.
-    let mut config_descriptor = [0; 256];
-    let mut bos_descriptor = [0; 256];
-    let mut control_buf = [0; 64];
-
-    let mut state = State::new();
-
-    let mut builder = Builder::new(
-        driver,
-        config,
-        &mut config_descriptor,
-        &mut bos_descriptor,
-        &mut [], // no msos descriptors
-        &mut control_buf,
-    );
-
-    // Create classes on the builder.
-    let mut class = CdcAcmClass::new(&mut builder, &mut state, 64);
-
-    // Build the builder.
-    let mut usb = builder.build();
-
-    // Run the USB device.
-    let usb_fut = usb.run();
-
-    // Do stuff with the class!
-    let echo_fut = async {
+    let wireless_read = async {
+        let mut buf = [0u8; 16];
         loop {
-            class.wait_connection().await;
-            info!("Connected");
-            let _ = echo(&mut class).await;
-            info!("Disconnected");
+            unwrap!(wireless_rx.read(&mut buf).await);
+            info!("received wireless uart message: {} {=[u8]:a}", buf, buf);
         }
     };
 
-    // Run everything concurrently.
-    // If we had made everything `'static` above instead, we could do this using separate tasks instead.
-    join(usb_fut, echo_fut).await;
-*/
-    
-    // info!("Running main infinite loop...");
-    // loop {}
+    let wireless_write = async {
+        let mut buf = [0u8; 16];
+        loop {
+            unwrap!(debug_rx.read(&mut buf).await);
+            info!("received wireless uart message: {} {=[u8]:a}", buf, buf);
+            unwrap!(wireless_tx.write(&mut buf).await);
+        }
+    };
+
+    join(wireless_read, wireless_write).await;
 
     Ok(())
 }

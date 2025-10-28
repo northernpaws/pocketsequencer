@@ -336,7 +336,7 @@ bitfield! {
         /// GPIO1 polarity inversion control
         /// 0 = normal logic sense of GPIO signal
         /// 1 = inverted logic sense of GPIO signal
-        pub gpio1pl: u8 @ 3,
+        pub gpio1pl: bool @ 3,
         /// CSB/GPIO1 function select (input default)
         /// 000 = use as input subject to MODE pin#18 input logic level
         /// 001 = reserved
