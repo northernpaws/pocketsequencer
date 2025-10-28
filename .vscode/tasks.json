@@ -12,14 +12,14 @@
             "$rustc"
         ],
         "options": {
-          "cwd": "${workspaceRoot}/firmware",
+          "cwd": "${workspaceRoot}/firmware/stm32",
         }
     },
     {
         "isBackground": true,
         "label": "BMP Serial Output",
         "type": "shell",
-        "command": "echo 'Starting defmt-print output'; stty -f /dev/cu.usbmodemBEEF9ADE3 115200 & cat /dev/cu.usbmodemBEEF9ADE3 | defmt-print -e ${workspaceRoot}/firmware/target/thumbv7em-none-eabihf/debug/app",  // <-- your shell here
+        "command": "echo 'Starting defmt-print output'; stty -f /dev/cu.usbmodemBEEF9ADE3 115200 & cat /dev/cu.usbmodemBEEF9ADE3 | defmt-print -e ${workspaceRoot}/firmware/stm32/target/thumbv7em-none-eabihf/debug/app",  // <-- your shell here
         // This task is run before some debug tasks.
         // Problem is, it's a watch script, and since it never exits, VSCode
         // complains. All this is needed so VSCode just lets it run.

@@ -1,0 +1,17 @@
+/dts-v1/;
+#include <nordic/nrf5340_cpuappns_qkaa.dtsi>
+#include "pocketsequencer-pinctrl.dtsi"
+
+/ {
+	model = "v0.1 (CPUAPP Non-Secure)";
+	compatible = "northernpaws,pocketsequencer-cpuapp-ns";
+
+	chosen {
+		zephyr,sram = &sram0_ns;
+		zephyr,flash = &flash0;
+		zephyr,code-partition = &slot0_ns_partition;
+	};
+};
+
+#include "pocketsequencer-cpuapp_partitioning.dtsi"
+#include "pocketsequencer-shared_sram.dtsi"

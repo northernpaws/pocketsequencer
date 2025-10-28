@@ -1,5 +1,8 @@
 {
     "rust-analyzer.cargo.target": "thumbv7em-none-eabihf",
     "rust-analyzer.checkOnSave": false,
-    "cmake.sourceDirectory": "/Users/keith/Projects/pocketsequencer/firmware/nrf5340",
+    "cmake.sourceDirectory": "${workspaceRoot}/firmware/nrf5340",
+    "nrf-connect.applications": [
+        "${workspaceFolder}/firmware/nrf5340"
+    ],
 }

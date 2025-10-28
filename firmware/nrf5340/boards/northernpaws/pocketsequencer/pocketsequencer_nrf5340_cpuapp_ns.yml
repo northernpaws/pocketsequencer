@@ -1,0 +1,10 @@
+identifier: pocketsequencer/nrf5340/cpuapp/ns
+name: v0.1
+vendor: northernpaws
+type: mcu
+arch: arm
+ram: 192
+flash: 192
+toolchain:
+  - zephyr
+supported: []
