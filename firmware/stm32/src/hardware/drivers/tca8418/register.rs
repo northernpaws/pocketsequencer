@@ -4,132 +4,132 @@
 use bit_struct::*; 
 use concat_idents::concat_idents;
 
-const RESERVED_ADDRESS: u8 = 0x00;
+pub const RESERVED_ADDRESS: u8 = 0x00;
 /// Configuration register (interrupt processor, interrupt enables).
-const CONFIGURATION_ADDRESS: u8 = 0x01;
+pub const CONFIGURATION_ADDRESS: u8 = 0x01;
 
 /// Interrupt status register.
-const INT_STAT_ADDRESS: u8 = 0x02;
+pub const INT_STAT_ADDRESS: u8 = 0x02;
 
 /// Key lock and event counter register.
-const KEY_LOCK_EVENT_COUNTER_ADDRESS: u8 = 0x03;
+pub const KEY_LOCK_EVENT_COUNTER_ADDRESS: u8 = 0x03;
 /// Key event register A.
-const KEY_EVENT_A_ADDRESS: u8 = 0x04;
+pub const KEY_EVENT_A_ADDRESS: u8 = 0x04;
 /// Key event register B.
-const KEY_EVENT_B_ADDRESS: u8 = 0x05;
+pub const KEY_EVENT_B_ADDRESS: u8 = 0x05;
 /// Key event register C.
-const KEY_EVENT_C_ADDRESS: u8 = 0x06;
+pub const KEY_EVENT_C_ADDRESS: u8 = 0x06;
 /// Key event register D.
-const KEY_EVENT_D_ADDRESS: u8 = 0x07;
+pub const KEY_EVENT_D_ADDRESS: u8 = 0x07;
 /// Key event register E.
-const KEY_EVENT_E_ADDRESS: u8 = 0x08;
+pub const KEY_EVENT_E_ADDRESS: u8 = 0x08;
 /// Key event register F.
-const KEY_EVENT_F_ADDRESS: u8 = 0x09;
+pub const KEY_EVENT_F_ADDRESS: u8 = 0x09;
 /// Key event register G.
-const KEY_EVENT_G_ADDRESS: u8 = 0x0A;
+pub const KEY_EVENT_G_ADDRESS: u8 = 0x0A;
 /// Key event register H.
-const KEY_EVENT_H_ADDRESS: u8 = 0x0B;
+pub const KEY_EVENT_H_ADDRESS: u8 = 0x0B;
 /// Key event register I.
-const KEY_EVENT_I_ADDRESS: u8 = 0x0C;
+pub const KEY_EVENT_I_ADDRESS: u8 = 0x0C;
 /// Key event register J.
-const KEY_EVENT_J_ADDRESS: u8 = 0x0D;
+pub const KEY_EVENT_J_ADDRESS: u8 = 0x0D;
 /// Keypad lock 1 to lock 2 timer.
-const KEYPAD_LOCK_TIMER_ADDRESS: u8 = 0x0E;
+pub const KEYPAD_LOCK_TIMER_ADDRESS: u8 = 0x0E;
 /// Unlock key 1.
-const UNLOCK1_ADDRESS: u8 = 0x0F;
+pub const UNLOCK1_ADDRESS: u8 = 0x0F;
 /// Unlock key 2.
-const UNLOCK2_ADDRESS: u8 = 0x10;
+pub const UNLOCK2_ADDRESS: u8 = 0x10;
 /// GPIO interrupt status.
-const GPIO_INTERRUPT_STATUS1_ADDRESS: u8 = 0x11;
+pub const GPIO_INTERRUPT_STATUS1_ADDRESS: u8 = 0x11;
 /// GPIO interrupt status.
-const GPIO_INTERRUPT_STATUS2_ADDRESS: u8 = 0x12;
+pub const GPIO_INTERRUPT_STATUS2_ADDRESS: u8 = 0x12;
 /// GPIO interrupt status.
-const GPIO_INTERRUPT_STATUS3_ADDRESS: u8 = 0x13;
+pub const GPIO_INTERRUPT_STATUS3_ADDRESS: u8 = 0x13;
 /// GPIO data status (read twice to clear).
-const GPIO_DATA_STATUS1_ADDRESS: u8 = 0x14;
+pub const GPIO_DATA_STATUS1_ADDRESS: u8 = 0x14;
 /// GPIO data status (read twice to clear).
-const GPIO_DATA_STATUS2_ADDRESS: u8 = 0x15;
+pub const GPIO_DATA_STATUS2_ADDRESS: u8 = 0x15;
 /// GPIO data status (read twice to clear).
-const GPIO_DATA_STATUS3_ADDRESS: u8 = 0x16;
+pub const GPIO_DATA_STATUS3_ADDRESS: u8 = 0x16;
 /// GPIO data out.
-const GPIO_DATA_OUT1_ADDRESS: u8 = 0x17;
+pub const GPIO_DATA_OUT1_ADDRESS: u8 = 0x17;
 /// GPIO data out.
-const GPIO_DATA_OUT2_ADDRESS: u8 = 0x18;
+pub const GPIO_DATA_OUT2_ADDRESS: u8 = 0x18;
 /// GPIO data out.
-const GPIO_DATA_OUT3_ADDRESS: u8  = 0x19;
+pub const GPIO_DATA_OUT3_ADDRESS: u8  = 0x19;
 /// GPIO interrupt enable.
-const GPIO_INTERRUPT_ENABLE1_ADDRESS: u8 = 0x1A;
+pub const GPIO_INTERRUPT_ENABLE1_ADDRESS: u8 = 0x1A;
 /// GPIO interrupt enable.
-const GPIO_INTERRUPT_ENABLE2_ADDRESS: u8 = 0x1B;
+pub const GPIO_INTERRUPT_ENABLE2_ADDRESS: u8 = 0x1B;
 /// GPIO interrupt enable.
-const GPIO_INTERRUPT_ENABLE3_ADDRESS: u8 = 0x1C;
+pub const GPIO_INTERRUPT_ENABLE3_ADDRESS: u8 = 0x1C;
 /// Keypad or GPIO selection.
 ///  0: GPIO
 ///  1: KP matrix
-const KEYPAD_GPIO1_ADDRESS: u8 = 0x1D;
+pub const KEYPAD_GPIO1_ADDRESS: u8 = 0x1D;
 /// Keypad or GPIO selection.
 ///  0: GPIO
 ///  1: KP matrix
-const KEYPAD_GPIO2_ADDRESS: u8 = 0x1E;
+pub const KEYPAD_GPIO2_ADDRESS: u8 = 0x1E;
 /// Keypad or GPIO selection.
 ///  0: GPIO
 ///  1: KP matrix
-const KEYPAD_GPIO3_ADDRESS: u8 = 0x1F;
+pub const KEYPAD_GPIO3_ADDRESS: u8 = 0x1F;
 /// GPI event mode 1.
-const GPI_EVENT_MODE1_ADDRESS: u8 = 0x20;
+pub const GPI_EVENT_MODE1_ADDRESS: u8 = 0x20;
 /// GPI event mode 2.
-const GPI_EVENT_MODE2_ADDRESS: u8 = 0x21;
+pub const GPI_EVENT_MODE2_ADDRESS: u8 = 0x21;
 /// GPI event mode 3.
-const GPI_EVENT_MODE3_ADDRESS: u8 = 0x22;
+pub const GPI_EVENT_MODE3_ADDRESS: u8 = 0x22;
 /// GPIO data direction.
 ///  0: input
 ///  1: output
-const GPIO_DIRECTION1_ADDRESS: u8 = 0x23;
+pub const GPIO_DIRECTION1_ADDRESS: u8 = 0x23;
 /// GPIO data direction.
 ///  0: input
 ///  1: output
-const GPIO_DIRECTION2_ADDRESS: u8 = 0x24;
+pub const GPIO_DIRECTION2_ADDRESS: u8 = 0x24;
 /// GPIO data direction.
 ///  0: input
 ///  1: output
-const GPIO_DIRECTION3_ADDRESS: u8 = 0x25;
+pub const GPIO_DIRECTION3_ADDRESS: u8 = 0x25;
 /// GPIO edge/level detect
 ///  0: falling/low
 ///  1: rising/high
-const GPIO_INTERRUPT_LEVEL1_ADDRESS: u8 = 0x26;
+pub const GPIO_INTERRUPT_LEVEL1_ADDRESS: u8 = 0x26;
 /// GPIO edge/level detect
 ///  0: falling/low
 ///  1: rising/high
-const GPIO_INTERRUPT_LEVEL2_ADDRESS: u8 = 0x27;
+pub const GPIO_INTERRUPT_LEVEL2_ADDRESS: u8 = 0x27;
 /// GPIO edge/level detect
 ///  0: falling/low
 ///  1: rising/high
-const GPIO_INTERRUPT_LEVEL3_ADDRESS: u8 = 0x28;
+pub const GPIO_INTERRUPT_LEVEL3_ADDRESS: u8 = 0x28;
 /// Debounce disable
 ///  0: debounce enabled
 ///  1: debounce disabled
-const DEBOUNCE_DISABLE1_ADDRESS: u8 = 0x29;
+pub const DEBOUNCE_DISABLE1_ADDRESS: u8 = 0x29;
 /// Debounce disable
 ///  0: debounce enabled
 ///  1: debounce disabled
-const DEBOUNCE_DISABLE2_ADDRESS: u8 = 0x2A;
+pub const DEBOUNCE_DISABLE2_ADDRESS: u8 = 0x2A;
 /// Debounce disable
 ///  0: debounce enabled
 ///  1: debounce disabled
-const DEBOUNCE_DISABLE3_ADDRESS: u8 = 0x2B;
+pub const DEBOUNCE_DISABLE3_ADDRESS: u8 = 0x2B;
 /// GPIO pull-up disable
 ///  0: pull-up enabled
 ///  1: pull-up disabled
-const GPIO_PULL_UP_DISABLE1_ADDRESS: u8 = 0x2C;
+pub const GPIO_PULL_UP_DISABLE1_ADDRESS: u8 = 0x2C;
 /// GPIO pull-up disable
 ///  0: pull-up enabled
 ///  1: pull-up disabled
-const GPIO_PULL_UP_DISABLE2_ADDRESS: u8 = 0x2D;
+pub const GPIO_PULL_UP_DISABLE2_ADDRESS: u8 = 0x2D;
 /// GPIO pull-up disable
 ///  0: pull-up enabled
 ///  1: pull-up disabled
-const GPIO_PULL_UP_DISABLE3_ADDRESS: u8 = 0x2E;
-const RESERVED2_ADDRESS: u8 = 0x2F;
+pub const GPIO_PULL_UP_DISABLE3_ADDRESS: u8 = 0x2E;
+pub const RESERVED2_ADDRESS: u8 = 0x2F;
 
 /// Mapping of the Tca8418rtwr register names to addresses.
 #[repr(u8)]
@@ -463,7 +463,7 @@ macro_rules! key_event {
                 /// pressed or released in a keypad matrix.
                 /// 
                 /// Values of 97 to 114 are for GPI events.
-                key_index: u6,
+                key_index: u7,
             }
         }
 

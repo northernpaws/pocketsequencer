@@ -1,8 +1,17 @@
 {
     "rust-analyzer.cargo.target": "thumbv7em-none-eabihf",
     "rust-analyzer.checkOnSave": false,
+    "rust-analyzer.linkedProjects": ["firmware/stm32/Cargo.toml"],
     "cmake.sourceDirectory": "${workspaceRoot}/firmware/nrf5340",
     "nrf-connect.applications": [
         "${workspaceFolder}/firmware/nrf5340"
     ],
+    "nrf-connect.boardRoots": [
+        "${workspaceFolder}/firmware/nrf5340"
+    ],
+    "files.associations": {
+        "uart_async_adapter.h": "c",
+        "log.h": "c",
+        "nrfx_log.h": "c"
+    }
 }

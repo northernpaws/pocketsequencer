@@ -29,6 +29,7 @@
             "servertype": "bmp",
             "request": "attach",
             "cwd": "${workspaceRoot}",
+            "preLaunchTask": "BMP Serial Output",
             "executable": "${workspaceRoot}/firmware/stm32/target/thumbv7em-none-eabihf/debug/app", // replace with your executable
             "interface": "swd",
             "device": "STM32H743",

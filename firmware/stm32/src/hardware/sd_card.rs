@@ -114,6 +114,7 @@ impl<'a,
                 break;
             }
 
+            // TODO: at this point, should be displaying a message indicating the lack of SD card?
             info!("Failed to initialize SD card, retrying...");
             embassy_time::Delay.delay_ns(5000u32).await;
         }

@@ -1,6 +1,9 @@
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 
+#include <zephyr/logging/log.h>
+LOG_MODULE_REGISTER(pocketsynth, LOG_LEVEL_INF);
+
 #include <uart_async_adapter.h>
 
 
@@ -8,7 +11,8 @@
 #define UART_WAIT_FOR_BUF_DELAY K_MSEC(50)
 #define UART_WAIT_FOR_RX 25 // CONFIG_BT_NUS_UART_RX_WAIT_TIME
 
-static const struct device *uart = DEVICE_DT_GET(DT_CHOSEN(nordic_nus_uart));
+// '__device_dts_ord_DT_CHOSEN_uart0_ORD' undeclared here (not in a function)
+static const struct device *uart = DEVICE_DT_GET(DT_CHOSEN(synth_uart));
 static struct k_work_delayable uart_work;
 
 struct uart_data_t {
@@ -163,6 +167,14 @@ static void uart_work_handler(struct k_work *item)
 	uart_rx_enable(uart, buf->data, sizeof(buf->data), UART_WAIT_FOR_RX);
 }
 
+static bool uart_test_async_api(const struct device *dev)
+{
+	const struct uart_driver_api *api =
+			(const struct uart_driver_api *)dev->api;
+
+	return (api->callback_set != NULL);
+}
+
 // Initialize the UART peripheral.
 static int uart_init(void)
 {
@@ -258,6 +270,16 @@ static int uart_init(void)
 	return err;
 }
 
+void error(void)
+{
+	// dk_set_leds_state(DK_ALL_LEDS_MSK, DK_NO_LEDS_MSK);
+
+	while (true) {
+		/* Spin for ever */
+		k_sleep(K_MSEC(1000));
+	}
+}
+
 int main(void)
 {
         int err = 0;
@@ -265,9 +287,10 @@ int main(void)
         LOG_INF("Initializing UART...");
 
         err = uart_init();
-	if (err) {
-		error();
-	}
+		if (err) {
+			LOG_ERR("Failed to initialize UART");
+			error();
+		}
 
         LOG_INF("UART initialized!");
 

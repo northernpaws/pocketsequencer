@@ -9,7 +9,7 @@ pub mod codec;
 use defmt::{trace, unwrap, info};
 
 use embassy_usb::driver::Driver;
-
+use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
 use core::{
     cell::RefCell,
     default::Default,
@@ -247,10 +247,15 @@ assign_resources! {
         pbout: PG3, // Current power button state
     }
 
-    led: LEDResources {
+    keypad: KeypadResources {
+        // LED
         dat: PA3,
         tim: TIM5,
         dma: DMA2_CH4,
+
+        // Matric
+        int: PB0,
+        exti: EXTI0,
     }
 
     usb_pd: USBPDResources {
@@ -299,8 +304,6 @@ assign_resources! {
 
     i2c4_interrupts: I2C4Interrupts {
         touch_int: PC3,
-        keypad_int: PB0,
-        keypad_exti: EXTI0,
         velocity_int: PG13,
         int1_9dof: PB5,
     }
@@ -328,7 +331,7 @@ pub mod preamble {
         FMCResources,
         SPIStorageResources,
         PowerResources,
-        LEDResources,
+        KeypadResources,
         FuelGaugeResources,
         USBPDResources,
         I2C1Resources,
@@ -483,9 +486,6 @@ pub fn get_uart_rf<'a>(r: UartRFResources) -> Uart<'a, mode::Async> {
     Uart::new(r.peri, r.rx_pin, r.tx_pin, Irqs, r.tx_dma, r.rx_dma, config).unwrap()
 }
 
-pub fn get_leds<'a>(r: LEDResources) {
-    
-}
 
 // TODO: need to fix NSS pin
 // pub fn get_flash_blocking<'a>(r: FlashResources) -> Ospi<'a, peripherals::QUADSPI1, mode::Blocking> {
@@ -1029,7 +1029,13 @@ pub fn get_internal_storage<'a,
     
 }
 
-pub fn get_keypad<'a> (spawner: Spawner, r: LEDResources) -> Result<Keypad<'a>, SpawnError> {
+pub async fn get_keypad<'a> (
+    spawner: Spawner,
+    r: KeypadResources,
+    i2c_bus: &'static Mutex<CriticalSectionRawMutex, embassy_stm32::i2c::I2c<'static, mode::Async, embassy_stm32::i2c::Master>>,
+) -> Result<Keypad<'a>, SpawnError> {
+    let tca8418 = get_tca8418_async(r.int, r.exti, i2c_bus);
+
     // Configure the pin to PWM
     let pwm_pin = PwmPin::new(r.dat, OutputType::PushPull);
 
@@ -1047,8 +1053,8 @@ pub fn get_keypad<'a> (spawner: Spawner, r: LEDResources) -> Result<Keypad<'a>, 
         CountingMode::EdgeAlignedUp,
     );
 
-    static NOTIFIER: KeypadNotifier = Keypad::notifier();
-    Keypad::new(&NOTIFIER, pwm, r.dma, timer::Channel::Ch4, spawner)
+    static NOTIFIER: KeypadNotifier = keypad::notifier();
+    Keypad::new(&NOTIFIER, tca8418, pwm, r.dma, timer::Channel::Ch4, spawner).await
 }
 
 /// Constructs the USB high-speed driver.

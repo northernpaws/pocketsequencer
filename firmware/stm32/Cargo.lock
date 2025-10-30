@@ -756,6 +756,7 @@ dependencies = [
  "embedded-io-async",
  "embedded-sdmmc",
  "fatfs",
+ "grounded",
  "heapless 0.9.1",
  "mbr-nostd",
  "midly",
@@ -826,6 +827,15 @@ dependencies = [
  "log",
  "rustversion",
  "windows",
+]
+
+[[package]]
+name = "grounded"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "917d82402c7eb9755fdd87d52117701dae9e413a6abb309fac2a13af693b6080"
+dependencies = [
+ "portable-atomic",
 ]
 
 [[package]]

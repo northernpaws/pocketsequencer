@@ -1,5 +1,5 @@
 
-use defmt::{unwrap, trace};
+use defmt::{unwrap, trace, info, error};
 use embassy_executor::{SpawnError, Spawner};
 use embassy_stm32::{
     peripherals::{self, DMA2_CH4}, timer::{
@@ -7,10 +7,23 @@ use embassy_stm32::{
         low_level::CountingMode,
         simple_pwm::{PwmPin, SimplePwm, SimplePwmChannel},
         GeneralInstance4Channel
-    }, Peri
+    }, Peri,
+    mode
+};
+use embassy_embedded_hal::shared_bus::asynch::{self, i2c};
+use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, signal::Signal};
+use embassy_sync::{
+    blocking_mutex::{
+        NoopMutex,
+        raw::{
+            RawMutex,
+            NoopRawMutex
+        }
+    },
+    mutex::Mutex
 };
 
-use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, signal::Signal};
+
 use rgb_led_pwm_dma_maker::{
     calc_dma_buffer_length,
     LedDataComposition,
@@ -19,7 +32,9 @@ use rgb_led_pwm_dma_maker::{
     RGB
 };
 
-const LED_COUNT: usize = 1;
+use crate::hardware::drivers::tca8418::Tca8418;
+
+
 
 // APB1 = 120MHz
 // doubled for clocks = 240MHz
@@ -70,7 +85,22 @@ static LEDS_UPDATED: Signal<CriticalSectionRawMutex, bool> = Signal::new();
 
 static LED_MAX_BRIGHTNESS: u8 = 5;
 
+const LED_COUNT: usize = 16;
+
+static LED_MATRIX: [RGB; LED_COUNT] = [
+    RED, GREEN, BLUE, RED,
+    GREEN, BLUE, RED, GREEN,
+    BLUE, RED, GREEN, BLUE,
+    RED, GREEN, BLUE, RED
+];
+static LED_DMA_BUFFER: [u16; DMA_BUFFER_LEN*2] = [0u16; DMA_BUFFER_LEN*2];
+
 pub type KeypadNotifier = Signal<CriticalSectionRawMutex, [RGB; LED_COUNT]>;
+
+#[must_use]
+pub const fn notifier() -> KeypadNotifier {
+    Signal::new()
+}
 
 pub struct Keypad<'a> {
     notifier: &'a KeypadNotifier,
@@ -78,31 +108,36 @@ pub struct Keypad<'a> {
     // percentage from 0-100
     led_max_brightness: u8,
 
-    led_matrix: [RGB; LED_COUNT],
 }
 
 impl<'a> Keypad<'a> {
 
-    #[must_use]
-    pub const fn notifier() -> KeypadNotifier {
-        Signal::new()
-    }
-
-    pub fn new (
+    pub async fn new (
         notifier: &'static KeypadNotifier,
+        mut driver: Tca8418<'static, asynch::i2c::I2cDevice<'static, CriticalSectionRawMutex, embassy_stm32::i2c::I2c<'static, mode::Async, embassy_stm32::i2c::Master>>>,
         mut led_pwm: SimplePwm<'static, peripherals::TIM5>,
         led_dma: Peri<'static, embassy_stm32::peripherals::DMA2_CH4>,
         channel: timer::Channel,
         spawner: Spawner,
     ) -> Result<Self, SpawnError> {
+        // Trigger and inital refresh when the driver starts.
+        notifier.signal([
+            RED, GREEN, BLUE, RED,
+            GREEN, BLUE, RED, GREEN,
+            BLUE, RED, GREEN, BLUE,
+            RED, GREEN, BLUE, RED]);
+
+        info!("Initializing TCA8418 driver...");
+        driver.init().await.unwrap(); // TODO : return error result
+
+        info!("Spawning keypad tasks...");
         spawner.spawn(unwrap!(leds_task(notifier, led_pwm, channel, led_dma)));
+        spawner.spawn(unwrap!(buttons_task(driver)));
 
         Ok(Self {
             notifier,
-          
-            led_max_brightness: 1,
 
-            led_matrix: [RED],
+            led_max_brightness: 1,
         })
     }
 
@@ -117,8 +152,16 @@ impl<'a> Keypad<'a> {
     // }
 }
 
-static LED_MATRIX: [RGB; LED_COUNT] = [RED];
-static LED_DMA_BUFFER: [u16; DMA_BUFFER_LEN*2] = [0u16; DMA_BUFFER_LEN*2];
+#[embassy_executor::task]
+pub async fn buttons_task(
+    mut driver: Tca8418<'static, asynch::i2c::I2cDevice<'static, CriticalSectionRawMutex, embassy_stm32::i2c::I2c<'static, mode::Async, embassy_stm32::i2c::Master>>>,
+) -> ! {
+    trace!("Starting keypad button matrix interrupt processor...");
+    loop {
+        driver.process().await;
+    }
+}
+
 
 #[embassy_executor::task]
 pub async fn leds_task(
@@ -145,6 +188,8 @@ pub async fn leds_task(
     loop {
         // Wait for an LED update before refreshing the LEDs.
         let matrix = notifier.wait().await;
+
+        trace!("LED refresh");
 
         dma_buffer.set_dma_buffer_with_brightness(&matrix, None, LED_MAX_BRIGHTNESS).unwrap();
 

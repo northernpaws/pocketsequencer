@@ -116,6 +116,7 @@ embedded-io-async = "0.6.1"
 
 # MIDI Decoding and Encoding support.
 midly = { version = "0.5.3", default-features = false }
+grounded = "0.2.0"
 
 [patch.crates-io]
 # Adds additional FMC constructors.. requires patching ALL embassy packages for compatability to work correctly.

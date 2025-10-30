@@ -137,7 +137,7 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> { // TODO: add error typ
     info!("Initializing SDRAM...");
     let mut sdram_ram = hardware::get_sdram(r.fmc);
 
-    /*
+    
     // Initialize the bus for the I2C4 peripheral.
     //
     // This communicates with the FT6206 Capacitive Touch sensor,
@@ -147,7 +147,7 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> { // TODO: add error typ
     let i2c4 = hardware::get_i2c4(r.i2c4);
     let i2c4_bus = I2C4_BUS.init(Mutex::new(i2c4));
 
-    // Next, initialize the device wrapper for the keypad decoder IC.
+    /*// Next, initialize the device wrapper for the keypad decoder IC.
     //
     // We also do this as early as possible so that we can check for keypresses
     // that modify startup, such as to toggle as debug mode, DFU update mode, etc.
@@ -265,13 +265,20 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> { // TODO: add error typ
     // Given this system frequency and pwm frequency the max duty cycle will be 300.
 
     info!("Spawning keypad LED task...");
-    let mut keypad = hardware::get_keypad(spawner, r.led).unwrap();
-    keypad.set_leds([led_color]);
+    let mut keypad = hardware::get_keypad(spawner, r.keypad, i2c4_bus).await.unwrap();
+    const RED: RGB = RGB::new(255, 0, 0);
+    const GREEN: RGB = RGB::new(0, 255, 0);
+    const BLUE: RGB = RGB::new(0, 0, 255);
+    keypad.set_leds([
+        RED, GREEN, BLUE, RED,
+        GREEN, BLUE, RED, GREEN,
+        BLUE, RED, GREEN, BLUE,
+        RED, GREEN, BLUE, RED]);
     
     info!("Starting USB device...");
     hardware::usb::start_usb(spawner, r.usb).await;
 
-    info!("Starting wireless UART peripheral...");
+    /*info!("Starting wireless UART peripheral...");
     let wireless_uart = hardware::get_uart_rf(r.uart_rf);
     let (mut wireless_tx, mut wireless_rx) = wireless_uart.split();
     
@@ -293,7 +300,7 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> { // TODO: add error typ
     };
 
     join(wireless_read, wireless_write).await;
-
+*/
     Ok(())
 }
 
