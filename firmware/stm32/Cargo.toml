@@ -47,6 +47,9 @@ opt-level = 3 # <-
 overflow-checks = false # <-
 
 [dependencies]
+
+engine = { path = "../../engine", features = ["defmt"]}
+
 # Debug logging from the firmware by defmt via an RTT channel.
 defmt = "1.0.1"
 defmt-rtt = "1.0.0"

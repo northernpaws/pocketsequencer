@@ -4,6 +4,7 @@ use defmt::{trace, warn, error, info};
 
 use embassy_stm32::exti::ExtiInput;
 
+use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, channel::{Channel, Receiver, Sender}};
 use embassy_time::Timer;
 use embedded_hal_async::i2c::SevenBitAddress;
 
@@ -11,40 +12,23 @@ use grounded::uninit::GroundedArrayCell;
 
 const DEFAULT_ADDRESS: SevenBitAddress = 0b0110100;
 
-/// Holds all the buttons on the device mapped
-/// to the TCA8418RTWR keypad decoder.
-/// 
-/// ROW4-ROW7 is configured as MENU3-MENU0
-/// 
-/// ROW0-ROW3 is configured as the matrix rows
-/// COL3 - COL3 are configured as columns 3-9 (inverted)
-pub enum Button {
-    Unknown,
+/// Struct containing the key event data from the TAC8418 FIFO.
+pub struct KeyEvent {
+    /// The index of the key that was pressed.
+    /// 
+    /// See: https://www.ti.com/lit/ds/symlink/tca8418.pdf?ts=1761759640741 (P.g. 15).
+    pub key: u8,
 
-    // Standalone buttons
-    Menu0,
-    Menu1,
-    Menu2,
-    Menu3,
-
-    // Matrix buttons
-    Trig1,
-    Trig2,
-    Trig3,
-    Trig4,
-    Trig5,
-    Trig6,
-    Trig7,
-    Trig8,
-    Trig9,
-    Trig10,
-    Trig11,
-    Trig12,
-    Trig13,
-    Trig14,
-    Trig15,
-    Trig16,
+    /// Whether the key was pressed or released.
+    pub pressed: bool
 }
+
+/// Type for emitting key events from the TAC8418 driver.
+/// 
+/// N is double the TAC8418 FIFO queue size of 10 to ensure we have
+/// enough time to process events without causing an FIFO overflow.
+pub type KeyChannel = Channel<CriticalSectionRawMutex, KeyEvent, 20>;
+pub type KeyChannelReceiver<'a> = Receiver<'a, CriticalSectionRawMutex, KeyEvent, 20>;
 
 // see: https://github.com/embassy-rs/embassy/blob/abcb6e607c4f13bf99c406fbb92480c32ebd0d4a/docs/pages/faq.adoc#stm32-bdma-only-working-out-of-some-ram-regions
 // Defined in memory.x
@@ -55,14 +39,18 @@ pub struct Tca8418<'a, I2C: embedded_hal_async::i2c::I2c> {
     // Exti-bound input pin for the keypad interrupt signal.
     _int: ExtiInput<'a>,
 
-    /// I2C device on the bus.
+    /// I2C bus device handle to use for the TAC8418.
     device: I2C,
 
     write_buf: &'a mut [u8], //[u8; 2],
     write_read_buf: &'a mut [u8], // [u8; 1],
     read_buf: &'a mut [u8], // [u8; 1],
 
+    /// I2C device address.
     address: SevenBitAddress,
+
+    /// Channel for emitting keypress events.
+    channel: &'a KeyChannel
 }
 
 impl<'a, I2C: embedded_hal_async::i2c::I2c> Tca8418<'a, I2C> {
@@ -70,9 +58,13 @@ impl<'a, I2C: embedded_hal_async::i2c::I2c> Tca8418<'a, I2C> {
     pub fn new (
         int: ExtiInput<'a>,
         device: I2C,
+        channel: &'static KeyChannel,
     ) -> Self {
         // The I2C4 peripherial on STM32H7 requires the BDMA, and in
         // turn the BDMA can only access data in the D3 section of RAM.
+        //
+        // TODO: Move this outside the driver struct for portability.
+        //  Instead, pass the buffer references into the constructor.
         let (write_buf, write_read_buf, read_buf) = unsafe {
             let ram = &mut *core::ptr::addr_of_mut!(RAM_D3_BUF);
             ram.initialize_all_copied(0);
@@ -86,6 +78,7 @@ impl<'a, I2C: embedded_hal_async::i2c::I2c> Tca8418<'a, I2C> {
         Self{
             _int: int,
             device,
+            channel,
             address: DEFAULT_ADDRESS,
             write_buf,
             write_read_buf,
@@ -93,53 +86,14 @@ impl<'a, I2C: embedded_hal_async::i2c::I2c> Tca8418<'a, I2C> {
         }
     }
 
+    /// Get a receiver handle for the key event channel.
+    pub fn receiver(&mut self) -> KeyChannelReceiver<'a> {
+        self.channel.receiver()
+    }
+
     /// Initializes the TCA8418 with the
     /// register configurations for the device.
-    ///
-    /// ROW4-ROW7 is configured as MENU3-MENU0 with pull-ups.
-    /// 
-    /// ROW0-ROW3 is configured as the matrix rows.
-    /// COL0 - COL3 are configured as columns 3-9 (inverted).
     pub async fn init (&mut self) -> Result<(), I2C::Error> {
-        trace!("configuring TCA8418");
-
-        // Test that we're able to read back the value to make sure we're able to talk to the device.
-        let initial_config: register::Configuration = self.read_register().await?;
-        trace!("initial configuration: {:08b}", initial_config.raw());
-
-        let configuration_register = register::Configuration::new(
-            false, // auto increment for read-write operations
-            false, // GPI evens tracked when keypad locked
-            true, // overflow data shifts with last event pushing first event out
-            true, //  processor interrupt is deasserted for 50 μs and reassert with pending interrupts
-            true, // assert INT on overflow
-            false, // don't assert interrupt after keypad unlock
-            false, // assert INT for GPI events // TODO: change
-            true, // assert INT for keypad events
-        );
-        self.write_register(configuration_register).await?;
-        
-        // Test that we're able to read back the value to make sure we're able to talk to the device.
-        let actual_config: register::Configuration = self.read_register().await?;
-        assert!(configuration_register == actual_config, "Failed to set configuration register!");
-
-        self.write_register_byte(register::GPIO_INTERRUPT_ENABLE1_ADDRESS, 0x00).await?;
-        self.write_register_byte(register::GPIO_INTERRUPT_ENABLE2_ADDRESS, 0x00).await?;
-        self.write_register_byte(register::GPIO_INTERRUPT_ENABLE3_ADDRESS, 0x00).await?;
-
-        // self.write_register_byte(register::DEBOUNCE_DISABLE1_ADDRESS, 0b00001111).await?;
-        // self.write_register_byte(register::DEBOUNCE_DISABLE2_ADDRESS, 0b00001111).await?;
-        // self.write_register_byte(register::DEBOUNCE_DISABLE3_ADDRESS, 0x00000000).await?;
-
-        // Enable FIFO for the MENU GPIO buttons.
-        self.write_register_byte(register::GPI_EVENT_MODE1_ADDRESS, 0b11110000).await?;
-
-        // Enable rows 0-3
-        self.write_register_byte(register::KEYPAD_GPIO1_ADDRESS, 0b00001111).await?;
-        // Enable colums 0-3
-        self.write_register_byte(register::KEYPAD_GPIO2_ADDRESS, 0b00001111).await?;
-        self.write_register_byte(register::KEYPAD_GPIO3_ADDRESS, 0b00000000).await?;
-
         // "Once the TCA8418 has had the keypad array configured, it will enter idle mode when no keys are being pressed.
         // All columns configured as part of the keypad array will be driven low and all rows configured as part of the
         // keypad array will be set to inputs, with pull-up resistors enabled. During idle mode, the internal oscillator is turned
@@ -148,6 +102,7 @@ impl<'a, I2C: embedded_hal_async::i2c::I2c> Tca8418<'a, I2C> {
         Ok(())
     }
 
+    /// Reads the head of the FIFO queue in a loop until the FIFO is cleared.
     pub async fn process_keypad(&mut self) -> Result<(), I2C::Error> {
         loop {
             // The KEY_EVENT_A (0x04) is the head of the FIFO stack.
@@ -182,60 +137,33 @@ impl<'a, I2C: embedded_hal_async::i2c::I2c> Tca8418<'a, I2C> {
 
             trace!("key {} pressed: {}", defmt::Display2Format(&key_index), key_pressed);
 
-            // Match the key event table index to it's corresponding matrix cell or GPI input.
-            // https://www.ti.com/lit/ds/symlink/tca8418.pdf?ts=1754456323928 (p.g. 15)
-            let button: Button = match key_index {
-                4 => Button::Trig1,
-                3 => Button::Trig2,
-                2 => Button::Trig3,
-                1 => Button::Trig4,
-                14 => Button::Trig5,
-                13 => Button::Trig6,
-                12 => Button::Trig7,
-                11 => Button::Trig8,
-                24 => Button::Trig9,
-                23 => Button::Trig10,
-                22 => Button::Trig11,
-                21 => Button::Trig12,
-                34 => Button::Trig13,
-                33 => Button::Trig14,
-                32 => Button::Trig15,
-                31 => Button::Trig16,
-
-                // GPIs are represented with decimal value of 97 and run through decimal value of 114.
-                // R0-R7 are represented by 97-104 and C0-C9 are represented by 105-114.
-                //
-                // R0 R1 R2 R3  R4  R5  R6  R7
-                // 97 98 99 100 101 102 103 104
-                101 => Button::Menu3,
-                102 => Button::Menu2,
-                103 => Button::Menu1,
-                104 => Button::Menu0,
-
-                _ => Button::Unknown,  
-            };
-
-            // TODO: emit some sort of button event
+            // NOTE: We use `try_send` to imeddiatly try to push
+            // to the channel to prevent backing up the FIFO.
+            //
+            // This may need to be revised later to use a timeout.
+            match self.channel.try_send(KeyEvent {
+                key: key_index,
+                pressed: key_pressed
+            }) {
+                Ok(_) => {},
+                Err(_) => {
+                    error!("Failed to add keypress event to channel, is the channel full?")
+                },
+            }
 
             Timer::after_millis(100).await;
         }
     }
 
-    /// Wait for the next interrupt and process it.
+    /// Reacts to the interrupt line to process interrupt related events
     pub async fn process(&mut self) -> Result<(), I2C::Error> {
-        trace!("waiting for keypress interrupt");
-
         // INT is active-low.
         //
         // We need to handle the interrupt to clear the FIFO
         // if it was triggered before we started listening.
-        if self._int.is_low() {
-            trace!("interrupt line already low, processing...");
-        } else {
+        if !self._int.is_low() {
             self._int.wait_for_falling_edge().await;
         }
-
-        trace!("received interrupt!");
         
         // When the interrupt is triggered, we need to read
         // the interrupt status table to see what it was.

@@ -9,7 +9,7 @@ pub mod codec;
 use defmt::{trace, unwrap, info};
 
 use embassy_usb::driver::Driver;
-use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
+use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, channel::Channel};
 use core::{
     cell::RefCell,
     default::Default,
@@ -94,9 +94,9 @@ use static_cell::StaticCell;
 use crate::hardware::{
     drivers::{
         bq27531_g1::Bq27531,
-        fusb302b::Fusb302b
+        fusb302b::Fusb302b, tca8418::{self, Tca8418}
     },
-    keypad::{Keypad, KeypadNotifier}, sd_card::InitError, drivers::tca8418::Tca8418};
+    keypad::{ButtonChannel, Keypad, KeypadNotifier}, sd_card::InitError};
 use crate::hardware::drivers::stm6601::Stm6601;
 
 assign_resources! {
@@ -912,7 +912,8 @@ pub fn get_tca8418_async<'a,
     // let device = asynch::i2c::I2cDeviceWithConfig::new(i2c_bus, config);
     let device = asynch::i2c::I2cDevice::new(i2c_bus);
 
-    Tca8418::new(int, device)
+    static DRIVER_CH: tca8418::KeyChannel = Channel::new();
+    Tca8418::new(int, device, &DRIVER_CH)
 }
 
 /// Create the SPI1 peripheral interface for interacting
@@ -1033,7 +1034,8 @@ pub async fn get_keypad<'a> (
     spawner: Spawner,
     r: KeypadResources,
     i2c_bus: &'static Mutex<CriticalSectionRawMutex, embassy_stm32::i2c::I2c<'static, mode::Async, embassy_stm32::i2c::Master>>,
-) -> Result<Keypad<'a>, SpawnError> {
+) -> Result<Keypad<'a>, keypad::InitError> {
+    
     let tca8418 = get_tca8418_async(r.int, r.exti, i2c_bus);
 
     // Configure the pin to PWM
@@ -1053,8 +1055,18 @@ pub async fn get_keypad<'a> (
         CountingMode::EdgeAlignedUp,
     );
 
-    static NOTIFIER: KeypadNotifier = keypad::notifier();
-    Keypad::new(&NOTIFIER, tca8418, pwm, r.dma, timer::Channel::Ch4, spawner).await
+    static NOTIFIER: keypad::KeypadNotifier = keypad::notifier();
+    static BUTTON_CH: keypad::ButtonChannel = keypad::channel();
+    
+    Keypad::new(
+        &NOTIFIER, 
+        &BUTTON_CH, 
+        tca8418, 
+        pwm, 
+        r.dma, 
+        timer::Channel::Ch4,
+        spawner
+    ).await
 }
 
 /// Constructs the USB high-speed driver.

@@ -33,7 +33,7 @@
             "executable": "${workspaceRoot}/firmware/stm32/target/thumbv7em-none-eabihf/debug/app", // replace with your executable
             "interface": "swd",
             "device": "STM32H743",
-            "BMPGDBSerialPort": "/dev/tty.usbmodemBEEF9ADE1", // Use whatever serial port makes sense for your OS and BMP setup
+            "BMPGDBSerialPort": "/dev/cu.usbmodemBEEF9ADE1", // Use whatever serial port makes sense for your OS and BMP setup
             "runToEntryPoint": "main",
             "showDevDebugOutput": "raw"
         },
@@ -47,7 +47,7 @@
             "preLaunchTask": "BMP Launch", // using stm32-for-vscode extension, this is the build task
             "interface": "swd",
             "device": "STM32H743",
-            "BMPGDBSerialPort": "/dev/tty.usbmodemBEEF9ADE1", // Use whatever serial port makes sense for your OS and BMP setup
+            "BMPGDBSerialPort": "/dev/cu.usbmodemBEEF9ADE1", // Use whatever serial port makes sense for your OS and BMP setup
             "runToEntryPoint": "main", // runToMain is deprecated.
             "showDevDebugOutput": "raw",
             // "postLaunchCommands": [

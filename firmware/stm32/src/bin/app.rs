@@ -49,9 +49,11 @@ use {
 
 use firmware::{
     hardware::{
-        self, keypad::Keypad, preamble::*, Irqs
+        self, Irqs, keypad::{self, Keypad}, preamble::*
     }, split_resources
 };
+
+use engine;
 
 // Audio I2C bus.
 //
@@ -134,10 +136,6 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> { // TODO: add error typ
     println!("APB2  clock speed: {}", clocks.pclk2);
     println!("APB2 Timer clock speed: {}", clocks.pclk2_tim);
 
-    info!("Initializing SDRAM...");
-    let mut sdram_ram = hardware::get_sdram(r.fmc);
-
-    
     // Initialize the bus for the I2C4 peripheral.
     //
     // This communicates with the FT6206 Capacitive Touch sensor,
@@ -147,21 +145,15 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> { // TODO: add error typ
     let i2c4 = hardware::get_i2c4(r.i2c4);
     let i2c4_bus = I2C4_BUS.init(Mutex::new(i2c4));
 
-    /*// Next, initialize the device wrapper for the keypad decoder IC.
-    //
-    // We also do this as early as possible so that we can check for keypresses
-    // that modify startup, such as to toggle as debug mode, DFU update mode, etc.
-    info!("Initializing TCA8418 keypad decoder...");
-    let mut keypad = hardware::get_tca8418_async(
-        r.i2c4_interrupts.keypad_int,
-        r.i2c4_interrupts.keypad_exti,
-        i2c4_bus);
-    // Then, immediately configure the registers for the keypad so that
-    // we can start processing keypress events as soon as possible.
-    info!("Initializing TCA8418 registers...");
-    keypad.init().await.unwrap(); // TODO: change to result errror
+    // Initialize the keypad fairly early so that we can
+    // use the keypad LEDs as status indicators.
+    info!("Initializing keypad...");
+    let mut keypad = hardware::get_keypad(spawner, r.keypad, i2c4_bus).await.unwrap();
 
-    info!("TCA8418 initialized!");*/
+    info!("Initializing SDRAM...");
+    keypad.set_led(keypad::Led::Trig1, RGB::new(255, 0, 0));
+    let mut sdram_ram = hardware::get_sdram(r.fmc);
+    keypad.set_led(keypad::Led::Trig1, RGB::new(0, 255, 0));
 
     let mut led_color: RGB = RGB::new(255, 255, 0);
 
@@ -169,6 +161,7 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> { // TODO: add error typ
     //
     // This communicates with the internal storage and Micro SD card.
     info!("initializing storage SPI1 bus");
+    keypad.set_led(keypad::Led::Trig2, RGB::new(255, 0, 0));
     let (
         spi1,
         sd_cs,
@@ -177,6 +170,7 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> { // TODO: add error typ
 
     // Convert the SPI1 peripheral handle into a bus handle that can be consumed by multiple devices.
     let spi_bus = SPI_BUS.init(Mutex::new(spi1));
+    keypad.set_led(keypad::Led::Trig2, RGB::new(0, 255, 0));
 
     // Initialize the internal and SD card storage next.
     //
@@ -200,7 +194,9 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> { // TODO: add error typ
     }
     
     info!("Constructing SD card device..");
+    keypad.set_led(keypad::Led::Trig3, RGB::new(255, 0, 0));
     let mut sd_card = hardware::get_sdcard_async2(spi_bus, sd_cs, embassy_time::Delay).await.unwrap();
+    keypad.set_led(keypad::Led::Trig3, RGB::new(0, 255, 0));
 
     // sd_card.list_filesystem().await.unwrap();
     
@@ -209,7 +205,9 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> { // TODO: add error typ
     // The device internal storage uses an XTSDG IC
     // that acts as a soldered SD card.
     info!("Constructing internal storage device...");
+    keypad.set_led(keypad::Led::Trig4, RGB::new(255, 0, 0));
     let mut internal_storage = hardware::get_internal_storage(spi_bus, xtsdg_cs, embassy_time::Delay);
+    keypad.set_led(keypad::Led::Trig4, RGB::new(0, 255, 0));
 
 /*
     // Next initialize the bus for the I2C2 peripheral that
@@ -242,8 +240,6 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> { // TODO: add error typ
     // Get a handle to the FUSB302B device for managing the USB-PD interface.
     let mut fusb302b = hardware::get_fusb302b_async(r.usb_pd.int, r.usb_pd.int_exti, i2c2_bus);
 
-    
-
     // Initialize the bus for the I2C1 peripheral.
     //
     // This communicates with the NAU88C22YG Audio Codec,
@@ -251,32 +247,16 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> { // TODO: add error typ
     info!("initializing audio i2c1 bus");
     let _i2c1_bus = I2C1_BUS.init(hardware::get_i2c1(r.i2c1));
 */
-
-    info!("Initializing keypad...");
-    // let mut keypad = KEYPAD.init(hardware::get_keypad(r.led));
-    // keypad.init();
-    // keypad.set_led(0, led_color);
-    
-    // Update the keypad with the new colors,
-    // keypad.refresh_leds().await;
-
-    // Obtain a PWM handler, configure the Timer and Frequency.
-    // The prescaler and ARR are automatically set.
-    // Given this system frequency and pwm frequency the max duty cycle will be 300.
-
-    info!("Spawning keypad LED task...");
-    let mut keypad = hardware::get_keypad(spawner, r.keypad, i2c4_bus).await.unwrap();
-    const RED: RGB = RGB::new(255, 0, 0);
-    const GREEN: RGB = RGB::new(0, 255, 0);
-    const BLUE: RGB = RGB::new(0, 0, 255);
-    keypad.set_leds([
-        RED, GREEN, BLUE, RED,
-        GREEN, BLUE, RED, GREEN,
-        BLUE, RED, GREEN, BLUE,
-        RED, GREEN, BLUE, RED]);
     
     info!("Starting USB device...");
     hardware::usb::start_usb(spawner, r.usb).await;
+
+    info!("Initializing engine..");
+    let mut engine_instance = engine::Engine::new(
+        keypad,
+    );
+
+    engine_instance.start().await;
 
     /*info!("Starting wireless UART peripheral...");
     let wireless_uart = hardware::get_uart_rf(r.uart_rf);
