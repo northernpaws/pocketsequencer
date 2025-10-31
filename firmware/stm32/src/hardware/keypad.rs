@@ -402,20 +402,33 @@ pub async fn leds_task(
     // led_channel: SimplePwmChannel<'a, TIM>,
     mut led_dma: Peri<'static, embassy_stm32::peripherals::DMA2_CH4>,
 ) -> ! {
+    // Enable the timer channel for the PWM pin.
+    led_pwm.channel(channel).enable();
+
     let led_max_duty = led_pwm.channel(channel).max_duty_cycle();
     trace!("LED Max Duty Cycle: {}", led_max_duty);
 
-    // TODO: calculate t0h and t1h here?
+    // t1h = T1H / data_transfer_time * max_duty_cycle = 0.6us / 1.25us * 300 = 144
+    // const T1H: u16 = 144; // 144;
+    // // t0h = T0H / data_transfer_time * max_duty_cycle = 0.3us / 1.25us * 300 = 72
+    // const T0H: u16 = 72; // 72;
 
-    // Enable the timer channel for the PWM pin.
-    led_pwm.channel(channel).enable();
+    // t1h = T1H / data_transfer_time * max_duty_cycle = 0.6us / 1.25us * 300 = 144
+    const T1H: f32 = 0.6; // 144;
+    // t0h = T0H / data_transfer_time * max_duty_cycle = 0.3us / 1.25us * 300 = 72
+    const T0H: f32 = 0.3; // 72;
+
+    const DATA_TRANSFER_TIME: f32 = 1.25;
+
+    let t1h: u16 = (T1H / DATA_TRANSFER_TIME * (led_max_duty) as f32) as u16;
+    let t0h: u16 = (T0H / DATA_TRANSFER_TIME * (led_max_duty) as f32) as u16;
 
     // Create a DMA buffer for the led strip.
     //
     // From datasheet, data structure of 24 bit data is green -> red -> blue, so use LedDataComposition::GRB
     //
     // T1H and T0H define the PWM duty cycle width for a 1 and 0 respectively.
-    let mut dma_buffer = LedDmaBuffer::<DMA_BUFFER_LEN>::new(T1H, T0H, LedDataComposition::GRB);
+    let mut dma_buffer = LedDmaBuffer::<DMA_BUFFER_LEN>::new(t1h, t0h, LedDataComposition::GRB);
     
     // ref: https://github.com/embassy-rs/embassy/issues/4788
     let mut u32_dma_buffer: [u16; DMA_BUFFER_LEN*2] = [0u16; DMA_BUFFER_LEN*2];
