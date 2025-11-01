@@ -87,7 +87,7 @@ embedded-graphics = { version = "0.8.1", features = ["defmt"] }
 embedded-graphics-core = "0.4.0"
 
 # Provides MIPI over parallel command set for display.
-mipidsi = { version = "0.9.0" }
+mipidsi = { version = "0.9.0", features = ["defmt"] }
 embassy-sync = "0.7.2"
 static_cell = "2.1.1"
 embedded-sdmmc = "0.9.0"
@@ -120,6 +120,9 @@ embedded-io-async = "0.6.1"
 # MIDI Decoding and Encoding support.
 midly = { version = "0.5.3", default-features = false }
 grounded = "0.2.0"
+ili9341 = "0.6.0"
+display-interface-parallel-gpio = "0.7.0"
+lcd-async = "0.1.1"
 
 [patch.crates-io]
 # Adds additional FMC constructors.. requires patching ALL embassy packages for compatability to work correctly.
@@ -135,3 +138,6 @@ embedded-fatfs = { git = 'https://github.com/northernpaws/embedded-fatfs', branc
 sdspi = { git = 'https://github.com/northernpaws/embedded-fatfs', branch = 'master'}
 block-device-adapters = { git = 'https://github.com/northernpaws/embedded-fatfs', branch = 'master'}
 fatfs = { git = 'https://github.com/rafalh/rust-fatfs', branch = 'master'}
+
+mipidsi =  { path = "/Users/keith/Projects/mipidsi"} #{ git = "https://github.com/northernpaws/mipidsi", branch = "master" }
+# mipidsi = { git = "https://github.com/almindor/mipidsi", branch = "master" }

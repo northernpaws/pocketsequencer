@@ -343,6 +343,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "display-interface"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7ba2aab1ef3793e6f7804162debb5ac5edb93b3d650fbcc5aeb72fcd0e6c03a0"
+
+[[package]]
+name = "display-interface-parallel-gpio"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fbb812553b582e8afad641e19717ec3bbb46f91b4464c2634b4ccbb2d6e563ea"
+dependencies = [
+ "display-interface",
+ "embedded-hal 1.0.0",
+]
+
+[[package]]
 name = "document-features"
 version = "0.2.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -625,6 +641,9 @@ name = "embedded-hal"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "361a90feb7004eca4019fb28352a9465666b24f840f5c3cddf0ff13920590b89"
+dependencies = [
+ "defmt 0.3.100",
+]
 
 [[package]]
 name = "embedded-hal-async"
@@ -747,6 +766,7 @@ dependencies = [
  "defmt 1.0.1",
  "defmt-rtt",
  "defmt-serial",
+ "display-interface-parallel-gpio",
  "embassy-embedded-hal",
  "embassy-executor",
  "embassy-futures",
@@ -766,6 +786,8 @@ dependencies = [
  "fatfs",
  "grounded",
  "heapless 0.9.1",
+ "ili9341",
+ "lcd-async",
  "mbr-nostd",
  "midly",
  "mipidsi",
@@ -891,10 +913,33 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b9e0384b61958566e926dc50660321d12159025e767c18e043daf26b70104c39"
 
 [[package]]
+name = "ili9341"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cc105605dba076630f5a1a22ba80bcff216af2619859f1595e9ddd72b89db30a"
+dependencies = [
+ "display-interface",
+ "embedded-graphics-core",
+ "embedded-hal 1.0.0",
+]
+
+[[package]]
 name = "lazy_static"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
+
+[[package]]
+name = "lcd-async"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "362f088c5c176ceedd4d0e817d17ae3b79480495deac605158a7cd86450450c5"
+dependencies = [
+ "embedded-graphics",
+ "embedded-graphics-core",
+ "embedded-hal 1.0.0",
+ "embedded-hal-async",
+]
 
 [[package]]
 name = "libc"
@@ -966,13 +1011,11 @@ checksum = "207d755f4cb882d20c4da58d707ca9130a0c9bc5061f657a4f299b8e36362b7a"
 [[package]]
 name = "mipidsi"
 version = "0.9.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9ba34dcbf61182ffa6992b5a4d9b566d5a99df127fd93f6d314213347329e92f"
 dependencies = [
+ "defmt 1.0.1",
  "embedded-graphics-core",
  "embedded-hal 1.0.0",
  "heapless 0.8.0",
- "nb 1.1.0",
 ]
 
 [[package]]

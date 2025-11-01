@@ -44,3 +44,7 @@
   - Should have a 3v3 power light
   - Somehow connect vref from the BMP port to the power button on confirmation
   - Should add flow control pins to RF UART "H:4 HCI transport protocol (requires HW flow control from the UART)".
+  - Touch screen connector is inverted...
+  - LED footprint needs longer pads with some overhang
+  - Dispaly connector needs slightly longer pads
+  - Display mode pins are backwards...

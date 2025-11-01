@@ -29,9 +29,13 @@ use embassy_sync::{
 use embassy_time::{with_timeout, Duration, Ticker, Timer};
 use embassy_usb::{class::{cdc_acm::{CdcAcmClass, State}, midi::MidiClass}, driver::EndpointError, Builder};
 use embedded_fatfs::{format_volume, FormatVolumeOptions, FsOptions};
+use embedded_graphics::pixelcolor::Rgb565;
+use embedded_graphics::Drawable;
 use embedded_hal_async::delay::DelayNs;
 
 use heapless::format;
+use ili9341::ModeState;
+use mipidsi::TestImage;
 use rgb_led_pwm_dma_maker::{calc_dma_buffer_length, LedDataComposition, LedDmaBuffer, RgbLedColor, RGB};
 use sdio_host::{common_cmd::{select_card, set_block_length}, sd::BlockSize};
 use sdspi::{
@@ -39,6 +43,9 @@ use sdspi::{
 };
 use block_device_adapters::BufStream;
 use block_device_adapters::BufStreamError;
+
+use embedded_graphics_core::draw_target::DrawTarget;
+ use embedded_graphics::prelude::RgbColor;
 
 use static_cell::StaticCell;
 
@@ -150,17 +157,15 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> { // TODO: add error typ
     info!("Initializing keypad...");
     let mut keypad = hardware::get_keypad(spawner, r.keypad, i2c4_bus).await.unwrap();
 
-    info!("Initializing SDRAM...");
-    keypad.set_led(keypad::Led::Trig1, RGB::new(255, 0, 0));
-    let mut sdram_ram = hardware::get_sdram(r.fmc);
-    keypad.set_led(keypad::Led::Trig1, RGB::new(0, 255, 0));
-
-    let mut led_color: RGB = RGB::new(255, 255, 0);
+    // info!("Initializing SDRAM...");
+    // keypad.set_led(keypad::Led::Trig1, RGB::new(255, 0, 0));
+    // let mut sdram_ram = hardware::get_sdram(r.fmc);
+    // keypad.set_led(keypad::Led::Trig1, RGB::new(0, 255, 0));
 
     // Initialize the bus for the SPI1 peripheral.
     //
     // This communicates with the internal storage and Micro SD card.
-    info!("initializing storage SPI1 bus");
+    /*info!("initializing storage SPI1 bus");
     keypad.set_led(keypad::Led::Trig2, RGB::new(255, 0, 0));
     let (
         spi1,
@@ -186,7 +191,6 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> { // TODO: add error typ
         match sd_init(spi_bus.get_mut(), &mut xtsdg_cs).await {
             Ok(_) => break,
             Err(_e) => {
-                led_color = RGB::new(255, 0, 0);
                 defmt::panic!("internal storage init error!"); // TODO: log the error
                 embassy_time::Timer::after_millis(10).await;
             }
@@ -196,7 +200,7 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> { // TODO: add error typ
     info!("Constructing SD card device..");
     keypad.set_led(keypad::Led::Trig3, RGB::new(255, 0, 0));
     let mut sd_card = hardware::get_sdcard_async2(spi_bus, sd_cs, embassy_time::Delay).await.unwrap();
-    keypad.set_led(keypad::Led::Trig3, RGB::new(0, 255, 0));
+    keypad.set_led(keypad::Led::Trig3, RGB::new(0, 255, 0));*/
 
     // sd_card.list_filesystem().await.unwrap();
     
@@ -204,10 +208,10 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> { // TODO: add error typ
     //
     // The device internal storage uses an XTSDG IC
     // that acts as a soldered SD card.
-    info!("Constructing internal storage device...");
+    /*info!("Constructing internal storage device...");
     keypad.set_led(keypad::Led::Trig4, RGB::new(255, 0, 0));
     let mut internal_storage = hardware::get_internal_storage(spi_bus, xtsdg_cs, embassy_time::Delay);
-    keypad.set_led(keypad::Led::Trig4, RGB::new(0, 255, 0));
+    keypad.set_led(keypad::Led::Trig4, RGB::new(0, 255, 0));*/
 
 /*
     // Next initialize the bus for the I2C2 peripheral that
@@ -248,8 +252,46 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> { // TODO: add error typ
     let _i2c1_bus = I2C1_BUS.init(hardware::get_i2c1(r.i2c1));
 */
     
-    info!("Starting USB device...");
-    hardware::usb::start_usb(spawner, r.usb).await;
+    // info!("Starting USB device...");
+    // hardware::usb::start_usb(spawner, r.usb).await;
+
+    keypad.set_led(keypad::Led::Trig1, RGB::new(255, 0, 0));
+    info!("Configuring display peripheral...");
+    let (
+        mut backlight_pwm,
+        mut display
+    // ) = hardware::get_display2(r.fmc, r.display, embassy_time::Delay);
+    ) = hardware::get_display(r.fmc, r.display, embassy_time::Delay);
+
+    keypad.set_led(keypad::Led::Trig1, RGB::new(0, 255, 0));
+
+    info!("Setting backlight to 100%");
+    let mut backlight_pwm_channel: timer::simple_pwm::SimplePwmChannel<'_, peripherals::TIM3> = backlight_pwm.ch4();
+    backlight_pwm_channel.enable();
+    backlight_pwm_channel.set_duty_cycle_fully_on();
+
+    info!("Clearing the display with red..");
+    display.clear(Rgb565::RED).unwrap();
+
+    // let test_image = TestImage::new();
+    loop {
+        keypad.set_led(keypad::Led::Trig16, RGB::new(255, 0, 0));
+        display.clear(Rgb565::RED).unwrap();
+        Timer::after_millis(500).await;
+        keypad.set_led(keypad::Led::Trig16, RGB::new(0, 255, 0));
+        display.clear(Rgb565::GREEN).unwrap();
+        Timer::after_millis(500).await;
+        keypad.set_led(keypad::Led::Trig16, RGB::new(0, 0, 255));
+        display.clear(Rgb565::BLUE).unwrap();
+        Timer::after_millis(500).await;
+        keypad.set_led(keypad::Led::Trig16, RGB::new(255, 255, 255));
+        display.clear(Rgb565::WHITE).unwrap();
+        Timer::after_millis(500).await;
+
+        // keypad.set_led(keypad::Led::Trig16, RGB::new(255, 255, 255));
+        // test_image.draw(&mut display).unwrap();
+        // Timer::after_millis(500).await;
+    }
 
     info!("Initializing engine..");
     let mut engine_instance = engine::Engine::new(
