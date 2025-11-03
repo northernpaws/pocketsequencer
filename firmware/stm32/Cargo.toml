@@ -70,7 +70,7 @@ cortex-m-rt = "0.7.0"
 embedded-hal = "1.0.0"
 
 # Embassy HAL
-embassy-stm32 = { version = "0.4.0", features = ["defmt", "stm32h743zi", "time-driver-tim2", "exti", "memory-x", "unstable-pac", "chrono"] }
+embassy-stm32 = { version = "0.4.0", features = ["defmt", "stm32h743zi", "time-driver-tim2", "exti", "memory-x", "chrono"] } # "unstable-pac"
 embassy-embedded-hal = { version = "0.5.0" }
 embassy-executor = { version = "0.9.0", features = ["arch-cortex-m", "executor-thread", "executor-interrupt", "defmt"] }
 embassy-time = { version = "0.5.0", features = ["defmt", "defmt-timestamp-uptime", "tick-hz-32_768"] }
@@ -123,16 +123,17 @@ grounded = "0.2.0"
 ili9341 = "0.6.0"
 display-interface-parallel-gpio = "0.7.0"
 lcd-async = "0.1.1"
+stm32-metapac = { git = "https://github.com/embassy-rs/stm32-data-generated", tag = "stm32-data-b9f6b0c542d85ee695d71c35ced195e0cef51ac0", features = ["pac", "metadata", "stm32h743zi", "defmt"]  } # { version = "18.0.0", features = ["pac", "metadata", "stm32h743zi", "defmt"] }
 
 [patch.crates-io]
 # Adds additional FMC constructors.. requires patching ALL embassy packages for compatability to work correctly.
-embassy-stm32 = { git = 'https://github.com/northernpaws/embassy', branch = "main" }
-embassy-embedded-hal = { git = 'https://github.com/northernpaws/embassy', branch = "main" }
-embassy-executor = { git = 'https://github.com/northernpaws/embassy', branch = "main" }
-embassy-time = { git = 'https://github.com/northernpaws/embassy', branch = "main" }
-embassy-futures = { git = 'https://github.com/northernpaws/embassy', branch = "main" }
-embassy-usb = { git = 'https://github.com/northernpaws/embassy', branch = "main" }
-embassy-sync = { git = 'https://github.com/northernpaws/embassy', branch = "main" }
+embassy-stm32 = { git = 'https://github.com/northernpaws/embassy', branch = "devel" }
+embassy-embedded-hal = { git = 'https://github.com/northernpaws/embassy', branch = "devel" }
+embassy-executor = { git = 'https://github.com/northernpaws/embassy', branch = "devel" }
+embassy-time = { git = 'https://github.com/northernpaws/embassy', branch = "devel" }
+embassy-futures = { git = 'https://github.com/northernpaws/embassy', branch = "devel" }
+embassy-usb = { git = 'https://github.com/northernpaws/embassy', branch = "devel" }
+embassy-sync = { git = 'https://github.com/northernpaws/embassy', branch = "devel" }
 
 embedded-fatfs = { git = 'https://github.com/northernpaws/embedded-fatfs', branch = 'master'}
 sdspi = { git = 'https://github.com/northernpaws/embedded-fatfs', branch = 'master'}

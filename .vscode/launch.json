@@ -35,7 +35,9 @@
             "device": "STM32H743",
             "BMPGDBSerialPort": "/dev/cu.usbmodemBEEF9ADE1", // Use whatever serial port makes sense for your OS and BMP setup
             "runToEntryPoint": "main",
-            "showDevDebugOutput": "raw"
+            "showDevDebugOutput": "raw",
+            "svdPath": "${command:device-manager.getDevicePack}",
+            "deviceName": "${command:device-manager.getDeviceName}"
         },
         {
             "name": "BMP Debug",
@@ -50,6 +52,9 @@
             "BMPGDBSerialPort": "/dev/cu.usbmodemBEEF9ADE1", // Use whatever serial port makes sense for your OS and BMP setup
             "runToEntryPoint": "main", // runToMain is deprecated.
             "showDevDebugOutput": "raw",
+            // "svdPath": "${command:device-manager.getDevicePack}", // Keil::STM32H7xx_DFP@4.1.3
+            // "deviceName": "${command:device-manager.getDeviceName}", // stm32h743zitx
+            "deviceName": "STM32H743ZI", // uses https://marketplace.visualstudio.com/items?itemName=jeandudey.cortex-debug-dp-stm32h7
             // "postLaunchCommands": [
             //     "monitor rtt",
             //     "monitor rtt status"

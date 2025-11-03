@@ -4,8 +4,6 @@ use bit_struct::*;
 
 // https://www.ti.com/lit/ug/sluua96a/sluua96a.pdf?ts=1761223531200
 
-use embassy_stm32::pac::spi::vals::Comm;
-
 /// The command codes in the documentation are fairly
 /// confusing, showing 2 codes for most commands.
 /// 

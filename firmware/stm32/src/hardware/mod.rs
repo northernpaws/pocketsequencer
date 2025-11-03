@@ -6,6 +6,7 @@ pub mod internal_storage;
 pub mod usb;
 pub mod codec;
 pub mod display;
+pub mod mpu;
 
 use defmt::{trace, unwrap, info};
 
@@ -19,17 +20,22 @@ use core::{
 
 use assign_resources::assign_resources;
 
+use stm32_metapac::{
+    self as pac,
+    metadata::METADATA
+};
+
 use embassy_stm32::{
-    bind_interrupts, exti::ExtiInput, fmc::Fmc, gpio::{
+    Config, Peri, Peripherals, bind_interrupts, exti::ExtiInput, fmc::Fmc, gpio::{
         self, Input, Level, Output, OutputType, Pull, Speed
     }, i2c::{self, I2c}, mode, peripherals, spi::{
         self
     }, time::{
-        khz, mhz, Hertz
-    }, timer::{self, low_level::CountingMode, simple_pwm::{PwmPin, SimplePwm}, GeneralInstance4Channel}, usart::{
+        Hertz, khz, mhz
+    }, timer::{self, GeneralInstance4Channel, low_level::CountingMode, simple_pwm::{PwmPin, SimplePwm}}, usart::{
         self,
         Uart
-    }, Config, Peri, Peripherals
+    }
 };
 
 use embassy_time::{
@@ -89,7 +95,7 @@ use embassy_executor::{SpawnError, Spawner};
 use static_cell::StaticCell;
 
 use crate::hardware::{
-    display::Display, drivers::{
+    display::{Display, SramDisplay, sram::{Sram, SramConfig, Timing}}, drivers::{
         bq27531_g1::Bq27531,
         fusb302b::Fusb302b, tca8418::{self, Tca8418}
     }, keypad::{ButtonChannel, Keypad, KeypadNotifier}, sd_card::InitError};
@@ -860,6 +866,8 @@ pub fn get_display<'a>(
     let d14 = Output::new(r.d14, Level::Low, Speed::VeryHigh);
     let d15 = Output::new(r.d15, Level::Low, Speed::VeryHigh);
 
+    let fmc = Fmc::new_raw(r.peri);
+
     (pwm, Display::new(rst, wr, dc, rd, d0, d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15, delay))
 }
 
@@ -965,6 +973,249 @@ pub fn get_display_st7789<'a>(
         .unwrap();
 
     (pwm, display)
+}
+
+use embassy_stm32::fmc;
+
+// fn set_as_af<T>(pin: Peri<'a, T>, af_type: AfType) {
+//     let pin = unsafe { AnyPin::steal(pin.port()) };
+//     let r = pin.block();
+//     let n = pin._pin() as usize;
+
+//     r.cr(n / 8).modify(|w| {
+//         w.set_mode(n % 8, af_type.mode);
+//         // note that we are writing the CNF field, which is exposed as both `cnf_in` and `cnf_out`
+//         // in the PAC. the choice of `cnf_in` instead of `cnf_out` in this code is arbitrary and
+//         // does not affect the result.
+//         w.set_cnf_in(n % 8, vals::CnfIn::from_bits(af_type.cnf));
+//     });
+
+//     match af_type.pull {
+//         Pull::Up => r.bsrr().write(|w| w.set_bs(n, true)),
+//         Pull::Down => r.bsrr().write(|w| w.set_br(n, true)),
+//         Pull::None => {}
+//     }
+// }
+
+// pub async fn configure_fmc_pins<'a, T: fmc::Instance>(
+//     // Peri<'a, impl $addr_signal<T>>
+//     a0: Peri<'a, impl fmc::A0Pin<T>>, a1: Peri<'a, impl fmc::A1Pin<T>>, a2: Peri<'a, impl fmc::A2Pin<T>>, a3: Peri<'a, impl fmc::A3Pin<T>>,
+//     a4: Peri<'a, impl fmc::A4Pin<T>>, a5: Peri<'a, impl fmc::A5Pin<T>>, a6: Peri<'a, impl fmc::A6Pin<T>>, a7: Peri<'a, impl fmc::A7Pin<T>>,
+//     a8: Peri<'a, impl fmc::A8Pin<T>>, a9: Peri<'a, impl fmc::A9Pin<T>>, a10: Peri<'a, impl fmc::A10Pin<T>>, a11: Peri<'a, impl fmc::A11Pin<T>>, a12: Peri<'a, impl fmc::A12Pin<T>>,
+    
+//     ba0: Peri<'a, impl fmc::BA0Pin<T>>, ba1: Peri<'a, impl fmc::BA1Pin<T>>,
+    
+//     d0: Peri<'a, impl fmc::D0Pin<T>>, d1: Peri<'a, impl fmc::D1Pin<T>>, d2: Peri<'a, impl fmc::D2Pin<T>>,
+//     d3: Peri<'a, impl fmc::D3Pin<T>>, d4: Peri<'a, impl fmc::D4Pin<T>>, d5: Peri<'a, impl fmc::D5Pin<T>>,
+//     d6: Peri<'a, impl fmc::D6Pin<T>>, d7: Peri<'a, impl fmc::D7Pin<T>>, d8: Peri<'a, impl fmc::D8Pin<T>>,
+//     d9: Peri<'a, impl fmc::D9Pin<T>>, d10: Peri<'a, impl fmc::D10Pin<T>>, d11: Peri<'a, impl fmc::D11Pin<T>>,
+//     d12: Peri<'a, impl fmc::D12Pin<T>>, d13: Peri<'a, impl fmc::D13Pin<T>>, d14: Peri<'a, impl fmc::D14Pin<T>>, d15: Peri<'a, impl fmc::D15Pin<T>>,
+
+//     nbl0: Peri<'a, impl fmc::NBL0Pin<T>>, nbl1: Peri<'a, impl fmc::NBL1Pin<T>>,
+    
+//     sdcke: Peri<'a, impl fmc::SDCKE0Pin<T>>, sdclk: Peri<'a, impl fmc::SDCLKPin<T>>,
+//     sdncas: Peri<'a, impl fmc::SDNCASPin<T>>, sdne: Peri<'a, impl fmc::SDNE0Pin<T>>,
+//     sdnras: Peri<'a, impl fmc::SDNRASPin<T>>, sdnwe: Peri<'a, impl fmc::SDNWEPin<T>>,
+// ) {
+//     sdnwe.af_num();
+
+
+   
+// }
+
+/// Configures the SDRAM and display which both use FMC access.
+pub async fn get_memory_devices <'a,
+    DELAY: embedded_hal_async::delay::DelayNs
+>(
+    r: FMCResources,
+    display: DisplayResources,
+    delay: DELAY
+) -> Result<SramDisplay<'a, DELAY>, display::sram::InitError> {
+
+    let mut core_peri: cortex_m::Peripherals = cortex_m::Peripherals::take().unwrap();
+    // taken from stm32h7xx-hal
+    core_peri.SCB.enable_icache();
+    // See Errata Sheet 2.2.1
+    // core_peri.SCB.enable_dcache(&mut core_peri.CPUID);
+    core_peri.DWT.enable_cycle_counter();
+
+    { // Configure the MPU region 1 for the SRAM.
+        trace!("Configuring MPU region 1 for display SRAM...");
+        let mpu = core_peri.MPU;
+        let scb = &mut core_peri.SCB;
+
+        // While the display interface only uses around 4 bytes, we configure
+        // the MPU region for the full SRAM bank access window of 64Mbytes.
+        //
+        // see: RM0433 Rev 8 P.g. 808
+        let size = 64 * 1024 * 1024;
+
+        // Refer to ARM®v7-M Architecture Reference Manual ARM DDI 0403
+        // Version E.b Section B3.5
+        const MEMFAULTENA: u32 = 1 << 16;
+
+        unsafe {
+            /* Make sure outstanding transfers are done */
+            cortex_m::asm::dmb();
+
+            scb.shcsr.modify(|r| r & !MEMFAULTENA);
+
+            /* Disable the MPU and clear the control register*/
+            mpu.ctrl.write(0);
+        }
+
+        const REGION_NUMBER: u32 = 0x01; // Configure MPU region 1
+        const REGION_BASE_ADDRESS: u32 = 0x6000_0000; // SRAM1 bank base address
+
+        const REGION_FULL_ACCESS: u32 = 0x03; // Full access, no privileged or permission restrictions
+        const REGION_CACHEABLE: u32 = 0x00; // No caching
+        const REGION_WRITE_BACK: u32 = 0x00; // 0 = write through, in theory caching here should work but doesn't seem to be..
+        const REGION_ENABLE: u32 = 0x01;
+
+        assert_eq!(size & (size - 1), 0, "SRAM memory region size must be a power of 2");
+        assert_eq!(size & 0x1F, 0, "SRAM memory region size must be 32 bytes or more");
+
+        fn log2minus1(sz: u32) -> u32 {
+            for i in 5..=31 {
+                if sz == (1 << i) {
+                    return i - 1;
+                }
+            }
+            defmt::panic!("Unknown SRAM memory region size!");
+        }
+
+        info!("SRAM Memory Size 0x{:x}", log2minus1(size as u32));
+
+        // Configure region 0
+        //
+        // Cacheable, outer and inner write-back, no write allocate. So
+        // reads are cached, but writes always write all the way to SDRAM
+        unsafe {
+            mpu.rnr.write(REGION_NUMBER);
+            mpu.rbar.write(REGION_BASE_ADDRESS);
+            mpu.rasr.write(
+                (REGION_FULL_ACCESS << 24)
+                    | (REGION_CACHEABLE << 17)
+                    | (REGION_WRITE_BACK << 16)
+                    | (log2minus1(size as u32) << 1)
+                    | REGION_ENABLE,
+            );
+        }
+
+        const MPU_ENABLE: u32 = 0x01;
+        const MPU_DEFAULT_MMAP_FOR_PRIVILEGED: u32 = 0x04;
+
+        // Enable
+        unsafe {
+            mpu.ctrl.modify(|r| r | MPU_DEFAULT_MMAP_FOR_PRIVILEGED | MPU_ENABLE);
+
+            scb.shcsr.modify(|r| r | MEMFAULTENA);
+
+            // Ensure MPU settings take effect
+            cortex_m::asm::dsb();
+            cortex_m::asm::isb();
+        }
+    }
+
+    // NOTE: Kinda hacky, should be in build.rs script or similar. The metadata isn't really meant to be referenced at runtime.
+    // TODO: yikes - this seems to have mate .rodata section grow expenentially..
+    // let fmc_base = METADATA.peripherals.iter().find(|p| p.name == "FMC").unwrap().address as u32;
+
+    // Convert the address into an FMC instance.
+    //
+    // This instance allows us to directly access the registers.
+    let fmc_inst = unsafe {
+        pac::fmc::Fmc::from_ptr(0x52004000 as _)
+    };
+
+    // Sets the correct alternate functions for all the FMC pins.
+    //
+    // Without this, the GPIO matrix won't connect the FMC anywhere...
+    let mut fmc = Fmc::configure_sdram_a13bits_d16bits_4banks_bank1_and_parallel(
+        r.peri,
+        // A0-A11
+        r.a0,
+        r.a1,
+        r.a2,
+        r.a3,
+        r.a4,
+        r.a5,
+        r.a6,
+        r.a7,
+        r.a8,
+        r.a9,
+        r.a10,
+        r.a11,
+        r.a12,
+        // BA0-BA1
+        r.ba0,
+        r.ba1,
+        // D0-D15
+        r.d0,
+        r.d1,
+        r.d2,
+        r.d3,
+        r.d4,
+        r.d5,
+        r.d6,
+        r.d7,
+        r.d8,
+        r.d9,
+        r.d10,
+        r.d11,
+        r.d12,
+        r.d13,
+        r.d14,
+        r.d15,
+        // NBL0 - NBL1
+        r.nbl0,
+        r.nbl1,
+        r.sdcke0,  // SDCKE0
+        r.sdclk, // SDCLK
+        r.sdncas, // SDNCAS
+        r.sdne0, // SDNE0 (!CS)
+        r.sdne1, // SDNE1 (!CS)
+        r.sdnras, // SDRAS
+        r.sdnwe,  // SDNWE 
+        r.noe,  // NOE 
+        r.nwe, // NWE
+    );
+
+
+    // Enable the FMC peripheral for use with the RCC.
+    trace!("Initializing Memory Controller...");
+    fmc.enable();
+
+    // TODO: sdram..
+    // let sdram = get_sdram(r);
+    // Needs custom construction to avoid conflicts?
+    //https://docs.rs/stm32-fmc/latest/stm32_fmc/struct.Sdram.html#method.new
+    //https://docs.rs/stm32-fmc/latest/stm32_fmc/struct.Sdram.html#method.new_unchecked
+
+    trace!("Constructing LCD SRAM bank...");
+    let mut display_sram = Sram::new(fmc_inst, 
+        display::sram::SramBank::Bank1,
+         SramConfig::new_ili9341_parallel_i(display::sram::MemoryDataWidth::Bits16),
+         Timing::new_ili9341_parallel_i());
+
+    trace!("Initializing display SRAM bank...");
+    display_sram.init()?;
+
+    // Enable the actual memory controller and memory mapping.
+    trace!("Enabling Memory Controller...");
+    fmc.memory_controller_enable(); // sets BCR1 FMCEN=1
+
+    // Digital reset signal for the display.
+    //
+    // Pull to VDD to make sure datasheet is satisfied.
+    // let rst = display.reset.into_push_pull_output_in_state(gpio::PinState::High);
+    let rst = Output::new(display.reset, Level::High, Speed::Low);
+
+    trace!("Initializing display driver...");
+    let mut sram_display = SramDisplay::new(display_sram, rst, delay);
+    sram_display.init().await;
+
+    Ok(sram_display)
 }
 
 /// Returns the analog PWN channel that

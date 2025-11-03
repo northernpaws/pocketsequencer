@@ -5,6 +5,7 @@
 
 use core::{cell::RefCell, fmt::Debug};
 
+use cortex_m_rt::{ExceptionFrame, exception};
 use defmt::*;
 
 use embassy_executor::Spawner;
@@ -83,6 +84,102 @@ static I2C4_BUS: StaticCell<Mutex<CriticalSectionRawMutex, I2c<'static, Async, i
 /// SPI bus for internal and SD card storage.
 static SPI_BUS: StaticCell<Mutex<CriticalSectionRawMutex, Spi<'static, Async>>> = StaticCell::new();
 // static SPI_BUS: StaticCell<blocking_mutex::Mutex<CriticalSectionRawMutex, RefCell<Spi<'static, Async>>>> = StaticCell::new();
+
+/// Custom HardFault handler to improve debugging.
+/// 
+/// ref: https://doc.rust-lang.org/beta/embedded-book/start/exceptions.html#the-hard-fault-handler
+#[exception]
+unsafe fn HardFault(ef: &ExceptionFrame) -> ! {
+    // Check `SCB -> CFSR_UFSR_BFSR_MMFSR` register
+    // to see the fault and then reference:
+    //  https://community.st.com/t5/stm32-mcus/how-to-debug-a-hardfault-on-an-arm-cortex-m-stm32/ta-p/672235#toc-hId--1471762501
+
+    error!("HARD FAULT:");
+    error!("r0  = 0x{:X}", ef.r0());
+    error!("r1  = 0x{:X}", ef.r1());
+    error!("r2  = 0x{:X}", ef.r2());
+    error!("r3  = 0x{:X}", ef.r3());
+    error!("r12 = 0x{:X}", ef.r12());
+    error!("lr  = 0x{:X}", ef.lr());
+
+    if (ef.lr() & 0x8) == 1 {
+        error!("LR indicates Main Stack Pointer (MSP) TODO double check this is correct")
+    } else {
+        error!("LR indicates Process Stack Pointer (PSP) TODO double check this is correct")
+    }
+
+    // cargo objdump -- -d --no-show-raw-insn --print-imm-hex | grep <PC_HEX_WITHOUT_0x> -A 10 -B 10
+    let pc = ef.pc();
+    error!("pc: 0x{:X}", pc);
+    error!("  Inspect assembled program with:");
+    error!("  $ cargo objdump -- -d --no-show-raw-insn --print-imm-hex | grep {:x} -A 10 -B 10", pc);
+    error!("xpsr: {:b}", ef.xpsr());
+
+    // Attempt to read the cortex registers to get more info.
+    unsafe {
+        let mut core_peri: cortex_m::Peripherals = cortex_m::Peripherals::steal();
+        let scb = &mut core_peri.SCB;
+        error!("hfsr: {:b}", scb.hfsr.read());
+
+        // Chek HFSR bit 30 to see if we need to check other registers for details.
+        if ((scb.hfsr.read() & (1 << 30)) != 0) {
+            error!("Forced Hard Fault!");
+            error!(" HFSR FORCED bit set, see CFSR for details.");
+
+            // NOTE: CFSR contains the UFSR, BFSR, and MMFSR registers.
+            error!("  SCB->CFSR: {:b}", scb.cfsr.read());
+
+            // Mask out the UFSR section of the CFSR register (first half).
+            if((scb.cfsr.read() & 0xFFFF0000) != 0) {
+                let ufsr: u16 = (scb.cfsr.read() >> 16) as u16;
+                error!("  Usage Fault Indicator set!");
+                error!("    SCB->CFSR->UFSR={:b}", ufsr);
+
+                // TODO: error messages https://developer.arm.com/documentation/dui0552/a/cortex-m3-peripherals/system-control-block/configurable-fault-status-register
+            } 
+
+            // BFSR
+            if((scb.cfsr.read() & 0xFF00) != 0) {
+                error!("  Bus Fault Indicator set!");
+                
+                let bsfr = (scb.cfsr.read() & 0xFF00) >> 8;
+                error!("    SCB->CSFR->BSFR={:b}", bsfr);
+
+                if (bsfr & 0b1) != 0 { // 0
+                    error!("    IBUSERR: Instruction bus error.")
+                } else if (bsfr & 0b10) != 0 { // 1
+                    error!("    PRECISERR: Precise data bus error.");
+                    error!("      Offending address (BFAR): 0x{:x}", scb.bfar.read());
+                } else if (bsfr & 0b100) != 0 { // 2
+                    error!("    IMPRECISERR: Imprecise data bus error.");
+                    error!("      Due to an Imprecise data bus error, the return address in the ");
+                    error!("       stack does not point to the instruction that caused the fault!");
+                } else if (bsfr & 0b1000) != 0 { // 3
+                    error!("    UNSTKERR: BusFault on unstacking for a return from exception.");
+                } else if (bsfr & 0b10000) != 0 { // 4
+                    error!("    STKERR: BusFault on stacking for exception entry.");
+                } else {
+                    error!("    Unknown bus fault! See register for details.");
+                }
+            }
+            
+            // MMFSR
+            if((scb.cfsr.read() & 0xFF) != 0) {
+                error!("  Memory Management Indicator set!");
+                error!("    Memory fault location: 0x{:X}", scb.mmfar.read());
+                // TODO: error messages https://developer.arm.com/documentation/dui0552/a/cortex-m3-peripherals/system-control-block/configurable-fault-status-register
+            }
+        }
+    }
+
+    // TODO: attempt hard fault recovery https://github.com/kendiser5000/Hardfault-Recovery-Cortex-M4/blob/master/hardfault_handler.c
+
+    // if let Ok(mut hstdout) = hio::hstdout() {
+    //     writeln!(hstdout, "HARD FAULT: {:#?}", ef).ok();
+    // }
+
+    loop {}
+}
 
 #[embassy_executor::main]
 async fn main(spawner: Spawner) {
@@ -257,35 +354,37 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> { // TODO: add error typ
 
     keypad.set_led(keypad::Led::Trig1, RGB::new(255, 0, 0));
     info!("Configuring display peripheral...");
-    let (
-        mut backlight_pwm,
-        mut display
-    // ) = hardware::get_display2(r.fmc, r.display, embassy_time::Delay);
-    ) = hardware::get_display(r.fmc, r.display, embassy_time::Delay);
+
+    info!("Configuring memory controller...");
+    let mut display_sram = hardware::get_memory_devices(r.fmc, r.display, embassy_time::Delay).await.unwrap();
+    // let (
+    //     mut backlight_pwm,
+    //     mut display
+    // ) = hardware::get_display(r.fmc, r.display, embassy_time::Delay);
 
     keypad.set_led(keypad::Led::Trig1, RGB::new(0, 255, 0));
 
-    info!("Setting backlight to 100%");
-    let mut backlight_pwm_channel: timer::simple_pwm::SimplePwmChannel<'_, peripherals::TIM3> = backlight_pwm.ch4();
-    backlight_pwm_channel.enable();
-    backlight_pwm_channel.set_duty_cycle_fully_on();
+    // info!("Setting backlight to 100%");
+    // let mut backlight_pwm_channel: timer::simple_pwm::SimplePwmChannel<'_, peripherals::TIM3> = backlight_pwm.ch4();
+    // backlight_pwm_channel.enable();
+    // backlight_pwm_channel.set_duty_cycle_fully_on();
 
-    info!("Clearing the display with red..");
-    display.clear(Rgb565::RED).unwrap();
+    // info!("Clearing the display with red..");
+    // display.clear(Rgb565::RED).unwrap();
 
     // let test_image = TestImage::new();
     loop {
         keypad.set_led(keypad::Led::Trig16, RGB::new(255, 0, 0));
-        display.clear(Rgb565::RED).unwrap();
+        // display.clear(Rgb565::RED).unwrap();
         Timer::after_millis(500).await;
         keypad.set_led(keypad::Led::Trig16, RGB::new(0, 255, 0));
-        display.clear(Rgb565::GREEN).unwrap();
+        // display.clear(Rgb565::GREEN).unwrap();
         Timer::after_millis(500).await;
         keypad.set_led(keypad::Led::Trig16, RGB::new(0, 0, 255));
-        display.clear(Rgb565::BLUE).unwrap();
+        // display.clear(Rgb565::BLUE).unwrap();
         Timer::after_millis(500).await;
         keypad.set_led(keypad::Led::Trig16, RGB::new(255, 255, 255));
-        display.clear(Rgb565::WHITE).unwrap();
+        // display.clear(Rgb565::WHITE).unwrap();
         Timer::after_millis(500).await;
 
         // keypad.set_led(keypad::Led::Trig16, RGB::new(255, 255, 255));
