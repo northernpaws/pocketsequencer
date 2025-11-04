@@ -27,24 +27,71 @@ pub enum FMCRegion {
     ///
     /// Uses NE4 chip select.
     Bank4,
+
+    // ====================
+    // BMAP 01 remapping
+    /// Targeting the 1st SRAM bank
+    ///
+    /// Uses NE1 chip select.
+    Bank1Remapped,
+    /// Targeting the 2nd SRAM bank
+    ///
+    /// Uses NE2 chip select.
+    Bank2Remapped,
+    /// Targeting the 3nd SRAM bank
+    ///
+    /// Uses NE3 chip select.
+    Bank3Remapped,
+    /// Targeting the 4nd SRAM bank
+    ///
+    /// Uses NE4 chip select.
+    Bank4Remapped,
 }
 
 impl FMCRegion {
-    pub const fn min_address(&self) -> u32 {
+    pub const fn base_address(&self) -> u32 {
         match self {
             FMCRegion::Bank1 => 0x60000000,
             FMCRegion::Bank2 => 0x64000000,
             FMCRegion::Bank3 => 0x68000000,
             FMCRegion::Bank4 => 0x6C000000,
+
+            FMCRegion::Bank1Remapped => 0xC0000000,
+            FMCRegion::Bank2Remapped => 0xC4000000,
+            FMCRegion::Bank3Remapped => 0xC8000000,
+            FMCRegion::Bank4Remapped => 0xCC000000,
         }
     }
 
+    pub const fn min_address(&self) -> u32 {
+        self.base_address()
+    }
+
+    pub const fn size(&self) -> u32 {
+        0x3FFFFFF
+    }
+
     pub fn max_address(&self) -> u32 {
-        match self {
-            FMCRegion::Bank1 => 0x63FFFFFF,
-            FMCRegion::Bank2 => 0x67FFFFFF,
-            FMCRegion::Bank3 => 0x6BFFFFFF,
-            FMCRegion::Bank4 => 0x6FFFFFFF,
+        self.min_address() + self.size()
+    }
+
+    /// Maps a local memory address to what the
+    /// remote will see based on the bank bit depth.
+    ///
+    /// RM0433 Rev 8 P.g. 803
+    pub fn local_address_to_remote(
+        &self,
+        remote_address: u32,
+        width: MemoryDataWidth,
+    ) -> Result<u32, ()> {
+        if remote_address < self.min_address() || remote_address >= self.max_address() {
+            return Err(());
+        }
+
+        match width {
+            MemoryDataWidth::Bits8 => Ok(0x3FFFFFF & remote_address), // ADDR[25:0] 00000011111111111111111111111111
+            MemoryDataWidth::Bits16 => Ok((0x3FFFFFE & remote_address) >> 1), // (ADDR[25:1] >> 1) 00000011111111111111111111111110
+            MemoryDataWidth::Bits32 => Ok((0x3FFFFFC & remote_address) >> 2), // (ADDR[25:2] >> 2) 00000011111111111111111111111100
         }
     }
 
@@ -362,9 +409,9 @@ impl Timing {
         Self {
             address_setup_time: 0,                // tast
             address_hold_time: 1,                 // taht - should be 0, but FMC doesn't support 1?
-            data_setup_time: 255,                 // trod - can probably shorted to 10 (tdst)
+            data_setup_time: 10,                  // trod - can probably shorted to 10 (tdst)
             bus_turn_around_duration: 15,         // unused by sram
-            clock_division: 16,                   // not used? should be a way to set clock..
+            clock_division: 2,                    // not used? should be a way to set clock..
             data_latency: 0,                      // unused by sram
             access_mode: AccessMode::AccessModeA, // TODO: not sure of type to select
         }
@@ -437,14 +484,29 @@ impl<'a> Fmc<'a> {
             warn!("Write FIFO should be configured on bank 1 when enabled on banks 2, 3, and 4.")
         }
 
+        // RM0433 Rev 8 (P.g. 838)
+        if self.bank == FMCRegion::Bank2Remapped
+            || self.bank == FMCRegion::Bank3Remapped
+            || self.bank == FMCRegion::Bank4Remapped
+        {
+            warn!(
+                "Ensure that FMC BCR bank 1 is remapped to allow remapped addresses of 2, 3, and 4."
+            )
+        }
+
         let mut norsram_flash_access_enable = false;
         if self.config.memory_type == MemoryType::Flash {
             norsram_flash_access_enable = true;
         }
 
-        if self.bank == FMCRegion::Bank1 {
+        if self.bank == FMCRegion::Bank1 || self.bank == FMCRegion::Bank1Remapped {
             // SRAM/NOR-Flash chip-select control register
             self.fmc.bcr1().modify::<Result<(), InitError>>(|bcr| {
+                // Remap the address space for the entire SRAM bank.
+                if self.bank == FMCRegion::Bank1Remapped {
+                    bcr.set_bmap(0b01); // NOR/PSRAM bank and SDRAM bank 1/bank2 are swapped
+                }
+
                 bcr.set_cclken(self.config.continuous_clock_enable);
 
                 bcr.set_cburstrw(self.config.write_burst_enable);
@@ -498,10 +560,10 @@ impl<'a> Fmc<'a> {
         } else {
             self.fmc
                 .bcr(match self.bank {
-                    FMCRegion::Bank1 => panic!("invalid"),
-                    FMCRegion::Bank2 => 0,
-                    FMCRegion::Bank3 => 1,
-                    FMCRegion::Bank4 => 2,
+                    FMCRegion::Bank1 | FMCRegion::Bank1Remapped => panic!("invalid"),
+                    FMCRegion::Bank2 | FMCRegion::Bank2Remapped => 0,
+                    FMCRegion::Bank3 | FMCRegion::Bank3Remapped => 1,
+                    FMCRegion::Bank4 | FMCRegion::Bank4Remapped => 2,
                 })
                 .modify::<Result<(), InitError>>(|bcr| {
                     bcr.set_cburstrw(self.config.write_burst_enable);
@@ -579,10 +641,10 @@ impl<'a> Fmc<'a> {
         // BTR1/2/3/4 SRAM/NOR-Flash write timing registers
         self.fmc
             .btr(match self.bank {
-                FMCRegion::Bank1 => 0,
-                FMCRegion::Bank2 => 1,
-                FMCRegion::Bank3 => 2,
-                FMCRegion::Bank4 => 3,
+                FMCRegion::Bank1 | FMCRegion::Bank1Remapped => 0,
+                FMCRegion::Bank2 | FMCRegion::Bank2Remapped => 1,
+                FMCRegion::Bank3 | FMCRegion::Bank3Remapped => 2,
+                FMCRegion::Bank4 | FMCRegion::Bank4Remapped => 3,
             })
             .modify(|btr| {
                 btr.set_addset(self.timing.address_setup_time);
@@ -604,7 +666,7 @@ impl<'a> Fmc<'a> {
     }
 
     pub fn disable_bank(&mut self) {
-        if self.bank == FMCRegion::Bank1 {
+        if self.bank == FMCRegion::Bank1 || self.bank == FMCRegion::Bank1Remapped {
             // SRAM/NOR-Flash chip-select control register
             self.fmc.bcr1().modify(|bcr1| {
                 bcr1.set_mbken(false);
@@ -613,10 +675,10 @@ impl<'a> Fmc<'a> {
             // SRAM/NOR-Flash chip-select control register
             self.fmc
                 .bcr(match self.bank {
-                    FMCRegion::Bank1 => panic!("invalid"),
-                    FMCRegion::Bank2 => 0,
-                    FMCRegion::Bank3 => 1,
-                    FMCRegion::Bank4 => 2,
+                    FMCRegion::Bank1 | FMCRegion::Bank1Remapped => panic!("invalid"),
+                    FMCRegion::Bank2 | FMCRegion::Bank2Remapped => 0,
+                    FMCRegion::Bank3 | FMCRegion::Bank3Remapped => 1,
+                    FMCRegion::Bank4 | FMCRegion::Bank4Remapped => 2,
                 })
                 .modify(|bcr| {
                     bcr.set_mbken(false);
@@ -625,7 +687,7 @@ impl<'a> Fmc<'a> {
     }
 
     pub fn enable_bank(&mut self) {
-        if self.bank == FMCRegion::Bank1 {
+        if self.bank == FMCRegion::Bank1 || self.bank == FMCRegion::Bank1Remapped {
             // SRAM/NOR-Flash chip-select control register
             self.fmc.bcr1().modify(|bcr| {
                 bcr.set_mbken(true);
@@ -634,10 +696,10 @@ impl<'a> Fmc<'a> {
             // SRAM/NOR-Flash chip-select control register
             self.fmc
                 .bcr(match self.bank {
-                    FMCRegion::Bank1 => panic!("invalid"),
-                    FMCRegion::Bank2 => 0,
-                    FMCRegion::Bank3 => 1,
-                    FMCRegion::Bank4 => 2,
+                    FMCRegion::Bank1 | FMCRegion::Bank1Remapped => panic!("invalid"),
+                    FMCRegion::Bank2 | FMCRegion::Bank2Remapped => 0,
+                    FMCRegion::Bank3 | FMCRegion::Bank3Remapped => 1,
+                    FMCRegion::Bank4 | FMCRegion::Bank4Remapped => 2,
                 })
                 .modify(|bcr| {
                     bcr.set_mbken(true);
@@ -662,59 +724,6 @@ impl<'a> Fmc<'a> {
         Ok(())
     }
 
-    pub const fn min_address(&self) -> u32 {
-        match self.bank {
-            FMCRegion::Bank1 => 0x60000000,
-            FMCRegion::Bank2 => 0x64000000,
-            FMCRegion::Bank3 => 0x68000000,
-            FMCRegion::Bank4 => 0x6C000000,
-        }
-    }
-
-    pub fn max_address(&self) -> u32 {
-        match self.bank {
-            FMCRegion::Bank1 => 0x63FFFFFF,
-            FMCRegion::Bank2 => 0x67FFFFFF,
-            FMCRegion::Bank3 => 0x6BFFFFFF,
-            FMCRegion::Bank4 => 0x6FFFFFFF,
-        }
-    }
-
-    /// Maps a local memory address to what the
-    /// remote will see based on the bank bit depth.
-    ///
-    /// RM0433 Rev 8 P.g. 803
-    pub fn local_address_to_remote(&self, remote_address: u32) -> Result<u32, ()> {
-        match self.bank {
-            FMCRegion::Bank1 => {
-                if remote_address < 0x60000000 || remote_address >= 0x64000000 {
-                    return Err(());
-                }
-            }
-            FMCRegion::Bank2 => {
-                if remote_address < 0x64000000 || remote_address >= 0x68000000 {
-                    return Err(());
-                }
-            }
-            FMCRegion::Bank3 => {
-                if remote_address < 0x68000000 || remote_address >= 0x6C000000 {
-                    return Err(());
-                }
-            }
-            FMCRegion::Bank4 => {
-                if remote_address < 0x6C000000 || remote_address >= 0x6FFFFFFF {
-                    return Err(());
-                }
-            }
-        }
-
-        match self.config.memory_data_width {
-            MemoryDataWidth::Bits8 => Ok(0x3FFFFFF & remote_address), // ADDR[25:0] 00000011111111111111111111111111
-            MemoryDataWidth::Bits16 => Ok((0x3FFFFFE & remote_address) >> 1), // (ADDR[25:1] >> 1) 00000011111111111111111111111110
-            MemoryDataWidth::Bits32 => Ok((0x3FFFFFC & remote_address) >> 2), // (ADDR[25:2] >> 2) 00000011111111111111111111111100
-        }
-    }
-
     pub const fn addr(&self) -> u32 {
         // Banks start at 0x6000_0000 -> 01100000000000000000000000000000
         // Banks end at   0x6FFF_FFFF -> 01101111111111111111111111111111
@@ -724,7 +733,7 @@ impl<'a> Fmc<'a> {
         // 01 Bank 1 - NOR/PSRAM 2 0x64000000 -> 01100100000000000000000000000000
         // 10 Bank 1 - NOR/PSRAM 3 0x68000000 -> 01101000000000000000000000000000
         // 11 Bank 1 - NOR/PSRAM 4 0x6C000000 -> 01101100000000000000000000000000
-        self.min_address()
+        self.bank.min_address()
     }
 
     pub const fn ptr(&self) -> *mut u16 {
@@ -749,7 +758,12 @@ impl<'a> Fmc<'a> {
         // Add one byte to get the data address.
         //
         // Setting A0 to 1/0 selects data/command
-        (self.addr() + 1) as *mut u16
+        //
+        // NOTE: The 0xF comes from a hacky fix. Using A0 as the data/command line caused a
+        // problem where DMA forcing aligned writes pushed data into the next even address.
+        // Taking advanage of the full SRAM address space available and using an even address
+        // with a 1 in the lower bit solves this problem.
+        (self.addr() + 0xF) as *mut u16
     }
 
     pub fn write_command(&mut self, cmd: u8, args: &[u8]) {

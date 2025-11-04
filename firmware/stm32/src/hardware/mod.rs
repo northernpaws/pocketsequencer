@@ -337,21 +337,21 @@ bind_interrupts!(pub struct Irqs {
 pub fn init() -> Peripherals {
     let mut config = Config::default();
 
-    config.rcc.pll1 = Some(Pll {
-        source: embassy_stm32::rcc::PllSource::HSI, // 48
-        prediv: embassy_stm32::rcc::PllPreDiv::DIV4,
-        mul: embassy_stm32::rcc::PllMul::MUL10,
-        divp: None,
-        divq: Some(embassy_stm32::rcc::PllDiv::DIV12),
-        divr: None,
-    });
-    config.rcc.mux.fmcsel = embassy_stm32::rcc::mux::Fmcsel::PLL1_Q;
+    // config.rcc.pll1 = Some(Pll {
+    //     source: embassy_stm32::rcc::PllSource::HSI, // 48
+    //     prediv: embassy_stm32::rcc::PllPreDiv::DIV4,
+    //     mul: embassy_stm32::rcc::PllMul::MUL10,
+    //     divp: None,
+    //     divq: Some(embassy_stm32::rcc::PllDiv::DIV12),
+    //     divr: None,
+    // });
+    // config.rcc.mux.fmcsel = embassy_stm32::rcc::mux::Fmcsel::PLL1_Q;
 
     // default is 64Mhz, div 2 to 32MHz
     // config.rcc.d1c_pre = AHBPrescaler::DIV2;
 
     // TODO: re-enable 64mhz->480mhz clock
-    /*{
+    {
         use embassy_stm32::rcc::*;
 
         config.rcc.hsi = Some(HSIPrescaler::DIV1);
@@ -361,13 +361,13 @@ pub fn init() -> Peripherals {
         });
         config.rcc.csi = false;
 
-        config.rcc.hsi48 = Some(Hsi48Config{
+        config.rcc.hsi48 = Some(Hsi48Config {
             sync_from_usb: true, // correct?
         });
 
         config.rcc.sys = Sysclk::PLL1_P;
 
-        config.rcc.pll1 = Some(Pll{
+        config.rcc.pll1 = Some(Pll {
             source: PllSource::HSE,
             prediv: PllPreDiv::DIV5,
             mul: PllMul::MUL192,
@@ -376,22 +376,22 @@ pub fn init() -> Peripherals {
             divr: Some(PllDiv::DIV2),
         });
 
-        config.rcc.pll2 = Some(Pll{
+        config.rcc.pll2 = Some(Pll {
             source: PllSource::HSE,
             prediv: PllPreDiv::DIV2,
-            mul:  PllMul::MUL12,
+            mul: PllMul::MUL12,
             divp: Some(PllDiv::DIV2),
             divq: Some(PllDiv::DIV2),
             divr: Some(PllDiv::DIV2),
         });
 
         config.rcc.pll3 = None; /* Some(Pll{
-            source: PllSource::HSE,
-            prediv: PllPreDiv::DIV32,
-            mul:  PllMul::MUL129,
-            divp: Some(PllDiv::DIV2),
-            divq: Some(PllDiv::DIV2),
-            divr: Some(PllDiv::DIV2),
+        source: PllSource::HSE,
+        prediv: PllPreDiv::DIV32,
+        mul:  PllMul::MUL129,
+        divp: Some(PllDiv::DIV2),
+        divq: Some(PllDiv::DIV2),
+        divr: Some(PllDiv::DIV2),
         }); */
 
         config.rcc.d1c_pre = AHBPrescaler::DIV1; // D1CPRE - 480MHz
@@ -408,10 +408,10 @@ pub fn init() -> Peripherals {
         config.rcc.ls = LsConfig {
             rtc: RtcClockSource::LSI, // TODO: should be LSE ocillator?
             lsi: true,
-            lse: None,/*Some(LseConfig{
-                frequency: Hertz(32_768),
-                mode: LseMode::Oscillator(LseDrive::Low),
-            }),*/
+            lse: None, /*Some(LseConfig{
+                           frequency: Hertz(32_768),
+                           mode: LseMode::Oscillator(LseDrive::Low),
+                       }),*/
         };
 
         // config.rcc.mux = mux::ClockMux {
@@ -438,7 +438,7 @@ pub fn init() -> Peripherals {
         config.rcc.mux.lptim2sel = mux::Lptim2sel::PCLK4; // Unused?
         config.rcc.mux.lpuart1sel = mux::Lpuartsel::PCLK4; // TODO: is this correct? unused anyways
         config.rcc.mux.spi6sel = mux::Spi6sel::PCLK4;
-    }*/
+    }
 
     embassy_stm32::init(config)
 }
@@ -1024,6 +1024,8 @@ pub async fn get_memory_devices<'a, DELAY: embedded_hal_async::delay::DelayNs>(
     // core_peri.SCB.enable_dcache(&mut core_peri.CPUID);
     core_peri.DWT.enable_cycle_counter();
 
+    const DISPLAY_BANK: display::fmc::FMCRegion = display::fmc::FMCRegion::Bank1;
+
     {
         // Configure the MPU region 1 for the SRAM.
         trace!("Configuring MPU region 1 for display SRAM...");
@@ -1051,7 +1053,7 @@ pub async fn get_memory_devices<'a, DELAY: embedded_hal_async::delay::DelayNs>(
         }
 
         const REGION_NUMBER: u32 = 0x01; // Configure MPU region 1
-        const REGION_BASE_ADDRESS: u32 = 0x6000_0000; // SRAM1 bank base address
+        const REGION_BASE_ADDRESS: u32 = DISPLAY_BANK.base_address(); // SRAM1 bank base address
 
         const REGION_FULL_ACCESS: u32 = 0x03; // Full access, no privileged or permission restrictions
         const REGION_CACHEABLE: u32 = 0x00; // No caching
@@ -1164,16 +1166,16 @@ pub async fn get_memory_devices<'a, DELAY: embedded_hal_async::delay::DelayNs>(
     //https://docs.rs/stm32-fmc/latest/stm32_fmc/struct.Sdram.html#method.new
     //https://docs.rs/stm32-fmc/latest/stm32_fmc/struct.Sdram.html#method.new_unchecked
 
-    trace!("Constructing LCD SRAM bank...");
-    let mut display_sram = display::fmc::Fmc::new(
+    trace!("Creating FMC SRAM interface for LCD...");
+    let mut interface = display::fmc::Fmc::new(
         fmc_inst,
-        display::fmc::FMCRegion::Bank1,
+        DISPLAY_BANK,
         display::fmc::Config::new_ili9341_parallel_i(display::fmc::MemoryDataWidth::Bits16),
         display::fmc::Timing::new_ili9341_parallel_i(),
     );
 
     trace!("Initializing display SRAM bank...");
-    display_sram.init()?;
+    interface.init()?;
 
     // Enable the actual memory controller and memory mapping.
     trace!(
@@ -1189,14 +1191,6 @@ pub async fn get_memory_devices<'a, DELAY: embedded_hal_async::delay::DelayNs>(
     // let rst = display.reset.into_push_pull_output_in_state(gpio::PinState::High);
     trace!("Initializing Display reset pin...");
     let rst = Output::new(display.reset, Level::High, Speed::Low);
-
-    trace!("Creating FMC SRAM interface for LCD...");
-    let interface = display::fmc::Fmc::new(
-        fmc_inst,
-        display::fmc::FMCRegion::Bank1,
-        display::fmc::Config::new_ili9341_parallel_i(display::fmc::MemoryDataWidth::Bits16),
-        display::fmc::Timing::new_ili9341_parallel_i(),
-    );
 
     trace!("Initializing Display framebuffer...");
     let frame_buffer = FRAME_BUFFER.take();

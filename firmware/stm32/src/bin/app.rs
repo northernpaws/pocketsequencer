@@ -77,7 +77,7 @@ use {
 
 use firmware::{
     hardware::{
-        self, Irqs,
+        self, Irqs, display,
         keypad::{self, Keypad},
         preamble::*,
     },
@@ -437,8 +437,32 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
         display.clear(Rgb565::WHITE).unwrap();
         display
             .fill_solid(
+                // 0,0
                 &Rectangle::new(Point::new(20, 20), Size::new(50, 50)),
                 Rgb565::CSS_PURPLE,
+            )
+            .unwrap();
+        display
+            .fill_solid(
+                // 1,1
+                &Rectangle::new(
+                    Point::new(
+                        display::WIDTH as i32 - 20 - 50,
+                        display::HEIGHT as i32 - 20 - 50,
+                    ),
+                    Size::new(50, 50),
+                ),
+                Rgb565::CSS_ORANGE,
+            )
+            .unwrap();
+        display
+            .fill_solid(
+                // 1,0
+                &Rectangle::new(
+                    Point::new(display::WIDTH as i32 - 20 - 50, 20),
+                    Size::new(50, 50),
+                ),
+                Rgb565::RED,
             )
             .unwrap();
         display.push_buffer();

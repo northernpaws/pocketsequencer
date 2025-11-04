@@ -118,7 +118,7 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
                 //
                 // TODO: this address should be taken dynamically
                 // from the FMC SRAM layer and not hard-coded.
-                0x6000_0001 as *mut u16,
+                self.interface.data_addr(),
                 transfer_options,
             )
             .await;
@@ -133,7 +133,7 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
                 //
                 // TODO: this address should be taken dynamically
                 // from the FMC SRAM layer and not hard-coded.
-                0x6000_0001 as *mut u16,
+                self.interface.data_addr(),
                 transfer_options,
             )
             .await;
@@ -341,6 +341,8 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
             0x36,
             &[
                 // [MY, MX, MV, ML, BGR, MH, 0, 0]
+                // Invert MX and MY to rotate 180
+                // MV rotates 90
                 0b00000000,
             ],
         ); // 0x08
@@ -380,8 +382,8 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
         self.write_raw_command(
             0xF6,
             &[
-                // TFT_MAD_MX TFT_MAD_BGR
-                0x40 | 0x08,
+                // TFT_MAD_MV TFT_MAD_BGR
+                0b01001000, // 0x40 | 0x08,
                 0b00011101,
             ],
         );
