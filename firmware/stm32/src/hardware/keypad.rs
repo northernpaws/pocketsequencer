@@ -1,40 +1,24 @@
-
-use defmt::{unwrap, trace, info, error};
+use defmt::{info, trace, unwrap};
+use embassy_embedded_hal::shared_bus::{
+    I2cDeviceError,
+    asynch::{self},
+};
 use embassy_executor::{SpawnError, Spawner};
 use embassy_stm32::{
-    Peri, i2c::I2c, mode, peripherals::{self, DMA2_CH4}, timer::{
-        self, GeneralInstance4Channel, low_level::CountingMode, simple_pwm::{PwmPin, SimplePwm, SimplePwmChannel}
-    }
+    Peri, mode,
+    peripherals::{self},
+    timer::{self, simple_pwm::SimplePwm},
 };
-use embassy_embedded_hal::shared_bus::{I2cDeviceError, asynch::{self, i2c}};
+use embassy_sync::channel::Channel;
 use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, channel, signal::Signal};
-use embassy_sync::{
-    blocking_mutex::{
-        NoopMutex,
-        raw::{
-            RawMutex,
-            NoopRawMutex
-        }
-    },
-    mutex::Mutex,
-    channel::{
-        Channel
-    }
-};
-
 
 use rgb_led_pwm_dma_maker::{
-    calc_dma_buffer_length,
-    LedDataComposition,
-    LedDmaBuffer,
-    RgbLedColor,
-    RGB
+    LedDataComposition, LedDmaBuffer, RGB, RgbLedColor, calc_dma_buffer_length,
 };
 
-use crate::{hardware::drivers::tca8418::{self, Tca8418}};
+use crate::hardware::drivers::tca8418::{self, Tca8418};
 
 use engine::input;
-
 
 // APB1 = 120MHz
 // doubled for clocks = 240MHz
@@ -59,7 +43,7 @@ use engine::input;
 // |------- RESET ------|
 /// `t1h` = `T1H / data_transfer_time * max_duty_value`
 /// `t0h` = `T0H / data_transfer_time * max_duty_value`
-/// 
+///
 /// `t1h` = `0.6us / 1.25us * 300` = 144
 /// `t0h` = `0.3us / 1.25us * 300` = 72
 // TODO: should do some of these calculations based off the max duty measurement.
@@ -93,7 +77,7 @@ const LED_COUNT: usize = 16;
 //     BLUE, RED, GREEN, BLUE,
 //     RED, GREEN, BLUE, RED
 // ];
-static LED_DMA_BUFFER: [u16; DMA_BUFFER_LEN*2] = [0u16; DMA_BUFFER_LEN*2];
+static LED_DMA_BUFFER: [u16; DMA_BUFFER_LEN * 2] = [0u16; DMA_BUFFER_LEN * 2];
 
 pub type KeypadNotifier = Signal<CriticalSectionRawMutex, [RGB; LED_COUNT]>;
 
@@ -134,9 +118,9 @@ pub enum Led {
 
 /// Holds all the buttons on the device mapped
 /// to the TCA8418RTWR keypad decoder.
-/// 
+///
 /// ROW4-ROW7 is configured as MENU3-MENU0
-/// 
+///
 /// ROW0-ROW3 is configured as the matrix rows
 /// COL3 - COL3 are configured as columns 3-9 (inverted)
 #[repr(u8)]
@@ -197,40 +181,40 @@ impl Button {
 }
 
 impl TryFrom<u8> for Button {
-        type Error = &'static str; // Define an error type for failed conversions
+    type Error = &'static str; // Define an error type for failed conversions
 
-        fn try_from(value: u8) -> Result<Self, Self::Error> {
-            match value {
-                0 => Ok(Button::Unknown),
+    fn try_from(value: u8) -> Result<Self, Self::Error> {
+        match value {
+            0 => Ok(Button::Unknown),
 
-                // Standalone buttons
-                104=> Ok(Button::Menu0),
-                103 => Ok(Button::Menu1),
-                102 => Ok(Button::Menu2),
-                101 => Ok(Button::Menu3),
+            // Standalone buttons
+            104 => Ok(Button::Menu0),
+            103 => Ok(Button::Menu1),
+            102 => Ok(Button::Menu2),
+            101 => Ok(Button::Menu3),
 
-                // Matrix buttons
-                4 => Ok(Button::Trig1),
-                3 => Ok(Button::Trig2),
-                2 => Ok(Button::Trig3),
-                1 => Ok(Button::Trig4),
-                14 => Ok(Button::Trig5),
-                13 => Ok(Button::Trig6),
-                12 => Ok(Button::Trig7),
-                11 => Ok(Button::Trig8),
-                24 => Ok(Button::Trig9),
-                23 => Ok(Button::Trig10),
-                22 => Ok(Button::Trig11),
-                21 => Ok(Button::Trig12),
-                34 => Ok(Button::Trig13),
-                33 => Ok(Button::Trig14),
-                32 => Ok(Button::Trig15),
-                31 => Ok(Button::Trig16),
+            // Matrix buttons
+            4 => Ok(Button::Trig1),
+            3 => Ok(Button::Trig2),
+            2 => Ok(Button::Trig3),
+            1 => Ok(Button::Trig4),
+            14 => Ok(Button::Trig5),
+            13 => Ok(Button::Trig6),
+            12 => Ok(Button::Trig7),
+            11 => Ok(Button::Trig8),
+            24 => Ok(Button::Trig9),
+            23 => Ok(Button::Trig10),
+            22 => Ok(Button::Trig11),
+            21 => Ok(Button::Trig12),
+            34 => Ok(Button::Trig13),
+            33 => Ok(Button::Trig14),
+            32 => Ok(Button::Trig15),
+            31 => Ok(Button::Trig16),
 
-                _ => Err("Invalid enum variant for Button"), // Handle invalid values
-            }
+            _ => Err("Invalid enum variant for Button"), // Handle invalid values
         }
     }
+}
 
 impl input::Input for Button {}
 
@@ -241,7 +225,7 @@ pub struct Keypad<'a> {
     // percentage from 0-100
     led_max_brightness: u8,
 
-    cache: [RGB; LED_COUNT]
+    cache: [RGB; LED_COUNT],
 }
 
 #[derive(Debug)]
@@ -266,50 +250,72 @@ impl From<SpawnError> for InitError {
 }
 
 impl<'a> Keypad<'a> {
-    pub async fn new (
+    pub async fn new(
         notifier: &'static KeypadNotifier,
         button_channel: &'static ButtonChannel,
-        mut driver: Tca8418<'static, asynch::i2c::I2cDevice<'static, CriticalSectionRawMutex, embassy_stm32::i2c::I2c<'static, mode::Async, embassy_stm32::i2c::Master>>>,
-        mut led_pwm: SimplePwm<'static, peripherals::TIM5>,
+        mut driver: Tca8418<
+            'static,
+            asynch::i2c::I2cDevice<
+                'static,
+                CriticalSectionRawMutex,
+                embassy_stm32::i2c::I2c<'static, mode::Async, embassy_stm32::i2c::Master>,
+            >,
+        >,
+        led_pwm: SimplePwm<'static, peripherals::TIM5>,
         led_dma: Peri<'static, embassy_stm32::peripherals::DMA2_CH4>,
         channel: timer::Channel,
         spawner: Spawner,
     ) -> Result<Self, InitError> {
         // Trigger and inital refresh when the driver starts.
         notifier.signal([
-            RED, GREEN, BLUE, RED,
-            GREEN, BLUE, RED, GREEN,
-            BLUE, RED, GREEN, BLUE,
-            RED, GREEN, BLUE, RED]);
+            RED, GREEN, BLUE, RED, GREEN, BLUE, RED, GREEN, BLUE, RED, GREEN, BLUE, RED, GREEN,
+            BLUE, RED,
+        ]);
 
         info!("Initializing TCA8418 driver...");
         driver.init().await.unwrap(); // TODO : return error result
 
         trace!("Configuring TCA8418");
 
-        driver.write_register(tca8418::register::Configuration::new(
-            false, // auto increment for read-write operations
-            false, // GPI evens tracked when keypad locked
-            true, // overflow data shifts with last event pushing first event out
-            true, //  processor interrupt is deasserted for 50 μs and reassert with pending interrupts
-            true, // assert INT on overflow
-            false, // don't assert interrupt after keypad unlock
-            false, // assert INT for GPI events // TODO: change
-            true, // assert INT for keypad events
-        )).await?;
-        
-        driver.write_register_byte(tca8418::register::GPIO_INTERRUPT_ENABLE1_ADDRESS, 0x00).await?;
-        driver.write_register_byte(tca8418::register::GPIO_INTERRUPT_ENABLE2_ADDRESS, 0x00).await?;
-        driver.write_register_byte(tca8418::register::GPIO_INTERRUPT_ENABLE3_ADDRESS, 0x00).await?;
+        driver
+            .write_register(tca8418::register::Configuration::new(
+                false, // auto increment for read-write operations
+                false, // GPI evens tracked when keypad locked
+                true,  // overflow data shifts with last event pushing first event out
+                true, //  processor interrupt is deasserted for 50 μs and reassert with pending interrupts
+                true, // assert INT on overflow
+                false, // don't assert interrupt after keypad unlock
+                false, // assert INT for GPI events // TODO: change
+                true, // assert INT for keypad events
+            ))
+            .await?;
+
+        driver
+            .write_register_byte(tca8418::register::GPIO_INTERRUPT_ENABLE1_ADDRESS, 0x00)
+            .await?;
+        driver
+            .write_register_byte(tca8418::register::GPIO_INTERRUPT_ENABLE2_ADDRESS, 0x00)
+            .await?;
+        driver
+            .write_register_byte(tca8418::register::GPIO_INTERRUPT_ENABLE3_ADDRESS, 0x00)
+            .await?;
 
         // Enable FIFO for the MENU GPIO buttons.
-        driver.write_register_byte(tca8418::register::GPI_EVENT_MODE1_ADDRESS, 0b11110000).await?;
+        driver
+            .write_register_byte(tca8418::register::GPI_EVENT_MODE1_ADDRESS, 0b11110000)
+            .await?;
 
         // Enable rows 0-3
-        driver.write_register_byte(tca8418::register::KEYPAD_GPIO1_ADDRESS, 0b00001111).await?;
+        driver
+            .write_register_byte(tca8418::register::KEYPAD_GPIO1_ADDRESS, 0b00001111)
+            .await?;
         // Enable colums 0-3
-        driver.write_register_byte(tca8418::register::KEYPAD_GPIO2_ADDRESS, 0b00001111).await?;
-        driver.write_register_byte(tca8418::register::KEYPAD_GPIO3_ADDRESS, 0b00000000).await?;
+        driver
+            .write_register_byte(tca8418::register::KEYPAD_GPIO2_ADDRESS, 0b00001111)
+            .await?;
+        driver
+            .write_register_byte(tca8418::register::KEYPAD_GPIO3_ADDRESS, 0b00000000)
+            .await?;
 
         // Split the button event channel since
         // the task only needs a channel sender.
@@ -318,7 +324,10 @@ impl<'a> Keypad<'a> {
 
         // Spawn the tasks for handling the keypad events and LEDs.
         info!("Spawning keypad tasks...");
-        spawner.spawn(unwrap!(buttons_event_task(driver.receiver(), button_sender)));
+        spawner.spawn(unwrap!(buttons_event_task(
+            driver.receiver(),
+            button_sender
+        )));
         spawner.spawn(unwrap!(leds_task(notifier, led_pwm, channel, led_dma)));
         spawner.spawn(unwrap!(buttons_task(driver)));
 
@@ -328,7 +337,7 @@ impl<'a> Keypad<'a> {
 
             led_max_brightness: 1,
 
-            cache: [RGB::new(0, 0, 0); LED_COUNT]
+            cache: [RGB::new(0, 0, 0); LED_COUNT],
         })
     }
 
@@ -353,9 +362,9 @@ impl<'a> input::Driver<Button> for Keypad<'a> {
         let button = self.button_receiver.receive().await;
 
         // Send it out as an input event.
-        Ok(input::InputEvent::<Button>{
+        Ok(input::InputEvent::<Button> {
             input: button,
-            pressed: true
+            pressed: true,
         })
     }
 }
@@ -365,8 +374,8 @@ impl<'a> input::Driver<Button> for Keypad<'a> {
 /// button press event on a channel.
 #[embassy_executor::task]
 pub async fn buttons_event_task(
-    mut driver_channel: tca8418::KeyChannelReceiver<'static>,
-    mut button_channel: ButtonSender<'static>,
+    driver_channel: tca8418::KeyChannelReceiver<'static>,
+    button_channel: ButtonSender<'static>,
 ) -> ! {
     trace!("Starting keypad button event task...");
     loop {
@@ -383,7 +392,14 @@ pub async fn buttons_event_task(
 /// Event that runs the TCA8418's interrupt handler.
 #[embassy_executor::task]
 pub async fn buttons_task(
-    mut driver: Tca8418<'static, asynch::i2c::I2cDevice<'static, CriticalSectionRawMutex, embassy_stm32::i2c::I2c<'static, mode::Async, embassy_stm32::i2c::Master>>>,
+    mut driver: Tca8418<
+        'static,
+        asynch::i2c::I2cDevice<
+            'static,
+            CriticalSectionRawMutex,
+            embassy_stm32::i2c::I2c<'static, mode::Async, embassy_stm32::i2c::Master>,
+        >,
+    >,
 ) -> ! {
     trace!("Starting keypad button matrix interrupt processor...");
     loop {
@@ -429,9 +445,9 @@ pub async fn leds_task(
     //
     // T1H and T0H define the PWM duty cycle width for a 1 and 0 respectively.
     let mut dma_buffer = LedDmaBuffer::<DMA_BUFFER_LEN>::new(t1h, t0h, LedDataComposition::GRB);
-    
+
     // ref: https://github.com/embassy-rs/embassy/issues/4788
-    let mut u32_dma_buffer: [u16; DMA_BUFFER_LEN*2] = [0u16; DMA_BUFFER_LEN*2];
+    let mut u32_dma_buffer: [u16; DMA_BUFFER_LEN * 2] = [0u16; DMA_BUFFER_LEN * 2];
 
     loop {
         // Wait for an LED update before refreshing the LEDs.
@@ -440,8 +456,10 @@ pub async fn leds_task(
         trace!("LED refresh");
 
         // Convert the RGB array into the 24-bit duty cycles
-        // needed to clock out the colors over PWM. 
-        dma_buffer.set_dma_buffer_with_brightness(&matrix, None, LED_MAX_BRIGHTNESS).unwrap();
+        // needed to clock out the colors over PWM.
+        dma_buffer
+            .set_dma_buffer_with_brightness(&matrix, None, LED_MAX_BRIGHTNESS)
+            .unwrap();
 
         // Hack to fix DMA transfers.
         //
@@ -452,11 +470,13 @@ pub async fn leds_task(
         // ref: https://github.com/embassy-rs/embassy/issues/4788
         let mut i = 0;
         for d in dma_buffer.get_dma_buffer() {
-            u32_dma_buffer[i*2] = *d;
+            u32_dma_buffer[i * 2] = *d;
             i += 1;
         }
 
         // Block out the PWM waveform using the DMA buffer
-        led_pwm.waveform::<embassy_stm32::timer::Ch4>(led_dma.reborrow(), &u32_dma_buffer).await;
+        led_pwm
+            .waveform::<embassy_stm32::timer::Ch4>(led_dma.reborrow(), &u32_dma_buffer)
+            .await;
     }
 }

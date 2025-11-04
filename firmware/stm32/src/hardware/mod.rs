@@ -1,98 +1,85 @@
 pub mod drivers;
 
-pub mod keypad;
-pub mod sd_card;
-pub mod internal_storage;
-pub mod usb;
 pub mod codec;
 pub mod display;
+pub mod internal_storage;
+pub mod keypad;
 pub mod mpu;
+pub mod sd_card;
+pub mod usb;
 
-use defmt::{trace, unwrap, info};
+use defmt::{info, trace};
 
-use embassy_usb::driver::Driver;
+use core::{cell::RefCell, default::Default, option::Option::Some};
 use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, channel::Channel};
-use core::{
-    cell::RefCell,
-    default::Default,
-    option::Option::Some
-};
 
 use assign_resources::assign_resources;
 
-use stm32_metapac::{
-    self as pac,
-    metadata::METADATA
-};
+use stm32_metapac::{self as pac};
 
 use embassy_stm32::{
-    Config, Peri, Peripherals, bind_interrupts, exti::ExtiInput, fmc::Fmc, gpio::{
-        self, Input, Level, Output, OutputType, Pull, Speed
-    }, i2c::{self, I2c}, mode, peripherals, spi::{
-        self
-    }, time::{
-        Hertz, khz, mhz
-    }, timer::{self, GeneralInstance4Channel, low_level::CountingMode, simple_pwm::{PwmPin, SimplePwm}}, usart::{
+    Config, Peri, Peripherals, bind_interrupts,
+    exti::ExtiInput,
+    fmc::Fmc,
+    gpio::{self, Input, Level, Output, OutputType, Pull, Speed},
+    i2c::{self, I2c},
+    mode, peripherals,
+    spi::{self},
+    time::{Hertz, khz, mhz},
+    timer::{
         self,
-        Uart
-    }
+        low_level::CountingMode,
+        simple_pwm::{PwmPin, SimplePwm},
+    },
+    usart::{self, Uart},
 };
 
-use embassy_time::{
-    Delay, Timer
-};
+use embassy_time::Delay;
 
 use embassy_sync::{
     blocking_mutex::{
         NoopMutex,
-        raw::{
-            RawMutex,
-            NoopRawMutex
-        }
+        raw::{NoopRawMutex, RawMutex},
     },
-    mutex::Mutex
+    mutex::Mutex,
 };
 
 // Provides types and interfaces common to display and graphics operations.
-use embedded_graphics::{
-    draw_target::DrawTarget, mock_display::ColorMapping, pixelcolor::Rgb565, prelude::RgbColor
-};
+use embedded_graphics::{pixelcolor::Rgb565, prelude::RgbColor};
 
 // Provides support for displays that support
 // MIPI commands over SPI or 8080 parallal.
 use mipidsi::{
-    Builder, interface::{
-        Generic16BitBus, OutputBus, ParallelInterface
-    }, models::{
-        ILI9341Rgb565, ST7789
-    }, options::ColorOrder
+    Builder,
+    interface::{Generic16BitBus, ParallelInterface},
+    models::ST7789,
+    options::ColorOrder,
 };
 
-
 // blocking SDMMC over SPI support.
-use embedded_sdmmc::{SdCard};
+use embedded_sdmmc::SdCard;
 
 // Async SDMMC over SPI support.
 use sdspi::SdSpi;
 
 use embassy_embedded_hal::{
     SetConfig,
-    shared_bus::asynch::{
-        self,
-        spi::SpiDeviceWithConfig,
-    }
+    shared_bus::asynch::{self, spi::SpiDeviceWithConfig},
 };
 
-use embassy_executor::{SpawnError, Spawner};
+use embassy_executor::Spawner;
 
-use static_cell::StaticCell;
-
-use crate::hardware::{
-    display::{Display, interface::{self, fmc::Parallel16Bits}, sram::{Sram, SramConfig, Timing}}, drivers::{
-        bq27531_g1::Bq27531,
-        fusb302b::Fusb302b, tca8418::{self, Tca8418}
-    }, keypad::{ButtonChannel, Keypad, KeypadNotifier}, sd_card::InitError};
 use crate::hardware::drivers::stm6601::Stm6601;
+use crate::hardware::{
+    display::Display,
+    drivers::{
+        bq27531_g1::Bq27531,
+        fusb302b::Fusb302b,
+        tca8418::{self, Tca8418},
+    },
+    keypad::Keypad,
+    sd_card::InitError,
+};
 
 assign_resources! {
     // For debug logging via Black Magic Probe's alternate pins 9/7.
@@ -214,7 +201,7 @@ assign_resources! {
         sdne1: PD7, // NE1 / Display CS
         sdcke0: PC5, // SDRAM CKE
         sdnras: PF11, // SDRAM RAS
-        
+
         noe: PD4, // NOW / Display RD
         nwe: PD5, // NWE / Display WRX(D/CX)
     }
@@ -276,7 +263,7 @@ assign_resources! {
         rm_rx_int: PA11,
         fm_tx_rst: PA15,
     }
-    
+
     /// BQ24193 battery charger, BQ27531YZFR-G1 fuel gauge, FUSB302B USB-PD.
     i2c2: I2C2Resources {
         peri: I2C2 = I2C2Peri,
@@ -284,7 +271,7 @@ assign_resources! {
         sda: PB11,
 
         tx_dma: DMA2_CH2,
-        rx_dma: DMA2_CH3,       
+        rx_dma: DMA2_CH3,
     }
 
     /// FT6206 Capacitive Touch, TCA8418RTWR Keypad, ADS7128IRTER Velocity, DA7280 Haptics, MMA8653FCR1 9DOF
@@ -314,28 +301,13 @@ assign_resources! {
 }
 
 pub mod preamble {
-    pub use crate::hardware;
     pub use super::{
-        AssignedResources,
-        UartDebugResources,
-        UartMIDIResources,
-        UartRFResources,
-        FlashResources,
-        CodecResources,
-        RFAudioResources,
-        UsbResources,
-        FMCResources,
-        SPIStorageResources,
-        PowerResources,
-        KeypadResources,
-        FuelGaugeResources,
-        USBPDResources,
-        I2C1Resources,
-        I2C2Resources,
-        I2C4Resources,
-        I2C4Interrupts,
-        DisplayResources,
+        AssignedResources, CodecResources, DisplayResources, FMCResources, FlashResources,
+        FuelGaugeResources, I2C1Resources, I2C2Resources, I2C4Interrupts, I2C4Resources,
+        KeypadResources, PowerResources, RFAudioResources, SPIStorageResources, USBPDResources,
+        UartDebugResources, UartMIDIResources, UartRFResources, UsbResources,
     };
+    pub use crate::hardware;
 }
 
 bind_interrupts!(pub struct Irqs {
@@ -359,27 +331,27 @@ bind_interrupts!(pub struct Irqs {
 /// the RCC, PLL, voltage, and clock matrix.
 pub fn init() -> Peripherals {
     let mut config = Config::default();
-    
+
     // default is 64Mhz, div 2 to 32MHz
     // config.rcc.d1c_pre = AHBPrescaler::DIV2;
 
     // TODO: re-enable 64mhz->480mhz clock
     /*{
         use embassy_stm32::rcc::*;
-        
+
         config.rcc.hsi = Some(HSIPrescaler::DIV1);
         config.rcc.hse = Some(Hse {
             freq: Hertz::mhz(25), // 25Mhz crystal
             mode: HseMode::Oscillator,
         });
         config.rcc.csi = false;
-        
+
         config.rcc.hsi48 = Some(Hsi48Config{
             sync_from_usb: true, // correct?
         });
-        
+
         config.rcc.sys = Sysclk::PLL1_P;
-        
+
         config.rcc.pll1 = Some(Pll{
             source: PllSource::HSE,
             prediv: PllPreDiv::DIV5,
@@ -388,7 +360,7 @@ pub fn init() -> Peripherals {
             divq: Some(PllDiv::DIV7),
             divr: Some(PllDiv::DIV2),
         });
-        
+
         config.rcc.pll2 = Some(Pll{
             source: PllSource::HSE,
             prediv: PllPreDiv::DIV2,
@@ -397,7 +369,7 @@ pub fn init() -> Peripherals {
             divq: Some(PllDiv::DIV2),
             divr: Some(PllDiv::DIV2),
         });
-        
+
         config.rcc.pll3 = None; /* Some(Pll{
             source: PllSource::HSE,
             prediv: PllPreDiv::DIV32,
@@ -413,11 +385,11 @@ pub fn init() -> Peripherals {
         config.rcc.apb2_pre = APBPrescaler::DIV2; // D2PPRE2 120Mhz
         config.rcc.apb3_pre = APBPrescaler::DIV2; // D1PPRE 120Mhz
         config.rcc.apb4_pre = APBPrescaler::DIV2; // D3PPRE 120Mhz
-        
+
         config.rcc.timer_prescaler = TimerPrescaler::DefaultX2; // TODO: double check
-        
-        config.rcc.voltage_scale = VoltageScale::Scale0; // 
-        
+
+        config.rcc.voltage_scale = VoltageScale::Scale0; //
+
         config.rcc.ls = LsConfig {
             rtc: RtcClockSource::LSI, // TODO: should be LSE ocillator?
             lsi: true,
@@ -476,7 +448,6 @@ pub fn get_uart_midi<'a>(r: UartMIDIResources) -> Uart<'a, mode::Async> {
     Uart::new(r.peri, r.rx_pin, r.tx_pin, Irqs, r.tx_dma, r.rx_dma, config).unwrap()
 }
 
-
 pub fn get_uart_rf_blocking<'a>(r: UartRFResources) -> Uart<'a, mode::Blocking> {
     let config = usart::Config::default();
     Uart::new_blocking(r.peri, r.rx_pin, r.tx_pin, config).unwrap()
@@ -486,7 +457,6 @@ pub fn get_uart_rf<'a>(r: UartRFResources) -> Uart<'a, mode::Async> {
     let config = usart::Config::default();
     Uart::new(r.peri, r.rx_pin, r.tx_pin, Irqs, r.tx_dma, r.rx_dma, config).unwrap()
 }
-
 
 // TODO: need to fix NSS pin
 // pub fn get_flash_blocking<'a>(r: FlashResources) -> Ospi<'a, peripherals::QUADSPI1, mode::Blocking> {
@@ -574,8 +544,16 @@ pub fn get_sdram<'a>(r: FMCResources) -> &'a mut [u32] {
         const REGION_WRITE_BACK: u32 = 0x01;
         const REGION_ENABLE: u32 = 0x01;
 
-        assert_eq!(size & (size - 1), 0, "SDRAM memory region size must be a power of 2");
-        assert_eq!(size & 0x1F, 0, "SDRAM memory region size must be 32 bytes or more");
+        assert_eq!(
+            size & (size - 1),
+            0,
+            "SDRAM memory region size must be a power of 2"
+        );
+        assert_eq!(
+            size & 0x1F,
+            0,
+            "SDRAM memory region size must be 32 bytes or more"
+        );
 
         fn log2minus1(sz: u32) -> u32 {
             for i in 5..=31 {
@@ -609,7 +587,8 @@ pub fn get_sdram<'a>(r: FMCResources) -> &'a mut [u32] {
 
         // Enable
         unsafe {
-            mpu.ctrl.modify(|r| r | MPU_DEFAULT_MMAP_FOR_PRIVILEGED | MPU_ENABLE);
+            mpu.ctrl
+                .modify(|r| r | MPU_DEFAULT_MMAP_FOR_PRIVILEGED | MPU_ENABLE);
 
             scb.shcsr.modify(|r| r | MEMFAULTENA);
 
@@ -659,13 +638,12 @@ pub fn get_sdram<'a>(r: FMCResources) -> &'a mut [u32] {
         // NBL0 - NBL1
         r.nbl0,
         r.nbl1,
-        r.sdcke0,  // SDCKE0
-        r.sdclk, // SDCLK
+        r.sdcke0, // SDCKE0
+        r.sdclk,  // SDCLK
         r.sdncas, // SDNCAS
-        r.sdne0, // SDNE1 (!CS)
+        r.sdne0,  // SDNE1 (!CS)
         r.sdnras, // SDRAS
-        r.sdnwe,  // SDNWE 
-
+        r.sdnwe,  // SDNWE
         // Supplies the timing and mode registry
         // parameters for the specific SDRAM IC.
         drivers::is42s16160j_7::Is42s16160j {},
@@ -704,8 +682,7 @@ pub fn get_sdram<'a>(r: FMCResources) -> &'a mut [u32] {
 
 use ili9341::{DisplaySize240x320, Ili9341, Orientation};
 
-
-// /// Returns a handle to 
+// /// Returns a handle to
 // pub fn get_display2<'a>(
 //     r: FMCResources,
 //     display: DisplayResources,
@@ -800,7 +777,7 @@ use ili9341::{DisplaySize240x320, Ili9341, Orientation};
 //     (pwm, display)
 // }
 
-// /// Returns a handle to 
+// /// Returns a handle to
 // pub fn get_display<'a>(
 //     r: FMCResources,
 //     display: DisplayResources,
@@ -865,9 +842,7 @@ use ili9341::{DisplaySize240x320, Ili9341, Orientation};
 //     (pwm, Display::new(rst, wr, dc, rd, d0, d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15, delay))
 // }
 
-
-
-/// Returns a handle to 
+/// Returns a handle to
 pub fn get_display_st7789<'a>(
     r: FMCResources,
     display: DisplayResources,
@@ -893,14 +868,15 @@ pub fn get_display_st7789<'a>(
                 embassy_stm32::gpio::Output<'a>, // d12
                 embassy_stm32::gpio::Output<'a>, // d13
                 embassy_stm32::gpio::Output<'a>, // d14
-                embassy_stm32::gpio::Output<'a>  // d15
+                embassy_stm32::gpio::Output<'a>, // d15
             >,
             embassy_stm32::gpio::Output<'a>, // data/command
-            embassy_stm32::gpio::Output<'a>  // write enable
+            embassy_stm32::gpio::Output<'a>, // write enable
         >,
         ST7789,
-        embassy_stm32::gpio::Output<'a>>)
-{
+        embassy_stm32::gpio::Output<'a>,
+    >,
+) {
     let mut pwm: SimplePwm<'_, peripherals::TIM3> = SimplePwm::new(
         display.backlight_tim,
         None,
@@ -916,7 +892,7 @@ pub fn get_display_st7789<'a>(
     // Pull to VDD to make sure datasheet is satisfied.
     // let rst = display.reset.into_push_pull_output_in_state(gpio::PinState::High);
     let rst = Output::new(display.reset, Level::High, Speed::Low);
-    
+
     // Write enable pin.
     //
     // Pull to VDD to make sure datasheet is satisfied.
@@ -947,8 +923,7 @@ pub fn get_display_st7789<'a>(
 
     // Define the parallal bus for display communication.
     let bus = Generic16BitBus::new((
-        d0, d1, d2, d3, d4, d5, d6, d7, d8,
-        d9, d10, d11, d12, d13, d14, d15,
+        d0, d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15,
     ));
 
     // Create the parallel display interface using the previously
@@ -996,9 +971,9 @@ use embassy_stm32::fmc;
 //     a0: Peri<'a, impl fmc::A0Pin<T>>, a1: Peri<'a, impl fmc::A1Pin<T>>, a2: Peri<'a, impl fmc::A2Pin<T>>, a3: Peri<'a, impl fmc::A3Pin<T>>,
 //     a4: Peri<'a, impl fmc::A4Pin<T>>, a5: Peri<'a, impl fmc::A5Pin<T>>, a6: Peri<'a, impl fmc::A6Pin<T>>, a7: Peri<'a, impl fmc::A7Pin<T>>,
 //     a8: Peri<'a, impl fmc::A8Pin<T>>, a9: Peri<'a, impl fmc::A9Pin<T>>, a10: Peri<'a, impl fmc::A10Pin<T>>, a11: Peri<'a, impl fmc::A11Pin<T>>, a12: Peri<'a, impl fmc::A12Pin<T>>,
-    
+
 //     ba0: Peri<'a, impl fmc::BA0Pin<T>>, ba1: Peri<'a, impl fmc::BA1Pin<T>>,
-    
+
 //     d0: Peri<'a, impl fmc::D0Pin<T>>, d1: Peri<'a, impl fmc::D1Pin<T>>, d2: Peri<'a, impl fmc::D2Pin<T>>,
 //     d3: Peri<'a, impl fmc::D3Pin<T>>, d4: Peri<'a, impl fmc::D4Pin<T>>, d5: Peri<'a, impl fmc::D5Pin<T>>,
 //     d6: Peri<'a, impl fmc::D6Pin<T>>, d7: Peri<'a, impl fmc::D7Pin<T>>, d8: Peri<'a, impl fmc::D8Pin<T>>,
@@ -1006,26 +981,21 @@ use embassy_stm32::fmc;
 //     d12: Peri<'a, impl fmc::D12Pin<T>>, d13: Peri<'a, impl fmc::D13Pin<T>>, d14: Peri<'a, impl fmc::D14Pin<T>>, d15: Peri<'a, impl fmc::D15Pin<T>>,
 
 //     nbl0: Peri<'a, impl fmc::NBL0Pin<T>>, nbl1: Peri<'a, impl fmc::NBL1Pin<T>>,
-    
+
 //     sdcke: Peri<'a, impl fmc::SDCKE0Pin<T>>, sdclk: Peri<'a, impl fmc::SDCLKPin<T>>,
 //     sdncas: Peri<'a, impl fmc::SDNCASPin<T>>, sdne: Peri<'a, impl fmc::SDNE0Pin<T>>,
 //     sdnras: Peri<'a, impl fmc::SDNRASPin<T>>, sdnwe: Peri<'a, impl fmc::SDNWEPin<T>>,
 // ) {
 //     sdnwe.af_num();
 
-
-   
 // }
 
 /// Configures the SDRAM and display which both use FMC access.
-pub async fn get_memory_devices <'a,
-    DELAY: embedded_hal_async::delay::DelayNs,
->(
+pub async fn get_memory_devices<'a, DELAY: embedded_hal_async::delay::DelayNs>(
     r: FMCResources,
     display: DisplayResources,
-    delay: DELAY
-) -> Result<Display<'a, DELAY, Parallel16Bits<'a>>, display::sram::InitError> {
-
+    delay: DELAY,
+) -> Result<Display<'a, DELAY>, display::fmc::InitError> {
     let mut core_peri: cortex_m::Peripherals = cortex_m::Peripherals::take().unwrap();
     // taken from stm32h7xx-hal
     core_peri.SCB.enable_icache();
@@ -1033,7 +1003,8 @@ pub async fn get_memory_devices <'a,
     // core_peri.SCB.enable_dcache(&mut core_peri.CPUID);
     core_peri.DWT.enable_cycle_counter();
 
-    { // Configure the MPU region 1 for the SRAM.
+    {
+        // Configure the MPU region 1 for the SRAM.
         trace!("Configuring MPU region 1 for display SRAM...");
         let mpu = core_peri.MPU;
         let scb = &mut core_peri.SCB;
@@ -1066,8 +1037,16 @@ pub async fn get_memory_devices <'a,
         const REGION_WRITE_BACK: u32 = 0x00; // 0 = write through, in theory caching here should work but doesn't seem to be..
         const REGION_ENABLE: u32 = 0x01;
 
-        assert_eq!(size & (size - 1), 0, "SRAM memory region size must be a power of 2");
-        assert_eq!(size & 0x1F, 0, "SRAM memory region size must be 32 bytes or more");
+        assert_eq!(
+            size & (size - 1),
+            0,
+            "SRAM memory region size must be a power of 2"
+        );
+        assert_eq!(
+            size & 0x1F,
+            0,
+            "SRAM memory region size must be 32 bytes or more"
+        );
 
         fn log2minus1(sz: u32) -> u32 {
             for i in 5..=31 {
@@ -1101,7 +1080,8 @@ pub async fn get_memory_devices <'a,
 
         // Enable
         unsafe {
-            mpu.ctrl.modify(|r| r | MPU_DEFAULT_MMAP_FOR_PRIVILEGED | MPU_ENABLE);
+            mpu.ctrl
+                .modify(|r| r | MPU_DEFAULT_MMAP_FOR_PRIVILEGED | MPU_ENABLE);
 
             scb.shcsr.modify(|r| r | MEMFAULTENA);
 
@@ -1118,63 +1098,28 @@ pub async fn get_memory_devices <'a,
     // Convert the address into an FMC instance.
     //
     // This instance allows us to directly access the registers.
-    let fmc_inst = unsafe {
-        pac::fmc::Fmc::from_ptr(0x52004000 as _)
-    };
+    let fmc_inst = unsafe { pac::fmc::Fmc::from_ptr(0x52004000 as _) };
 
     // Sets the correct alternate functions for all the FMC pins.
     //
     // Without this, the GPIO matrix won't connect the FMC anywhere...
     let mut fmc = Fmc::configure_sdram_a13bits_d16bits_4banks_bank1_and_parallel(
-        r.peri,
-        // A0-A11
-        r.a0,
-        r.a1,
-        r.a2,
-        r.a3,
-        r.a4,
-        r.a5,
-        r.a6,
-        r.a7,
-        r.a8,
-        r.a9,
-        r.a10,
-        r.a11,
-        r.a12,
+        r.peri, // A0-A11
+        r.a0, r.a1, r.a2, r.a3, r.a4, r.a5, r.a6, r.a7, r.a8, r.a9, r.a10, r.a11, r.a12,
         // BA0-BA1
-        r.ba0,
-        r.ba1,
-        // D0-D15
-        r.d0,
-        r.d1,
-        r.d2,
-        r.d3,
-        r.d4,
-        r.d5,
-        r.d6,
-        r.d7,
-        r.d8,
-        r.d9,
-        r.d10,
-        r.d11,
-        r.d12,
-        r.d13,
-        r.d14,
-        r.d15,
-        // NBL0 - NBL1
-        r.nbl0,
-        r.nbl1,
-        r.sdcke0,  // SDCKE0
-        r.sdclk, // SDCLK
+        r.ba0, r.ba1, // D0-D15
+        r.d0, r.d1, r.d2, r.d3, r.d4, r.d5, r.d6, r.d7, r.d8, r.d9, r.d10, r.d11, r.d12, r.d13,
+        r.d14, r.d15, // NBL0 - NBL1
+        r.nbl0, r.nbl1, r.sdcke0, // SDCKE0
+        r.sdclk,  // SDCLK
         r.sdncas, // SDNCAS
-        r.sdne0, // SDNE0 (!CS)
-        r.sdne1, // SDNE1 (!CS)
+        r.sdne0,  // SDNE0 (!CS)
+        r.sdne1,  // SDNE1 (!CS)
         r.sdnras, // SDRAS
-        r.sdnwe,  // SDNWE 
-        r.noe,  // NOE 
-        r.nwe, // NWE
+        r.sdnwe,  // SDNWE
+        r.noe,    // NOE
+        r.nwe,    // NWE
     );
-
 
     // Enable the FMC peripheral for use with the RCC.
     trace!("Initializing Memory Controller...");
@@ -1187,10 +1132,12 @@ pub async fn get_memory_devices <'a,
     //https://docs.rs/stm32-fmc/latest/stm32_fmc/struct.Sdram.html#method.new_unchecked
 
     trace!("Constructing LCD SRAM bank...");
-    let mut display_sram = Sram::new(fmc_inst, 
-        display::sram::SramBank::Bank1,
-         SramConfig::new_ili9341_parallel_i(display::sram::MemoryDataWidth::Bits16),
-         Timing::new_ili9341_parallel_i());
+    let mut display_sram = display::fmc::Fmc::new(
+        fmc_inst,
+        display::fmc::FMCRegion::Bank1,
+        display::fmc::Config::new_ili9341_parallel_i(display::fmc::MemoryDataWidth::Bits16),
+        display::fmc::Timing::new_ili9341_parallel_i(),
+    );
 
     trace!("Initializing display SRAM bank...");
     display_sram.init()?;
@@ -1205,19 +1152,18 @@ pub async fn get_memory_devices <'a,
     // let rst = display.reset.into_push_pull_output_in_state(gpio::PinState::High);
     let rst = Output::new(display.reset, Level::High, Speed::Low);
 
-    let interface = interface::fmc::Parallel16Bits::new(fmc_inst, 
-        interface::fmc::FMCRegion::Bank1,
-        interface::fmc::Config::new_ili9341_parallel_i(
-            interface::fmc::MemoryDataWidth::Bits16),
-        interface::fmc::Timing::new_ili9341_parallel_i()
+    let interface = display::fmc::Fmc::new(
+        fmc_inst,
+        display::fmc::FMCRegion::Bank1,
+        display::fmc::Config::new_ili9341_parallel_i(display::fmc::MemoryDataWidth::Bits16),
+        display::fmc::Timing::new_ili9341_parallel_i(),
     );
 
-    static FRAME_BUFFER: StaticCell<[Rgb565; display::WIDTH * display::HEIGHT]> = StaticCell::new();
-    let frame_buffer = FRAME_BUFFER.init([Rgb565::BLACK; display::WIDTH * display::HEIGHT]);
+    // static FRAME_BUFFER: StaticCell<[Rgb565; display::WIDTH * display::HEIGHT]> = StaticCell::new();
+    // let frame_buffer = FRAME_BUFFER.init([Rgb565::BLACK; display::WIDTH * display::HEIGHT]);
 
     trace!("Initializing display driver...");
-    let mut sram_display = Display::new(
-        interface, rst, delay, frame_buffer);
+    let mut sram_display = Display::new(interface, rst, delay, display.dma.into());
     sram_display.init().await;
 
     Ok(sram_display)
@@ -1235,7 +1181,7 @@ pub async fn get_memory_devices <'a,
 //         None, None, Some(backlight_pin),
 //         khz(10),
 //         Default::default());
-    
+
 //     let mut ch4 = pwm.ch4();
 //     ch4.enable();
 
@@ -1243,7 +1189,7 @@ pub async fn get_memory_devices <'a,
 // }
 
 /// Returns the STM6601 driver for managing the system power state.
-pub fn get_stm6601<'a> (r: PowerResources) -> Stm6601<'a, Output<'a>, Input<'a>>{
+pub fn get_stm6601<'a>(r: PowerResources) -> Stm6601<'a, Output<'a>, Input<'a>> {
     let int = ExtiInput::new(r.int, r.int_exit, Pull::Down);
     let ps_hold = Output::new(r.pwr_hold, Level::High, Speed::Low);
     let pb_state = Input::new(r.pbout, Pull::Down);
@@ -1253,15 +1199,28 @@ pub fn get_stm6601<'a> (r: PowerResources) -> Stm6601<'a, Output<'a>, Input<'a>>
 
 /// Creates the I2C1 interface for communicating with the NAU88C22YG
 /// Audio Codec, FM SI4703-C19-GMR RX / SI4710-B30-GMR TX.
-pub fn get_i2c1<'a>(r: I2C1Resources) -> embassy_sync::blocking_mutex::Mutex<NoopRawMutex, RefCell<I2c<'a, embassy_stm32::mode::Async, embassy_stm32::i2c::Master>>> {
-    let i2c = I2c::new(r.peri, r.scl, r.sda, Irqs, r.tx_dma, r.rx_dma, Default::default());
+pub fn get_i2c1<'a>(
+    r: I2C1Resources,
+) -> embassy_sync::blocking_mutex::Mutex<
+    NoopRawMutex,
+    RefCell<I2c<'a, embassy_stm32::mode::Async, embassy_stm32::i2c::Master>>,
+> {
+    let i2c = I2c::new(
+        r.peri,
+        r.scl,
+        r.sda,
+        Irqs,
+        r.tx_dma,
+        r.rx_dma,
+        Default::default(),
+    );
     NoopMutex::new(RefCell::new(i2c))
 }
 
 /// Creates the I2C2 interface for communicating with the BQ24193
 /// battery charger, BQ27531YZFR-G1 fuel gauge, FUSB302B USB-PD.
 pub fn get_i2c2<'a>(
-    r: I2C2Resources
+    r: I2C2Resources,
 ) -> I2c<'a, embassy_stm32::mode::Async, embassy_stm32::i2c::Master> {
     let mut config: i2c::Config = Default::default();
 
@@ -1274,12 +1233,13 @@ pub fn get_i2c2<'a>(
 }
 
 /// Gets a handle to the BQ27531 fuel gauge on I2C2.
-pub fn get_bq27531_g1_async<'a, 
+pub fn get_bq27531_g1_async<
+    'a,
     INT: gpio::Pin,
     M: RawMutex,
     BUS: embedded_hal_async::i2c::I2c,
-    DELAY: embedded_hal::delay::DelayNs
-> (
+    DELAY: embedded_hal::delay::DelayNs,
+>(
     int: Peri<'a, INT>,
     exti: Peri<'a, INT::ExtiChannel>,
     i2c_bus: &'a Mutex<M, BUS>,
@@ -1295,11 +1255,7 @@ pub fn get_bq27531_g1_async<'a,
 }
 
 /// Gets a handle to the FUSB302B USB-PD controller on I2C2.
-pub fn get_fusb302b_async<'a, 
-    INT: gpio::Pin,
-    M: RawMutex,
-    BUS: embedded_hal_async::i2c::I2c,
-> (
+pub fn get_fusb302b_async<'a, INT: gpio::Pin, M: RawMutex, BUS: embedded_hal_async::i2c::I2c>(
     int: Peri<'a, INT>,
     exti: Peri<'a, INT::ExtiChannel>,
     i2c_bus: &'a Mutex<M, BUS>,
@@ -1313,22 +1269,32 @@ pub fn get_fusb302b_async<'a,
     Fusb302b::new(int, device)
 }
 
-
 /// Creates the I2C4 interface for communicating with the FT6206 Capacitive
 /// Touch, TCA8418RTWR Keypad, ADS7128IRTER GPIO Breakout for Velocity
 /// Grid, DA7280 Haptics, and MMA8653FCR1 9DOF.
 //embassy_sync::blocking_mutex::Mutex<NoopRawMutex, RefCell<I2c<'a, embassy_stm32::mode::Async, embassy_stm32::i2c::Master>>>
-pub fn get_i2c4<'a>(r: I2C4Resources) -> embassy_stm32::i2c::I2c<'static, embassy_stm32::mode::Async, embassy_stm32::i2c::Master> {
-    I2c::new(r.peri, r.scl, r.sda, Irqs, r.tx_dma, r.rx_dma, Default::default())
+pub fn get_i2c4<'a>(
+    r: I2C4Resources,
+) -> embassy_stm32::i2c::I2c<'static, embassy_stm32::mode::Async, embassy_stm32::i2c::Master> {
+    I2c::new(
+        r.peri,
+        r.scl,
+        r.sda,
+        Irqs,
+        r.tx_dma,
+        r.rx_dma,
+        Default::default(),
+    )
 }
 
 /// Gets a handle to the TCA8418 keypad decoder on I2C4.
-pub fn get_tca8418_async<'a, 
+pub fn get_tca8418_async<
+    'a,
     INT: gpio::Pin,
     M: RawMutex,
     //BUS: SetConfig<Config = i2c::Config> + embedded_hal_async::i2c::I2c,
     BUS: embedded_hal_async::i2c::I2c,
-> (
+>(
     int: Peri<'a, INT>,
     exti: Peri<'a, INT::ExtiChannel>,
     i2c_bus: &'a Mutex<M, BUS>,
@@ -1349,10 +1315,12 @@ pub fn get_tca8418_async<'a,
 
 /// Create the SPI1 peripheral interface for interacting
 /// with the Micro SD card and onboard storage.
-pub fn get_spi1<'a> (r: SPIStorageResources) -> (
+pub fn get_spi1<'a>(
+    r: SPIStorageResources,
+) -> (
     embassy_stm32::spi::Spi<'a, embassy_stm32::mode::Async>,
     embassy_stm32::gpio::Output<'a>,
-    embassy_stm32::gpio::Output<'a>
+    embassy_stm32::gpio::Output<'a>,
 ) {
     // Initialize the output pins for SPI1 peripheral's chip selects.
     let sd_cs = Output::new(r.sd_cs, Level::High, Speed::Low);
@@ -1364,34 +1332,34 @@ pub fn get_spi1<'a> (r: SPIStorageResources) -> (
     spi_config.frequency = mhz(1);
 
     (
-        spi::Spi::new(r.peri, r.clk, r.pico, r.poci, r.rx_dma, r.tx_dma, spi_config),
+        spi::Spi::new(
+            r.peri, r.clk, r.pico, r.poci, r.rx_dma, r.tx_dma, spi_config,
+        ),
         sd_cs,
-        xtsdg_cs
+        xtsdg_cs,
     )
 }
 
 /// Uses the embedded-sdmmc crate which is a blocking API.
-/// 
+///
 /// ```
 /// let spi_bus = RefCell::new(spi1);
 /// ```
-pub fn get_sdcard_blocking<'a, DELAY: embedded_hal::delay::DelayNs + core::marker::Copy> (
-    spi_bus: &'a RefCell<spi::Spi<'a, mode::Async> >,
+pub fn get_sdcard_blocking<'a, DELAY: embedded_hal::delay::DelayNs + core::marker::Copy>(
+    spi_bus: &'a RefCell<spi::Spi<'a, mode::Async>>,
     sd_cs: embassy_stm32::gpio::Output<'a>,
     delay: DELAY,
-)  -> embedded_sdmmc::SdCard<
-        embedded_hal_bus::spi::RefCellDevice<'a,
-            embassy_stm32::spi::Spi<'a,
-                embassy_stm32::mode::Async
-            >,
-            embassy_stm32::gpio::Output<'a>,
-            DELAY
-        >,
-        DELAY
+) -> embedded_sdmmc::SdCard<
+    embedded_hal_bus::spi::RefCellDevice<
+        'a,
+        embassy_stm32::spi::Spi<'a, embassy_stm32::mode::Async>,
+        embassy_stm32::gpio::Output<'a>,
+        DELAY,
+    >,
+    DELAY,
 > {
-    let sdmmc_spi = embedded_hal_bus::spi::RefCellDevice::new(
-        spi_bus, sd_cs, delay).unwrap();
-    
+    let sdmmc_spi = embedded_hal_bus::spi::RefCellDevice::new(spi_bus, sd_cs, delay).unwrap();
+
     SdCard::new(sdmmc_spi, delay)
 
     // Triggers card initialization and read bytes.
@@ -1399,18 +1367,24 @@ pub fn get_sdcard_blocking<'a, DELAY: embedded_hal::delay::DelayNs + core::marke
 }
 
 /// Uses the embedded-fatfs crate which is async.
-pub async fn get_sdcard_async<'a,
+pub async fn get_sdcard_async<
+    'a,
     M: RawMutex,
     BUS: SetConfig<Config = spi::Config> + embedded_hal_async::spi::SpiBus,
-    DELAY: embedded_hal_async::delay::DelayNs + Clone
-> (
+    DELAY: embedded_hal_async::delay::DelayNs + Clone,
+>(
     spi_bus: &'a Mutex<M, BUS>,
     cs: gpio::Output<'a>,
     delay: DELAY,
 ) -> SdSpi<
-        embassy_embedded_hal::shared_bus::asynch::spi::SpiDeviceWithConfig<'a,
-            M, BUS, embassy_stm32::gpio::Output<'a>>,
-        DELAY, aligned::A4
+    embassy_embedded_hal::shared_bus::asynch::spi::SpiDeviceWithConfig<
+        'a,
+        M,
+        BUS,
+        embassy_stm32::gpio::Output<'a>,
+    >,
+    DELAY,
+    aligned::A4,
 > {
     // Configure the SPI settings for the SD card.
     //
@@ -1420,16 +1394,18 @@ pub async fn get_sdcard_async<'a,
 
     // Create the SPI device for the SD card, using the SD card's CS pin.
     let spid = SpiDeviceWithConfig::new(spi_bus, cs, spi_config);
-    
+
     // Initialize the SD-over-SPI wrapper.
     SdSpi::<_, _, aligned::A4>::new(spid, delay)
 }
 
-pub async fn get_sdcard_async2<'a,'b, 
+pub async fn get_sdcard_async2<
+    'a,
+    'b,
     M: RawMutex,
     BUS: SetConfig<Config = spi::Config> + embedded_hal_async::spi::SpiBus,
-    DELAY: embedded_hal_async::delay::DelayNs + Clone
-> (
+    DELAY: embedded_hal_async::delay::DelayNs + Clone,
+>(
     spi_bus: &'a Mutex<M, BUS>,
     cs: gpio::Output<'a>,
     delay: DELAY,
@@ -1442,31 +1418,34 @@ pub async fn get_sdcard_async2<'a,'b,
 
     // Create the SPI device for the SD card, using the SD card's CS pin.
     let spid = SpiDeviceWithConfig::new(spi_bus, cs, spi_config);
-    
+
     // Initialize the SD-over-SPI wrapper.
-    let spi_sd: SdSpi<SpiDeviceWithConfig<'a, M, BUS, Output<'a>>, DELAY, aligned::A4> = SdSpi::new(spid, delay);
-    
+    let spi_sd: SdSpi<SpiDeviceWithConfig<'a, M, BUS, Output<'a>>, DELAY, aligned::A4> =
+        SdSpi::new(spid, delay);
+
     sd_card::SdCard::init(spi_sd).await
 }
 
-pub fn get_internal_storage<'a,
+pub fn get_internal_storage<
+    'a,
     M: RawMutex,
     BUS: SetConfig<Config = spi::Config> + embedded_hal_async::spi::SpiBus,
-    DELAY: embedded_hal_async::delay::DelayNs + Clone
-> (
+    DELAY: embedded_hal_async::delay::DelayNs + Clone,
+>(
     spi_bus: &'a Mutex<M, BUS>,
     cs: gpio::Output<'a>,
     delay: DELAY,
 ) {
-    
 }
 
-pub async fn get_keypad<'a> (
+pub async fn get_keypad<'a>(
     spawner: Spawner,
     r: KeypadResources,
-    i2c_bus: &'static Mutex<CriticalSectionRawMutex, embassy_stm32::i2c::I2c<'static, mode::Async, embassy_stm32::i2c::Master>>,
+    i2c_bus: &'static Mutex<
+        CriticalSectionRawMutex,
+        embassy_stm32::i2c::I2c<'static, mode::Async, embassy_stm32::i2c::Master>,
+    >,
 ) -> Result<Keypad<'a>, keypad::InitError> {
-    
     let tca8418 = get_tca8418_async(r.int, r.exti, i2c_bus);
 
     // Configure the pin to PWM
@@ -1488,20 +1467,24 @@ pub async fn get_keypad<'a> (
 
     static NOTIFIER: keypad::KeypadNotifier = keypad::notifier();
     static BUTTON_CH: keypad::ButtonChannel = keypad::channel();
-    
+
     Keypad::new(
-        &NOTIFIER, 
-        &BUTTON_CH, 
-        tca8418, 
-        pwm, 
-        r.dma, 
+        &NOTIFIER,
+        &BUTTON_CH,
+        tca8418,
+        pwm,
+        r.dma,
         timer::Channel::Ch4,
-        spawner
-    ).await
+        spawner,
+    )
+    .await
 }
 
 /// Constructs the USB high-speed driver.
-pub fn get_usb_hs_driver<'a> (r: UsbResources, ep_out_buffer: &'a mut [u8; 256]) -> embassy_stm32::usb::Driver<'a, peripherals::USB_OTG_HS>{
+pub fn get_usb_hs_driver<'a>(
+    r: UsbResources,
+    ep_out_buffer: &'a mut [u8; 256],
+) -> embassy_stm32::usb::Driver<'a, peripherals::USB_OTG_HS> {
     // Create the USB driver config.
     let mut config = embassy_stm32::usb::Config::default();
 
@@ -1509,11 +1492,10 @@ pub fn get_usb_hs_driver<'a> (r: UsbResources, ep_out_buffer: &'a mut [u8; 256])
     // to enable vbus_detection to comply with the USB spec. If you enable it, the board
     // has to support it or USB won't work at all. See docs on `vbus_detection` for details.
     config.vbus_detection = true;
-    
+
     // Create the HS USB driver.
     embassy_stm32::usb::Driver::new_fs(r.peri, Irqs, r.dp, r.dm, ep_out_buffer, config)
 }
-
 
 pub async fn get_usb<'a>(r: UsbResources, ep_out_buffer: &'a mut [u8; 256]) {
     let driver = get_usb_hs_driver(r, ep_out_buffer);

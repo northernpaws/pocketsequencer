@@ -1,5 +1,6 @@
 {
     "recommendations": [
-        "jeandudey.cortex-debug-dp-stm32h7"
+        "jeandudey.cortex-debug-dp-stm32h7",
+        "maziac.hex-hover-converter"
     ]
 }

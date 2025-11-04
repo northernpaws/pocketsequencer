@@ -12,53 +12,72 @@ use embassy_executor::Spawner;
 
 use embassy_futures::join::join;
 use embassy_stm32::{
-    gpio::{Level, Output, OutputType, Speed}, i2c::{
+    gpio::{Level, Output, OutputType, Speed},
+    i2c::{self, I2c},
+    mode::Async,
+    peripherals,
+    rcc::clocks,
+    spi::{self, Spi},
+    time::{Hertz, khz, mhz},
+    timer::{
         self,
-        I2c
-    }, mode::Async, peripherals, rcc::clocks, spi::{
-        self, Spi
-    }, time::{khz, mhz, Hertz}, timer::{self, low_level::CountingMode, simple_pwm::{PwmPin, SimplePwm}}, usart::{Uart, UartRx, UartTx}, usb::{self, Driver}
+        low_level::CountingMode,
+        simple_pwm::{PwmPin, SimplePwm},
+    },
+    usart::{Uart, UartRx, UartTx},
+    usb::{self, Driver},
 };
 
 use embassy_sync::{
-    blocking_mutex::{
-        self, raw::CriticalSectionRawMutex, NoopMutex
-    },
-    mutex::Mutex
+    blocking_mutex::{self, NoopMutex, raw::CriticalSectionRawMutex},
+    mutex::Mutex,
 };
 
-use embassy_time::{with_timeout, Duration, Ticker, Timer};
-use embassy_usb::{class::{cdc_acm::{CdcAcmClass, State}, midi::MidiClass}, driver::EndpointError, Builder};
-use embedded_fatfs::{format_volume, FormatVolumeOptions, FsOptions};
-use embedded_graphics::pixelcolor::Rgb565;
+use embassy_time::{Duration, Ticker, Timer, with_timeout};
+use embassy_usb::{
+    Builder,
+    class::{
+        cdc_acm::{CdcAcmClass, State},
+        midi::MidiClass,
+    },
+    driver::EndpointError,
+};
+use embedded_fatfs::{FormatVolumeOptions, FsOptions, format_volume};
 use embedded_graphics::Drawable;
+use embedded_graphics::pixelcolor::Rgb565;
 use embedded_hal_async::delay::DelayNs;
 
+use block_device_adapters::BufStream;
+use block_device_adapters::BufStreamError;
 use heapless::format;
 use ili9341::ModeState;
 use mipidsi::TestImage;
-use rgb_led_pwm_dma_maker::{calc_dma_buffer_length, LedDataComposition, LedDmaBuffer, RgbLedColor, RGB};
-use sdio_host::{common_cmd::{select_card, set_block_length}, sd::BlockSize};
-use sdspi::{
-    sd_init
+use rgb_led_pwm_dma_maker::{
+    LedDataComposition, LedDmaBuffer, RGB, RgbLedColor, calc_dma_buffer_length,
 };
-use block_device_adapters::BufStream;
-use block_device_adapters::BufStreamError;
+use sdio_host::{
+    common_cmd::{select_card, set_block_length},
+    sd::BlockSize,
+};
+use sdspi::sd_init;
 
+use embedded_graphics::prelude::RgbColor;
 use embedded_graphics_core::draw_target::DrawTarget;
- use embedded_graphics::prelude::RgbColor;
 
 use static_cell::StaticCell;
 
 use {
     // defmt_rtt as _,
-    panic_probe as _
+    panic_probe as _,
 };
 
 use firmware::{
     hardware::{
-        self, Irqs, keypad::{self, Keypad}, preamble::*
-    }, split_resources
+        self, Irqs,
+        keypad::{self, Keypad},
+        preamble::*,
+    },
+    split_resources,
 };
 
 use engine;
@@ -66,27 +85,29 @@ use engine;
 // Audio I2C bus.
 //
 // This communicates with the NAU88C22YG Audio Codec, FM SI4703-C19-GMR RX / SI4710-B30-GMR TX.
-static I2C1_BUS: <NoopMutex<RefCell<I2c<'static, Async, i2c::Master>>>> = StaticCell::new();
+// static I2C1_BUS: <NoopMutex<RefCell<I2c<'static, Async, i2c::Master>>>> = StaticCell::new();
 
 // Power management bus.
 //
 // This communicates with the BQ24193 battery charger, BQ27531YZFR-G1 fuel gauge, and FUSB302B USB-PD manager.
 // static I2C2_BUS: StaticCell<NoopMutex<RefCell<I2c<'static, Async, i2c::Master>>>> = StaticCell::new();
-static I2C2_BUS: StaticCell<Mutex<CriticalSectionRawMutex, I2c<'static, Async, i2c::Master>>> = StaticCell::new();
+static I2C2_BUS: StaticCell<Mutex<CriticalSectionRawMutex, I2c<'static, Async, i2c::Master>>> =
+    StaticCell::new();
 
 // Input bus.
 //
 // This communicates with the FT6206 Capacitive Touch sensor, TCA8418RTWR Keypad matrix,
 // ADS7128IRTER GPIO Breakout for Velocity Grid, DA7280 Haptics driver, and MMA8653FCR1 9DOF.
 // static I2C4_BUS: StaticCell<NoopMutex<RefCell<I2c<'static, Async, i2c::Master>>>> = StaticCell::new();
-static I2C4_BUS: StaticCell<Mutex<CriticalSectionRawMutex, I2c<'static, Async, i2c::Master>>> = StaticCell::new();
+static I2C4_BUS: StaticCell<Mutex<CriticalSectionRawMutex, I2c<'static, Async, i2c::Master>>> =
+    StaticCell::new();
 
 /// SPI bus for internal and SD card storage.
 static SPI_BUS: StaticCell<Mutex<CriticalSectionRawMutex, Spi<'static, Async>>> = StaticCell::new();
 // static SPI_BUS: StaticCell<blocking_mutex::Mutex<CriticalSectionRawMutex, RefCell<Spi<'static, Async>>>> = StaticCell::new();
 
 /// Custom HardFault handler to improve debugging.
-/// 
+///
 /// ref: https://doc.rust-lang.org/beta/embedded-book/start/exceptions.html#the-hard-fault-handler
 #[exception]
 unsafe fn HardFault(ef: &ExceptionFrame) -> ! {
@@ -112,7 +133,10 @@ unsafe fn HardFault(ef: &ExceptionFrame) -> ! {
     let pc = ef.pc();
     error!("pc: 0x{:X}", pc);
     error!("  Inspect assembled program with:");
-    error!("  $ cargo objdump -- -d --no-show-raw-insn --print-imm-hex | grep {:x} -A 10 -B 10", pc);
+    error!(
+        "  $ cargo objdump -- -d --no-show-raw-insn --print-imm-hex | grep {:x} -A 10 -B 10",
+        pc
+    );
     error!("xpsr: {:b}", ef.xpsr());
 
     // Attempt to read the cortex registers to get more info.
@@ -130,41 +154,46 @@ unsafe fn HardFault(ef: &ExceptionFrame) -> ! {
             error!("  SCB->CFSR: {:b}", scb.cfsr.read());
 
             // Mask out the UFSR section of the CFSR register (first half).
-            if((scb.cfsr.read() & 0xFFFF0000) != 0) {
+            if ((scb.cfsr.read() & 0xFFFF0000) != 0) {
                 let ufsr: u16 = (scb.cfsr.read() >> 16) as u16;
                 error!("  Usage Fault Indicator set!");
                 error!("    SCB->CFSR->UFSR={:b}", ufsr);
 
                 // TODO: error messages https://developer.arm.com/documentation/dui0552/a/cortex-m3-peripherals/system-control-block/configurable-fault-status-register
-            } 
+            }
 
             // BFSR
-            if((scb.cfsr.read() & 0xFF00) != 0) {
+            if ((scb.cfsr.read() & 0xFF00) != 0) {
                 error!("  Bus Fault Indicator set!");
-                
+
                 let bsfr = (scb.cfsr.read() & 0xFF00) >> 8;
                 error!("    SCB->CSFR->BSFR={:b}", bsfr);
 
-                if (bsfr & 0b1) != 0 { // 0
+                if (bsfr & 0b1) != 0 {
+                    // 0
                     error!("    IBUSERR: Instruction bus error.")
-                } else if (bsfr & 0b10) != 0 { // 1
+                } else if (bsfr & 0b10) != 0 {
+                    // 1
                     error!("    PRECISERR: Precise data bus error.");
                     error!("      Offending address (BFAR): 0x{:x}", scb.bfar.read());
-                } else if (bsfr & 0b100) != 0 { // 2
+                } else if (bsfr & 0b100) != 0 {
+                    // 2
                     error!("    IMPRECISERR: Imprecise data bus error.");
                     error!("      Due to an Imprecise data bus error, the return address in the ");
                     error!("       stack does not point to the instruction that caused the fault!");
-                } else if (bsfr & 0b1000) != 0 { // 3
+                } else if (bsfr & 0b1000) != 0 {
+                    // 3
                     error!("    UNSTKERR: BusFault on unstacking for a return from exception.");
-                } else if (bsfr & 0b10000) != 0 { // 4
+                } else if (bsfr & 0b10000) != 0 {
+                    // 4
                     error!("    STKERR: BusFault on stacking for exception entry.");
                 } else {
                     error!("    Unknown bus fault! See register for details.");
                 }
             }
-            
+
             // MMFSR
-            if((scb.cfsr.read() & 0xFF) != 0) {
+            if ((scb.cfsr.read() & 0xFF) != 0) {
                 error!("  Memory Management Indicator set!");
                 error!("    Memory fault location: 0x{:X}", scb.mmfar.read());
                 // TODO: error messages https://developer.arm.com/documentation/dui0552/a/cortex-m3-peripherals/system-control-block/configurable-fault-status-register
@@ -187,16 +216,20 @@ async fn main(spawner: Spawner) {
     // If it returns, something went wrong.
     if let Err(err) = inner_main(spawner).await {
         defmt::panic!("{}", err);
-    }    
+    }
 }
 
 static DEBUG_SERIAL_TX: StaticCell<UartTx<'static, Async>> = StaticCell::new();
 static DEBUG_SERIAL_RX: StaticCell<UartRx<'static, Async>> = StaticCell::new();
 
 // Inner-main allows us us to returns errors via Result instead of relying on panics.
-#[expect(clippy::future_not_send, reason = "Safe in single-threaded, bare-metal embedded context")]
+#[expect(
+    clippy::future_not_send,
+    reason = "Safe in single-threaded, bare-metal embedded context"
+)]
 #[expect(clippy::items_after_statements, reason = "Keeps related code together")]
-async fn inner_main(spawner: Spawner) -> Result<(), ()> { // TODO: add error type
+async fn inner_main(spawner: Spawner) -> Result<(), ()> {
+    // TODO: add error type
     info!("initializing clocks and PLL to 480Mhz");
     let p = hardware::init();
 
@@ -225,9 +258,7 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> { // TODO: add error typ
     // ParityNone
     // Stop1
     let mut debug_uart = hardware::get_uart_debug(r.uart_debug);
-    debug_uart.blocking_write(
-        b"debug serial ready"
-    ).unwrap();
+    debug_uart.blocking_write(b"debug serial ready").unwrap();
     let (mut debug_tx_raw, mut debug_rx_raw) = debug_uart.split();
     let mut debug_tx = DEBUG_SERIAL_TX.init(debug_tx_raw);
     let mut debug_rx = DEBUG_SERIAL_RX.init(debug_rx_raw);
@@ -252,7 +283,9 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> { // TODO: add error typ
     // Initialize the keypad fairly early so that we can
     // use the keypad LEDs as status indicators.
     info!("Initializing keypad...");
-    let mut keypad = hardware::get_keypad(spawner, r.keypad, i2c4_bus).await.unwrap();
+    let mut keypad = hardware::get_keypad(spawner, r.keypad, i2c4_bus)
+        .await
+        .unwrap();
 
     // info!("Initializing SDRAM...");
     // keypad.set_led(keypad::Led::Trig1, RGB::new(255, 0, 0));
@@ -293,14 +326,14 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> { // TODO: add error typ
             }
         }
     }
-    
+
     info!("Constructing SD card device..");
     keypad.set_led(keypad::Led::Trig3, RGB::new(255, 0, 0));
     let mut sd_card = hardware::get_sdcard_async2(spi_bus, sd_cs, embassy_time::Delay).await.unwrap();
     keypad.set_led(keypad::Led::Trig3, RGB::new(0, 255, 0));*/
 
     // sd_card.list_filesystem().await.unwrap();
-    
+
     // Initialize the internal storage.
     //
     // The device internal storage uses an XTSDG IC
@@ -310,45 +343,45 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> { // TODO: add error typ
     let mut internal_storage = hardware::get_internal_storage(spi_bus, xtsdg_cs, embassy_time::Delay);
     keypad.set_led(keypad::Led::Trig4, RGB::new(0, 255, 0));*/
 
-/*
-    // Next initialize the bus for the I2C2 peripheral that
-    // has all the power management peripherals attatched.
-    //
-    // This communicates with the BQ24193 battery charger,
-    // BQ27531YZFR-G1 fuel gauge, FUSB302B USB-PD.
-    //
-    // Note that the communication with the BQ24193 charger happens
-    // THROUGH the BQ27531YZFR-G1 fuel gauge. They're interconnected
-    // on their own I2C bus with a special set of registers on the
-    // fuel gauge to interact with the charger.
-    info!("Initializing power i2c2 bus...");
-    let i2c2_bus = I2C2_BUS.init(Mutex::new(hardware::get_i2c2(r.i2c2)));
+    /*
+        // Next initialize the bus for the I2C2 peripheral that
+        // has all the power management peripherals attatched.
+        //
+        // This communicates with the BQ24193 battery charger,
+        // BQ27531YZFR-G1 fuel gauge, FUSB302B USB-PD.
+        //
+        // Note that the communication with the BQ24193 charger happens
+        // THROUGH the BQ27531YZFR-G1 fuel gauge. They're interconnected
+        // on their own I2C bus with a special set of registers on the
+        // fuel gauge to interact with the charger.
+        info!("Initializing power i2c2 bus...");
+        let i2c2_bus = I2C2_BUS.init(Mutex::new(hardware::get_i2c2(r.i2c2)));
 
-    // Get a handle to the battery fuel gauge peripheral.
-    let mut fuel_gauge = hardware::get_bq27531_g1_async(
-        r.fuel_gauge.int,
-        r.fuel_gauge.int_exti,
-        i2c2_bus,
-        embassy_time::Delay);
+        // Get a handle to the battery fuel gauge peripheral.
+        let mut fuel_gauge = hardware::get_bq27531_g1_async(
+            r.fuel_gauge.int,
+            r.fuel_gauge.int_exti,
+            i2c2_bus,
+            embassy_time::Delay);
 
-    info!("Attempting to read battery charger internal temp...");
-    if let Ok(temp) = fuel_gauge.read_internal_temperature().await {
-        info!("Battery charger internal temp: {}", temp);
-    } else {
-        error!("Failed to read battery charger temp!");
-    }
+        info!("Attempting to read battery charger internal temp...");
+        if let Ok(temp) = fuel_gauge.read_internal_temperature().await {
+            info!("Battery charger internal temp: {}", temp);
+        } else {
+            error!("Failed to read battery charger temp!");
+        }
 
-    // Get a handle to the FUSB302B device for managing the USB-PD interface.
-    let mut fusb302b = hardware::get_fusb302b_async(r.usb_pd.int, r.usb_pd.int_exti, i2c2_bus);
+        // Get a handle to the FUSB302B device for managing the USB-PD interface.
+        let mut fusb302b = hardware::get_fusb302b_async(r.usb_pd.int, r.usb_pd.int_exti, i2c2_bus);
 
-    // Initialize the bus for the I2C1 peripheral.
-    //
-    // This communicates with the NAU88C22YG Audio Codec,
-    // FM SI4703-C19-GMR RX / SI4710-B30-GMR TX.
-    info!("initializing audio i2c1 bus");
-    let _i2c1_bus = I2C1_BUS.init(hardware::get_i2c1(r.i2c1));
-*/
-    
+        // Initialize the bus for the I2C1 peripheral.
+        //
+        // This communicates with the NAU88C22YG Audio Codec,
+        // FM SI4703-C19-GMR RX / SI4710-B30-GMR TX.
+        info!("initializing audio i2c1 bus");
+        let _i2c1_bus = I2C1_BUS.init(hardware::get_i2c1(r.i2c1));
+    */
+
     // info!("Starting USB device...");
     // hardware::usb::start_usb(spawner, r.usb).await;
 
@@ -356,7 +389,9 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> { // TODO: add error typ
     info!("Configuring display peripheral...");
 
     info!("Configuring memory controller...");
-    let mut display_sram = hardware::get_memory_devices(r.fmc, r.display, embassy_time::Delay).await.unwrap();
+    let mut display = hardware::get_memory_devices(r.fmc, r.display, embassy_time::Delay)
+        .await
+        .unwrap();
     // let (
     //     mut backlight_pwm,
     //     mut display
@@ -370,21 +405,21 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> { // TODO: add error typ
     // backlight_pwm_channel.set_duty_cycle_fully_on();
 
     // info!("Clearing the display with red..");
-    // display.clear(Rgb565::RED).unwrap();
+    display.clear(Rgb565::RED).unwrap();
 
     // let test_image = TestImage::new();
     loop {
         keypad.set_led(keypad::Led::Trig16, RGB::new(255, 0, 0));
-        // display.clear(Rgb565::RED).unwrap();
+        display.clear(Rgb565::RED).unwrap();
         Timer::after_millis(500).await;
         keypad.set_led(keypad::Led::Trig16, RGB::new(0, 255, 0));
-        // display.clear(Rgb565::GREEN).unwrap();
+        display.clear(Rgb565::GREEN).unwrap();
         Timer::after_millis(500).await;
         keypad.set_led(keypad::Led::Trig16, RGB::new(0, 0, 255));
-        // display.clear(Rgb565::BLUE).unwrap();
+        display.clear(Rgb565::BLUE).unwrap();
         Timer::after_millis(500).await;
         keypad.set_led(keypad::Led::Trig16, RGB::new(255, 255, 255));
-        // display.clear(Rgb565::WHITE).unwrap();
+        display.clear(Rgb565::WHITE).unwrap();
         Timer::after_millis(500).await;
 
         // keypad.set_led(keypad::Led::Trig16, RGB::new(255, 255, 255));
@@ -393,35 +428,33 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> { // TODO: add error typ
     }
 
     info!("Initializing engine..");
-    let mut engine_instance = engine::Engine::new(
-        keypad,
-    );
+    let mut engine_instance = engine::Engine::new(keypad);
 
     engine_instance.start().await;
 
     /*info!("Starting wireless UART peripheral...");
-    let wireless_uart = hardware::get_uart_rf(r.uart_rf);
-    let (mut wireless_tx, mut wireless_rx) = wireless_uart.split();
-    
-    let wireless_read = async {
-        let mut buf = [0u8; 16];
-        loop {
-            unwrap!(wireless_rx.read(&mut buf).await);
-            info!("received wireless uart message: {} {=[u8]:a}", buf, buf);
-        }
-    };
+        let wireless_uart = hardware::get_uart_rf(r.uart_rf);
+        let (mut wireless_tx, mut wireless_rx) = wireless_uart.split();
 
-    let wireless_write = async {
-        let mut buf = [0u8; 16];
-        loop {
-            unwrap!(debug_rx.read(&mut buf).await);
-            info!("received wireless uart message: {} {=[u8]:a}", buf, buf);
-            unwrap!(wireless_tx.write(&mut buf).await);
-        }
-    };
+        let wireless_read = async {
+            let mut buf = [0u8; 16];
+            loop {
+                unwrap!(wireless_rx.read(&mut buf).await);
+                info!("received wireless uart message: {} {=[u8]:a}", buf, buf);
+            }
+        };
 
-    join(wireless_read, wireless_write).await;
-*/
+        let wireless_write = async {
+            let mut buf = [0u8; 16];
+            loop {
+                unwrap!(debug_rx.read(&mut buf).await);
+                info!("received wireless uart message: {} {=[u8]:a}", buf, buf);
+                unwrap!(wireless_tx.write(&mut buf).await);
+            }
+        };
+
+        join(wireless_read, wireless_write).await;
+    */
     Ok(())
 }
 
@@ -471,5 +504,3 @@ pub enum Never {}
 //         info!("Disconnected");
 //     }
 // }
-
-

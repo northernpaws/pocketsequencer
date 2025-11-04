@@ -55,28 +55,21 @@
             // "svdPath": "${command:device-manager.getDevicePack}", // Keil::STM32H7xx_DFP@4.1.3
             // "deviceName": "${command:device-manager.getDeviceName}", // stm32h743zitx
             "deviceName": "STM32H743ZI", // uses https://marketplace.visualstudio.com/items?itemName=jeandudey.cortex-debug-dp-stm32h7
-            // "postLaunchCommands": [
-            //     "monitor rtt",
-            //     "monitor rtt status"
-            // ],
-            // power the board via the BMP to override the power manager IC
-            // TODO: there is too large of a voltage drop for some reason caused by the board..
-            // "powerOverBMP": "enable",
-            "rttConfig": {
-                "enabled": true,
-                "address": "auto",
-                "clearSearch": false,
-                "polling_interval": 20,
-                "rtt_start_retry": 200,
-                "decoders": [
-                    {
-                        "label": "RTT channel 0",
-                        "port": 0,
-                        "timestamp": true,
-                        "type": "console"
-                    }
-                ]
-            },
+            // "rttConfig": {
+            //     "enabled": true,
+            //     "address": "auto",
+            //     "clearSearch": false,
+            //     "polling_interval": 20,
+            //     "rtt_start_retry": 200,
+            //     "decoders": [
+            //         {
+            //             "label": "RTT channel 0",
+            //             "port": 0,
+            //             "timestamp": true,
+            //             "type": "console"
+            //         }
+            //     ]
+            // },
         }
     ]
 }

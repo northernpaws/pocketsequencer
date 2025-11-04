@@ -3,56 +3,65 @@
   // for the documentation about the tasks.json format
   "version": "2.0.0",
   "tasks": [
-     {
-        "label": "cargo build",
-        "type": "shell",
-        "command": "cargo build",
-        "group": "build",
-        "problemMatcher": [
-            "$rustc"
-        ],
-        "options": {
-          "cwd": "${workspaceRoot}/firmware/stm32",
-        }
+    {
+      "label": "cargo build",
+      "type": "shell",
+      "command": "cargo build",
+      "group": "build",
+      "problemMatcher": [
+        "$rustc"
+      ],
+      "options": {
+        "cwd": "${workspaceRoot}/firmware/stm32",
+      }
     },
     {
-        "isBackground": true,
-        "label": "BMP Serial Output",
-        "type": "shell",
-        "command": "echo 'Starting defmt-print output'; stty -f /dev/cu.usbmodemBEEF9ADE3 115200 & cat /dev/cu.usbmodemBEEF9ADE3 | defmt-print -e ${workspaceRoot}/firmware/stm32/target/thumbv7em-none-eabihf/debug/app",  // <-- your shell here
-        // This task is run before some debug tasks.
-        // Problem is, it's a watch script, and since it never exits, VSCode
-        // complains. All this is needed so VSCode just lets it run.
-        "problemMatcher": [{
-          "pattern": [{
-            "regexp": ".",
-            "file": 1,"line": 1,
-            "column": 1,"message": 1
-          }],
+      "isBackground": true,
+      "label": "BMP Serial Output",
+      "type": "shell",
+      "command": "echo 'Starting defmt-print output'; stty -f /dev/cu.usbmodemBEEF9ADE3 115200 & cat /dev/cu.usbmodemBEEF9ADE3 | defmt-print -e ${workspaceRoot}/firmware/stm32/target/thumbv7em-none-eabihf/debug/app", // <-- your shell here
+      // This task is run before some debug tasks.
+      // Problem is, it's a watch script, and since it never exits, VSCode
+      // complains. All this is needed so VSCode just lets it run.
+      "problemMatcher": [
+        {
+          "pattern": [
+            {
+              "regexp": ".",
+              "file": 1,
+              "line": 1,
+              "column": 1,
+              "message": 1
+            }
+          ],
           "background": {
-              "activeOnStart": true,
-              "beginsPattern": { "regexp": "." },
-              "endsPattern": { "regexp": "." }
+            "activeOnStart": true,
+            "beginsPattern": {
+              "regexp": "."
+            },
+            "endsPattern": {
+              "regexp": "."
+            }
           },
-        }],
-        // "args": [],
-        // "problemMatcher": [],
-        "presentation": {
-            "echo": false,  // silence "Executing task ..."
-            "focus": true,
-            "group": "debug",  // some arbitrary name for the group
-            "panel": "dedicated",
-            "showReuseMessage": false
-        },
-        
+        }
+      ],
+      // "args": [],
+      // "problemMatcher": [],
+      "presentation": {
+        "echo": false, // silence "Executing task ..."
+        "focus": true,
+        "group": "debug", // some arbitrary name for the group
+        "panel": "dedicated",
+        "showReuseMessage": false
+      },
     },
     {
-        "label": "BMP Launch",
-        "dependsOrder": "sequence",
-        "dependsOn": [
-            "cargo build",
-            "BMP Serial Output"
-        ]
+      "label": "BMP Launch",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "cargo build",
+        "BMP Serial Output"
+      ]
     }
   ]
 }
