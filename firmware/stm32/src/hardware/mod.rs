@@ -9,6 +9,9 @@ pub mod sd_card;
 pub mod usb;
 
 use defmt::{info, trace};
+use grounded::uninit::GroundedArrayCell;
+use proc_bitfield::{Bitfield, SetBits};
+use static_cell::{ConstStaticCell, StaticCell};
 
 use core::{cell::RefCell, default::Default, option::Option::Some};
 use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, channel::Channel};
@@ -19,11 +22,13 @@ use stm32_metapac::{self as pac};
 
 use embassy_stm32::{
     Config, Peri, Peripherals, bind_interrupts,
+    can::frame,
     exti::ExtiInput,
     fmc::Fmc,
     gpio::{self, Input, Level, Output, OutputType, Pull, Speed},
     i2c::{self, I2c},
     mode, peripherals,
+    rcc::Pll,
     spi::{self},
     time::{Hertz, khz, mhz},
     timer::{
@@ -69,7 +74,6 @@ use embassy_embedded_hal::{
 
 use embassy_executor::Spawner;
 
-use crate::hardware::drivers::stm6601::Stm6601;
 use crate::hardware::{
     display::Display,
     drivers::{
@@ -80,6 +84,7 @@ use crate::hardware::{
     keypad::Keypad,
     sd_card::InitError,
 };
+use crate::hardware::{drivers::stm6601::Stm6601, mpu::RegionAttributeSizeRegister};
 
 assign_resources! {
     // For debug logging via Black Magic Probe's alternate pins 9/7.
@@ -331,6 +336,16 @@ bind_interrupts!(pub struct Irqs {
 /// the RCC, PLL, voltage, and clock matrix.
 pub fn init() -> Peripherals {
     let mut config = Config::default();
+
+    config.rcc.pll1 = Some(Pll {
+        source: embassy_stm32::rcc::PllSource::HSI, // 48
+        prediv: embassy_stm32::rcc::PllPreDiv::DIV4,
+        mul: embassy_stm32::rcc::PllMul::MUL10,
+        divp: None,
+        divq: Some(embassy_stm32::rcc::PllDiv::DIV12),
+        divr: None,
+    });
+    config.rcc.mux.fmcsel = embassy_stm32::rcc::mux::Fmcsel::PLL1_Q;
 
     // default is 64Mhz, div 2 to 32MHz
     // config.rcc.d1c_pre = AHBPrescaler::DIV2;
@@ -990,6 +1005,12 @@ use embassy_stm32::fmc;
 
 // }
 
+static FRAME_BUFFER: ConstStaticCell<[Rgb565; display::FRAMEBUFFER_SIZE]> =
+    ConstStaticCell::new([Rgb565::BLACK; display::FRAMEBUFFER_SIZE]);
+
+// static mut FRAME_BUFFER: &'static mut [Rgb565; display::FRAMEBUFFER_SIZE] =
+//     &mut [Rgb565::BLACK; display::FRAMEBUFFER_SIZE];
+
 /// Configures the SDRAM and display which both use FMC access.
 pub async fn get_memory_devices<'a, DELAY: embedded_hal_async::delay::DelayNs>(
     r: FMCResources,
@@ -1059,6 +1080,15 @@ pub async fn get_memory_devices<'a, DELAY: embedded_hal_async::delay::DelayNs>(
 
         info!("SRAM Memory Size 0x{:x}", log2minus1(size as u32));
 
+        let rasr = RegionAttributeSizeRegister::from_storage(0) //
+            .with_size(log2minus1(size as u32) as u8)
+            .with_access_permission(0b011) // full access
+            // .with_memory_access_attribute_tex(0b001)
+            .with_memory_access_attribute_c(false)
+            .with_memory_access_attribute_b(false)
+            .with_shareable(true)
+            .with_enable(true); //
+
         // Configure region 0
         //
         // Cacheable, outer and inner write-back, no write allocate. So
@@ -1066,13 +1096,16 @@ pub async fn get_memory_devices<'a, DELAY: embedded_hal_async::delay::DelayNs>(
         unsafe {
             mpu.rnr.write(REGION_NUMBER);
             mpu.rbar.write(REGION_BASE_ADDRESS);
-            mpu.rasr.write(
-                (REGION_FULL_ACCESS << 24)
-                    | (REGION_CACHEABLE << 17)
-                    | (REGION_WRITE_BACK << 16)
-                    | (log2minus1(size as u32) << 1)
-                    | REGION_ENABLE,
-            );
+            mpu.rasr.write(rasr.into_storage());
+            // mpu.rasr.write(
+            //     (REGION_FULL_ACCESS << 24)
+            //         | (REGION_CACHEABLE << 17)
+            //         | (REGION_WRITE_BACK << 16)
+            //         | (log2minus1(size as u32) << 1)
+            //         | REGION_ENABLE,
+            // );
+
+            //0x03000033
         }
 
         const MPU_ENABLE: u32 = 0x01;
@@ -1143,15 +1176,21 @@ pub async fn get_memory_devices<'a, DELAY: embedded_hal_async::delay::DelayNs>(
     display_sram.init()?;
 
     // Enable the actual memory controller and memory mapping.
-    trace!("Enabling Memory Controller...");
+    trace!(
+        "Enabling Memory Controller... fmc_ker_ck={}hz period={}ns",
+        fmc.source_clock_hz(),
+        1_000_000_000u32 / fmc.source_clock_hz()
+    );
     fmc.memory_controller_enable(); // sets BCR1 FMCEN=1
 
     // Digital reset signal for the display.
     //
     // Pull to VDD to make sure datasheet is satisfied.
     // let rst = display.reset.into_push_pull_output_in_state(gpio::PinState::High);
+    trace!("Initializing Display reset pin...");
     let rst = Output::new(display.reset, Level::High, Speed::Low);
 
+    trace!("Creating FMC SRAM interface for LCD...");
     let interface = display::fmc::Fmc::new(
         fmc_inst,
         display::fmc::FMCRegion::Bank1,
@@ -1159,11 +1198,11 @@ pub async fn get_memory_devices<'a, DELAY: embedded_hal_async::delay::DelayNs>(
         display::fmc::Timing::new_ili9341_parallel_i(),
     );
 
-    // static FRAME_BUFFER: StaticCell<[Rgb565; display::WIDTH * display::HEIGHT]> = StaticCell::new();
-    // let frame_buffer = FRAME_BUFFER.init([Rgb565::BLACK; display::WIDTH * display::HEIGHT]);
+    trace!("Initializing Display framebuffer...");
+    let frame_buffer = FRAME_BUFFER.take();
 
     trace!("Initializing display driver...");
-    let mut sram_display = Display::new(interface, rst, delay, display.dma.into());
+    let mut sram_display = Display::new(interface, rst, delay, display.dma.into(), frame_buffer);
     sram_display.init().await;
 
     Ok(sram_display)

@@ -6,7 +6,7 @@ use defmt::trace;
 
 use embassy_stm32::{
     Peri,
-    dma::{self, AnyChannel},
+    dma::{self, AnyChannel, Burst, FifoThreshold},
 };
 use embedded_graphics::prelude::*;
 use embedded_graphics::{pixelcolor::Rgb565, prelude::DrawTarget};
@@ -17,33 +17,35 @@ use crate::hardware::display::fmc::Fmc;
 
 pub const WIDTH: usize = 240;
 pub const HEIGHT: usize = 320;
-
-pub type Framebuffer = FrameBuf<Rgb565, [Rgb565; WIDTH * HEIGHT]>;
+pub const FRAMEBUFFER_SIZE: usize = WIDTH * HEIGHT;
+pub type FramebufferArray = [Rgb565; FRAMEBUFFER_SIZE];
+pub type Framebuffer<'a> = FrameBuf<Rgb565, &'a mut FramebufferArray>;
 
 pub struct Display<'a, DELAY: embedded_hal_async::delay::DelayNs> {
-    interface: Fmc,
+    interface: Fmc<'a>,
     rst: embassy_stm32::gpio::Output<'a>,
     delay: DELAY,
     /// Embedded-graphics compatible DrawTarget framebuffer for updating the display.
     ///
     /// A framebuffer is used instead of drawing to the display directly
     /// to allow full-frame updates that are DMA transfer compatible.
-    framebuf: Framebuffer,
+    framebuf: Framebuffer<'a>,
     dma: Peri<'a, AnyChannel>,
 }
 
 impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
     pub fn new(
-        interface: Fmc,
+        interface: Fmc<'a>,
         rst: embassy_stm32::gpio::Output<'a>,
         delay: DELAY,
         dma: Peri<'a, AnyChannel>,
+        framebuf: &'static mut FramebufferArray,
     ) -> Self {
         Self {
             interface,
             rst,
             delay,
-            framebuf: FrameBuf::new([Rgb565::BLACK; WIDTH * HEIGHT], WIDTH, HEIGHT),
+            framebuf: FrameBuf::new(framebuf, WIDTH, HEIGHT),
             dma,
         }
     }
@@ -88,22 +90,45 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
         self.write_raw_command(0x2C, &[]);
 
         // TODO: make some change to adjust the exhaustive options.
-        let transfer_options = dma::TransferOptions::default();
-        // transfer_options.pburst = Burst::Single;
-        // transfer_options.mburst = Burst::Single;
-        // transfer_options.fifo_threshold = Some(FifoThreshold::Full);
+        let mut transfer_options = dma::TransferOptions::default();
+        transfer_options.pburst = Burst::Single;
+        transfer_options.mburst = Burst::Single;
+        transfer_options.flow_ctrl = dma::FlowControl::Dma; // DMS is required with memory-to-memory
+        // FIFO is 4-words, so can fit8 half-word (16 bit) values.
+        //
+        // FIFO is required in memory-to-memory mode.
+        transfer_options.fifo_threshold = Some(FifoThreshold::Quarter);
 
         // Now that the display knows we're about to write a page of data,
         // we can start a memory-to-memory DMA transfer to offload the
         // framebuffer transfer from the CPU, allowing the CPU to continue
         // processing other things (i.e. audio).
         unsafe {
-            let transfer = dma::Transfer::new_transfer_raw(
+            // STM32's DMA NDTR register is only u16, so one
+            // transfer can only do a maximum of 65535 items,
+            // requiring us to split into two transfers.
+
+            dma::Transfer::new_transfer_raw(
                 self.dma.reborrow(),
                 // Rgb565's underlying storage type is u16, so
                 // we can directly cast it as a u16 pointer.
                 self.framebuf.data.as_ptr() as *const u16,
-                self.framebuf.data.len(),
+                self.framebuf.data.len() / 2,
+                // Write to the data address of the display.
+                //
+                // TODO: this address should be taken dynamically
+                // from the FMC SRAM layer and not hard-coded.
+                0x6000_0001 as *mut u16,
+                transfer_options,
+            )
+            .await;
+
+            dma::Transfer::new_transfer_raw(
+                self.dma.reborrow(),
+                // Rgb565's underlying storage type is u16, so
+                // we can directly cast it as a u16 pointer.
+                (self.framebuf.data.as_ptr() as *const u16).add(self.framebuf.data.len() / 2),
+                self.framebuf.data.len() / 2,
                 // Write to the data address of the display.
                 //
                 // TODO: this address should be taken dynamically
@@ -170,7 +195,7 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
     }
 
     // TODO: DMA
-    pub async fn write_raw_command(&mut self, cmd: u8, args: &[u8]) {
+    pub fn write_raw_command(&mut self, cmd: u8, args: &[u8]) {
         // , args: &[u8]
         trace!("display command: 0x{:x} {=[u8]:x}", cmd, args);
 
@@ -352,7 +377,15 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
         // Interface control/MADCTL
         // Memory overflow, endianess, RGB interface control
         // TODO: is set for 16-bit color?
-        self.write_raw_command(0xF6, &[0x01, 0x1d]);
+        self.write_raw_command(
+            0xF6,
+            &[
+                // TFT_MAD_MX TFT_MAD_BGR
+                0x40 | 0x08,
+                0b00011101,
+            ],
+        );
+        // TODO: MADCTRL can do rtoaiton
 
         // 3Gamma Function Disable
         self.write_raw_command(0xF2, &[0x00]);
@@ -425,9 +458,9 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> OriginDimensions for Display
 impl<'a, DELAY: embedded_hal_async::delay::DelayNs> DrawTarget for Display<'a, DELAY> {
     type Color = Rgb565;
 
-    type Error = <Framebuffer as DrawTarget>::Error;
+    type Error = <Framebuffer<'a> as DrawTarget>::Error;
 
-    fn draw_iter<I>(&mut self, pixels: I) -> Result<(), <Framebuffer as DrawTarget>::Error>
+    fn draw_iter<I>(&mut self, pixels: I) -> Result<(), <Framebuffer<'a> as DrawTarget>::Error>
     where
         I: IntoIterator<Item = embedded_graphics::Pixel<Self::Color>>,
     {

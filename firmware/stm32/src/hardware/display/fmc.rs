@@ -29,6 +29,30 @@ pub enum FMCRegion {
     Bank4,
 }
 
+impl FMCRegion {
+    pub const fn min_address(&self) -> u32 {
+        match self {
+            FMCRegion::Bank1 => 0x60000000,
+            FMCRegion::Bank2 => 0x64000000,
+            FMCRegion::Bank3 => 0x68000000,
+            FMCRegion::Bank4 => 0x6C000000,
+        }
+    }
+
+    pub fn max_address(&self) -> u32 {
+        match self {
+            FMCRegion::Bank1 => 0x63FFFFFF,
+            FMCRegion::Bank2 => 0x67FFFFFF,
+            FMCRegion::Bank3 => 0x6BFFFFFF,
+            FMCRegion::Bank4 => 0x6FFFFFFF,
+        }
+    }
+
+    pub fn addr(&self) -> u32 {
+        self.min_address()
+    }
+}
+
 /// Like `modfiy_reg`, but applies to bank 1 or 2 based on a varaiable
 macro_rules! modify_reg_banked3 {
     ( $periph:path, $instance:expr, $bank:expr, $reg2:ident, $reg3:ident, $reg4:ident, $( $field:ident : $value:expr ),+ ) => {{
@@ -65,7 +89,7 @@ macro_rules! modify_reg_banked4 {
 #[derive(PartialEq, Debug, Format)]
 pub enum MemoryType {
     /// SRAM memory
-    Fmc,
+    Sram,
     /// PSRAM (CRAM) memory
     Psram,
     /// NOR Flash/OneNAND Flash
@@ -216,12 +240,13 @@ impl Config {
         );*/
         Self {
             data_address_mux_enabled: false, // DataAddressMux=FMC_DATA_ADDRESS_MUX_DISABLE
-            memory_type: MemoryType::Fmc,    // MemoryType=FMC_MEMORY_TYPE_SRAM
+            memory_type: MemoryType::Sram,   // MemoryType=FMC_MEMORY_TYPE_SRAM
             memory_data_width: memory_width, // MemoryDataWidth=FMC_NORSRAM_MEM_BUS_WIDTH_16
             burst_access_mode_enable: false, // BurstAccessMode=FMC_BURST_ACCESS_MODE_DISABLE
             wait_signal_enable_polarity: WaitSignalPolarity::ActiveLow, // WaitSignalPolarity=FMC_WAIT_SIGNAL_POLARITY_LOW
             wait_signal_enable_active: WaitSignalActive::BeforeWaitState, // WaitSignalActive=FMC_WAIT_TIMING_BEFORE_WS
-            write_enable: true,        // WriteOperation=FMC_WRITE_OPERATION_ENABLE
+            write_enable: true, // WriteOperation=FMC_WRITE_OPERATION_ENABLE
+            // This ILI9341 doesn't use a wait signal.
             wait_signal_enable: false, // WaitSignal=FMC_WAIT_SIGNAL_DISABLE
             extended_mode: false,      // ExtendedMode=FMC_EXTENDED_MODE_DISABLE
             asynchronous_wait: false,  // AsynchronousWait=FMC_ASYNCHRONOUS_WAIT_DISABLE
@@ -346,11 +371,12 @@ impl Timing {
     }
 }
 
-pub struct Fmc {
+pub struct Fmc<'a> {
     fmc: pac::fmc::Fmc,
     bank: FMCRegion,
     config: Config,
     timing: Timing,
+    memory: &'a mut [u16],
 }
 
 #[derive(Debug)]
@@ -376,15 +402,24 @@ pub enum TimingError {
     InvalidClockDivisor,
 }
 
-impl Fmc {
+impl<'a> Fmc<'a> {
     /// Note that the total size of each NOR/SRAM bank is 64Mbytes. (RM0433 Rev 8 P.g. 808)
     /// The maximum capacity is 512 Mbits (26 address lines).  (RM0433 Rev 8 P.g. 809)
     pub fn new(fmc: pac::fmc::Fmc, bank: FMCRegion, config: Config, timing: Timing) -> Self {
+        let memory: &mut [u16] = unsafe {
+            // Initialise controller and SDRAM
+            let ram_ptr: *mut u16 = bank.addr() as *mut _;
+
+            // Convert raw pointer to slice
+            core::slice::from_raw_parts_mut(ram_ptr, 2)
+        };
+
         Self {
             fmc,
             bank,
             config,
             timing,
+            memory,
         }
     }
 
@@ -439,7 +474,7 @@ impl Fmc {
                 }); // Memory data width
 
                 bcr.set_mtyp(match self.config.memory_type {
-                    MemoryType::Fmc => fmc::vals::Mtyp::SRAM,
+                    MemoryType::Sram => fmc::vals::Mtyp::SRAM,
                     MemoryType::Psram => fmc::vals::Mtyp::PSRAM,
                     MemoryType::Flash => fmc::vals::Mtyp::FLASH,
                 }); // Memory types
@@ -495,7 +530,7 @@ impl Fmc {
                     }); // Memory data width
 
                     bcr.set_mtyp(match self.config.memory_type {
-                        MemoryType::Fmc => fmc::vals::Mtyp::SRAM,
+                        MemoryType::Sram => fmc::vals::Mtyp::SRAM,
                         MemoryType::Psram => fmc::vals::Mtyp::PSRAM,
                         MemoryType::Flash => fmc::vals::Mtyp::FLASH,
                     }); // Memory types
@@ -720,31 +755,26 @@ impl Fmc {
     pub fn write_command(&mut self, cmd: u8, args: &[u8]) {
         trace!("command: 0x{:x}", cmd);
 
-        unsafe {
-            // Write to the lower byte so A0=0 and triggers command mode.
-            ptr::write(self.cmd_addr(), cmd as u16);
+        // Write to the lower byte so A0=0 and triggers command mode.
+        // ptr::write(self.cmd_addr(), cmd as u16);
+        self.memory[0] = cmd as u16;
 
-            for i in 0..args.len() {
-                ptr::write(self.data_addr(), args[i] as u16);
-            }
+        for i in 0..args.len() {
+            // ptr::write(self.data_addr(), args[i] as u16);
+            self.memory[1] = args[i] as u16;
         }
     }
 
     pub fn write_data(&mut self, data: u16) {
-        trace!("data: 0x{:x}", data);
-
-        unsafe {
-            ptr::write(self.data_addr(), data);
-        }
+        // ptr::write(self.data_addr(), data);
+        self.memory[1] = data;
     }
 
     pub fn read_data(&mut self) -> u16 {
-        unsafe {
-            let result = ptr::read(self.data_addr());
+        let result = self.memory[1]; // ptr::read(self.data_addr());
 
-            trace!("read: 0x{:x}", result);
+        trace!("read: 0x{:x}", result);
 
-            result
-        }
+        result
     }
 }

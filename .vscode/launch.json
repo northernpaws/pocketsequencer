@@ -36,8 +36,9 @@
             "BMPGDBSerialPort": "/dev/cu.usbmodemBEEF9ADE1", // Use whatever serial port makes sense for your OS and BMP setup
             "runToEntryPoint": "main",
             "showDevDebugOutput": "raw",
-            "svdPath": "${command:device-manager.getDevicePack}",
-            "deviceName": "${command:device-manager.getDeviceName}"
+            // "svdPath": "${command:device-manager.getDevicePack}",
+            // "deviceName": "${command:device-manager.getDeviceName}"
+            "deviceName": "STM32H743ZI", // uses https://marketplace.visualstudio.com/items?itemName=jeandudey.cortex-debug-dp-stm32h7
         },
         {
             "name": "BMP Debug",

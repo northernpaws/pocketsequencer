@@ -43,8 +43,12 @@ use embassy_usb::{
     driver::EndpointError,
 };
 use embedded_fatfs::{FormatVolumeOptions, FsOptions, format_volume};
-use embedded_graphics::Drawable;
 use embedded_graphics::pixelcolor::Rgb565;
+use embedded_graphics::{
+    Drawable,
+    prelude::{Point, Size, WebColors},
+    primitives::Rectangle,
+};
 use embedded_hal_async::delay::DelayNs;
 
 use block_device_adapters::BufStream;
@@ -163,7 +167,7 @@ unsafe fn HardFault(ef: &ExceptionFrame) -> ! {
             }
 
             // BFSR
-            if ((scb.cfsr.read() & 0xFF00) != 0) {
+            if (scb.cfsr.read() & 0xFF00) != 0 {
                 error!("  Bus Fault Indicator set!");
 
                 let bsfr = (scb.cfsr.read() & 0xFF00) >> 8;
@@ -405,22 +409,40 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     // backlight_pwm_channel.set_duty_cycle_fully_on();
 
     // info!("Clearing the display with red..");
-    display.clear(Rgb565::RED).unwrap();
+    display.clear(Rgb565::BLACK).unwrap();
+    display.push_buffer();
+    // display.push_buffer_dma().await.unwrap();
 
-    // let test_image = TestImage::new();
     loop {
+        Timer::after_millis(500).await;
         keypad.set_led(keypad::Led::Trig16, RGB::new(255, 0, 0));
         display.clear(Rgb565::RED).unwrap();
+        // display.push_buffer();
+        display.push_buffer_dma().await.unwrap();
+
         Timer::after_millis(500).await;
         keypad.set_led(keypad::Led::Trig16, RGB::new(0, 255, 0));
         display.clear(Rgb565::GREEN).unwrap();
+        // display.push_buffer();
+        display.push_buffer_dma().await.unwrap();
+
         Timer::after_millis(500).await;
         keypad.set_led(keypad::Led::Trig16, RGB::new(0, 0, 255));
         display.clear(Rgb565::BLUE).unwrap();
+        // display.push_buffer();
+        display.push_buffer_dma().await.unwrap();
+
         Timer::after_millis(500).await;
         keypad.set_led(keypad::Led::Trig16, RGB::new(255, 255, 255));
         display.clear(Rgb565::WHITE).unwrap();
-        Timer::after_millis(500).await;
+        display
+            .fill_solid(
+                &Rectangle::new(Point::new(20, 20), Size::new(50, 50)),
+                Rgb565::CSS_PURPLE,
+            )
+            .unwrap();
+        display.push_buffer();
+        // display.push_buffer_dma().await.unwrap();
 
         // keypad.set_led(keypad::Led::Trig16, RGB::new(255, 255, 255));
         // test_image.draw(&mut display).unwrap();
