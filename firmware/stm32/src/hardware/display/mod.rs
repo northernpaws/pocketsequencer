@@ -1,6 +1,5 @@
 // TODO: integrate https://github.com/okhsunrog/lcd-async/tree/master to add async
 
-pub mod sram;
 pub mod interface;
 
 use core::convert::Infallible;
@@ -8,252 +7,197 @@ use core::ptr::{self, null};
 use defmt::trace;
 
 use embassy_executor::Spawner;
+use embassy_stm32::dma::{self, AnyChannel};
 use embassy_stm32::fmc::Fmc;
 use embassy_stm32::peripherals::FMC;
 use embassy_time::Delay;
-use mipidsi::interface;
-use mipidsi::models::Model;
+use embedded_graphics::pixelcolor::Rgb565;
+use embedded_graphics::prelude::IntoStorage;
+use embedded_io_async::Read;
 use static_cell::StaticCell;
 
-use embedded_graphics::prelude::*;
-use embedded_graphics::pixelcolor::Rgb565;
-use embedded_graphics::primitives::{Circle, PrimitiveStyle};
+use embedded_graphics_framebuf::FrameBuf;
 
-use mipidsi::{
-    dcs::{self, InterfaceExt},
-    interface::{
-        ParallelInterface,
-        Generic16BitBus,
-        ParallelError
-    },
-    models::ILI9341Rgb565,
-    Builder
+use crate::hardware::display;
+use crate::hardware::display::interface::{
+    Interface,
+    ReadInterface,
+    WriteInterface
 };
-use stm32_fmc::{FmcBank, modify_reg};
 
-const WIDTH: usize = 240;
-const HEIGHT: usize = 320;
+pub const WIDTH: usize = 240;
+pub const HEIGHT: usize = 320;
 
-type ParallelInterface16<'a> = ParallelInterface<
-            Generic16BitBus<
-                embassy_stm32::gpio::Output<'a>, // d0
-                embassy_stm32::gpio::Output<'a>, // d1
-                embassy_stm32::gpio::Output<'a>, // d2
-                embassy_stm32::gpio::Output<'a>, // d3
-                embassy_stm32::gpio::Output<'a>, // d4
-                embassy_stm32::gpio::Output<'a>, // d5
-                embassy_stm32::gpio::Output<'a>, // d6
-                embassy_stm32::gpio::Output<'a>, // d7
-                embassy_stm32::gpio::Output<'a>, // d8
-                embassy_stm32::gpio::Output<'a>, // d9
-                embassy_stm32::gpio::Output<'a>, // d10
-                embassy_stm32::gpio::Output<'a>, // d11
-                embassy_stm32::gpio::Output<'a>, // d12
-                embassy_stm32::gpio::Output<'a>, // d13
-                embassy_stm32::gpio::Output<'a>, // d14
-                embassy_stm32::gpio::Output<'a>  // d15
-            >,
-            embassy_stm32::gpio::Output<'a>, // data/command
-            embassy_stm32::gpio::Output<'a>  // write enable
-        >;
-
-// embedded_hal_async::delay::DelayNs 
-pub struct Display<'a, DELAY: embedded_hal::delay::DelayNs> {
-    delay: DELAY,
-    display: mipidsi::Display<
-        ParallelInterface16<'a>,
-        ILI9341Rgb565,
-        embassy_stm32::gpio::Output<'a>>,
-    rd: embassy_stm32::gpio::Output<'a>
-}
-
-impl<'a, DELAY: embedded_hal::delay::DelayNs> Display<'a, DELAY> {
-    pub fn new (
-        mut rst: embassy_stm32::gpio::Output<'a>,
-        wr: embassy_stm32::gpio::Output<'a>,
-        dc: embassy_stm32::gpio::Output<'a>,
-        mut rd: embassy_stm32::gpio::Output<'a>,
-        d0: embassy_stm32::gpio::Output<'a>,
-        d1: embassy_stm32::gpio::Output<'a>,
-        d2: embassy_stm32::gpio::Output<'a>,
-        d3: embassy_stm32::gpio::Output<'a>,
-        d4: embassy_stm32::gpio::Output<'a>,
-        d5: embassy_stm32::gpio::Output<'a>,
-        d6: embassy_stm32::gpio::Output<'a>,
-        d7: embassy_stm32::gpio::Output<'a>,
-        d8: embassy_stm32::gpio::Output<'a>,
-        d9: embassy_stm32::gpio::Output<'a>,
-        d10: embassy_stm32::gpio::Output<'a>,
-        d11: embassy_stm32::gpio::Output<'a>,
-        d12: embassy_stm32::gpio::Output<'a>,
-        d13: embassy_stm32::gpio::Output<'a>,
-        d14: embassy_stm32::gpio::Output<'a>,
-        d15: embassy_stm32::gpio::Output<'a>,
-        mut delay: DELAY
-    ) -> Self {
-        // Test a register read
-        
-        // Ensure that RD is high.
-        rd.set_high();
-
-        // Hardware reset   
-        // trace!("Display hardware reset");
-        // rst.set_low();
-        // delay.delay_us(10);
-        // rst.set_high();
-
-        // Create a 16-bit data bus.
-        let mut bus = Generic16BitBus::new((
-            d0, d1, d2, d3, d4, d5, d6, d7, d8,
-            d9, d10, d11, d12, d13, d14, d15,
-        ));
-
-        // Create the parallel display interface using the previously
-        // created bus and Data/Command and write enable pins.
-        let mut interface = ParallelInterface::new(bus, dc, wr);
-
-        /*delay.delay_ms(5);
-        rst.set_low();
-        delay.delay_ms(10);
-        rst.set_high();
-        delay.delay_ms(120);
-
-        interface.write_raw(0xCF, &[0x00, 0xc3, 0x30]).unwrap();
-        interface.write_raw(0xED, &[0x64, 0x03, 0x12, 0x81]).unwrap();
-        interface.write_raw(0xE8, &[0x85, 0x10, 0x79]).unwrap();
-        interface.write_raw(0xCB, &[0x39, 0x2C, 0x00, 0x34, 0x02]).unwrap();
-        interface.write_raw(0xF7, &[0x20]).unwrap();
-        interface.write_raw(0xEA, &[0x00, 0x00]).unwrap();
-        // Power control  VRH[5:0] 
-        interface.write_raw(0xC0, &[0x22]).unwrap();
-        // Power control SAP[2:0];BT[3:0] 
-        interface.write_raw(0xC1, &[0x11]).unwrap();
-        //VCM control
-        interface.write_raw(0xC5, &[0x3a, 0x1c]).unwrap();
-        //VCM control2 
-        interface.write_raw(0xC7, &[0xa9]).unwrap();
-        // Memory Access Control 
-        interface.write_raw(0x36, &[0x08]).unwrap();
-        interface.write_raw(0x3A, &[0x55]).unwrap();
-        //  //70hz 
-        interface.write_raw(0xB1, &[0x00, 0x1B]).unwrap();
-        // Display Function Control 
-        interface.write_raw(0xB6, &[0x0A, 0xA2]).unwrap();
-        
-        interface.write_raw(0xF6, &[0x01, 0x1d]).unwrap();
-        // 3Gamma Function Disable 
-        interface.write_raw(0xF2, &[0x00]).unwrap();
-        //Gamma curve selected 
-        interface.write_raw(0x26, &[0x01]).unwrap();
-        //Set Gamma 
-        interface.write_raw(0xE0, &[0x0F,0x3F,0x2F,0x0C,0x10,0x0A,0x53,0xD5,0x40,0x0A,0x13,0x03,0x08,0x03,0x00]).unwrap();
-        //Set Gamma 
-        interface.write_raw(0xE1, &[0x00,0x00,0x10,0x03,0x0F,0x05,0x2C,0xA2,0x3F,0x05,0x0E,0x0C,0x37,0x3C,0x0F]).unwrap();
-        
-        //Display inversino on  
-        interface.write_raw(0x21, &[]).unwrap();
-        //Exit Sleep 
-        interface.write_raw(0x11, &[]).unwrap();
-        
-        delay.delay_ms(120);
-        //Display on 
-        interface.write_raw(0x29, &[]).unwrap();
-        delay.delay_ms(50);*/
-
-        let mut display = Builder::new(ILI9341Rgb565, interface) // Using ST7789 as an example model
-            .reset_pin(rst)
-            .display_size(WIDTH as u16, HEIGHT as u16)
-            .init(&mut delay)
-            .unwrap();
-            // NOTE: we don't call .init() as we handle to init sequence ourselves.
-        
-        Self {
-            delay,
-            display,
-            rd,
-        }
-    }
-
-    pub fn set_pixel(&mut self, x: u16, y: u16, color: <ILI9341Rgb565 as Model>::ColorFormat) -> Result<(), <ParallelInterface16<'a> as interface::Interface>::Error> {
-        self.display.set_pixel(x, y, color)
-    }
-
-    pub fn clear(&mut self, color: Rgb565) -> Result<(), ParallelError<Infallible, Infallible, Infallible>> {
-        self.rd.set_high();
-        self.display.clear(color)
-    }
-}
-
-pub struct SramDisplay<'a,
-    DELAY: embedded_hal_async::delay::DelayNs
+pub struct Display<'a,
+    DELAY: embedded_hal_async::delay::DelayNs,
+    I: Interface
 > {
-    instance: sram::Sram,
+    interface: I,
     rst: embassy_stm32::gpio::Output<'a>,
     delay: DELAY,
-    memory: &'a mut [u16],
+    /// Embedded-graphics compatible DrawTarget framebuffer for updating the display.
+    /// 
+    /// A framebuffer is used instead of drawing to the display directly
+    /// to allow full-frame updates that are DMA transfer compatible.
+    framebuf: FrameBuf<Rgb565, [Rgb565; WIDTH * HEIGHT]>,
+    dma: Peri<'a, AnyChannel>
 }
 
 impl<'a,
-    DELAY: embedded_hal_async::delay::DelayNs
-> SramDisplay<'a, DELAY> {
+    DELAY: embedded_hal_async::delay::DelayNs,
+    I: Interface + WriteInterface
+> Display<'a, DELAY, I> {
     pub fn new (
-        instance: sram::Sram,
+        interface: I,
         rst: embassy_stm32::gpio::Output<'a>,
         delay: DELAY,
+        framebuffer: &'a mut [Rgb565; WIDTH * HEIGHT],
+        dma: Peri<'a, AnyChannel>
     ) -> Self {
-        let ram_slice: &mut [u16] = unsafe {
-            // Get the memory address pointer.
-            let ram_ptr: *mut u16 = instance.ptr() as *mut _;
-
-            // Convert raw pointer to slice.
-            core::slice::from_raw_parts_mut(ram_ptr, 2)
-        };
-
         Self {
-            instance,
+            interface,
             rst,
             delay,
-            memory: ram_slice,
+            framebuf: FrameBuf::new([Rgb565; WIDTH * HEIGHT], WIDTH, HEIGHT),
+            dma
         }
     }
 
-    pub fn read_command<const N: usize>(&mut self, cmd: u8) -> [u8; N] {
-        // Write to the lower byte so A0=0 and triggers command mode.
-        self.memory[0] = 0x00 as u16;
+    /// Returns a reference to the display's framebuffer.
+    /// 
+    /// This is an embedded-graphics DrawTarget that can be
+    /// used to updated the next frame for the display.
+    pub fn framebuffer_ref<'b>(&mut self) -> &'b mut FrameBuf<Rgb565, [Rgb565; WIDTH * HEIGHT]> {
+        &mut self.framebuf
+    }
 
-        // Most read commands have more then one result.
-        let mut results = [0u8; N];
-        for i in 0..N {
-            // Read the response.
-            //
-            // Note that commands and their args/returns are
-            // all 8-bit, even when using a 16-bit bus.
-            //
-            // TODO: some commands have multiple response bytes.
-            results[i] = self.memory[1] as u8;
+    /// Pushes the buffer to the display, using the CPU.
+    /// 
+    /// DMA transfer methods should always be preferred.
+    pub async fn push_buffer(&mut self) -> Result<(), <I as Interface>::Error> {
+        // First we need to send a memory addressing command to tell
+        // the display where we're starting to write data from.
+        //
+        // 0x2C is a Memory Write command, when executed it resets the
+        // column and page counters to the start of the memory and
+        // subsequent writes increment the counters as data comes in.
+        self.write_raw_command(0x2C, &[]).await?;
 
-            trace!("display command read: {}:0x{:x}=0x{:x}({:#08b})", i, cmd, results[i], results[i]);
+        for pixel in self.framebuf.into_iter() {
+            self.interface.write_data(pixel.1.into_storage());
         }
 
-        results
+        Ok(())
+    }
+
+    /// Pushes the buffer to the display using DMA.
+    pub async fn push_buffer_dma (&mut self) {
+        // First we need to send a memory addressing command to tell
+        // the display where we're starting to write data from.
+        //
+        // 0x2C is a Memory Write command, when executed it resets the
+        // column and page counters to the start of the memory and
+        // subsequent writes increment the counters as data comes in.
+        self.write_raw_command(0x2C, &[]).await?;
+
+        let req = self.dma.request();
+
+        // Now that the display knows we're about to write a page of data,
+        // we can start a memory-to-memory DMA transfer to offload the
+        // framebuffer transfer from the CPU, allowing the CPU to continue
+        // processing other things (i.e. audio).
+        unsafe {
+            let transfer = dma::Transfer::new_transfer_raw(
+                dma,
+                req,
+                // Rgb565's underlying storage type is u16, so
+                // we can directly cast it as a u16 pointer.
+                self.framebuf.data.as_ptr() as *const u16,
+                self.framebuf.data.len(),
+                // Write to the data address of the display.
+                //
+                // TODO: this address should be taken dynamically
+                // from the FMC SRAM layer and not hard-coded.
+                0x6000_0001 as *mut _,
+                dma::TransferOptions {
+                    pburst: Burst::Single,
+                    mburst: Burst::Single,
+                    // We need to set an FIFO threshold because non-FIFO "direct
+                    // mode" is not supported for memory-to-memory transfers.
+                    fifo_threshold: Some(FifoThreshold::Full),
+                    ..Default::default()
+                },
+            ).await;
+        }
+/*
+        let dma = pac::DMA2; // TODO: get pointer
+        let channel = dma.st(4); // channel 5
+
+        // Number of transfers in target word size.
+        let ndtr = self.framebuf.data.len();
+        assert!(ndtr > 0 && ndtr <= 0xFFFF);
+
+        // Source address
+        ch.par().write_value(self.framebuf.data.as_ptr());
+        // Destination address
+        ch.m0ar().write_value(0x6000_0000); // TODO: Get from FMC instance
+        // Number of data
+        ch.ndtr().write_value(pac::dma::regs::Ndtr(ndtr as _));
+        // Configuration register
+        ch.cr().write(|w| {
+            w.set_dir(2); // b10 memory-to-memory
+            w.set_msize(1); // Half-word 16-bit
+            w.set_psize(1); // Half-word 16-bit
+            w.set_pl(1); // medium priority
+            w.set_minc(1); // increment source memory address after transfer
+            w.set_pinc(0); // don't increment peripheral address after transfer
+            w.set_teie(false); // transfer error interrupt enable
+            w.set_htie(false); // half transfer interrupt enable TODO: use for queuing up next frame later?
+            w.set_tcie(false); // transfer complete interrupt enable
+            w.set_circ(false); // disable circular mode
+            #[cfg(dma_v1)]
+            w.set_trbuff(true);
+            #[cfg(dma_v2)]
+            w.set_chsel(_request);
+            w.set_pburst(0); // single transfer
+            w.set_mburst(0); // signal transfer
+            w.set_pfctrl(0); // 0 for mem-to-mem
+            w.set_en(false); // don't start yet
+        });
+*/
+        // let req: u8 = dma.request();
+
+        // unsafe {
+        //     dma::dma_bdma::Transfer::new_write(
+        //         self.dma,
+        //         req,
+        //         duty,
+        //         self.inner.regs_gp16().ccr(cc_channel.index()).as_ptr() as *mut u16,
+        //         dma::TransferOptions {
+        //             fifo_threshold: Some(FifoThreshold::Full),
+        //             mburst: Burst::Incr8,
+        //             ..Default::default()
+        //         },
+        //     )
+        //     .await
+        // }
     }
 
     // TODO: DMA
-    pub fn write_raw_command(&mut self, cmd: u8, args: &[u8]) { // , args: &[u8]
+    pub async fn write_raw_command(&mut self, cmd: u8, args: &[u8]) -> Result<(), I::Error> { // , args: &[u8]
         trace!("display command: 0x{:x} {=[u8]:x}", cmd, args);
 
         // Write to the lower byte so A0=0 and triggers command mode.
-        self.memory[0] = cmd as u16; // cmd as u16;
+        self.interface.write_command(cmd, args).await?; // as u16
 
-        // let ptr = self.memory.as_ptr();
-
-        // Write to the upper byte so A0=1 triggering data mode.
-        for i in 0..args.len() {
-            self.memory[1] = args[i] as u16;
-        }
+        Ok(())
     }
 
-    pub async fn init (&mut self) -> Result<(), ()> {
+    pub fn display_size(&self) -> (u32, u32) {
+        (240,320)
+    }
+
+    pub async fn init (&mut self) -> Result<(), I::Error> {
         // Before and during delay timings from ILI9341 datasheet.
         self.delay.delay_ms(5).await;
         self.rst.set_low();
@@ -272,7 +216,7 @@ impl<'a,
             0b11000011, // C3 // Default=10100010
             // ESD protection enabled
             0b00110000  // 30 // Default=11110000
-        ]);
+        ]).await?;
 
         // Power on sequence control
         self.write_raw_command(0xED, &[
@@ -283,7 +227,7 @@ impl<'a,
             0x12,
             // DDVDH Enhance Mode
             0x81
-        ]); 
+        ]).await?; 
 
         // Driver timing control A
         // TODO: different in https://github.com/Bodmer/TFT_ILI9341/blob/master/TFT_ILI9341.cpp
@@ -294,7 +238,7 @@ impl<'a,
             0x10,
             // Pre-charge timing control
             0x79,
-        ]);
+        ]).await?;
 
         // Power control A
         self.write_raw_command(0xCB, &[
@@ -305,53 +249,53 @@ impl<'a,
             0x34,
             // DDVDH control
             0x02,
-        ]);
+        ]).await?;
 
         //// Pump ratio control
         self.write_raw_command(0xF7, &[
             // Ratio Control
             0x20
-        ]);
+        ]).await?;
 
         // Driver timing control B
         self.write_raw_command(0xEA, &[
             // Gate driver timing control
             0x00,
             0x00
-        ]);
+        ]).await?;
 
         // Power control  VRH[5:0] 
         self.write_raw_command(0xC0, &[
             0x22 // GVDD level, reference for VCOM and grayscale voltage.
-        ]);
+        ]).await?;
 
         // Power control SAP[2:0];BT[3:0] 
         self.write_raw_command(0xC1, &[
             0x11 // Step-up circuit factor
-        ]);
+        ]).await?;
 
         //VCM control
         self.write_raw_command(0xC5, &[
             0x3a, // VCOMH Voltage
             0x1c // VCOML Voltage
-        ]);
+        ]).await?;
 
         //VCM control2 
         self.write_raw_command(0xC7, &[
             0xa9 // nVM and VCOM offset voltage
-        ]);
+        ]).await?;
 
         // Memory Access Control 
         self.write_raw_command(0x36, &[
             // [MY, MX, MV, ML, BGR, MH, 0, 0]
             0b00000000
-        ]); // 0x08
+        ]).await?; // 0x08
         self.write_raw_command(0x3A, &[
             //  DBI[2:0] = 101 for 6-bit pixel RGB565 color.
 
             // [0, DPI[2:0], 0, DBI[2:0]]
             0b01010101
-        ]);
+        ]).await?;
 
         //  Frame control in normal mode
         self.write_raw_command(0xB1, &[
@@ -359,7 +303,7 @@ impl<'a,
             0b00000000,
             // RTAN[4:0]
             0b00011011 // 70hz
-        ]);
+        ]).await?;
 
         // Display Function Control 
         // TODO: very different from https://github.com/Bodmer/TFT_ILI9341/blob/master/TFT_ILI9341.cpp
@@ -367,7 +311,7 @@ impl<'a,
             // TODO: document..
             0x0A,
             0xA2
-        ]);
+        ]).await?;
         
         // Interface control/MADCTL
         // Memory overflow, endianess, RGB interface control
@@ -375,54 +319,83 @@ impl<'a,
         self.write_raw_command(0xF6, &[
             0x01,
             0x1d
-        ]);
+        ]).await?;
 
         // 3Gamma Function Disable 
         self.write_raw_command(0xF2, &[
             0x00
-        ]);
+        ]).await?;
 
         //Gamma curve selected 
         self.write_raw_command(0x26, &[
             0x01, // 0x01
-        ]);
+        ]).await?;
 
         // Set Gamma 
-        self.write_raw_command(0xE0, &[0x0F,0x3F,0x2F,0x0C,0x10,0x0A,0x53,0xD5,0x40,0x0A,0x13,0x03,0x08,0x03,0x00]);
+        self.write_raw_command(0xE0, &[0x0F,0x3F,0x2F,0x0C,0x10,0x0A,0x53,0xD5,0x40,0x0A,0x13,0x03,0x08,0x03,0x00]).await?;
 
         //Set Gamma 
-        self.write_raw_command(0xE1, &[0x00,0x00,0x10,0x03,0x0F,0x05,0x2C,0xA2,0x3F,0x05,0x0E,0x0C,0x37,0x3C,0x0F]);
+        self.write_raw_command(0xE1, &[0x00,0x00,0x10,0x03,0x0F,0x05,0x2C,0xA2,0x3F,0x05,0x0E,0x0C,0x37,0x3C,0x0F]).await?;
         
         // Display inversion on  
-        self.write_raw_command(0x21, &[]);
+        self.write_raw_command(0x21, &[]).await?;
 
         // Tearing effect out enable
         // Remove when done testing.
-        self.write_raw_command(0x35, &[0b00000001]);
+        self.write_raw_command(0x35, &[0b00000001]).await?;
 
         // Exit Sleep 
         //
         // Delay required after because controller loads manufacture settings
         // and register values after the sleep exit command is called.
-        self.write_raw_command(0x11, &[]);
+        self.write_raw_command(0x11, &[]).await?;
         self.delay.delay_ms(120).await;
 
         // Display on 
         //
         // Exits out of display-off mode and starts reading from frame memory.
-        self.write_raw_command(0x29, &[]);
+        self.write_raw_command(0x29, &[]).await?;
         self.delay.delay_ms(50).await;
 
-        // Read display identification.
-        // 1st response is dummy data
-        // 2nd response is LCD module's manufacturer
-        // 3rd response is module/driver version
-        // 4th response is LCD module/driver ID
-        let ident: [u8; 4] = self.read_command(0x04);
+        // // Read display identification.
+        // // 1st response is dummy data
+        // // 2nd response is LCD module's manufacturer
+        // // 3rd response is module/driver version
+        // // 4th response is LCD module/driver ID
+        // let ident: [u8; 4] = self.read_command(0x04);
 
-        // Read display status.
-        let status: [u8; 5] = self.read_command(0x09);
+        // // Read display status.
+        // let status: [u8; 5] = self.read_command(0x09);
 
         Ok(())
+    }
+}
+
+impl<'a,
+    DELAY: embedded_hal_async::delay::DelayNs,
+    I: Interface + WriteInterface
+> Display<'a, DELAY, I> 
+where
+    I: Interface + WriteInterface + ReadInterface,
+    I::Word: Into<u8> + Eq,
+{
+    pub async fn read_command<const N: usize>(&mut self, cmd: u8) -> Result<[u8; N], I::Error> {
+        self.interface.write_command(cmd, &[]).await?;
+
+        // Most read commands have more then one result.
+        let mut results = [0u8; N];
+        for i in 0..N {
+            // Read the response.
+            //
+            // Note that commands and their args/returns are
+            // all 8-bit, even when using a 16-bit bus.
+            //
+            // TODO: some commands have multiple response bytes.
+            results[i] = self.interface.read_data().await?.into(); // Uses num::cast::AsPrimitive for cast
+
+            trace!("display command read: {}:0x{:x}=0x{:x}({:#08b})", i, cmd, results[i], results[i]);
+        }
+
+        Ok(results)
     }
 }

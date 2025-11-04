@@ -55,14 +55,7 @@ use embassy_sync::{
 
 // Provides types and interfaces common to display and graphics operations.
 use embedded_graphics::{
-    prelude::RgbColor,
-    // Provides the necessary functions to draw on the display
-    draw_target::DrawTarget,
-    // Provides colors from the Rgb565 color space.
-    //
-    // Rgb565 fits a single pixel into the
-    // 8080 parallel 16-bit data-bus.
-    pixelcolor::Rgb565,
+    draw_target::DrawTarget, mock_display::ColorMapping, pixelcolor::Rgb565, prelude::RgbColor
 };
 
 // Provides support for displays that support
@@ -95,7 +88,7 @@ use embassy_executor::{SpawnError, Spawner};
 use static_cell::StaticCell;
 
 use crate::hardware::{
-    display::{Display, SramDisplay, sram::{Sram, SramConfig, Timing}}, drivers::{
+    display::{Display, interface::{self, fmc::Parallel16Bits}, sram::{Sram, SramConfig, Timing}}, drivers::{
         bq27531_g1::Bq27531,
         fusb302b::Fusb302b, tca8418::{self, Tca8418}
     }, keypad::{ButtonChannel, Keypad, KeypadNotifier}, sd_card::InitError};
@@ -316,6 +309,7 @@ assign_resources! {
         backlight_ctrl: PC9, // PWM
         backlight_tim: TIM3,
         touch_rst: PC2,
+        dma: DMA2_CH5
     }
 }
 
@@ -711,165 +705,165 @@ pub fn get_sdram<'a>(r: FMCResources) -> &'a mut [u32] {
 use ili9341::{DisplaySize240x320, Ili9341, Orientation};
 
 
-/// Returns a handle to 
-pub fn get_display2<'a>(
-    r: FMCResources,
-    display: DisplayResources,
-    mut delay: Delay,
-) -> (
-    SimplePwm<'a, embassy_stm32::peripherals::TIM3>,
-    Ili9341<display_interface_parallel_gpio::PGPIO16BitInterface<
-        display_interface_parallel_gpio::Generic16BitBus<
-            embassy_stm32::gpio::Output<'a>,
-            embassy_stm32::gpio::Output<'a>,
-            embassy_stm32::gpio::Output<'a>,
-            embassy_stm32::gpio::Output<'a>,
-            embassy_stm32::gpio::Output<'a>,
-            embassy_stm32::gpio::Output<'a>,
-            embassy_stm32::gpio::Output<'a>,
-            embassy_stm32::gpio::Output<'a>,
-            embassy_stm32::gpio::Output<'a>,
-            embassy_stm32::gpio::Output<'a>,
-            embassy_stm32::gpio::Output<'a>,
-            embassy_stm32::gpio::Output<'a>,
-            embassy_stm32::gpio::Output<'a>,
-            embassy_stm32::gpio::Output<'a>,
-            embassy_stm32::gpio::Output<'a>,
-            embassy_stm32::gpio::Output<'a>>,
-            embassy_stm32::gpio::Output<'a>,
-            embassy_stm32::gpio::Output<'a>>,
-            embassy_stm32::gpio::Output<'a>>)
+// /// Returns a handle to 
+// pub fn get_display2<'a>(
+//     r: FMCResources,
+//     display: DisplayResources,
+//     mut delay: Delay,
+// ) -> (
+//     SimplePwm<'a, embassy_stm32::peripherals::TIM3>,
+//     Ili9341<display_interface_parallel_gpio::PGPIO16BitInterface<
+//         display_interface_parallel_gpio::Generic16BitBus<
+//             embassy_stm32::gpio::Output<'a>,
+//             embassy_stm32::gpio::Output<'a>,
+//             embassy_stm32::gpio::Output<'a>,
+//             embassy_stm32::gpio::Output<'a>,
+//             embassy_stm32::gpio::Output<'a>,
+//             embassy_stm32::gpio::Output<'a>,
+//             embassy_stm32::gpio::Output<'a>,
+//             embassy_stm32::gpio::Output<'a>,
+//             embassy_stm32::gpio::Output<'a>,
+//             embassy_stm32::gpio::Output<'a>,
+//             embassy_stm32::gpio::Output<'a>,
+//             embassy_stm32::gpio::Output<'a>,
+//             embassy_stm32::gpio::Output<'a>,
+//             embassy_stm32::gpio::Output<'a>,
+//             embassy_stm32::gpio::Output<'a>,
+//             embassy_stm32::gpio::Output<'a>>,
+//             embassy_stm32::gpio::Output<'a>,
+//             embassy_stm32::gpio::Output<'a>>,
+//             embassy_stm32::gpio::Output<'a>>)
 
-{
-     let mut pwm: SimplePwm<'_, peripherals::TIM3> = SimplePwm::new(
-        display.backlight_tim,
-        None,
-        None,
-        None,
-        Some(PwmPin::new(display.backlight_ctrl, OutputType::PushPull)),
-        Hertz::khz(25),
-        CountingMode::EdgeAlignedUp,
-    );
+// {
+//      let mut pwm: SimplePwm<'_, peripherals::TIM3> = SimplePwm::new(
+//         display.backlight_tim,
+//         None,
+//         None,
+//         None,
+//         Some(PwmPin::new(display.backlight_ctrl, OutputType::PushPull)),
+//         Hertz::khz(25),
+//         CountingMode::EdgeAlignedUp,
+//     );
 
-    // Digital reset signal for the display.
-    //
-    // Pull to VDD to make sure datasheet is satisfied.
-    // let rst = display.reset.into_push_pull_output_in_state(gpio::PinState::High);
-    let rst = Output::new(display.reset, Level::High, Speed::Low);
+//     // Digital reset signal for the display.
+//     //
+//     // Pull to VDD to make sure datasheet is satisfied.
+//     // let rst = display.reset.into_push_pull_output_in_state(gpio::PinState::High);
+//     let rst = Output::new(display.reset, Level::High, Speed::Low);
 
-    // Write enable pin.
-    //
-    // Pull to VDD to make sure datasheet is satisfied.
-    // let wr = r.nwe.into_push_pull_output_in_state(gpio::PinState::High);
-    let wr = Output::new(r.nwe, Level::High, Speed::High);
+//     // Write enable pin.
+//     //
+//     // Pull to VDD to make sure datasheet is satisfied.
+//     // let wr = r.nwe.into_push_pull_output_in_state(gpio::PinState::High);
+//     let wr = Output::new(r.nwe, Level::High, Speed::High);
 
-    // Data/Command digital output
-    // let dc = r.a0.into_push_pull_output();
-    let dc = Output::new(r.a0, Level::Low, Speed::High);
+//     // Data/Command digital output
+//     // let dc = r.a0.into_push_pull_output();
+//     let dc = Output::new(r.a0, Level::Low, Speed::High);
 
-    // Read needs to be held high to be valid.
-    let rd = Output::new(r.noe, Level::High, Speed::High);
+//     // Read needs to be held high to be valid.
+//     let rd = Output::new(r.noe, Level::High, Speed::High);
 
-    // Configure the data pins as high-speed outputs.
-    let d0 = Output::new(r.d0, Level::Low, Speed::VeryHigh);
-    let d1 = Output::new(r.d1, Level::Low, Speed::VeryHigh);
-    let d2 = Output::new(r.d2, Level::Low, Speed::VeryHigh);
-    let d3 = Output::new(r.d3, Level::Low, Speed::VeryHigh);
-    let d4 = Output::new(r.d4, Level::Low, Speed::VeryHigh);
-    let d5 = Output::new(r.d5, Level::Low, Speed::VeryHigh);
-    let d6 = Output::new(r.d6, Level::Low, Speed::VeryHigh);
-    let d7 = Output::new(r.d7, Level::Low, Speed::VeryHigh);
-    let d8 = Output::new(r.d8, Level::Low, Speed::VeryHigh);
-    let d9 = Output::new(r.d9, Level::Low, Speed::VeryHigh);
-    let d10 = Output::new(r.d10, Level::Low, Speed::VeryHigh);
-    let d11 = Output::new(r.d11, Level::Low, Speed::VeryHigh);
-    let d12 = Output::new(r.d12, Level::Low, Speed::VeryHigh);
-    let d13 = Output::new(r.d13, Level::Low, Speed::VeryHigh);
-    let d14 = Output::new(r.d14, Level::Low, Speed::VeryHigh);
-    let d15 = Output::new(r.d15, Level::Low, Speed::VeryHigh);
+//     // Configure the data pins as high-speed outputs.
+//     let d0 = Output::new(r.d0, Level::Low, Speed::VeryHigh);
+//     let d1 = Output::new(r.d1, Level::Low, Speed::VeryHigh);
+//     let d2 = Output::new(r.d2, Level::Low, Speed::VeryHigh);
+//     let d3 = Output::new(r.d3, Level::Low, Speed::VeryHigh);
+//     let d4 = Output::new(r.d4, Level::Low, Speed::VeryHigh);
+//     let d5 = Output::new(r.d5, Level::Low, Speed::VeryHigh);
+//     let d6 = Output::new(r.d6, Level::Low, Speed::VeryHigh);
+//     let d7 = Output::new(r.d7, Level::Low, Speed::VeryHigh);
+//     let d8 = Output::new(r.d8, Level::Low, Speed::VeryHigh);
+//     let d9 = Output::new(r.d9, Level::Low, Speed::VeryHigh);
+//     let d10 = Output::new(r.d10, Level::Low, Speed::VeryHigh);
+//     let d11 = Output::new(r.d11, Level::Low, Speed::VeryHigh);
+//     let d12 = Output::new(r.d12, Level::Low, Speed::VeryHigh);
+//     let d13 = Output::new(r.d13, Level::Low, Speed::VeryHigh);
+//     let d14 = Output::new(r.d14, Level::Low, Speed::VeryHigh);
+//     let d15 = Output::new(r.d15, Level::Low, Speed::VeryHigh);
 
-    let bus = display_interface_parallel_gpio::Generic16BitBus::new((
-        d0, d1, d2, d3, d4, d5, d6, d7, d8,
-        d9, d10, d11, d12, d13, d14, d15,
-    ));
+//     let bus = display_interface_parallel_gpio::Generic16BitBus::new((
+//         d0, d1, d2, d3, d4, d5, d6, d7, d8,
+//         d9, d10, d11, d12, d13, d14, d15,
+//     ));
 
-    let mut interface = display_interface_parallel_gpio::PGPIO16BitInterface::new(bus, dc, wr);
+//     let mut interface = display_interface_parallel_gpio::PGPIO16BitInterface::new(bus, dc, wr);
 
-    let mut display = Ili9341::new(
-            interface,
-            rst,
-            &mut delay,
-            Orientation::Landscape,
-            DisplaySize240x320,
-        ).unwrap();
+//     let mut display = Ili9341::new(
+//             interface,
+//             rst,
+//             &mut delay,
+//             Orientation::Landscape,
+//             DisplaySize240x320,
+//         ).unwrap();
 
-    (pwm, display)
-}
+//     (pwm, display)
+// }
 
-/// Returns a handle to 
-pub fn get_display<'a>(
-    r: FMCResources,
-    display: DisplayResources,
-    mut delay: Delay,
-) -> (
-    SimplePwm<'a, peripherals::TIM3>,
-    Display<'a, Delay>)
-{
-    let mut pwm: SimplePwm<'_, peripherals::TIM3> = SimplePwm::new(
-        display.backlight_tim,
-        None,
-        None,
-        None,
-        Some(PwmPin::new(display.backlight_ctrl, OutputType::PushPull)),
-        Hertz::khz(25),
-        CountingMode::EdgeAlignedUp,
-    );
+// /// Returns a handle to 
+// pub fn get_display<'a>(
+//     r: FMCResources,
+//     display: DisplayResources,
+//     mut delay: Delay,
+// ) -> (
+//     SimplePwm<'a, peripherals::TIM3>,
+//     Display<'a, Delay>)
+// {
+//     let mut pwm: SimplePwm<'_, peripherals::TIM3> = SimplePwm::new(
+//         display.backlight_tim,
+//         None,
+//         None,
+//         None,
+//         Some(PwmPin::new(display.backlight_ctrl, OutputType::PushPull)),
+//         Hertz::khz(25),
+//         CountingMode::EdgeAlignedUp,
+//     );
 
-    // pwm.channel(timer::Channel::Ch4).enable();
-    // pwm.channel(timer::Channel::Ch4).set_duty_cycle_fully_on();
+//     // pwm.channel(timer::Channel::Ch4).enable();
+//     // pwm.channel(timer::Channel::Ch4).set_duty_cycle_fully_on();
 
-    // Digital reset signal for the display.
-    //
-    // Pull to VDD to make sure datasheet is satisfied.
-    // let rst = display.reset.into_push_pull_output_in_state(gpio::PinState::High);
-    let mut rst = Output::new(display.reset, Level::High, Speed::Low);
+//     // Digital reset signal for the display.
+//     //
+//     // Pull to VDD to make sure datasheet is satisfied.
+//     // let rst = display.reset.into_push_pull_output_in_state(gpio::PinState::High);
+//     let mut rst = Output::new(display.reset, Level::High, Speed::Low);
 
-    // Write enable pin.
-    //
-    // Pull to VDD to make sure datasheet is satisfied.
-    // let wr = r.nwe.into_push_pull_output_in_state(gpio::PinState::High);
-    let wr = Output::new(r.nwe, Level::High, Speed::High);
+//     // Write enable pin.
+//     //
+//     // Pull to VDD to make sure datasheet is satisfied.
+//     // let wr = r.nwe.into_push_pull_output_in_state(gpio::PinState::High);
+//     let wr = Output::new(r.nwe, Level::High, Speed::High);
 
-    // Data/Command digital output
-    // let dc = r.a0.into_push_pull_output();
-    let dc = Output::new(r.a0, Level::Low, Speed::High);
+//     // Data/Command digital output
+//     // let dc = r.a0.into_push_pull_output();
+//     let dc = Output::new(r.a0, Level::Low, Speed::High);
 
-    let rd = Output::new(r.noe, Level::High, Speed::High);
+//     let rd = Output::new(r.noe, Level::High, Speed::High);
 
-    let te = Input::new(display.te, Pull::Down);
+//     let te = Input::new(display.te, Pull::Down);
 
-    // Configure the data pins as high-speed outputs.
-    let d0 = Output::new(r.d0, Level::Low, Speed::VeryHigh);
-    let d1 = Output::new(r.d1, Level::Low, Speed::VeryHigh);
-    let d2 = Output::new(r.d2, Level::Low, Speed::VeryHigh);
-    let d3 = Output::new(r.d3, Level::Low, Speed::VeryHigh);
-    let d4 = Output::new(r.d4, Level::Low, Speed::VeryHigh);
-    let d5 = Output::new(r.d5, Level::Low, Speed::VeryHigh);
-    let d6 = Output::new(r.d6, Level::Low, Speed::VeryHigh);
-    let d7 = Output::new(r.d7, Level::Low, Speed::VeryHigh);
-    let d8 = Output::new(r.d8, Level::Low, Speed::VeryHigh);
-    let d9 = Output::new(r.d9, Level::Low, Speed::VeryHigh);
-    let d10 = Output::new(r.d10, Level::Low, Speed::VeryHigh);
-    let d11 = Output::new(r.d11, Level::Low, Speed::VeryHigh);
-    let d12 = Output::new(r.d12, Level::Low, Speed::VeryHigh);
-    let d13 = Output::new(r.d13, Level::Low, Speed::VeryHigh);
-    let d14 = Output::new(r.d14, Level::Low, Speed::VeryHigh);
-    let d15 = Output::new(r.d15, Level::Low, Speed::VeryHigh);
+//     // Configure the data pins as high-speed outputs.
+//     let d0 = Output::new(r.d0, Level::Low, Speed::VeryHigh);
+//     let d1 = Output::new(r.d1, Level::Low, Speed::VeryHigh);
+//     let d2 = Output::new(r.d2, Level::Low, Speed::VeryHigh);
+//     let d3 = Output::new(r.d3, Level::Low, Speed::VeryHigh);
+//     let d4 = Output::new(r.d4, Level::Low, Speed::VeryHigh);
+//     let d5 = Output::new(r.d5, Level::Low, Speed::VeryHigh);
+//     let d6 = Output::new(r.d6, Level::Low, Speed::VeryHigh);
+//     let d7 = Output::new(r.d7, Level::Low, Speed::VeryHigh);
+//     let d8 = Output::new(r.d8, Level::Low, Speed::VeryHigh);
+//     let d9 = Output::new(r.d9, Level::Low, Speed::VeryHigh);
+//     let d10 = Output::new(r.d10, Level::Low, Speed::VeryHigh);
+//     let d11 = Output::new(r.d11, Level::Low, Speed::VeryHigh);
+//     let d12 = Output::new(r.d12, Level::Low, Speed::VeryHigh);
+//     let d13 = Output::new(r.d13, Level::Low, Speed::VeryHigh);
+//     let d14 = Output::new(r.d14, Level::Low, Speed::VeryHigh);
+//     let d15 = Output::new(r.d15, Level::Low, Speed::VeryHigh);
 
-    let fmc = Fmc::new_raw(r.peri);
+//     let fmc = Fmc::new_raw(r.peri);
 
-    (pwm, Display::new(rst, wr, dc, rd, d0, d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15, delay))
-}
+//     (pwm, Display::new(rst, wr, dc, rd, d0, d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15, delay))
+// }
 
 
 
@@ -1025,12 +1019,12 @@ use embassy_stm32::fmc;
 
 /// Configures the SDRAM and display which both use FMC access.
 pub async fn get_memory_devices <'a,
-    DELAY: embedded_hal_async::delay::DelayNs
+    DELAY: embedded_hal_async::delay::DelayNs,
 >(
     r: FMCResources,
     display: DisplayResources,
     delay: DELAY
-) -> Result<SramDisplay<'a, DELAY>, display::sram::InitError> {
+) -> Result<Display<'a, DELAY, Parallel16Bits<'a>>, display::sram::InitError> {
 
     let mut core_peri: cortex_m::Peripherals = cortex_m::Peripherals::take().unwrap();
     // taken from stm32h7xx-hal
@@ -1211,8 +1205,19 @@ pub async fn get_memory_devices <'a,
     // let rst = display.reset.into_push_pull_output_in_state(gpio::PinState::High);
     let rst = Output::new(display.reset, Level::High, Speed::Low);
 
+    let interface = interface::fmc::Parallel16Bits::new(fmc_inst, 
+        interface::fmc::FMCRegion::Bank1,
+        interface::fmc::Config::new_ili9341_parallel_i(
+            interface::fmc::MemoryDataWidth::Bits16),
+        interface::fmc::Timing::new_ili9341_parallel_i()
+    );
+
+    static FRAME_BUFFER: StaticCell<[Rgb565; display::WIDTH * display::HEIGHT]> = StaticCell::new();
+    let frame_buffer = FRAME_BUFFER.init([Rgb565::BLACK; display::WIDTH * display::HEIGHT]);
+
     trace!("Initializing display driver...");
-    let mut sram_display = SramDisplay::new(display_sram, rst, delay);
+    let mut sram_display = Display::new(
+        interface, rst, delay, frame_buffer);
     sram_display.init().await;
 
     Ok(sram_display)

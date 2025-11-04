@@ -66,7 +66,7 @@ use engine;
 // Audio I2C bus.
 //
 // This communicates with the NAU88C22YG Audio Codec, FM SI4703-C19-GMR RX / SI4710-B30-GMR TX.
-static I2C1_BUS: StaticCell<NoopMutex<RefCell<I2c<'static, Async, i2c::Master>>>> = StaticCell::new();
+static I2C1_BUS: <NoopMutex<RefCell<I2c<'static, Async, i2c::Master>>>> = StaticCell::new();
 
 // Power management bus.
 //

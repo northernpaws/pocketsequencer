@@ -1,5 +1,7 @@
+
 use defmt::{Format, trace, warn};
 
+use num::PrimInt;
 use stm32_metapac::{
     self as pac,
     fmc::{
@@ -8,15 +10,18 @@ use stm32_metapac::{
     }
 };
 
-use embassy_stm32::{Config};
-
 use embassy_stm32::peripherals::FMC;
-use embassy_stm32::fmc::Fmc;
+
+use super::{
+    Interface,
+    WriteInterface,
+    ReadInterface
+};
 
 /// Specifies the NOR/SRAM memory device that will be used.
 #[derive(Clone, Copy, Debug, PartialEq, defmt::Format)]
 #[allow(unused)]
-pub enum SramBank {
+pub enum FMCRegion {
     /// Targeting the 1st SRAM bank
     /// 
     /// Uses NE1 chip select.
@@ -38,7 +43,7 @@ pub enum SramBank {
 /// Like `modfiy_reg`, but applies to bank 1 or 2 based on a varaiable
 macro_rules! modify_reg_banked3 {
     ( $periph:path, $instance:expr, $bank:expr, $reg2:ident, $reg3:ident, $reg4:ident, $( $field:ident : $value:expr ),+ ) => {{
-        use SramBank::*;
+        use FMCRegion::*;
 
         match $bank {
             Bank2 => modify_reg!( $periph, $instance, $reg2, $( $field : $value ),*),
@@ -52,7 +57,7 @@ macro_rules! modify_reg_banked3 {
 /// Like `modfiy_reg`, but applies to bank 1 or 2 based on a varaiable
 macro_rules! modify_reg_banked4 {
     ( $periph:path, $instance:expr, $bank:expr, $reg1:ident, $reg2:ident, $reg3:ident, $reg4:ident, $( $field:ident : $value:expr ),+ ) => {{
-        use SramBank::*;
+        use FMCRegion::*;
 
         match $bank {
             Bank1 => modify_reg!( $periph, $instance, $reg1, $( $field : $value ),*),
@@ -71,7 +76,7 @@ macro_rules! modify_reg_banked4 {
 #[derive(PartialEq, Debug, Format)]
 pub enum MemoryType {
     /// SRAM memory
-    Sram,
+    Fmc,
     /// PSRAM (CRAM) memory
     Psram,
     /// NOR Flash/OneNAND Flash
@@ -117,7 +122,7 @@ pub enum PageSize {
 }
 
 /// See RM0433 Rev 8 P.g. 813 for timing diagrams based on these settings.
-pub struct SramConfig {
+pub struct Config {
     /// Specifies whether the address and data values are
     /// multiplexed on the data bus or not.
     /// 
@@ -191,7 +196,7 @@ pub struct SramConfig {
     page_size: PageSize, // CPSIZE
 }
 
-impl SramConfig {
+impl Config {
     /// Constructs a new config with LCD defaults used by STM32CubeIDE.
     pub fn new_ili9341_parallel_i(
         // byte width of the display data.
@@ -221,7 +226,7 @@ impl SramConfig {
         );*/
         Self {
             data_address_mux_enabled: false,                              // DataAddressMux=FMC_DATA_ADDRESS_MUX_DISABLE
-            memory_type: MemoryType::Sram,                                // MemoryType=FMC_MEMORY_TYPE_SRAM
+            memory_type: MemoryType::Fmc,                                // MemoryType=FMC_MEMORY_TYPE_SRAM
             memory_data_width: memory_width,                              // MemoryDataWidth=FMC_NORSRAM_MEM_BUS_WIDTH_16
             burst_access_mode_enable: false,                              // BurstAccessMode=FMC_BURST_ACCESS_MODE_DISABLE
             wait_signal_enable_polarity: WaitSignalPolarity::ActiveLow,   // WaitSignalPolarity=FMC_WAIT_SIGNAL_POLARITY_LOW
@@ -352,10 +357,10 @@ impl Timing {
     }
 }
 
-pub struct Sram {
+pub struct Fmc {
     fmc: pac::fmc::Fmc,
-    bank: SramBank,
-    config: SramConfig,
+    bank: FMCRegion,
+    config: Config,
     timing: Timing
 }
 
@@ -382,13 +387,13 @@ pub enum TimingError {
     InvalidClockDivisor,
 }
 
-impl Sram {
+impl Fmc {
     /// Note that the total size of each NOR/SRAM bank is 64Mbytes. (RM0433 Rev 8 P.g. 808)
     /// The maximum capacity is 512 Mbits (26 address lines).  (RM0433 Rev 8 P.g. 809)
     pub fn new (
         fmc: pac::fmc::Fmc,
-        bank: SramBank,
-        config: SramConfig,
+        bank: FMCRegion,
+        config: Config,
         timing: Timing
     ) -> Self {
         Self{
@@ -401,12 +406,12 @@ impl Sram {
 
     /// Initializes the FMC configuration register corresponding to the configured bank.
     pub fn config_init (&mut self) -> Result<(), InitError> {
-        if self.config.continuous_clock_enable == true && self.bank != SramBank::Bank1 {
+        if self.config.continuous_clock_enable == true && self.bank != FMCRegion::Bank1 {
             // See STM32 HAL for implementation detail.
             warn!("Bank 1 continous clocks needs to be in synchronous mode when continous clock is enabled for banks 2, 3, and 4.");
         }
 
-        if self.bank != SramBank::Bank1 {
+        if self.bank != FMCRegion::Bank1 {
             // See STM32 HAL for implementation detail.
             warn!("Write FIFO should be configured on bank 1 when enabled on banks 2, 3, and 4.")
         }
@@ -416,7 +421,7 @@ impl Sram {
             norsram_flash_access_enable = true;
         }
 
-        if self.bank == SramBank::Bank1 {
+        if self.bank == FMCRegion::Bank1 {
             // SRAM/NOR-Flash chip-select control register
              self.fmc.bcr1().modify::<Result<(), InitError>>(|bcr| {    
                 bcr.set_cclken(self.config.continuous_clock_enable);
@@ -448,7 +453,7 @@ impl Sram {
                 }); // Memory data width
 
                 bcr.set_mtyp(match self.config.memory_type {
-                    MemoryType::Sram => fmc::vals::Mtyp::SRAM,
+                    MemoryType::Fmc => fmc::vals::Mtyp::SRAM,
                     MemoryType::Psram => fmc::vals::Mtyp::PSRAM,
                     MemoryType::Flash => fmc::vals::Mtyp::FLASH,
                 }); // Memory types
@@ -473,10 +478,10 @@ impl Sram {
             let mut bcr = fmc::regs::Bcr(0);
 
             self.fmc.bcr(match self.bank {
-                SramBank::Bank1 => panic!("invalid"),
-                SramBank::Bank2 => 0,
-                SramBank::Bank3 => 1,
-                SramBank::Bank4 => 2,
+                FMCRegion::Bank1 => panic!("invalid"),
+                FMCRegion::Bank2 => 0,
+                FMCRegion::Bank3 => 1,
+                FMCRegion::Bank4 => 2,
             }).modify::<Result<(), InitError>>(|bcr| {
                 bcr.set_cburstrw(self.config.write_burst_enable);
                 bcr.set_asyncwait(self.config.asynchronous_wait); // Asyncronous wait
@@ -505,7 +510,7 @@ impl Sram {
                 }); // Memory data width
 
                 bcr.set_mtyp(match self.config.memory_type {
-                    MemoryType::Sram => fmc::vals::Mtyp::SRAM,
+                    MemoryType::Fmc => fmc::vals::Mtyp::SRAM,
                     MemoryType::Psram => fmc::vals::Mtyp::PSRAM,
                     MemoryType::Flash => fmc::vals::Mtyp::FLASH,
                 }); // Memory types
@@ -554,10 +559,10 @@ impl Sram {
 
         // BTR1/2/3/4 SRAM/NOR-Flash write timing registers
         self.fmc.btr(match self.bank {
-            SramBank::Bank1 => 0,
-            SramBank::Bank2 => 1,
-            SramBank::Bank3 => 2,
-            SramBank::Bank4 => 3,
+            FMCRegion::Bank1 => 0,
+            FMCRegion::Bank2 => 1,
+            FMCRegion::Bank3 => 2,
+            FMCRegion::Bank4 => 3,
         }).modify(|btr| {
             btr.set_addset(self.timing.address_setup_time);
             btr.set_addhld(self.timing.address_hold_time);
@@ -578,7 +583,7 @@ impl Sram {
     }
 
     pub fn disable_bank (&mut self) {
-        if self.bank == SramBank::Bank1 {
+        if self.bank == FMCRegion::Bank1 {
             // SRAM/NOR-Flash chip-select control register
             self.fmc.bcr1().modify(|bcr1| {
                 bcr1.set_mbken(false);
@@ -586,10 +591,10 @@ impl Sram {
         } else {
             // SRAM/NOR-Flash chip-select control register
             self.fmc.bcr(match self.bank {
-                SramBank::Bank1 => panic!("invalid"),
-                SramBank::Bank2 => 0,
-                SramBank::Bank3 => 1,
-                SramBank::Bank4 => 2,
+                FMCRegion::Bank1 => panic!("invalid"),
+                FMCRegion::Bank2 => 0,
+                FMCRegion::Bank3 => 1,
+                FMCRegion::Bank4 => 2,
             }).modify(|bcr| {
                 bcr.set_mbken(false);
             });
@@ -597,7 +602,7 @@ impl Sram {
     }
 
     pub fn enable_bank (&mut self) {
-        if self.bank == SramBank::Bank1 {
+        if self.bank == FMCRegion::Bank1 {
             // SRAM/NOR-Flash chip-select control register
             self.fmc.bcr1().modify(|bcr| {
                 bcr.set_mbken(true);
@@ -605,10 +610,10 @@ impl Sram {
         } else {
             // SRAM/NOR-Flash chip-select control register
             self.fmc.bcr(match self.bank {
-                SramBank::Bank1 => panic!("invalid"),
-                SramBank::Bank2 => 0,
-                SramBank::Bank3 => 1,
-                SramBank::Bank4 => 2,
+                FMCRegion::Bank1 => panic!("invalid"),
+                FMCRegion::Bank2 => 0,
+                FMCRegion::Bank3 => 1,
+                FMCRegion::Bank4 => 2,
             }).modify(|bcr| {
                 bcr.set_mbken(true);
             });
@@ -634,19 +639,19 @@ impl Sram {
 
     pub const fn min_address(&self) -> u32 {
         match self.bank {
-            SramBank::Bank1 => 0x60000000,
-            SramBank::Bank2 => 0x64000000,
-            SramBank::Bank3 => 0x68000000,
-            SramBank::Bank4 => 0x6C000000,
+            FMCRegion::Bank1 => 0x60000000,
+            FMCRegion::Bank2 => 0x64000000,
+            FMCRegion::Bank3 => 0x68000000,
+            FMCRegion::Bank4 => 0x6C000000,
         }
     }
 
     pub fn max_address(&self) -> u32 {
         match self.bank {
-            SramBank::Bank1 => 0x63FFFFFF,
-            SramBank::Bank2 => 0x67FFFFFF,
-            SramBank::Bank3 => 0x6BFFFFFF,
-            SramBank::Bank4 => 0x6FFFFFFF,
+            FMCRegion::Bank1 => 0x63FFFFFF,
+            FMCRegion::Bank2 => 0x67FFFFFF,
+            FMCRegion::Bank3 => 0x6BFFFFFF,
+            FMCRegion::Bank4 => 0x6FFFFFFF,
         }
     }
 
@@ -656,16 +661,16 @@ impl Sram {
     /// RM0433 Rev 8 P.g. 803
     pub fn local_address_to_remote (&self, remote_address: u32) -> Result<u32, ()> {
         match self.bank {
-            SramBank::Bank1 => if remote_address < 0x60000000 || remote_address >= 0x64000000 {
+            FMCRegion::Bank1 => if remote_address < 0x60000000 || remote_address >= 0x64000000 {
                 return Err(());
             },
-            SramBank::Bank2 => if remote_address < 0x64000000 || remote_address >= 0x68000000 {
+            FMCRegion::Bank2 => if remote_address < 0x64000000 || remote_address >= 0x68000000 {
                 return Err(());
             },
-            SramBank::Bank3 => if remote_address < 0x68000000 || remote_address >= 0x6C000000 {
+            FMCRegion::Bank3 => if remote_address < 0x68000000 || remote_address >= 0x6C000000 {
                 return Err(());
             },
-            SramBank::Bank4 => if remote_address < 0x6C000000 || remote_address >= 0x6FFFFFFF {
+            FMCRegion::Bank4 => if remote_address < 0x6C000000 || remote_address >= 0x6FFFFFFF {
                 return Err(());
             },
         }
@@ -688,29 +693,135 @@ impl Sram {
         // 11 Bank 1 - NOR/PSRAM 4 0x6C000000 -> 01101100000000000000000000000000
         self.min_address()
     }
+}
 
-    pub const fn ptr(&self) -> *mut u16 {
-        (self.addr()) as *mut u16
+#[derive(Debug)]
+pub enum BusError {
+    Error
+}
+
+macro_rules! parallel_bus {
+    ($GenericxBitBus:ident {
+        type Word = $Word:ident;
+    }) => {
+        pub struct $GenericxBitBus<'a> {
+            fmc: Fmc,
+            
+            // Not valid till init.
+            memory: &'a mut [$Word],
+        }
+
+        impl<'a> $GenericxBitBus<'a> {
+            pub fn new(
+                fmc: pac::fmc::Fmc,
+                bank: FMCRegion,
+                config: Config,
+                timing: Timing
+            ) -> Self {
+                let fmc_instance = Fmc::new(fmc, bank, config, timing);
+
+                // Construct an array pointing to the two
+                // addresses for command and data writing.
+                let memory: &mut [$Word] = unsafe {
+                    // Get the memory address pointer.
+                    let ptr: *mut $Word = fmc_instance.addr() as *mut _;
+
+                    // Convert raw pointer to slice.
+                    //
+                    // Length of two for the two addresses associated with command/data
+                    // via the address line connection to the display driver.
+                    core::slice::from_raw_parts_mut(ptr, 2)
+                };
+                
+                Self{
+                    fmc: fmc_instance,
+                    memory
+                }
+            }
+
+            /// Initialize the bus.
+            pub fn init (&mut self) -> Result<(), InitError> {
+                // Initialize the underlying FMC SRAM interface
+                // used to drive the parallel bus.
+                self.fmc.init()
+            }
+        }
+
+        impl<'a> $GenericxBitBus<'a> {
+            pub const fn ptr(&self) -> *mut $Word {
+                (self.fmc.addr()) as *mut $Word
+            }
+
+            /// Returns the memory address for the FMC bank that, when written
+            /// to, will send it as a "command" signal to the LCD.
+            /// 
+            /// Because the LCD is tied to A0 as the D/C line, setting bit 0 to
+            /// 1/0 toggles whether a data or command byte is being sent.
+            pub const fn cmd_addr(&self) -> *mut $Word {
+                self.ptr()
+            }
+
+            /// Returns the address that, when written to,
+            /// will send it as a "data" signal to the LCD.
+            /// 
+            /// Because the LCD is tied to A0 as the D/C line, setting bit 0 to
+            /// 1/0 toggles whether a data or command byte is being sent.
+            pub const fn data_addr(&self) -> *mut $Word {
+                // Add one byte to get the data address.
+                //
+                // Setting A0 to 1/0 selects data/command
+                (self.fmc.addr() + 1) as *mut $Word
+            }
+        }
+
+        impl<'a> Interface for $GenericxBitBus<'a> {
+            type Word = $Word;
+            type Error = BusError;
+        }
+
+        impl<'a> WriteInterface for $GenericxBitBus<'a> {
+            async fn write_command(&mut self, cmd: u8, args: &[u8]) -> Result<(), BusError> {
+                trace!("command: 0x{:x}", cmd);
+
+                // Write to the lower byte so A0=0 and triggers command mode.
+                self.memory[0] = cmd as $Word;
+
+                for i in 0..args.len() {
+                    self.memory[1] = args[i] as $Word;    
+                }
+
+                Ok(())
+            }
+
+            async fn write_data(&mut self, data: Self::Word) -> Result<(), BusError> {
+                trace!("data: 0x{:x}", data);
+
+                self.memory[1] = data;
+
+                Ok(())
+            }
+        }
+
+        impl<'a> ReadInterface for $GenericxBitBus<'a> {
+            async fn read_data(&mut self) -> Result<Self::Word, BusError> {
+                let result = self.memory[1];
+                
+                trace!("read: 0x{:x}", result);
+
+                Ok(result)
+            }
+        }
     }
+}
 
-    /// Returns the memory address for the FMC bank that, when written
-    /// to, will send it as a "command" signal to the LCD.
-    /// 
-    /// Because the LCD is tied to A0 as the D/C line, setting bit 0 to
-    /// 1/0 toggles whether a data or command byte is being sent.
-    pub const fn cmd_addr(&self) -> *mut u16 {
-        self.ptr()
+parallel_bus! {
+    Parallel8Bits {
+        type Word = u8;
     }
+}
 
-    /// Returns the address that, when written to,
-    /// will send it as a "data" signal to the LCD.
-    /// 
-    /// Because the LCD is tied to A0 as the D/C line, setting bit 0 to
-    /// 1/0 toggles whether a data or command byte is being sent.
-    pub const fn data_addr(&self) -> *mut u16 {
-        // Add one byte to get the data address.
-        //
-        // Setting A0 to 1/0 selects data/command
-        (self.addr() + 1) as *mut u16
+parallel_bus! {
+    Parallel16Bits {
+        type Word = u16;
     }
 }

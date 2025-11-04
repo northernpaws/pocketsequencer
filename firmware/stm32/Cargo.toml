@@ -124,21 +124,23 @@ ili9341 = "0.6.0"
 display-interface-parallel-gpio = "0.7.0"
 lcd-async = "0.1.1"
 stm32-metapac = { git = "https://github.com/embassy-rs/stm32-data-generated", tag = "stm32-data-b9f6b0c542d85ee695d71c35ced195e0cef51ac0", features = ["pac", "metadata", "stm32h743zi", "defmt"]  } # { version = "18.0.0", features = ["pac", "metadata", "stm32h743zi", "defmt"] }
+num = { version = "0.4.3", default-features = false }
+embedded-graphics-framebuf = "0.5.0"
 
 [patch.crates-io]
 # Adds additional FMC constructors.. requires patching ALL embassy packages for compatability to work correctly.
-embassy-stm32 = { git = 'https://github.com/northernpaws/embassy', branch = "devel" }
-embassy-embedded-hal = { git = 'https://github.com/northernpaws/embassy', branch = "devel" }
-embassy-executor = { git = 'https://github.com/northernpaws/embassy', branch = "devel" }
-embassy-time = { git = 'https://github.com/northernpaws/embassy', branch = "devel" }
-embassy-futures = { git = 'https://github.com/northernpaws/embassy', branch = "devel" }
-embassy-usb = { git = 'https://github.com/northernpaws/embassy', branch = "devel" }
-embassy-sync = { git = 'https://github.com/northernpaws/embassy', branch = "devel" }
+embassy-stm32 = { git = 'https://github.com/northernpaws/embassy', branch = "dma-mem-to-mem" }
+embassy-embedded-hal = { git = 'https://github.com/northernpaws/embassy', branch = "dma-mem-to-mem" }
+embassy-executor = { git = 'https://github.com/northernpaws/embassy', branch = "dma-mem-to-mem" }
+embassy-time = { git = 'https://github.com/northernpaws/embassy', branch = "dma-mem-to-mem" }
+embassy-futures = { git = 'https://github.com/northernpaws/embassy', branch = "dma-mem-to-mem" }
+embassy-usb = { git = 'https://github.com/northernpaws/embassy', branch = "dma-mem-to-mem" }
+embassy-sync = { git = 'https://github.com/northernpaws/embassy', branch = "dma-mem-to-mem" }
 
 embedded-fatfs = { git = 'https://github.com/northernpaws/embedded-fatfs', branch = 'master'}
 sdspi = { git = 'https://github.com/northernpaws/embedded-fatfs', branch = 'master'}
 block-device-adapters = { git = 'https://github.com/northernpaws/embedded-fatfs', branch = 'master'}
 fatfs = { git = 'https://github.com/rafalh/rust-fatfs', branch = 'master'}
 
-mipidsi =  { path = "/Users/keith/Projects/mipidsi"} #{ git = "https://github.com/northernpaws/mipidsi", branch = "master" }
+mipidsi =  { git = "https://github.com/northernpaws/mipidsi", branch = "master" }
 # mipidsi = { git = "https://github.com/almindor/mipidsi", branch = "master" }

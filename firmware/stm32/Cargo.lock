@@ -370,7 +370,7 @@ dependencies = [
 [[package]]
 name = "embassy-embedded-hal"
 version = "0.5.0"
-source = "git+https://github.com/northernpaws/embassy?branch=devel#5f1d1bb4b5279dff41944848e33ada17fe84f23e"
+source = "git+https://github.com/northernpaws/embassy?branch=dma-mem-to-mem#8a09e4bffc4008ba5d87473cb6cbaf040eb7bc48"
 dependencies = [
  "defmt 1.0.1",
  "embassy-futures",
@@ -388,7 +388,7 @@ dependencies = [
 [[package]]
 name = "embassy-executor"
 version = "0.9.1"
-source = "git+https://github.com/northernpaws/embassy?branch=devel#5f1d1bb4b5279dff41944848e33ada17fe84f23e"
+source = "git+https://github.com/northernpaws/embassy?branch=dma-mem-to-mem#8a09e4bffc4008ba5d87473cb6cbaf040eb7bc48"
 dependencies = [
  "cordyceps",
  "cortex-m",
@@ -402,7 +402,7 @@ dependencies = [
 [[package]]
 name = "embassy-executor-macros"
 version = "0.7.0"
-source = "git+https://github.com/northernpaws/embassy?branch=devel#5f1d1bb4b5279dff41944848e33ada17fe84f23e"
+source = "git+https://github.com/northernpaws/embassy?branch=dma-mem-to-mem#8a09e4bffc4008ba5d87473cb6cbaf040eb7bc48"
 dependencies = [
  "darling",
  "proc-macro2",
@@ -413,17 +413,17 @@ dependencies = [
 [[package]]
 name = "embassy-executor-timer-queue"
 version = "0.1.0"
-source = "git+https://github.com/northernpaws/embassy?branch=devel#5f1d1bb4b5279dff41944848e33ada17fe84f23e"
+source = "git+https://github.com/northernpaws/embassy?branch=dma-mem-to-mem#8a09e4bffc4008ba5d87473cb6cbaf040eb7bc48"
 
 [[package]]
 name = "embassy-futures"
 version = "0.1.2"
-source = "git+https://github.com/northernpaws/embassy?branch=devel#5f1d1bb4b5279dff41944848e33ada17fe84f23e"
+source = "git+https://github.com/northernpaws/embassy?branch=dma-mem-to-mem#8a09e4bffc4008ba5d87473cb6cbaf040eb7bc48"
 
 [[package]]
 name = "embassy-hal-internal"
 version = "0.3.0"
-source = "git+https://github.com/northernpaws/embassy?branch=devel#5f1d1bb4b5279dff41944848e33ada17fe84f23e"
+source = "git+https://github.com/northernpaws/embassy?branch=dma-mem-to-mem#8a09e4bffc4008ba5d87473cb6cbaf040eb7bc48"
 dependencies = [
  "cortex-m",
  "critical-section",
@@ -434,7 +434,7 @@ dependencies = [
 [[package]]
 name = "embassy-net-driver"
 version = "0.2.0"
-source = "git+https://github.com/northernpaws/embassy?branch=devel#5f1d1bb4b5279dff41944848e33ada17fe84f23e"
+source = "git+https://github.com/northernpaws/embassy?branch=dma-mem-to-mem#8a09e4bffc4008ba5d87473cb6cbaf040eb7bc48"
 dependencies = [
  "defmt 1.0.1",
 ]
@@ -442,7 +442,7 @@ dependencies = [
 [[package]]
 name = "embassy-net-driver-channel"
 version = "0.3.2"
-source = "git+https://github.com/northernpaws/embassy?branch=devel#5f1d1bb4b5279dff41944848e33ada17fe84f23e"
+source = "git+https://github.com/northernpaws/embassy?branch=dma-mem-to-mem#8a09e4bffc4008ba5d87473cb6cbaf040eb7bc48"
 dependencies = [
  "embassy-futures",
  "embassy-net-driver",
@@ -452,7 +452,7 @@ dependencies = [
 [[package]]
 name = "embassy-stm32"
 version = "0.4.0"
-source = "git+https://github.com/northernpaws/embassy?branch=devel#5f1d1bb4b5279dff41944848e33ada17fe84f23e"
+source = "git+https://github.com/northernpaws/embassy?branch=dma-mem-to-mem#8a09e4bffc4008ba5d87473cb6cbaf040eb7bc48"
 dependencies = [
  "aligned",
  "bit_field",
@@ -502,7 +502,7 @@ dependencies = [
 [[package]]
 name = "embassy-sync"
 version = "0.7.2"
-source = "git+https://github.com/northernpaws/embassy?branch=devel#5f1d1bb4b5279dff41944848e33ada17fe84f23e"
+source = "git+https://github.com/northernpaws/embassy?branch=dma-mem-to-mem#8a09e4bffc4008ba5d87473cb6cbaf040eb7bc48"
 dependencies = [
  "cfg-if",
  "critical-section",
@@ -516,7 +516,7 @@ dependencies = [
 [[package]]
 name = "embassy-time"
 version = "0.5.0"
-source = "git+https://github.com/northernpaws/embassy?branch=devel#5f1d1bb4b5279dff41944848e33ada17fe84f23e"
+source = "git+https://github.com/northernpaws/embassy?branch=dma-mem-to-mem#8a09e4bffc4008ba5d87473cb6cbaf040eb7bc48"
 dependencies = [
  "cfg-if",
  "critical-section",
@@ -532,7 +532,7 @@ dependencies = [
 [[package]]
 name = "embassy-time-driver"
 version = "0.2.1"
-source = "git+https://github.com/northernpaws/embassy?branch=devel#5f1d1bb4b5279dff41944848e33ada17fe84f23e"
+source = "git+https://github.com/northernpaws/embassy?branch=dma-mem-to-mem#8a09e4bffc4008ba5d87473cb6cbaf040eb7bc48"
 dependencies = [
  "document-features",
 ]
@@ -540,7 +540,7 @@ dependencies = [
 [[package]]
 name = "embassy-time-queue-utils"
 version = "0.3.0"
-source = "git+https://github.com/northernpaws/embassy?branch=devel#5f1d1bb4b5279dff41944848e33ada17fe84f23e"
+source = "git+https://github.com/northernpaws/embassy?branch=dma-mem-to-mem#8a09e4bffc4008ba5d87473cb6cbaf040eb7bc48"
 dependencies = [
  "embassy-executor-timer-queue",
  "heapless 0.8.0",
@@ -549,7 +549,7 @@ dependencies = [
 [[package]]
 name = "embassy-usb"
 version = "0.5.1"
-source = "git+https://github.com/northernpaws/embassy?branch=devel#5f1d1bb4b5279dff41944848e33ada17fe84f23e"
+source = "git+https://github.com/northernpaws/embassy?branch=dma-mem-to-mem#8a09e4bffc4008ba5d87473cb6cbaf040eb7bc48"
 dependencies = [
  "defmt 1.0.1",
  "embassy-futures",
@@ -565,7 +565,7 @@ dependencies = [
 [[package]]
 name = "embassy-usb-driver"
 version = "0.2.0"
-source = "git+https://github.com/northernpaws/embassy?branch=devel#5f1d1bb4b5279dff41944848e33ada17fe84f23e"
+source = "git+https://github.com/northernpaws/embassy?branch=dma-mem-to-mem#8a09e4bffc4008ba5d87473cb6cbaf040eb7bc48"
 dependencies = [
  "defmt 1.0.1",
  "embedded-io-async",
@@ -574,7 +574,7 @@ dependencies = [
 [[package]]
 name = "embassy-usb-synopsys-otg"
 version = "0.3.1"
-source = "git+https://github.com/northernpaws/embassy?branch=devel#5f1d1bb4b5279dff41944848e33ada17fe84f23e"
+source = "git+https://github.com/northernpaws/embassy?branch=dma-mem-to-mem#8a09e4bffc4008ba5d87473cb6cbaf040eb7bc48"
 dependencies = [
  "critical-section",
  "defmt 1.0.1",
@@ -589,6 +589,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e9d2e857f87ac832df68fa498d18ddc679175cf3d2e4aa893988e5601baf9438"
 dependencies = [
  "nb 1.1.0",
+]
+
+[[package]]
+name = "embedded-dma"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "994f7e5b5cb23521c22304927195f236813053eb9c065dd2226a32ba64695446"
+dependencies = [
+ "stable_deref_trait",
 ]
 
 [[package]]
@@ -624,6 +633,16 @@ dependencies = [
  "az",
  "byteorder",
  "defmt 0.3.100",
+]
+
+[[package]]
+name = "embedded-graphics-framebuf"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "22354420f68727fa24d1e2741dae1e9a041065e80fb63b35a8d19c647a85be76"
+dependencies = [
+ "embedded-dma",
+ "embedded-graphics",
 ]
 
 [[package]]
@@ -777,6 +796,7 @@ dependencies = [
  "embedded-fatfs",
  "embedded-graphics",
  "embedded-graphics-core",
+ "embedded-graphics-framebuf",
  "embedded-hal 1.0.0",
  "embedded-hal-async",
  "embedded-hal-bus",
@@ -791,6 +811,7 @@ dependencies = [
  "mbr-nostd",
  "midly",
  "mipidsi",
+ "num",
  "panic-probe",
  "proc-bitfield",
  "rgb-led-pwm-dma-maker",
@@ -1041,6 +1062,58 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7957b9740744892f114936ab4a57b3f487491bbeafaf8083688b16841a4240e5"
 dependencies = [
  "windows-sys",
+]
+
+[[package]]
+name = "num"
+version = "0.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "35bd024e8b2ff75562e5f34e7f4905839deb4b22955ef5e73d2fea1b9813cb23"
+dependencies = [
+ "num-complex",
+ "num-integer",
+ "num-iter",
+ "num-rational",
+ "num-traits",
+]
+
+[[package]]
+name = "num-complex"
+version = "0.4.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "73f88a1307638156682bada9d7604135552957b7818057dcef22705b4d509495"
+dependencies = [
+ "num-traits",
+]
+
+[[package]]
+name = "num-integer"
+version = "0.1.46"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7969661fd2958a5cb096e56c8e1ad0444ac2bbcd0061bd28660485a44879858f"
+dependencies = [
+ "num-traits",
+]
+
+[[package]]
+name = "num-iter"
+version = "0.1.45"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1429034a0490724d0075ebb2bc9e875d6503c3cf69e235a8941aa757d83ef5bf"
+dependencies = [
+ "autocfg",
+ "num-integer",
+ "num-traits",
+]
+
+[[package]]
+name = "num-rational"
+version = "0.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f83d14da390562dca69fc84082e73e548e1ad308d24accdedd2720017cb37824"
+dependencies = [
+ "num-integer",
+ "num-traits",
 ]
 
 [[package]]

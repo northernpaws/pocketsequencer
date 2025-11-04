@@ -303,15 +303,4 @@
 		(uuid "7120e317-4460-4ce9-85cd-c4860daa209e")
 	)
 	(embedded_fonts no)
-	(model "/Users/keith/Projects/pocketsynth/hardware/libraries/KMR221NG_LFS.stp"
-		(offset
-			(xyz 0 0 0)
-		)
-		(scale
-			(xyz 1 1 1)
-		)
-		(rotate
-			(xyz -90 -0 -0)
-		)
-	)
 )
