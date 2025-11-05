@@ -1,10 +1,6 @@
-// TODO: integrate https://github.com/okhsunrog/lcd-async/tree/master to add async
-
 pub mod fmc;
 
-use core::fmt::Pointer;
-
-use defmt::{info, trace};
+use defmt::trace;
 
 use embassy_stm32::{
     Peri,
@@ -13,7 +9,7 @@ use embassy_stm32::{
 };
 use embedded_graphics::{pixelcolor::Rgb565, prelude::DrawTarget};
 use embedded_graphics::{prelude::*, primitives::Rectangle};
-use embedded_graphics_framebuf::{FrameBuf, backends::DMACapableFrameBufferBackend};
+use embedded_graphics_framebuf::FrameBuf;
 
 use crate::hardware::display::fmc::Fmc;
 
@@ -38,14 +34,18 @@ pub struct Display<'a, DELAY: embedded_hal_async::delay::DelayNs> {
     rst: embassy_stm32::gpio::Output<'a>,
     te: ExtiInput<'a>,
     delay: DELAY,
+
     /// Embedded-graphics compatible DrawTarget framebuffer for updating the display.
     ///
     /// A framebuffer is used instead of drawing to the display directly
     /// to allow full-frame updates that are DMA transfer compatible.
     framebuf: Framebuffer<'a>,
+
     /// An array the width of one line of the display,
     /// used for fast rect fill operations.
     scanline: &'a mut [Rgb565; WIDTH],
+
+    // DMA channel used for pushing framebuffer updates to the LCD.
     dma: Peri<'a, AnyChannel>,
 }
 
@@ -470,6 +470,11 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
         self.write_raw_command(0x11, &[]);
         self.delay.delay_ms(120).await;
 
+        // Clear the display with black so it doesn't flash the
+        // default initialization gray when the display turns on.
+        self.clear(Rgb565::BLACK).unwrap();
+        self.push_buffer_dma().await.unwrap();
+
         // Display On.
         //
         // Exits out of display-off mode and starts reading from frame memory.
@@ -593,7 +598,7 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> DrawTarget for Display<'a, D
         // We benchmarked this as 31x faster then .fill on the framebuffer directly!
         //
         // see: https://joshondesign.com/2022/09/29/make_rects_fast_rust
-        for (j, row_slice) in self
+        for (_, row_slice) in self
             .framebuf
             .data
             .chunks_exact_mut(WIDTH as usize)

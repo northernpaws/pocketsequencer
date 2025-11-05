@@ -1,5 +1,3 @@
-use core::ptr;
-
 use defmt::{Format, trace, warn};
 
 use stm32_metapac::{
@@ -98,35 +96,6 @@ impl FMCRegion {
     pub fn addr(&self) -> u32 {
         self.min_address()
     }
-}
-
-/// Like `modfiy_reg`, but applies to bank 1 or 2 based on a varaiable
-macro_rules! modify_reg_banked3 {
-    ( $periph:path, $instance:expr, $bank:expr, $reg2:ident, $reg3:ident, $reg4:ident, $( $field:ident : $value:expr ),+ ) => {{
-        use FMCRegion::*;
-
-        match $bank {
-            Bank2 => modify_reg!( $periph, $instance, $reg2, $( $field : $value ),*),
-            Bank3 => modify_reg!( $periph, $instance, $reg3, $( $field : $value ),*),
-            Bank4 => modify_reg!( $periph, $instance, $reg4, $( $field : $value ),*),
-            _ => panic!(),
-        }
-    }};
-}
-
-/// Like `modfiy_reg`, but applies to bank 1 or 2 based on a varaiable
-macro_rules! modify_reg_banked4 {
-    ( $periph:path, $instance:expr, $bank:expr, $reg1:ident, $reg2:ident, $reg3:ident, $reg4:ident, $( $field:ident : $value:expr ),+ ) => {{
-        use FMCRegion::*;
-
-        match $bank {
-            Bank1 => modify_reg!( $periph, $instance, $reg1, $( $field : $value ),*),
-            Bank2 => modify_reg!( $periph, $instance, $reg2, $( $field : $value ),*),
-            Bank3 => modify_reg!( $periph, $instance, $reg3, $( $field : $value ),*),
-            Bank4 => modify_reg!( $periph, $instance, $reg4, $( $field : $value ),*),
-            _ => panic!(),
-        }
-    }};
 }
 
 /// Specifies the type of external memory attached to
@@ -629,7 +598,7 @@ impl<'a> Fmc<'a> {
             return Err(TimingError::InvalidAddressHoldTime);
         }
 
-        if !(self.timing.data_setup_time > 0 && self.timing.data_setup_time <= 255) {
+        if !(self.timing.data_setup_time > 0) {
             return Err(TimingError::InvalidDataSetupTime);
         }
 

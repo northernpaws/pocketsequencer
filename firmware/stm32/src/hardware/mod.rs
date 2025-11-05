@@ -9,9 +9,8 @@ pub mod sd_card;
 pub mod usb;
 
 use defmt::{info, trace};
-use grounded::uninit::GroundedArrayCell;
-use proc_bitfield::{Bitfield, SetBits};
-use static_cell::{ConstStaticCell, StaticCell};
+use proc_bitfield::Bitfield;
+use static_cell::ConstStaticCell;
 use stm32_fmc::FmcPeripheral;
 
 use core::{cell::RefCell, default::Default, option::Option::Some};
@@ -23,13 +22,11 @@ use stm32_metapac::{self as pac};
 
 use embassy_stm32::{
     Config, Peri, Peripherals, bind_interrupts,
-    can::frame,
     exti::ExtiInput,
     fmc::Fmc,
     gpio::{self, Input, Level, Output, OutputType, Pull, Speed},
     i2c::{self, I2c},
     mode, peripherals,
-    rcc::Pll,
     spi::{self},
     time::{Hertz, khz, mhz},
     timer::{
@@ -39,8 +36,6 @@ use embassy_stm32::{
     },
     usart::{self, Uart},
 };
-
-use embassy_time::Delay;
 
 use embassy_sync::{
     blocking_mutex::{
@@ -52,15 +47,6 @@ use embassy_sync::{
 
 // Provides types and interfaces common to display and graphics operations.
 use embedded_graphics::{pixelcolor::Rgb565, prelude::RgbColor};
-
-// Provides support for displays that support
-// MIPI commands over SPI or 8080 parallal.
-use mipidsi::{
-    Builder,
-    interface::{Generic16BitBus, ParallelInterface},
-    models::ST7789,
-    options::ColorOrder,
-};
 
 // blocking SDMMC over SPI support.
 use embedded_sdmmc::SdCard;
@@ -339,20 +325,6 @@ bind_interrupts!(pub struct Irqs {
 pub fn init() -> Peripherals {
     let mut config = Config::default();
 
-    // config.rcc.pll1 = Some(Pll {
-    //     source: embassy_stm32::rcc::PllSource::HSI, // 48
-    //     prediv: embassy_stm32::rcc::PllPreDiv::DIV4,
-    //     mul: embassy_stm32::rcc::PllMul::MUL10,
-    //     divp: None,
-    //     divq: Some(embassy_stm32::rcc::PllDiv::DIV12),
-    //     divr: None,
-    // });
-    // config.rcc.mux.fmcsel = embassy_stm32::rcc::mux::Fmcsel::PLL1_Q;
-
-    // default is 64Mhz, div 2 to 32MHz
-    // config.rcc.d1c_pre = AHBPrescaler::DIV2;
-
-    // TODO: re-enable 64mhz->480mhz clock
     {
         use embassy_stm32::rcc::*;
 
@@ -515,497 +487,6 @@ pub fn get_uart_rf<'a>(r: UartRFResources) -> Uart<'a, mode::Async> {
         r.dma,
         config)
 }*/
-
-/// Returns a handle to the FMC peripheral configured for use with the ISSI is42s16160j-7 SDRAM.
-/// //stm32_fmc::Sdram<Fmc<'a, peripherals::FMC>, is42s16160j_7::Is42s16160j>
-pub fn get_sdram<'a>(r: FMCResources) -> &'a mut [u32] {
-    let mut core_peri = cortex_m::Peripherals::take().unwrap();
-
-    // taken from stm32h7xx-hal
-    core_peri.SCB.enable_icache();
-    // See Errata Sheet 2.2.1
-    // core_peri.SCB.enable_dcache(&mut core_peri.CPUID);
-    core_peri.DWT.enable_cycle_counter();
-
-    // ----------------------------------------------------------
-    // Configure MPU for external SDRAM
-    // MPU config for SDRAM write-through
-
-    // 256MB
-    let sdram_size = 256 * 1024 * 1024;
-
-    {
-        let mpu = core_peri.MPU;
-        let scb = &mut core_peri.SCB;
-        let size = sdram_size;
-
-        // Refer to ARM®v7-M Architecture Reference Manual ARM DDI 0403
-        // Version E.b Section B3.5
-        const MEMFAULTENA: u32 = 1 << 16;
-
-        unsafe {
-            /* Make sure outstanding transfers are done */
-            cortex_m::asm::dmb();
-
-            scb.shcsr.modify(|r| r & !MEMFAULTENA);
-
-            /* Disable the MPU and clear the control register*/
-            mpu.ctrl.write(0);
-        }
-
-        const REGION_NUMBER0: u32 = 0x00;
-        const REGION_BASE_ADDRESS: u32 = 0xD000_0000;
-
-        const REGION_FULL_ACCESS: u32 = 0x03;
-        const REGION_CACHEABLE: u32 = 0x01;
-        const REGION_WRITE_BACK: u32 = 0x01;
-        const REGION_ENABLE: u32 = 0x01;
-
-        assert_eq!(
-            size & (size - 1),
-            0,
-            "SDRAM memory region size must be a power of 2"
-        );
-        assert_eq!(
-            size & 0x1F,
-            0,
-            "SDRAM memory region size must be 32 bytes or more"
-        );
-
-        fn log2minus1(sz: u32) -> u32 {
-            for i in 5..=31 {
-                if sz == (1 << i) {
-                    return i - 1;
-                }
-            }
-            defmt::panic!("Unknown SDRAM memory region size!");
-        }
-
-        info!("SDRAM Memory Size 0x{:x}", log2minus1(size as u32));
-
-        // Configure region 0
-        //
-        // Cacheable, outer and inner write-back, no write allocate. So
-        // reads are cached, but writes always write all the way to SDRAM
-        unsafe {
-            mpu.rnr.write(REGION_NUMBER0);
-            mpu.rbar.write(REGION_BASE_ADDRESS);
-            mpu.rasr.write(
-                (REGION_FULL_ACCESS << 24)
-                    | (REGION_CACHEABLE << 17)
-                    | (REGION_WRITE_BACK << 16)
-                    | (log2minus1(size as u32) << 1)
-                    | REGION_ENABLE,
-            );
-        }
-
-        const MPU_ENABLE: u32 = 0x01;
-        const MPU_DEFAULT_MMAP_FOR_PRIVILEGED: u32 = 0x04;
-
-        // Enable
-        unsafe {
-            mpu.ctrl
-                .modify(|r| r | MPU_DEFAULT_MMAP_FOR_PRIVILEGED | MPU_ENABLE);
-
-            scb.shcsr.modify(|r| r | MEMFAULTENA);
-
-            // Ensure MPU settings take effect
-            cortex_m::asm::dsb();
-            cortex_m::asm::isb();
-        }
-    }
-
-    // Configured for the is42s16160j-7
-    let mut sdram = Fmc::sdram_a13bits_d16bits_4banks_bank1(
-        r.peri,
-        // A0-A11
-        r.a0,
-        r.a1,
-        r.a2,
-        r.a3,
-        r.a4,
-        r.a5,
-        r.a6,
-        r.a7,
-        r.a8,
-        r.a9,
-        r.a10,
-        r.a11,
-        r.a12,
-        // BA0-BA1
-        r.ba0,
-        r.ba1,
-        // D0-D15
-        r.d0,
-        r.d1,
-        r.d2,
-        r.d3,
-        r.d4,
-        r.d5,
-        r.d6,
-        r.d7,
-        r.d8,
-        r.d9,
-        r.d10,
-        r.d11,
-        r.d12,
-        r.d13,
-        r.d14,
-        r.d15,
-        // NBL0 - NBL1
-        r.nbl0,
-        r.nbl1,
-        r.sdcke0, // SDCKE0
-        r.sdclk,  // SDCLK
-        r.sdncas, // SDNCAS
-        r.sdne0,  // SDNE1 (!CS)
-        r.sdnras, // SDRAS
-        r.sdnwe,  // SDNWE
-        // Supplies the timing and mode registry
-        // parameters for the specific SDRAM IC.
-        drivers::is42s16160j_7::Is42s16160j {},
-    );
-
-    let mut delay = Delay;
-
-    let ram_slice: &mut [u32] = unsafe {
-        // Initialise controller and SDRAM
-        let ram_ptr: *mut u32 = sdram.init(&mut delay) as *mut _;
-
-        // Convert raw pointer to slice
-        core::slice::from_raw_parts_mut(ram_ptr, sdram_size / core::mem::size_of::<u32>())
-    };
-
-    // // ----------------------------------------------------------
-    // // Use memory in SDRAM
-    info!("RAM contents before writing: {:x}", ram_slice[..10]);
-
-    ram_slice[0] = 1;
-    ram_slice[1] = 2;
-    ram_slice[2] = 3;
-    ram_slice[3] = 4;
-
-    info!("RAM contents after writing: {:x}", ram_slice[..10]);
-
-    assert_eq!(ram_slice[0], 1);
-    assert_eq!(ram_slice[1], 2);
-    assert_eq!(ram_slice[2], 3);
-    assert_eq!(ram_slice[3], 4);
-
-    info!("Assertions succeeded.");
-
-    ram_slice
-}
-
-use ili9341::{DisplaySize240x320, Ili9341, Orientation};
-
-// /// Returns a handle to
-// pub fn get_display2<'a>(
-//     r: FMCResources,
-//     display: DisplayResources,
-//     mut delay: Delay,
-// ) -> (
-//     SimplePwm<'a, embassy_stm32::peripherals::TIM3>,
-//     Ili9341<display_interface_parallel_gpio::PGPIO16BitInterface<
-//         display_interface_parallel_gpio::Generic16BitBus<
-//             embassy_stm32::gpio::Output<'a>,
-//             embassy_stm32::gpio::Output<'a>,
-//             embassy_stm32::gpio::Output<'a>,
-//             embassy_stm32::gpio::Output<'a>,
-//             embassy_stm32::gpio::Output<'a>,
-//             embassy_stm32::gpio::Output<'a>,
-//             embassy_stm32::gpio::Output<'a>,
-//             embassy_stm32::gpio::Output<'a>,
-//             embassy_stm32::gpio::Output<'a>,
-//             embassy_stm32::gpio::Output<'a>,
-//             embassy_stm32::gpio::Output<'a>,
-//             embassy_stm32::gpio::Output<'a>,
-//             embassy_stm32::gpio::Output<'a>,
-//             embassy_stm32::gpio::Output<'a>,
-//             embassy_stm32::gpio::Output<'a>,
-//             embassy_stm32::gpio::Output<'a>>,
-//             embassy_stm32::gpio::Output<'a>,
-//             embassy_stm32::gpio::Output<'a>>,
-//             embassy_stm32::gpio::Output<'a>>)
-
-// {
-//      let mut pwm: SimplePwm<'_, peripherals::TIM3> = SimplePwm::new(
-//         display.backlight_tim,
-//         None,
-//         None,
-//         None,
-//         Some(PwmPin::new(display.backlight_ctrl, OutputType::PushPull)),
-//         Hertz::khz(25),
-//         CountingMode::EdgeAlignedUp,
-//     );
-
-//     // Digital reset signal for the display.
-//     //
-//     // Pull to VDD to make sure datasheet is satisfied.
-//     // let rst = display.reset.into_push_pull_output_in_state(gpio::PinState::High);
-//     let rst = Output::new(display.reset, Level::High, Speed::Low);
-
-//     // Write enable pin.
-//     //
-//     // Pull to VDD to make sure datasheet is satisfied.
-//     // let wr = r.nwe.into_push_pull_output_in_state(gpio::PinState::High);
-//     let wr = Output::new(r.nwe, Level::High, Speed::High);
-
-//     // Data/Command digital output
-//     // let dc = r.a0.into_push_pull_output();
-//     let dc = Output::new(r.a0, Level::Low, Speed::High);
-
-//     // Read needs to be held high to be valid.
-//     let rd = Output::new(r.noe, Level::High, Speed::High);
-
-//     // Configure the data pins as high-speed outputs.
-//     let d0 = Output::new(r.d0, Level::Low, Speed::VeryHigh);
-//     let d1 = Output::new(r.d1, Level::Low, Speed::VeryHigh);
-//     let d2 = Output::new(r.d2, Level::Low, Speed::VeryHigh);
-//     let d3 = Output::new(r.d3, Level::Low, Speed::VeryHigh);
-//     let d4 = Output::new(r.d4, Level::Low, Speed::VeryHigh);
-//     let d5 = Output::new(r.d5, Level::Low, Speed::VeryHigh);
-//     let d6 = Output::new(r.d6, Level::Low, Speed::VeryHigh);
-//     let d7 = Output::new(r.d7, Level::Low, Speed::VeryHigh);
-//     let d8 = Output::new(r.d8, Level::Low, Speed::VeryHigh);
-//     let d9 = Output::new(r.d9, Level::Low, Speed::VeryHigh);
-//     let d10 = Output::new(r.d10, Level::Low, Speed::VeryHigh);
-//     let d11 = Output::new(r.d11, Level::Low, Speed::VeryHigh);
-//     let d12 = Output::new(r.d12, Level::Low, Speed::VeryHigh);
-//     let d13 = Output::new(r.d13, Level::Low, Speed::VeryHigh);
-//     let d14 = Output::new(r.d14, Level::Low, Speed::VeryHigh);
-//     let d15 = Output::new(r.d15, Level::Low, Speed::VeryHigh);
-
-//     let bus = display_interface_parallel_gpio::Generic16BitBus::new((
-//         d0, d1, d2, d3, d4, d5, d6, d7, d8,
-//         d9, d10, d11, d12, d13, d14, d15,
-//     ));
-
-//     let mut interface = display_interface_parallel_gpio::PGPIO16BitInterface::new(bus, dc, wr);
-
-//     let mut display = Ili9341::new(
-//             interface,
-//             rst,
-//             &mut delay,
-//             Orientation::Landscape,
-//             DisplaySize240x320,
-//         ).unwrap();
-
-//     (pwm, display)
-// }
-
-// /// Returns a handle to
-// pub fn get_display<'a>(
-//     r: FMCResources,
-//     display: DisplayResources,
-//     mut delay: Delay,
-// ) -> (
-//     SimplePwm<'a, peripherals::TIM3>,
-//     Display<'a, Delay>)
-// {
-//     let mut pwm: SimplePwm<'_, peripherals::TIM3> = SimplePwm::new(
-//         display.backlight_tim,
-//         None,
-//         None,
-//         None,
-//         Some(PwmPin::new(display.backlight_ctrl, OutputType::PushPull)),
-//         Hertz::khz(25),
-//         CountingMode::EdgeAlignedUp,
-//     );
-
-//     // pwm.channel(timer::Channel::Ch4).enable();
-//     // pwm.channel(timer::Channel::Ch4).set_duty_cycle_fully_on();
-
-//     // Digital reset signal for the display.
-//     //
-//     // Pull to VDD to make sure datasheet is satisfied.
-//     // let rst = display.reset.into_push_pull_output_in_state(gpio::PinState::High);
-//     let mut rst = Output::new(display.reset, Level::High, Speed::Low);
-
-//     // Write enable pin.
-//     //
-//     // Pull to VDD to make sure datasheet is satisfied.
-//     // let wr = r.nwe.into_push_pull_output_in_state(gpio::PinState::High);
-//     let wr = Output::new(r.nwe, Level::High, Speed::High);
-
-//     // Data/Command digital output
-//     // let dc = r.a0.into_push_pull_output();
-//     let dc = Output::new(r.a0, Level::Low, Speed::High);
-
-//     let rd = Output::new(r.noe, Level::High, Speed::High);
-
-//     let te = Input::new(display.te, Pull::Down);
-
-//     // Configure the data pins as high-speed outputs.
-//     let d0 = Output::new(r.d0, Level::Low, Speed::VeryHigh);
-//     let d1 = Output::new(r.d1, Level::Low, Speed::VeryHigh);
-//     let d2 = Output::new(r.d2, Level::Low, Speed::VeryHigh);
-//     let d3 = Output::new(r.d3, Level::Low, Speed::VeryHigh);
-//     let d4 = Output::new(r.d4, Level::Low, Speed::VeryHigh);
-//     let d5 = Output::new(r.d5, Level::Low, Speed::VeryHigh);
-//     let d6 = Output::new(r.d6, Level::Low, Speed::VeryHigh);
-//     let d7 = Output::new(r.d7, Level::Low, Speed::VeryHigh);
-//     let d8 = Output::new(r.d8, Level::Low, Speed::VeryHigh);
-//     let d9 = Output::new(r.d9, Level::Low, Speed::VeryHigh);
-//     let d10 = Output::new(r.d10, Level::Low, Speed::VeryHigh);
-//     let d11 = Output::new(r.d11, Level::Low, Speed::VeryHigh);
-//     let d12 = Output::new(r.d12, Level::Low, Speed::VeryHigh);
-//     let d13 = Output::new(r.d13, Level::Low, Speed::VeryHigh);
-//     let d14 = Output::new(r.d14, Level::Low, Speed::VeryHigh);
-//     let d15 = Output::new(r.d15, Level::Low, Speed::VeryHigh);
-
-//     let fmc = Fmc::new_raw(r.peri);
-
-//     (pwm, Display::new(rst, wr, dc, rd, d0, d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15, delay))
-// }
-
-/// Returns a handle to
-pub fn get_display_st7789<'a>(
-    r: FMCResources,
-    display: DisplayResources,
-    mut delay: Delay,
-) -> (
-    SimplePwm<'a, peripherals::TIM3>,
-    // timer::simple_pwm::SimplePwmChannel<'a, peripherals::TIM3>,
-    mipidsi::Display<
-        ParallelInterface<
-            Generic16BitBus<
-                embassy_stm32::gpio::Output<'a>, // d0
-                embassy_stm32::gpio::Output<'a>, // d1
-                embassy_stm32::gpio::Output<'a>, // d2
-                embassy_stm32::gpio::Output<'a>, // d3
-                embassy_stm32::gpio::Output<'a>, // d4
-                embassy_stm32::gpio::Output<'a>, // d5
-                embassy_stm32::gpio::Output<'a>, // d6
-                embassy_stm32::gpio::Output<'a>, // d7
-                embassy_stm32::gpio::Output<'a>, // d8
-                embassy_stm32::gpio::Output<'a>, // d9
-                embassy_stm32::gpio::Output<'a>, // d10
-                embassy_stm32::gpio::Output<'a>, // d11
-                embassy_stm32::gpio::Output<'a>, // d12
-                embassy_stm32::gpio::Output<'a>, // d13
-                embassy_stm32::gpio::Output<'a>, // d14
-                embassy_stm32::gpio::Output<'a>, // d15
-            >,
-            embassy_stm32::gpio::Output<'a>, // data/command
-            embassy_stm32::gpio::Output<'a>, // write enable
-        >,
-        ST7789,
-        embassy_stm32::gpio::Output<'a>,
-    >,
-) {
-    let mut pwm: SimplePwm<'_, peripherals::TIM3> = SimplePwm::new(
-        display.backlight_tim,
-        None,
-        None,
-        None,
-        Some(PwmPin::new(display.backlight_ctrl, OutputType::PushPull)),
-        Hertz::khz(25),
-        CountingMode::EdgeAlignedUp,
-    );
-
-    // Digital reset signal for the display.
-    //
-    // Pull to VDD to make sure datasheet is satisfied.
-    // let rst = display.reset.into_push_pull_output_in_state(gpio::PinState::High);
-    let rst = Output::new(display.reset, Level::High, Speed::Low);
-
-    // Write enable pin.
-    //
-    // Pull to VDD to make sure datasheet is satisfied.
-    // let wr = r.nwe.into_push_pull_output_in_state(gpio::PinState::High);
-    let wr = Output::new(r.nwe, Level::High, Speed::High);
-
-    // Data/Command digital output
-    // let dc = r.a0.into_push_pull_output();
-    let dc = Output::new(r.a0, Level::Low, Speed::High);
-
-    // Configure the data pins as high-speed outputs.
-    let d0 = Output::new(r.d0, Level::Low, Speed::VeryHigh);
-    let d1 = Output::new(r.d1, Level::Low, Speed::VeryHigh);
-    let d2 = Output::new(r.d2, Level::Low, Speed::VeryHigh);
-    let d3 = Output::new(r.d3, Level::Low, Speed::VeryHigh);
-    let d4 = Output::new(r.d4, Level::Low, Speed::VeryHigh);
-    let d5 = Output::new(r.d5, Level::Low, Speed::VeryHigh);
-    let d6 = Output::new(r.d6, Level::Low, Speed::VeryHigh);
-    let d7 = Output::new(r.d7, Level::Low, Speed::VeryHigh);
-    let d8 = Output::new(r.d8, Level::Low, Speed::VeryHigh);
-    let d9 = Output::new(r.d9, Level::Low, Speed::VeryHigh);
-    let d10 = Output::new(r.d10, Level::Low, Speed::VeryHigh);
-    let d11 = Output::new(r.d11, Level::Low, Speed::VeryHigh);
-    let d12 = Output::new(r.d12, Level::Low, Speed::VeryHigh);
-    let d13 = Output::new(r.d13, Level::Low, Speed::VeryHigh);
-    let d14 = Output::new(r.d14, Level::Low, Speed::VeryHigh);
-    let d15 = Output::new(r.d15, Level::Low, Speed::VeryHigh);
-
-    // Define the parallal bus for display communication.
-    let bus = Generic16BitBus::new((
-        d0, d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15,
-    ));
-
-    // Create the parallel display interface using the previously
-    // created bus and Data/Command and write enable pins.
-    let di = ParallelInterface::new(bus, dc, wr);
-
-    // Build the display interface using the parallal bus and inte0rface.
-    //
-    // RB565 utilizies the entire 16-bit data bus
-    // to transfer 1 pixel for every clock cycle.
-    let mut display = Builder::new(ST7789, di)
-        .display_size(240, 320)
-        .reset_pin(rst)
-        .color_order(ColorOrder::Bgr)
-        .init(&mut delay)
-        .unwrap();
-
-    (pwm, display)
-}
-
-use embassy_stm32::fmc;
-
-// fn set_as_af<T>(pin: Peri<'a, T>, af_type: AfType) {
-//     let pin = unsafe { AnyPin::steal(pin.port()) };
-//     let r = pin.block();
-//     let n = pin._pin() as usize;
-
-//     r.cr(n / 8).modify(|w| {
-//         w.set_mode(n % 8, af_type.mode);
-//         // note that we are writing the CNF field, which is exposed as both `cnf_in` and `cnf_out`
-//         // in the PAC. the choice of `cnf_in` instead of `cnf_out` in this code is arbitrary and
-//         // does not affect the result.
-//         w.set_cnf_in(n % 8, vals::CnfIn::from_bits(af_type.cnf));
-//     });
-
-//     match af_type.pull {
-//         Pull::Up => r.bsrr().write(|w| w.set_bs(n, true)),
-//         Pull::Down => r.bsrr().write(|w| w.set_br(n, true)),
-//         Pull::None => {}
-//     }
-// }
-
-// pub async fn configure_fmc_pins<'a, T: fmc::Instance>(
-//     // Peri<'a, impl $addr_signal<T>>
-//     a0: Peri<'a, impl fmc::A0Pin<T>>, a1: Peri<'a, impl fmc::A1Pin<T>>, a2: Peri<'a, impl fmc::A2Pin<T>>, a3: Peri<'a, impl fmc::A3Pin<T>>,
-//     a4: Peri<'a, impl fmc::A4Pin<T>>, a5: Peri<'a, impl fmc::A5Pin<T>>, a6: Peri<'a, impl fmc::A6Pin<T>>, a7: Peri<'a, impl fmc::A7Pin<T>>,
-//     a8: Peri<'a, impl fmc::A8Pin<T>>, a9: Peri<'a, impl fmc::A9Pin<T>>, a10: Peri<'a, impl fmc::A10Pin<T>>, a11: Peri<'a, impl fmc::A11Pin<T>>, a12: Peri<'a, impl fmc::A12Pin<T>>,
-
-//     ba0: Peri<'a, impl fmc::BA0Pin<T>>, ba1: Peri<'a, impl fmc::BA1Pin<T>>,
-
-//     d0: Peri<'a, impl fmc::D0Pin<T>>, d1: Peri<'a, impl fmc::D1Pin<T>>, d2: Peri<'a, impl fmc::D2Pin<T>>,
-//     d3: Peri<'a, impl fmc::D3Pin<T>>, d4: Peri<'a, impl fmc::D4Pin<T>>, d5: Peri<'a, impl fmc::D5Pin<T>>,
-//     d6: Peri<'a, impl fmc::D6Pin<T>>, d7: Peri<'a, impl fmc::D7Pin<T>>, d8: Peri<'a, impl fmc::D8Pin<T>>,
-//     d9: Peri<'a, impl fmc::D9Pin<T>>, d10: Peri<'a, impl fmc::D10Pin<T>>, d11: Peri<'a, impl fmc::D11Pin<T>>,
-//     d12: Peri<'a, impl fmc::D12Pin<T>>, d13: Peri<'a, impl fmc::D13Pin<T>>, d14: Peri<'a, impl fmc::D14Pin<T>>, d15: Peri<'a, impl fmc::D15Pin<T>>,
-
-//     nbl0: Peri<'a, impl fmc::NBL0Pin<T>>, nbl1: Peri<'a, impl fmc::NBL1Pin<T>>,
-
-//     sdcke: Peri<'a, impl fmc::SDCKE0Pin<T>>, sdclk: Peri<'a, impl fmc::SDCLKPin<T>>,
-//     sdncas: Peri<'a, impl fmc::SDNCASPin<T>>, sdne: Peri<'a, impl fmc::SDNE0Pin<T>>,
-//     sdnras: Peri<'a, impl fmc::SDNRASPin<T>>, sdnwe: Peri<'a, impl fmc::SDNWEPin<T>>,
-// ) {
-//     sdnwe.af_num();
-
-// }
 
 /// "Fake" FMC peripheral to avoid the SDRAM package trying to initialize
 /// the FMC before the dispaly SRAM has also been configured.
@@ -1187,15 +668,6 @@ pub async fn get_memory_devices<
                 mpu.rnr.write(REGION_NUMBER);
                 mpu.rbar.write(REGION_BASE_ADDRESS);
                 mpu.rasr.write(rasr.into_storage());
-                // mpu.rasr.write(
-                //     (REGION_FULL_ACCESS << 24)
-                //         | (REGION_CACHEABLE << 17)
-                //         | (REGION_WRITE_BACK << 16)
-                //         | (log2minus1(size as u32) << 1)
-                //         | REGION_ENABLE,
-                // );
-
-                //0x03000033
             }
         }
         const MPU_ENABLE: u32 = 0x01;
@@ -1221,7 +693,7 @@ pub async fn get_memory_devices<
     // Convert the address into an FMC instance.
     //
     // This instance allows us to directly access the registers.
-    let fmc_inst = unsafe { pac::fmc::Fmc::from_ptr(0x52004000 as _) };
+    let fmc_inst = pac::FMC;
 
     // Sets the correct alternate functions for all the FMC pins.
     //
@@ -1266,12 +738,6 @@ pub async fn get_memory_devices<
         // Convert raw pointer to slice
         core::slice::from_raw_parts_mut(ram_ptr, SDRAM_SIZE / core::mem::size_of::<u32>())
     };
-
-    // TODO: sdram..
-    // let sdram = get_sdram(r);
-    // Needs custom construction to avoid conflicts?
-    //https://docs.rs/stm32-fmc/latest/stm32_fmc/struct.Sdram.html#method.new
-    //https://docs.rs/stm32-fmc/latest/stm32_fmc/struct.Sdram.html#method.new_unchecked
 
     trace!("Creating FMC SRAM interface for LCD...");
     let mut interface = display::fmc::Fmc::new(
@@ -1319,25 +785,6 @@ pub async fn get_memory_devices<
 
     Ok((ram_slice, sram_display))
 }
-
-/// Returns the analog PWN channel that
-/// drives the TPS92360 backlight driver.
-// fn get_display_backlight<'a>(display: DisplayResources) -> SimplePwmChannel<'a, peripherals::TIM3> {
-//     let backlight_pin = PwmPin::new(display.backlight_ctrl, OutputType::PushPull);
-
-//     // Create the timer interface for the driving the PWM pin.
-//     let mut pwm = SimplePwm::new(
-//         display.backlight_tim,
-//         None,
-//         None, None, Some(backlight_pin),
-//         khz(10),
-//         Default::default());
-
-//     let mut ch4 = pwm.ch4();
-//     ch4.enable();
-
-//     ch4
-// }
 
 /// Returns the STM6601 driver for managing the system power state.
 pub fn get_stm6601<'a>(r: PowerResources) -> Stm6601<'a, Output<'a>, Input<'a>> {
@@ -1550,7 +997,7 @@ pub async fn get_sdcard_async<
     SdSpi::<_, _, aligned::A4>::new(spid, delay)
 }
 
-pub async fn get_sdcard_async2<
+pub async fn init_sdcard_async2<
     'a,
     'b,
     M: RawMutex,
@@ -1577,17 +1024,17 @@ pub async fn get_sdcard_async2<
     sd_card::SdCard::init(spi_sd).await
 }
 
-pub fn get_internal_storage<
-    'a,
-    M: RawMutex,
-    BUS: SetConfig<Config = spi::Config> + embedded_hal_async::spi::SpiBus,
-    DELAY: embedded_hal_async::delay::DelayNs + Clone,
->(
-    spi_bus: &'a Mutex<M, BUS>,
-    cs: gpio::Output<'a>,
-    delay: DELAY,
-) {
-}
+// pub fn get_internal_storage<
+//     'a,
+//     M: RawMutex,
+//     BUS: SetConfig<Config = spi::Config> + embedded_hal_async::spi::SpiBus,
+//     DELAY: embedded_hal_async::delay::DelayNs + Clone,
+// >(
+//     spi_bus: &'a Mutex<M, BUS>,
+//     cs: gpio::Output<'a>,
+//     delay: DELAY,
+// ) {
+// }
 
 pub async fn get_keypad<'a>(
     spawner: Spawner,
@@ -1605,7 +1052,7 @@ pub async fn get_keypad<'a>(
     // Obtain a PWM handler, configure the Timer and Frequency.
     // The prescaler and ARR are automatically set.
     // Given this system frequency and pwm frequency the max duty cycle will be 300.
-    let mut pwm = SimplePwm::new(
+    let pwm = SimplePwm::new(
         r.tim,
         None,
         None,

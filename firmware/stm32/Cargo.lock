@@ -746,9 +746,6 @@ name = "embedded-hal"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "361a90feb7004eca4019fb28352a9465666b24f840f5c3cddf0ff13920590b89"
-dependencies = [
- "defmt 0.3.100",
-]
 
 [[package]]
 name = "embedded-hal-async"
@@ -900,11 +897,9 @@ dependencies = [
  "fatfs",
  "grounded",
  "heapless 0.9.1",
- "ili9341",
  "lcd-async",
  "mbr-nostd",
  "midly",
- "mipidsi",
  "mousefood",
  "num",
  "panic-probe",
@@ -1052,17 +1047,6 @@ name = "ident_case"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b9e0384b61958566e926dc50660321d12159025e767c18e043daf26b70104c39"
-
-[[package]]
-name = "ili9341"
-version = "0.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cc105605dba076630f5a1a22ba80bcff216af2619859f1595e9ddd72b89db30a"
-dependencies = [
- "display-interface",
- "embedded-graphics-core",
- "embedded-hal 1.0.0",
-]
 
 [[package]]
 name = "indoc"
@@ -1228,17 +1212,6 @@ name = "midly"
 version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "207d755f4cb882d20c4da58d707ca9130a0c9bc5061f657a4f299b8e36362b7a"
-
-[[package]]
-name = "mipidsi"
-version = "0.9.0"
-source = "git+https://github.com/northernpaws/mipidsi?branch=master#ffafc8c34bc172d4b55a57c98ccb1aa3d143f8b5"
-dependencies = [
- "defmt 1.0.1",
- "embedded-graphics-core",
- "embedded-hal 1.0.0",
- "heapless 0.8.0",
-]
 
 [[package]]
 name = "mousefood"

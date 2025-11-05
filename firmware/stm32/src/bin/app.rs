@@ -6,7 +6,7 @@ extern crate alloc;
 
 // https://medium.com/@carlmkadie/how-rust-embassy-shine-on-embedded-devices-part-1-9f4911c92007
 
-use core::{cell::RefCell, fmt::Debug};
+use core::fmt::Debug;
 
 use alloc::boxed::Box;
 use cortex_m_rt::{ExceptionFrame, exception};
@@ -14,59 +14,33 @@ use defmt::*;
 
 use embassy_executor::Spawner;
 
-use embassy_futures::join::join;
 use embassy_stm32::{
-    gpio::{Level, Output, OutputType, Speed},
     i2c::{self, I2c},
     mode::Async,
-    peripherals,
     rcc::clocks,
-    spi::{self, Spi},
-    time::{Hertz, khz, mhz},
-    timer::{
-        self,
-        low_level::CountingMode,
-        simple_pwm::{PwmPin, SimplePwm},
-    },
-    usart::{Uart, UartRx, UartTx},
-    usb::{self, Driver},
+    spi::Spi,
+    usart::{UartRx, UartTx},
 };
 
-use embassy_sync::{
-    blocking_mutex::{self, NoopMutex, raw::CriticalSectionRawMutex},
-    mutex::Mutex,
-};
+use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, mutex::Mutex};
 
-use embassy_time::{Duration, Instant, Ticker, Timer, with_timeout};
-use embassy_usb::{
-    Builder,
-    class::{
-        cdc_acm::{CdcAcmClass, State},
-        midi::MidiClass,
-    },
-    driver::EndpointError,
-};
-use embedded_fatfs::{FormatVolumeOptions, FsOptions, format_volume};
+use embassy_time::{Delay, Timer};
+
 use embedded_graphics::{
-    Drawable,
-    prelude::{Point, Size, WebColors},
-    primitives::Rectangle,
+    mono_font::{
+        MonoTextStyle,
+        ascii::{FONT_6X10, FONT_10X20},
+    },
+    pixelcolor::Rgb565,
+    primitives::{PrimitiveStyleBuilder, Rectangle},
+    text::{Alignment, LineHeight, Text, TextStyleBuilder},
 };
-use embedded_graphics::{pixelcolor::Rgb565, prelude::Dimensions};
 
-use embedded_graphics_coordinate_transform::{Rotate90, Rotate180, Rotate270};
-use embedded_hal_async::delay::DelayNs;
+use embedded_graphics_coordinate_transform::Rotate270;
 
-use block_device_adapters::BufStream;
-use block_device_adapters::BufStreamError;
-use heapless::format;
-use ili9341::ModeState;
-use mipidsi::TestImage;
 use mousefood::{EmbeddedBackend, EmbeddedBackendConfig};
 use ratatui::Terminal;
-use rgb_led_pwm_dma_maker::{
-    LedDataComposition, LedDmaBuffer, RGB, RgbLedColor, calc_dma_buffer_length,
-};
+use rgb_led_pwm_dma_maker::RGB;
 use sdio_host::{
     common_cmd::{select_card, set_block_length},
     sd::BlockSize,
@@ -85,7 +59,8 @@ use {
 
 use firmware::{
     hardware::{
-        self, Irqs, display,
+        self, Irqs,
+        display::{self, Display},
         keypad::{self, Keypad},
         preamble::*,
     },
@@ -170,7 +145,7 @@ unsafe fn HardFault(ef: &ExceptionFrame) -> ! {
         error!("hfsr: {:b}", scb.hfsr.read());
 
         // Chek HFSR bit 30 to see if we need to check other registers for details.
-        if ((scb.hfsr.read() & (1 << 30)) != 0) {
+        if (scb.hfsr.read() & (1 << 30)) != 0 {
             error!("Forced Hard Fault!");
             error!(" HFSR FORCED bit set, see CFSR for details.");
 
@@ -178,7 +153,7 @@ unsafe fn HardFault(ef: &ExceptionFrame) -> ! {
             error!("  SCB->CFSR: {:b}", scb.cfsr.read());
 
             // Mask out the UFSR section of the CFSR register (first half).
-            if ((scb.cfsr.read() & 0xFFFF0000) != 0) {
+            if (scb.cfsr.read() & 0xFFFF0000) != 0 {
                 let ufsr: u16 = (scb.cfsr.read() >> 16) as u16;
                 error!("  Usage Fault Indicator set!");
                 error!("    SCB->CFSR->UFSR={:b}", ufsr);
@@ -294,7 +269,7 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     debug_uart.blocking_write(b"debug serial ready").unwrap();
     let (debug_tx_raw, debug_rx_raw) = debug_uart.split();
     let debug_tx = DEBUG_SERIAL_TX.init(debug_tx_raw);
-    let debug_rx = DEBUG_SERIAL_RX.init(debug_rx_raw);
+    let _debug_rx = DEBUG_SERIAL_RX.init(debug_rx_raw);
     defmt_serial::defmt_serial(debug_tx);
 
     let clocks = clocks(&p.RCC);
@@ -314,31 +289,80 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     let i2c4_bus = I2C4_BUS.init(Mutex::new(i2c4));
 
     // Initialize the keypad fairly early so that we can
-    // use the keypad LEDs as status indicators.
+    // use the keypad LEDs as status indicators and use
+    // the buttons to alter the boot sequence.
     info!("Initializing keypad...");
     let mut keypad = hardware::get_keypad(spawner, r.keypad, i2c4_bus)
         .await
         .unwrap();
 
-    // info!("Initializing SDRAM...");
-    // keypad.set_led(keypad::Led::Trig1, RGB::new(255, 0, 0));
-    // let mut sdram_ram = hardware::get_sdram(r.fmc);
-    // keypad.set_led(keypad::Led::Trig1, RGB::new(0, 255, 0));
+    // Next, we configure the memory buses for the SDRAM and the display.
+    //
+    // We initialize the display as soon as possible to display any boot errors.
+    info!("Configuring memory controller...");
+    keypad.set_led(keypad::Led::Trig1, RGB::new(255, 255, 0));
+    let Ok((sdram, display)) =
+        hardware::get_memory_devices(r.fmc, r.display, embassy_time::Delay).await
+    else {
+        loop {
+            // Blink an LED to indicate an error.
+            keypad.set_led(keypad::Led::Trig1, RGB::new(255, 0, 0));
+            Timer::after_millis(25).await;
+            keypad.set_led(keypad::Led::Trig1, RGB::new(0, 0, 0));
+            Timer::after_millis(25).await;
+        }
+    };
+    keypad.set_led(keypad::Led::Trig1, RGB::new(255, 0, 0));
+
+    // Wrap the display in a translation layer that rotates it
+    // 270 degrees into landscape with the correct orientation.
+    //
+    // We need to use software rotation instead of rotation in
+    // the LCD driver because the LCD driver doesn't rotate the
+    // scanning direction, causing nasty diagonal tearing.
+    let mut display_rot = Rotate270::new(display);
+
+    draw_boot_screen(&mut display_rot, "Memory test..", &[]).unwrap();
+    display_rot.push_buffer(); // NOTE: we don't use DMA for the init display to avoid possible DMA problems when displaying init status.
+
+    // Quick SDRAM test
+    info!("RAM contents before writing: {:x}", sdram[..10]);
+
+    sdram[0] = 1;
+    sdram[1] = 2;
+    sdram[2] = 3;
+    sdram[3] = 4;
+
+    info!("RAM contents after writing: {:x}", sdram[..10]);
+
+    if sdram[0] != 1 || sdram[1] != 2 || sdram[2] != 3 || sdram[3] != 4 {
+        error!("Brief memory test failed!");
+        draw_boot_screen(&mut display_rot, "Memory test failed!", &[]).unwrap();
+        display_rot.push_buffer(); // NOTE: we don't use DMA for the init display to avoid possible DMA problems when displaying init status.
+
+        loop {
+            // Blink an LED to indicate an error.
+            keypad.set_led(keypad::Led::Trig2, RGB::new(255, 0, 0));
+            Timer::after_millis(25).await;
+            keypad.set_led(keypad::Led::Trig2, RGB::new(0, 0, 0));
+            Timer::after_millis(25).await;
+        }
+    }
+
+    info!("Memory test succeeded.");
+
+    draw_boot_screen(&mut display_rot, "SD Card...", &["Memory test"]).unwrap();
+    display_rot.push_buffer(); // NOTE: we don't use DMA for the init display to avoid possible DMA problems when displaying init status.
 
     // Initialize the bus for the SPI1 peripheral.
     //
     // This communicates with the internal storage and Micro SD card.
-    /*info!("initializing storage SPI1 bus");
-    keypad.set_led(keypad::Led::Trig2, RGB::new(255, 0, 0));
-    let (
-        spi1,
-        sd_cs,
-        mut xtsdg_cs
-    ) = hardware::get_spi1(r.spi_storage);
+    info!("initializing storage SPI1 bus");
+    keypad.set_led(keypad::Led::Trig2, RGB::new(255, 255, 0));
+    let (spi1, sd_cs, mut xtsdg_cs) = hardware::get_spi1(r.spi_storage);
 
     // Convert the SPI1 peripheral handle into a bus handle that can be consumed by multiple devices.
     let spi_bus = SPI_BUS.init(Mutex::new(spi1));
-    keypad.set_led(keypad::Led::Trig2, RGB::new(0, 255, 0));
 
     // Initialize the internal and SD card storage next.
     //
@@ -351,19 +375,31 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     // sd_init is a helper function that does this for us.
     info!("Clocking SPI1 74 cyles before initializing SD devices...");
     loop {
+        keypad.set_led(keypad::Led::Trig2, RGB::new(0, 0, 0));
         match sd_init(spi_bus.get_mut(), &mut xtsdg_cs).await {
             Ok(_) => break,
             Err(_e) => {
-                defmt::panic!("internal storage init error!"); // TODO: log the error
+                keypad.set_led(keypad::Led::Trig2, RGB::new(255, 0, 0));
+                error!("SPI init error!");
                 embassy_time::Timer::after_millis(10).await;
             }
         }
     }
 
-    info!("Constructing SD card device..");
-    keypad.set_led(keypad::Led::Trig3, RGB::new(255, 0, 0));
-    let mut sd_card = hardware::get_sdcard_async2(spi_bus, sd_cs, embassy_time::Delay).await.unwrap();
-    keypad.set_led(keypad::Led::Trig3, RGB::new(0, 255, 0));*/
+    // Now we can initialize the Micro SD card driver.
+    info!("Initializing SD card device..");
+    let mut sd_card = hardware::init_sdcard_async2(spi_bus, sd_cs, embassy_time::Delay)
+        .await
+        .unwrap();
+    keypad.set_led(keypad::Led::Trig2, RGB::new(0, 255, 0));
+
+    draw_boot_screen(
+        &mut display_rot,
+        "Internal Storage...",
+        &["Memory test", "SD Card"],
+    )
+    .unwrap();
+    display_rot.push_buffer(); // NOTE: we don't use DMA for the init display to avoid possible DMA problems when displaying init status.
 
     // sd_card.list_filesystem().await.unwrap();
 
@@ -375,6 +411,14 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     keypad.set_led(keypad::Led::Trig4, RGB::new(255, 0, 0));
     let mut internal_storage = hardware::get_internal_storage(spi_bus, xtsdg_cs, embassy_time::Delay);
     keypad.set_led(keypad::Led::Trig4, RGB::new(0, 255, 0));*/
+
+    draw_boot_screen(
+        &mut display_rot,
+        "Battery...",
+        &["Memory test", "SD Card", "TODO: Internal Storage"],
+    )
+    .unwrap();
+    display_rot.push_buffer(); // NOTE: we don't use DMA for the init display to avoid possible DMA problems when displaying init status.
 
     /*
         // Next initialize the bus for the I2C2 peripheral that
@@ -421,27 +465,6 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     keypad.set_led(keypad::Led::Trig1, RGB::new(255, 0, 0));
     info!("Configuring display peripheral...");
 
-    info!("Configuring memory controller...");
-    let (sdram, display) = hardware::get_memory_devices(r.fmc, r.display, embassy_time::Delay)
-        .await
-        .unwrap();
-    // let (
-    //     mut backlight_pwm,
-    //     mut display
-    // ) = hardware::get_display(r.fmc, r.display, embassy_time::Delay);
-
-    let mut display_rot = Rotate270::new(display);
-
-    keypad.set_led(keypad::Led::Trig1, RGB::new(0, 255, 0));
-
-    // info!("Setting backlight to 100%");
-    // let mut backlight_pwm_channel: timer::simple_pwm::SimplePwmChannel<'_, peripherals::TIM3> = backlight_pwm.ch4();
-    // backlight_pwm_channel.enable();
-    // backlight_pwm_channel.set_duty_cycle_fully_on();
-
-    // info!("Clearing the display with red..");
-    display_rot.clear(Rgb565::BLACK).unwrap();
-    display_rot.push_buffer_dma().await.unwrap();
     // display.push_buffer_dma().await.unwrap();
 
     // A Ratatui wrapper for embedded-graphics.
@@ -475,94 +498,6 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
 
         // Give other tasks time to do work.
         Timer::after_millis(10).await;
-
-        /*Timer::after_millis(500).await;
-        keypad.set_led(keypad::Led::Trig1, RGB::new(255, 0, 0));
-        let t1 = Instant::now();
-        display_rot.clear(Rgb565::RED).unwrap();
-        info!(
-            "clear fill took {}ms",
-            Instant::now().duration_since(t1).as_millis()
-        );
-        let t1 = Instant::now();
-        // display.push_buffer();
-        display_rot.push_buffer_dma().await.unwrap();
-        info!(
-            "DMA send took {}ms",
-            Instant::now().duration_since(t1).as_millis()
-        );
-
-        Timer::after_millis(500).await;
-        keypad.set_led(keypad::Led::Trig1, RGB::new(0, 255, 0));
-        let t1 = Instant::now();
-        display_rot.clear(Rgb565::GREEN).unwrap();
-        // display.push_buffer();
-        display_rot.push_buffer_dma().await.unwrap();
-        info!(
-            "DMA draw frame 2 (fill and send) took {}ms",
-            Instant::now().duration_since(t1).as_millis()
-        );
-
-        Timer::after_millis(500).await;
-        keypad.set_led(keypad::Led::Trig1, RGB::new(0, 0, 255));
-        let t1 = Instant::now();
-        display_rot.clear(Rgb565::BLUE).unwrap();
-        // display.push_buffer();
-        display_rot.push_buffer_dma().await.unwrap();
-        info!(
-            "DMA draw frame 3 (fill and send) took {}ms",
-            Instant::now().duration_since(t1).as_millis()
-        );
-
-        Timer::after_millis(500).await;
-        keypad.set_led(keypad::Led::Trig1, RGB::new(255, 255, 255));
-        let t1 = Instant::now();
-        display_rot.clear(Rgb565::WHITE).unwrap();
-        display_rot
-            .fill_solid(
-                // 0,0
-                &Rectangle::new(Point::new(20, 20), Size::new(50, 50)),
-                Rgb565::CSS_PURPLE,
-            )
-            .unwrap();
-        display_rot
-            .fill_solid(
-                // 1,1
-                &Rectangle::new(
-                    Point::new(
-                        display_rot.bounding_box().size.width as i32 - 20 - 50,
-                        display_rot.bounding_box().size.height as i32 - 20 - 50,
-                    ),
-                    Size::new(50, 50),
-                ),
-                Rgb565::CSS_ORANGE,
-            )
-            .unwrap();
-        display_rot
-            .fill_solid(
-                // 1,0
-                &Rectangle::new(
-                    Point::new(display_rot.bounding_box().size.width as i32 - 20 - 50, 20),
-                    Size::new(50, 50),
-                ),
-                Rgb565::RED,
-            )
-            .unwrap();
-        info!(
-            "manual draw frame took {}ms",
-            Instant::now().duration_since(t1).as_millis()
-        );
-        let t1 = Instant::now();
-        display_rot.push_buffer_dma().await.unwrap();
-        info!(
-            "DMA 4 frame send took {}ms",
-            Instant::now().duration_since(t1).as_millis()
-        );
-        // display.push_buffer_dma().await.unwrap();
-
-        // keypad.set_led(keypad::Led::Trig16, RGB::new(255, 255, 255));
-        // test_image.draw(&mut display).unwrap();
-        // Timer::after_millis(500).await;*/
     }
 
     info!("Initializing engine..");
@@ -593,6 +528,72 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
 
         join(wireless_read, wireless_write).await;
     */
+    Ok(())
+}
+
+fn draw_boot_screen<'a, D: DrawTarget<Color = Rgb565>>(
+    target: &'a mut D,
+    component: &'a str,
+    success_components: &[&'a str],
+) -> Result<(), D::Error> {
+    use embedded_graphics::prelude::*;
+
+    // First, we need to clear the framebuffer to black
+    // to overwrite any previously drawn elements.
+    target.clear(Rgb565::BLACK)?;
+
+    let border_style = PrimitiveStyleBuilder::new()
+        .stroke_color(Rgb565::YELLOW)
+        .stroke_width(3)
+        .reset_fill_color()
+        .build();
+
+    let display_size = target.bounding_box().size;
+
+    Rectangle::new(
+        Point::new(20, 20),
+        Size::new(display_size.width - 40, display_size.height - 40),
+    )
+    .into_styled(border_style)
+    .draw(target)?;
+
+    let large_character_style = MonoTextStyle::new(&FONT_10X20, Rgb565::WHITE);
+    let small_character_style = MonoTextStyle::new(&FONT_6X10, Rgb565::WHITE);
+    let small_character_style_success = MonoTextStyle::new(&FONT_6X10, Rgb565::GREEN);
+
+    let text_style = TextStyleBuilder::new()
+        .alignment(Alignment::Center)
+        .line_height(LineHeight::Percent(150))
+        .build();
+
+    Text::with_text_style(
+        "Booting...",
+        Point::new(display_size.width as i32 / 2, 80),
+        large_character_style,
+        text_style,
+    )
+    .draw(target)?;
+
+    let mut offset = 0;
+    for comp in success_components {
+        Text::with_text_style(
+            comp,
+            Point::new(display_size.width as i32 / 2, 120 + offset),
+            small_character_style_success,
+            text_style,
+        )
+        .draw(target)?;
+        offset += 15;
+    }
+
+    Text::with_text_style(
+        component,
+        Point::new(display_size.width as i32 / 2, 120 + offset),
+        small_character_style,
+        text_style,
+    )
+    .draw(target)?;
+
     Ok(())
 }
 
