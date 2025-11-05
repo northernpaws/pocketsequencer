@@ -12,6 +12,7 @@ use defmt::{info, trace};
 use grounded::uninit::GroundedArrayCell;
 use proc_bitfield::{Bitfield, SetBits};
 use static_cell::{ConstStaticCell, StaticCell};
+use stm32_fmc::FmcPeripheral;
 
 use core::{cell::RefCell, default::Default, option::Option::Some};
 use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, channel::Channel};
@@ -1006,6 +1007,35 @@ use embassy_stm32::fmc;
 
 // }
 
+/// "Fake" FMC peripheral to avoid the SDRAM package trying to initialize
+/// the FMC before the dispaly SRAM has also been configured.
+struct SDRamFmcPeripheral {
+    source_clock_hz: u32,
+}
+
+impl SDRamFmcPeripheral {
+    pub fn new(source_clock_hz: u32) -> Self {
+        Self { source_clock_hz }
+    }
+}
+
+unsafe impl FmcPeripheral for SDRamFmcPeripheral {
+    // Still need to provide the registers because they're used to configure the SDRAM bank.
+    const REGISTERS: *const () = pac::FMC.as_ptr() as *const _;
+
+    fn enable(&mut self) {
+        // no-op as we'll already have enabled the FMC controller.
+    }
+
+    fn memory_controller_enable(&mut self) {
+        // no-op
+    }
+
+    fn source_clock_hz(&self) -> u32 {
+        self.source_clock_hz
+    }
+}
+
 static FRAME_BUFFER: ConstStaticCell<[Rgb565; display::FRAMEBUFFER_SIZE]> =
     ConstStaticCell::new([Rgb565::BLACK; display::FRAMEBUFFER_SIZE]);
 
@@ -1016,11 +1046,14 @@ static SCANLINE: ConstStaticCell<[Rgb565; display::WIDTH]> =
 //     &mut [Rgb565::BLACK; display::FRAMEBUFFER_SIZE];
 
 /// Configures the SDRAM and display which both use FMC access.
-pub async fn get_memory_devices<'a, DELAY: embedded_hal_async::delay::DelayNs>(
+pub async fn get_memory_devices<
+    'a,
+    DELAY: embedded_hal_async::delay::DelayNs + embedded_hal::delay::DelayNs,
+>(
     r: FMCResources,
     display: DisplayResources,
-    delay: DELAY,
-) -> Result<Display<'a, DELAY>, display::fmc::InitError> {
+    mut delay: DELAY,
+) -> Result<(&'a mut [u32], Display<'a, DELAY>), display::fmc::InitError> {
     let mut core_peri: cortex_m::Peripherals = cortex_m::Peripherals::take().unwrap();
     // taken from stm32h7xx-hal
     core_peri.SCB.enable_icache();
@@ -1029,18 +1062,11 @@ pub async fn get_memory_devices<'a, DELAY: embedded_hal_async::delay::DelayNs>(
     core_peri.DWT.enable_cycle_counter();
 
     const DISPLAY_BANK: display::fmc::FMCRegion = display::fmc::FMCRegion::Bank1;
+    const SDRAM_SIZE: usize = 256 * 1024 * 1024;
 
     {
-        // Configure the MPU region 1 for the SRAM.
-        trace!("Configuring MPU region 1 for display SRAM...");
         let mpu = core_peri.MPU;
         let scb = &mut core_peri.SCB;
-
-        // While the display interface only uses around 4 bytes, we configure
-        // the MPU region for the full SRAM bank access window of 64Mbytes.
-        //
-        // see: RM0433 Rev 8 P.g. 808
-        let size = 64 * 1024 * 1024;
 
         // Refer to ARM®v7-M Architecture Reference Manual ARM DDI 0403
         // Version E.b Section B3.5
@@ -1056,64 +1082,122 @@ pub async fn get_memory_devices<'a, DELAY: embedded_hal_async::delay::DelayNs>(
             mpu.ctrl.write(0);
         }
 
-        const REGION_NUMBER: u32 = 0x01; // Configure MPU region 1
-        const REGION_BASE_ADDRESS: u32 = DISPLAY_BANK.base_address(); // SRAM1 bank base address
+        {
+            // Configure MPU region 1 for the SDRAM
 
-        const REGION_FULL_ACCESS: u32 = 0x03; // Full access, no privileged or permission restrictions
-        const REGION_CACHEABLE: u32 = 0x00; // No caching
-        const REGION_WRITE_BACK: u32 = 0x00; // 0 = write through, in theory caching here should work but doesn't seem to be..
-        const REGION_ENABLE: u32 = 0x01;
+            trace!("Configuring MPU region 1 for SDRAM...");
 
-        assert_eq!(
-            size & (size - 1),
-            0,
-            "SRAM memory region size must be a power of 2"
-        );
-        assert_eq!(
-            size & 0x1F,
-            0,
-            "SRAM memory region size must be 32 bytes or more"
-        );
+            // 256MB
 
-        fn log2minus1(sz: u32) -> u32 {
-            for i in 5..=31 {
-                if sz == (1 << i) {
-                    return i - 1;
+            const REGION_NUMBER1: u32 = 0x01;
+            const REGION_BASE_ADDRESS: u32 = 0xD000_0000;
+
+            const REGION_FULL_ACCESS: u32 = 0x03;
+            const REGION_CACHEABLE: u32 = 0x01;
+            const REGION_WRITE_BACK: u32 = 0x01;
+            const REGION_ENABLE: u32 = 0x01;
+
+            assert_eq!(
+                SDRAM_SIZE & (SDRAM_SIZE - 1),
+                0,
+                "SDRAM memory region size must be a power of 2"
+            );
+            assert_eq!(
+                SDRAM_SIZE & 0x1F,
+                0,
+                "SDRAM memory region size must be 32 bytes or more"
+            );
+
+            fn log2minus1(sz: u32) -> u32 {
+                for i in 5..=31 {
+                    if sz == (1 << i) {
+                        return i - 1;
+                    }
                 }
+                defmt::panic!("Unknown SDRAM memory region size!");
             }
-            defmt::panic!("Unknown SRAM memory region size!");
+
+            info!("SDRAM Memory Size 0x{:x}", log2minus1(SDRAM_SIZE as u32));
+
+            // Configure region 1
+            //
+            // Cacheable, outer and inner write-back, no write allocate. So
+            // reads are cached, but writes always write all the way to SDRAM
+            unsafe {
+                mpu.rnr.write(REGION_NUMBER1);
+                mpu.rbar.write(REGION_BASE_ADDRESS);
+                mpu.rasr.write(
+                    (REGION_FULL_ACCESS << 24)
+                        | (REGION_CACHEABLE << 17)
+                        | (REGION_WRITE_BACK << 16)
+                        | (log2minus1(SDRAM_SIZE as u32) << 1)
+                        | REGION_ENABLE,
+                );
+            }
         }
 
-        info!("SRAM Memory Size 0x{:x}", log2minus1(size as u32));
+        {
+            // Configure the MPU region 2 for the SRAM.
+            trace!("Configuring MPU region 2 for display SRAM...");
+            // While the display interface only uses around 4 bytes, we configure
+            // the MPU region for the full SRAM bank access window of 64Mbytes.
+            //
+            // see: RM0433 Rev 8 P.g. 808
+            let size = 64 * 1024 * 1024;
 
-        let rasr = RegionAttributeSizeRegister::from_storage(0) //
-            .with_size(log2minus1(size as u32) as u8)
-            .with_access_permission(0b011) // full access
-            // .with_memory_access_attribute_tex(0b001)
-            .with_memory_access_attribute_c(false)
-            .with_memory_access_attribute_b(false)
-            .with_shareable(true)
-            .with_enable(true); //
+            const REGION_NUMBER: u32 = 0x02; // Configure MPU region 2
+            const REGION_BASE_ADDRESS: u32 = DISPLAY_BANK.base_address(); // SRAM1 bank base address
 
-        // Configure region 0
-        //
-        // Cacheable, outer and inner write-back, no write allocate. So
-        // reads are cached, but writes always write all the way to SDRAM
-        unsafe {
-            mpu.rnr.write(REGION_NUMBER);
-            mpu.rbar.write(REGION_BASE_ADDRESS);
-            mpu.rasr.write(rasr.into_storage());
-            // mpu.rasr.write(
-            //     (REGION_FULL_ACCESS << 24)
-            //         | (REGION_CACHEABLE << 17)
-            //         | (REGION_WRITE_BACK << 16)
-            //         | (log2minus1(size as u32) << 1)
-            //         | REGION_ENABLE,
-            // );
+            assert_eq!(
+                size & (size - 1),
+                0,
+                "SRAM memory region size must be a power of 2"
+            );
+            assert_eq!(
+                size & 0x1F,
+                0,
+                "SRAM memory region size must be 32 bytes or more"
+            );
 
-            //0x03000033
+            fn log2minus1(sz: u32) -> u32 {
+                for i in 5..=31 {
+                    if sz == (1 << i) {
+                        return i - 1;
+                    }
+                }
+                defmt::panic!("Unknown SRAM memory region size!");
+            }
+
+            info!("SRAM Memory Size 0x{:x}", log2minus1(size as u32));
+
+            let rasr = RegionAttributeSizeRegister::from_storage(0) //
+                .with_size(log2minus1(size as u32) as u8)
+                .with_access_permission(0b011) // full access
+                // .with_memory_access_attribute_tex(0b001)
+                .with_memory_access_attribute_c(false)
+                .with_memory_access_attribute_b(false)
+                .with_shareable(true)
+                .with_enable(true); //
+
+            // Configure region 0
+            //
+            // Cacheable, outer and inner write-back, no write allocate. So
+            // reads are cached, but writes always write all the way to SDRAM
+            unsafe {
+                mpu.rnr.write(REGION_NUMBER);
+                mpu.rbar.write(REGION_BASE_ADDRESS);
+                mpu.rasr.write(rasr.into_storage());
+                // mpu.rasr.write(
+                //     (REGION_FULL_ACCESS << 24)
+                //         | (REGION_CACHEABLE << 17)
+                //         | (REGION_WRITE_BACK << 16)
+                //         | (log2minus1(size as u32) << 1)
+                //         | REGION_ENABLE,
+                // );
+
+                //0x03000033
+            }
         }
-
         const MPU_ENABLE: u32 = 0x01;
         const MPU_DEFAULT_MMAP_FOR_PRIVILEGED: u32 = 0x04;
 
@@ -1163,6 +1247,25 @@ pub async fn get_memory_devices<'a, DELAY: embedded_hal_async::delay::DelayNs>(
     // Enable the FMC peripheral for use with the RCC.
     trace!("Initializing Memory Controller...");
     fmc.enable();
+
+    // let fmc = Fmc{ peri: PhantomData };
+    let mut sdram = stm32_fmc::Sdram::new_unchecked(
+        // NOTE: we
+        SDRamFmcPeripheral::new(fmc.source_clock_hz()),
+        stm32_fmc::SdramTargetBank::Bank1,
+        // Supplies the timing and mode registry
+        // parameters for the specific SDRAM IC.
+        drivers::is42s16160j_7::Is42s16160j {},
+    );
+
+    // Get a Rust slice referencing the memory region mapped to the SDRAM.
+    let ram_slice: &mut [u32] = unsafe {
+        // Initialise controller and SDRAM
+        let ram_ptr: *mut u32 = sdram.init(&mut delay) as *mut _;
+
+        // Convert raw pointer to slice
+        core::slice::from_raw_parts_mut(ram_ptr, SDRAM_SIZE / core::mem::size_of::<u32>())
+    };
 
     // TODO: sdram..
     // let sdram = get_sdram(r);
@@ -1214,7 +1317,7 @@ pub async fn get_memory_devices<'a, DELAY: embedded_hal_async::delay::DelayNs>(
     );
     sram_display.init().await;
 
-    Ok(sram_display)
+    Ok((ram_slice, sram_display))
 }
 
 /// Returns the analog PWN channel that

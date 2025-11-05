@@ -422,7 +422,7 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     info!("Configuring display peripheral...");
 
     info!("Configuring memory controller...");
-    let display = hardware::get_memory_devices(r.fmc, r.display, embassy_time::Delay)
+    let (sdram, display) = hardware::get_memory_devices(r.fmc, r.display, embassy_time::Delay)
         .await
         .unwrap();
     // let (
