@@ -436,8 +436,8 @@ pub async fn leds_task(
 
     const DATA_TRANSFER_TIME: f32 = 1.25;
 
-    let t1h: u16 = (T1H / DATA_TRANSFER_TIME * (led_max_duty) as f32) as u16;
-    let t0h: u16 = (T0H / DATA_TRANSFER_TIME * (led_max_duty) as f32) as u16;
+    let t1h: u16 = (T1H / DATA_TRANSFER_TIME * (led_max_duty) as f32) as u16; // 144
+    let t0h: u16 = (T0H / DATA_TRANSFER_TIME * (led_max_duty) as f32) as u16; // 70
 
     // Create a DMA buffer for the led strip.
     //

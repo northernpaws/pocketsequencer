@@ -1,10 +1,14 @@
 #![no_std]
 #![no_main]
 
+#[cfg(feature = "alloc")]
+extern crate alloc;
+
 // https://medium.com/@carlmkadie/how-rust-embassy-shine-on-embedded-devices-part-1-9f4911c92007
 
 use core::{cell::RefCell, fmt::Debug};
 
+use alloc::boxed::Box;
 use cortex_m_rt::{ExceptionFrame, exception};
 use defmt::*;
 
@@ -58,6 +62,8 @@ use block_device_adapters::BufStreamError;
 use heapless::format;
 use ili9341::ModeState;
 use mipidsi::TestImage;
+use mousefood::{EmbeddedBackend, EmbeddedBackendConfig};
+use ratatui::Terminal;
 use rgb_led_pwm_dma_maker::{
     LedDataComposition, LedDmaBuffer, RGB, RgbLedColor, calc_dma_buffer_length,
 };
@@ -87,6 +93,18 @@ use firmware::{
 };
 
 use engine;
+
+// NOTE: We try to rely on heap allocations as little
+// as possible for core elements of the system.
+//
+// Where possible, core systems should use heapless static
+// allocation or allocation pools so their size is known
+// and we avoid running into OOM problems.
+#[cfg(feature = "alloc")]
+use embedded_alloc::LlffHeap as Heap;
+#[cfg(feature = "alloc")]
+#[global_allocator]
+static HEAP: Heap = Heap::empty();
 
 // Audio I2C bus.
 //
@@ -199,7 +217,7 @@ unsafe fn HardFault(ef: &ExceptionFrame) -> ! {
             }
 
             // MMFSR
-            if ((scb.cfsr.read() & 0xFF) != 0) {
+            if (scb.cfsr.read() & 0xFF) != 0 {
                 error!("  Memory Management Indicator set!");
                 error!("    Memory fault location: 0x{:X}", scb.mmfar.read());
                 // TODO: error messages https://developer.arm.com/documentation/dui0552/a/cortex-m3-peripherals/system-control-block/configurable-fault-status-register
@@ -209,15 +227,24 @@ unsafe fn HardFault(ef: &ExceptionFrame) -> ! {
 
     // TODO: attempt hard fault recovery https://github.com/kendiser5000/Hardfault-Recovery-Cortex-M4/blob/master/hardfault_handler.c
 
-    // if let Ok(mut hstdout) = hio::hstdout() {
-    //     writeln!(hstdout, "HARD FAULT: {:#?}", ef).ok();
-    // }
-
     loop {}
 }
 
 #[embassy_executor::main]
 async fn main(spawner: Spawner) {
+    // NOTE: We try to rely on heap allocations as little
+    // as possible for core elements of the system.
+    //
+    // Where possible, core systems should use heapless static
+    // allocation or allocation pools so their size is known
+    // and we avoid running into OOM problems.
+    {
+        use core::mem::MaybeUninit;
+        const HEAP_SIZE: usize = 1024 * 128;
+        static mut HEAP_MEM: [MaybeUninit<u8>; HEAP_SIZE] = [MaybeUninit::uninit(); HEAP_SIZE];
+        unsafe { HEAP.init(&raw mut HEAP_MEM as usize, HEAP_SIZE) }
+    }
+
     info!("program start!");
     // If it returns, something went wrong.
     if let Err(err) = inner_main(spawner).await {
@@ -265,9 +292,9 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     // Stop1
     let mut debug_uart = hardware::get_uart_debug(r.uart_debug);
     debug_uart.blocking_write(b"debug serial ready").unwrap();
-    let (mut debug_tx_raw, mut debug_rx_raw) = debug_uart.split();
-    let mut debug_tx = DEBUG_SERIAL_TX.init(debug_tx_raw);
-    let mut debug_rx = DEBUG_SERIAL_RX.init(debug_rx_raw);
+    let (debug_tx_raw, debug_rx_raw) = debug_uart.split();
+    let debug_tx = DEBUG_SERIAL_TX.init(debug_tx_raw);
+    let debug_rx = DEBUG_SERIAL_RX.init(debug_rx_raw);
     defmt_serial::defmt_serial(debug_tx);
 
     let clocks = clocks(&p.RCC);
@@ -414,12 +441,43 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
 
     // info!("Clearing the display with red..");
     display_rot.clear(Rgb565::BLACK).unwrap();
-    display_rot.push_buffer();
+    display_rot.push_buffer_dma().await.unwrap();
     // display.push_buffer_dma().await.unwrap();
 
+    // A Ratatui wrapper for embedded-graphics.
+    //
+    // Will be replaced later with our own embedded-optimized
+    // UI framework, but for now it'll work great for testing.
+    let backend_config = EmbeddedBackendConfig {
+        // Define how to display newly rendered widgets to the simulator window
+        flush_callback: Box::new(
+            move |display: &mut embedded_graphics_coordinate_transform::CoordinateTransform<
+                display::Display<'_, embassy_time::Delay>,
+                false,
+                true,
+                true,
+            >| {
+                display.push_buffer();
+                // TODO: dispatch queue in async method for DMA.
+                // async {
+                //     display.push_buffer_dma().await.unwrap();
+                // };
+            },
+        ),
+        ..Default::default()
+    };
+    let backend = EmbeddedBackend::new(&mut display_rot, backend_config);
+    let mut terminal = Terminal::new(backend).unwrap();
+
     loop {
-        Timer::after_millis(500).await;
-        keypad.set_led(keypad::Led::Trig16, RGB::new(255, 0, 0));
+        terminal.draw(draw).unwrap();
+        // display_rot.push_buffer_dma().await.unwrap();
+
+        // Give other tasks time to do work.
+        Timer::after_millis(10).await;
+
+        /*Timer::after_millis(500).await;
+        keypad.set_led(keypad::Led::Trig1, RGB::new(255, 0, 0));
         let t1 = Instant::now();
         display_rot.clear(Rgb565::RED).unwrap();
         info!(
@@ -435,7 +493,7 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
         );
 
         Timer::after_millis(500).await;
-        keypad.set_led(keypad::Led::Trig16, RGB::new(0, 255, 0));
+        keypad.set_led(keypad::Led::Trig1, RGB::new(0, 255, 0));
         let t1 = Instant::now();
         display_rot.clear(Rgb565::GREEN).unwrap();
         // display.push_buffer();
@@ -446,7 +504,7 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
         );
 
         Timer::after_millis(500).await;
-        keypad.set_led(keypad::Led::Trig16, RGB::new(0, 0, 255));
+        keypad.set_led(keypad::Led::Trig1, RGB::new(0, 0, 255));
         let t1 = Instant::now();
         display_rot.clear(Rgb565::BLUE).unwrap();
         // display.push_buffer();
@@ -457,7 +515,7 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
         );
 
         Timer::after_millis(500).await;
-        keypad.set_led(keypad::Led::Trig16, RGB::new(255, 255, 255));
+        keypad.set_led(keypad::Led::Trig1, RGB::new(255, 255, 255));
         let t1 = Instant::now();
         display_rot.clear(Rgb565::WHITE).unwrap();
         display_rot
@@ -495,16 +553,16 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
             Instant::now().duration_since(t1).as_millis()
         );
         let t1 = Instant::now();
-        display_rot.push_buffer();
+        display_rot.push_buffer_dma().await.unwrap();
         info!(
-            "manual frame send took {}ms",
+            "DMA 4 frame send took {}ms",
             Instant::now().duration_since(t1).as_millis()
         );
         // display.push_buffer_dma().await.unwrap();
 
         // keypad.set_led(keypad::Led::Trig16, RGB::new(255, 255, 255));
         // test_image.draw(&mut display).unwrap();
-        // Timer::after_millis(500).await;
+        // Timer::after_millis(500).await;*/
     }
 
     info!("Initializing engine..");
@@ -536,6 +594,16 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
         join(wireless_read, wireless_write).await;
     */
     Ok(())
+}
+
+fn draw(frame: &mut ratatui::Frame) {
+    let text = "Ratatui on embedded devices!";
+    let paragraph = ratatui::widgets::Paragraph::new(ratatui::style::Stylize::dark_gray(text))
+        .wrap(ratatui::widgets::Wrap { trim: true });
+    let bordered_block = ratatui::widgets::Block::bordered()
+        .border_style(ratatui::style::Style::new().yellow())
+        .title("Mousefood");
+    frame.render_widget(paragraph.block(bordered_block), frame.area());
 }
 
 /// Rust's `!` is unstable.  This is a locally-defined equivalent which is stable.

@@ -149,15 +149,19 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
         // subsequent writes increment the counters as data comes in.
         self.write_raw_command(0x2C, &[]);
 
-        // TODO: make some change to adjust the exhaustive options.
         let mut transfer_options = dma::TransferOptions::default();
         transfer_options.pburst = Burst::Single;
         transfer_options.mburst = Burst::Single;
-        transfer_options.flow_ctrl = dma::FlowControl::Dma; // DMS is required with memory-to-memory
+
+        // DMA flow control is required for memory-to-memory transfers.
+        transfer_options.flow_ctrl = dma::FlowControl::Dma;
+
         // FIFO is 4-words, so can fit8 half-word (16 bit) values.
         //
         // FIFO is required in memory-to-memory mode.
         transfer_options.fifo_threshold = Some(FifoThreshold::Full);
+
+        // TODO: Split the DMA transfers based on the current scanline instead of just in half.
 
         // Now that the display knows we're about to write a page of data,
         // we can start a memory-to-memory DMA transfer to offload the
@@ -200,61 +204,9 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
         }
 
         Ok(())
-        /*
-                let dma = pac::DMA2; // TODO: get pointer
-                let channel = dma.st(4); // channel 5
-
-                // Number of transfers in target word size.
-                let ndtr = self.framebuf.data.len();
-                assert!(ndtr > 0 && ndtr <= 0xFFFF);
-
-                // Source address
-                ch.par().write_value(self.framebuf.data.as_ptr());
-                // Destination address
-                ch.m0ar().write_value(0x6000_0000); // TODO: Get from FMC instance
-                // Number of data
-                ch.ndtr().write_value(pac::dma::regs::Ndtr(ndtr as _));
-                // Configuration register
-                ch.cr().write(|w| {
-                    w.set_dir(2); // b10 memory-to-memory
-                    w.set_msize(1); // Half-word 16-bit
-                    w.set_psize(1); // Half-word 16-bit
-                    w.set_pl(1); // medium priority
-                    w.set_minc(1); // increment source memory address after transfer
-                    w.set_pinc(0); // don't increment peripheral address after transfer
-                    w.set_teie(false); // transfer error interrupt enable
-                    w.set_htie(false); // half transfer interrupt enable TODO: use for queuing up next frame later?
-                    w.set_tcie(false); // transfer complete interrupt enable
-                    w.set_circ(false); // disable circular mode
-                    #[cfg(dma_v1)]
-                    w.set_trbuff(true);
-                    #[cfg(dma_v2)]
-                    w.set_chsel(_request);
-                    w.set_pburst(0); // single transfer
-                    w.set_mburst(0); // signal transfer
-                    w.set_pfctrl(0); // 0 for mem-to-mem
-                    w.set_en(false); // don't start yet
-                });
-        */
-        // let req: u8 = dma.request();
-
-        // unsafe {
-        //     dma::dma_bdma::Transfer::new_write(
-        //         self.dma,
-        //         req,
-        //         duty,
-        //         self.inner.regs_gp16().ccr(cc_channel.index()).as_ptr() as *mut u16,
-        //         dma::TransferOptions {
-        //             fifo_threshold: Some(FifoThreshold::Full),
-        //             mburst: Burst::Incr8,
-        //             ..Default::default()
-        //         },
-        //     )
-        //     .await
-        // }
     }
 
-    // TODO: DMA
+    /// Writes a command and it's arguments to the display controller,
     pub fn write_raw_command(&mut self, cmd: u8, args: &[u8]) {
         // , args: &[u8]
         trace!("display command: 0x{:x} {=[u8]:x}", cmd, args);
@@ -263,6 +215,7 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
         self.interface.write_command(cmd, args); // as u16
     }
 
+    /// Issue a register read command to the display controller, and read the result parameters.
     pub async fn read_command<const N: usize>(&mut self, cmd: u8) -> [u8; N] {
         self.interface.write_command(cmd, &[]);
 
@@ -287,10 +240,17 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
         results
     }
 
+    /// Returns the side of the display.
     pub fn display_size(&self) -> (u32, u32) {
-        (240, 320)
+        (WIDTH as u32, HEIGHT as u32)
     }
 
+    /// Initializes the display.
+    ///
+    /// Hardware resets the display and then sends the sequence of
+    /// manufacture recommended initialization commands, including
+    /// power management setup, manufacturer gamma curves, and
+    /// actually turning the display on.
     pub async fn init(&mut self) {
         // Before and during delay timings from ILI9341 datasheet.
         self.delay.delay_ms(5).await;
@@ -301,7 +261,8 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
         // Initial wait required after power on reset.
         self.delay.delay_ms(120).await;
 
-        // Power control B
+        // Power Control B.
+        //
         // 00000000
         // 100 power control[3:4] 001
         // 001 DC_ena 0000
@@ -315,7 +276,7 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
             ],
         );
 
-        // Power on sequence control
+        // Power on Sequence Control.
         self.write_raw_command(
             0xED,
             &[
@@ -326,8 +287,7 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
             ],
         );
 
-        // Driver timing control A
-        // TODO: different in https://github.com/Bodmer/TFT_ILI9341/blob/master/TFT_ILI9341.cpp
+        // Driver Timing Control A.
         self.write_raw_command(
             0xE8,
             &[
@@ -338,7 +298,7 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
             ],
         );
 
-        // Power control A
+        // Power control A.
         self.write_raw_command(
             0xCB,
             &[
@@ -348,7 +308,7 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
             ],
         );
 
-        //// Pump ratio control
+        //// Pump Ratio Control.
         self.write_raw_command(
             0xF7,
             &[
@@ -357,7 +317,7 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
             ],
         );
 
-        // Driver timing control B
+        // Driver Timing Control B.
         self.write_raw_command(
             0xEA,
             &[
@@ -366,23 +326,25 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
             ],
         );
 
-        // Power control  VRH[5:0]
+        // Power control.
         self.write_raw_command(
             0xC0,
             &[
+                //   VRH[5:0]
                 0x22, // GVDD level, reference for VCOM and grayscale voltage.
             ],
         );
 
-        // Power control SAP[2:0];BT[3:0]
+        // Power Control.
         self.write_raw_command(
             0xC1,
             &[
+                //  SAP[2:0];BT[3:0]
                 0x11, // Step-up circuit factor
             ],
         );
 
-        // VCM control
+        // VCM Control.
         self.write_raw_command(
             0xC5,
             &[
@@ -391,7 +353,7 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
             ],
         );
 
-        //VCM control2
+        // VCM Control 2.
         self.write_raw_command(
             0xC7,
             &[
@@ -399,7 +361,9 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
             ],
         );
 
-        // Memory Access Control
+        // Memory Access Control.
+        //
+        // Sets color order, rotation, and column/page inversion.
         self.write_raw_command(
             0x36,
             &[
@@ -420,7 +384,7 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
             ],
         );
 
-        //  Frame control in normal mode
+        //  Frame Control (Normal Mode).
         self.write_raw_command(
             0xB1,
             &[
@@ -430,8 +394,7 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
             ],
         );
 
-        // Display Function Control
-        // TODO: very different from https://github.com/Bodmer/TFT_ILI9341/blob/master/TFT_ILI9341.cpp
+        // Display Function Control.
         self.write_raw_command(
             0xB6,
             &[
@@ -440,7 +403,8 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
             ],
         );
 
-        // Interface control/MADCTL
+        // Interface Control "MADCTL".
+        //
         // Memory overflow, endianess, RGB interface control
         // TODO: is set for 16-bit color?
         self.write_raw_command(
@@ -451,10 +415,14 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
                 0b00011101,
             ],
         );
-        // 3Gamma Function Disable
+
+        // 3Gamma Function Disable.
         self.write_raw_command(0xF2, &[0x00]);
 
-        //Gamma curve selected
+        // Gamma Curve Select.
+        //
+        // Manufacture supplies a single gamma
+        // curve in the controller memory.
         self.write_raw_command(
             0x26,
             &[
@@ -462,7 +430,11 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
             ],
         );
 
-        // Set Gamma
+        // Set the gamma curves for the display.
+        //
+        // These curves are recommended by the display panel
+        // manufacturer to match the panel they've used.
+
         self.write_raw_command(
             0xE0,
             &[
@@ -471,7 +443,6 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
             ],
         );
 
-        //Set Gamma
         self.write_raw_command(
             0xE1,
             &[
@@ -480,21 +451,26 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
             ],
         );
 
-        // Display inversion on
+        // Display Inversion On.
+        //
+        // Why do we invert the colors? Not entirely sure! But with display
+        // color invertion off, the colors are inverted for some reason.
         self.write_raw_command(0x21, &[]);
 
-        // Tearing effect out enable
-        // Remove when done testing.
+        // Tearing Effect Out Enable.
+        //
+        // Enables a TE lines that provides VSYNC signals
+        // to the host MCU for display syncronization.
         self.write_raw_command(0x35, &[0b00000001]);
 
-        // Exit Sleep
+        // Exit Sleep.
         //
         // Delay required after because controller loads manufacture settings
         // and register values after the sleep exit command is called.
         self.write_raw_command(0x11, &[]);
         self.delay.delay_ms(120).await;
 
-        // Display on
+        // Display On.
         //
         // Exits out of display-off mode and starts reading from frame memory.
         self.write_raw_command(0x29, &[]);
@@ -556,8 +532,8 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> DrawTarget for Display<'a, D
         // Break our scanline down into the width of the target
         // rectangle and fill it with the intended color.
         //
-        // TODO: we can probably get rid of this seconard scanline
-        // struct by using the first line of the fill area in the
+        // TODO: we can probably get rid of this secondary scanline
+        // array by using the first line of the fill area in the
         // framebuffer memory.
         let slice = &mut self.scanline[0..area.size.width as usize];
         slice.fill(color);
@@ -581,6 +557,8 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> DrawTarget for Display<'a, D
                 continue;
             }
 
+            // Extract the "middle" slice that we're
+            // interested in from from the row slice.
             let (_, after) = row_slice.split_at_mut((area.top_left.x) as usize);
             let (middle, _) = after.split_at_mut((area.size.width as usize) as usize);
             middle.copy_from_slice(&slice);
