@@ -126,6 +126,7 @@ lcd-async = "0.1.1"
 stm32-metapac = { git = "https://github.com/embassy-rs/stm32-data-generated", tag = "stm32-data-b9f6b0c542d85ee695d71c35ced195e0cef51ac0", features = ["pac", "metadata", "stm32h743zi", "defmt"]  } # { version = "18.0.0", features = ["pac", "metadata", "stm32h743zi", "defmt"] }
 num = { version = "0.4.3", default-features = false }
 embedded-graphics-framebuf = "0.5.0"
+embedded-graphics-coordinate-transform = "0.1.1"
 
 [patch.crates-io]
 # Adds additional FMC constructors.. requires patching ALL embassy packages for compatability to work correctly.

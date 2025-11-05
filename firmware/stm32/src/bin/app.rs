@@ -33,7 +33,7 @@ use embassy_sync::{
     mutex::Mutex,
 };
 
-use embassy_time::{Duration, Ticker, Timer, with_timeout};
+use embassy_time::{Duration, Instant, Ticker, Timer, with_timeout};
 use embassy_usb::{
     Builder,
     class::{
@@ -43,12 +43,14 @@ use embassy_usb::{
     driver::EndpointError,
 };
 use embedded_fatfs::{FormatVolumeOptions, FsOptions, format_volume};
-use embedded_graphics::pixelcolor::Rgb565;
 use embedded_graphics::{
     Drawable,
     prelude::{Point, Size, WebColors},
     primitives::Rectangle,
 };
+use embedded_graphics::{pixelcolor::Rgb565, prelude::Dimensions};
+
+use embedded_graphics_coordinate_transform::{Rotate90, Rotate180, Rotate270};
 use embedded_hal_async::delay::DelayNs;
 
 use block_device_adapters::BufStream;
@@ -393,13 +395,15 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     info!("Configuring display peripheral...");
 
     info!("Configuring memory controller...");
-    let mut display = hardware::get_memory_devices(r.fmc, r.display, embassy_time::Delay)
+    let display = hardware::get_memory_devices(r.fmc, r.display, embassy_time::Delay)
         .await
         .unwrap();
     // let (
     //     mut backlight_pwm,
     //     mut display
     // ) = hardware::get_display(r.fmc, r.display, embassy_time::Delay);
+
+    let mut display_rot = Rotate270::new(display);
 
     keypad.set_led(keypad::Led::Trig1, RGB::new(0, 255, 0));
 
@@ -409,63 +413,93 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     // backlight_pwm_channel.set_duty_cycle_fully_on();
 
     // info!("Clearing the display with red..");
-    display.clear(Rgb565::BLACK).unwrap();
-    display.push_buffer();
+    display_rot.clear(Rgb565::BLACK).unwrap();
+    display_rot.push_buffer();
     // display.push_buffer_dma().await.unwrap();
 
     loop {
         Timer::after_millis(500).await;
         keypad.set_led(keypad::Led::Trig16, RGB::new(255, 0, 0));
-        display.clear(Rgb565::RED).unwrap();
+        let t1 = Instant::now();
+        display_rot.clear(Rgb565::RED).unwrap();
+        info!(
+            "clear fill took {}ms",
+            Instant::now().duration_since(t1).as_millis()
+        );
+        let t1 = Instant::now();
         // display.push_buffer();
-        display.push_buffer_dma().await.unwrap();
+        display_rot.push_buffer_dma().await.unwrap();
+        info!(
+            "DMA send took {}ms",
+            Instant::now().duration_since(t1).as_millis()
+        );
 
         Timer::after_millis(500).await;
         keypad.set_led(keypad::Led::Trig16, RGB::new(0, 255, 0));
-        display.clear(Rgb565::GREEN).unwrap();
+        let t1 = Instant::now();
+        display_rot.clear(Rgb565::GREEN).unwrap();
         // display.push_buffer();
-        display.push_buffer_dma().await.unwrap();
+        display_rot.push_buffer_dma().await.unwrap();
+        info!(
+            "DMA draw frame 2 (fill and send) took {}ms",
+            Instant::now().duration_since(t1).as_millis()
+        );
 
         Timer::after_millis(500).await;
         keypad.set_led(keypad::Led::Trig16, RGB::new(0, 0, 255));
-        display.clear(Rgb565::BLUE).unwrap();
+        let t1 = Instant::now();
+        display_rot.clear(Rgb565::BLUE).unwrap();
         // display.push_buffer();
-        display.push_buffer_dma().await.unwrap();
+        display_rot.push_buffer_dma().await.unwrap();
+        info!(
+            "DMA draw frame 3 (fill and send) took {}ms",
+            Instant::now().duration_since(t1).as_millis()
+        );
 
         Timer::after_millis(500).await;
         keypad.set_led(keypad::Led::Trig16, RGB::new(255, 255, 255));
-        display.clear(Rgb565::WHITE).unwrap();
-        display
+        let t1 = Instant::now();
+        display_rot.clear(Rgb565::WHITE).unwrap();
+        display_rot
             .fill_solid(
                 // 0,0
                 &Rectangle::new(Point::new(20, 20), Size::new(50, 50)),
                 Rgb565::CSS_PURPLE,
             )
             .unwrap();
-        display
+        display_rot
             .fill_solid(
                 // 1,1
                 &Rectangle::new(
                     Point::new(
-                        display::WIDTH as i32 - 20 - 50,
-                        display::HEIGHT as i32 - 20 - 50,
+                        display_rot.bounding_box().size.width as i32 - 20 - 50,
+                        display_rot.bounding_box().size.height as i32 - 20 - 50,
                     ),
                     Size::new(50, 50),
                 ),
                 Rgb565::CSS_ORANGE,
             )
             .unwrap();
-        display
+        display_rot
             .fill_solid(
                 // 1,0
                 &Rectangle::new(
-                    Point::new(display::WIDTH as i32 - 20 - 50, 20),
+                    Point::new(display_rot.bounding_box().size.width as i32 - 20 - 50, 20),
                     Size::new(50, 50),
                 ),
                 Rgb565::RED,
             )
             .unwrap();
-        display.push_buffer();
+        info!(
+            "manual draw frame took {}ms",
+            Instant::now().duration_since(t1).as_millis()
+        );
+        let t1 = Instant::now();
+        display_rot.push_buffer();
+        info!(
+            "manual frame send took {}ms",
+            Instant::now().duration_since(t1).as_millis()
+        );
         // display.push_buffer_dma().await.unwrap();
 
         // keypad.set_led(keypad::Led::Trig16, RGB::new(255, 255, 255));

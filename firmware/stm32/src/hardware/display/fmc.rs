@@ -286,24 +286,24 @@ impl Config {
                 CPSIZE: NoBurstSplit, // Page size - FMC_PAGE_SIZE_NONE
         );*/
         Self {
-            data_address_mux_enabled: false, // DataAddressMux=FMC_DATA_ADDRESS_MUX_DISABLE
-            memory_type: MemoryType::Sram,   // MemoryType=FMC_MEMORY_TYPE_SRAM
-            memory_data_width: memory_width, // MemoryDataWidth=FMC_NORSRAM_MEM_BUS_WIDTH_16
-            burst_access_mode_enable: false, // BurstAccessMode=FMC_BURST_ACCESS_MODE_DISABLE
-            wait_signal_enable_polarity: WaitSignalPolarity::ActiveLow, // WaitSignalPolarity=FMC_WAIT_SIGNAL_POLARITY_LOW
-            wait_signal_enable_active: WaitSignalActive::BeforeWaitState, // WaitSignalActive=FMC_WAIT_TIMING_BEFORE_WS
-            write_enable: true, // WriteOperation=FMC_WRITE_OPERATION_ENABLE
+            data_address_mux_enabled: false,
+            memory_type: MemoryType::Sram,
+            memory_data_width: memory_width,
+            burst_access_mode_enable: false,
+            wait_signal_enable_polarity: WaitSignalPolarity::ActiveLow,
+            wait_signal_enable_active: WaitSignalActive::BeforeWaitState,
+            write_enable: true,
             // This ILI9341 doesn't use a wait signal.
-            wait_signal_enable: false, // WaitSignal=FMC_WAIT_SIGNAL_DISABLE
-            extended_mode: false,      // ExtendedMode=FMC_EXTENDED_MODE_DISABLE
-            asynchronous_wait: false,  // AsynchronousWait=FMC_ASYNCHRONOUS_WAIT_DISABLE
+            wait_signal_enable: false,
+            extended_mode: false,
+            asynchronous_wait: false,
             // TODO: should this be true?
-            write_burst_enable: false, // WriteBurst=FMC_WRITE_BURST_DISABLE
+            write_burst_enable: false,
             // We only want write/read clock signals when actually
             // reading/writing, so disable the continuous clock.
-            continuous_clock_enable: false, // ContinuousClock=FMC_CONTINUOUS_CLOCK_SYNC_ONLY
-            write_fifo_disable: true,       // WriteFifo=FMC_WRITE_FIFO_ENABLE
-            page_size: PageSize::NoBurstSplit, // PageSize=FMC_PAGE_SIZE_NONE
+            continuous_clock_enable: false,
+            write_fifo_disable: false,
+            page_size: PageSize::NoBurstSplit,
         }
     }
 }
@@ -409,8 +409,8 @@ impl Timing {
         Self {
             address_setup_time: 0,                // tast
             address_hold_time: 1,                 // taht - should be 0, but FMC doesn't support 1?
-            data_setup_time: 10,                  // trod - can probably shorted to 10 (tdst)
-            bus_turn_around_duration: 15,         // unused by sram
+            data_setup_time: 1,                   // trod - can probably shorted to 10 (tdst)
+            bus_turn_around_duration: 0,          // unused by sram
             clock_division: 2,                    // not used? should be a way to set clock..
             data_latency: 0,                      // unused by sram
             access_mode: AccessMode::AccessModeA, // TODO: not sure of type to select
@@ -457,8 +457,11 @@ impl<'a> Fmc<'a> {
             // Initialise controller and SDRAM
             let ram_ptr: *mut u16 = bank.addr() as *mut _;
 
-            // Convert raw pointer to slice
-            core::slice::from_raw_parts_mut(ram_ptr, 2)
+            // Convert raw pointer to slice.
+            //
+            // We reference the full SRAM window so we can use some
+            // memory tricks to write batches of commands and data.
+            core::slice::from_raw_parts_mut(ram_ptr, bank.size() as usize)
         };
 
         Self {
@@ -766,6 +769,8 @@ impl<'a> Fmc<'a> {
         (self.addr() + 0xF) as *mut u16
     }
 
+    /// Write a command byte to the LCD controller, and then
+    /// reads a number of response bytes from the controller.
     pub fn write_command(&mut self, cmd: u8, args: &[u8]) {
         trace!("command: 0x{:x}", cmd);
 
@@ -779,11 +784,13 @@ impl<'a> Fmc<'a> {
         }
     }
 
+    /// Writes a half-word to the LCD controller.
     pub fn write_data(&mut self, data: u16) {
         // ptr::write(self.data_addr(), data);
         self.memory[1] = data;
     }
 
+    /// Reads the next half-word from the LCD controller.
     pub fn read_data(&mut self) -> u16 {
         let result = self.memory[1]; // ptr::read(self.data_addr());
 

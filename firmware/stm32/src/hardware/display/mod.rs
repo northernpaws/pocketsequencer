@@ -2,22 +2,33 @@
 
 pub mod fmc;
 
-use defmt::trace;
+use core::fmt::Pointer;
+
+use defmt::{info, trace};
 
 use embassy_stm32::{
     Peri,
     dma::{self, AnyChannel, Burst, FifoThreshold},
     exti::ExtiInput,
 };
-use embedded_graphics::prelude::*;
 use embedded_graphics::{pixelcolor::Rgb565, prelude::DrawTarget};
-use embedded_graphics_core::pixelcolor::RgbColor;
-use embedded_graphics_framebuf::FrameBuf;
+use embedded_graphics::{prelude::*, primitives::Rectangle};
+use embedded_graphics_framebuf::{FrameBuf, backends::DMACapableFrameBufferBackend};
 
 use crate::hardware::display::fmc::Fmc;
 
-pub const WIDTH: usize = 320;
-pub const HEIGHT: usize = 240;
+// NOTE: We run the display in it's portrait resolution because that's the direction
+//  the panel scans in, regardless of rotational settings on the controller. If we
+//  adjust the memory configuration to be in landscape then you get nasty diagonal
+//  tearing on the display because the scanlines and updated memory run diagonal to
+//  each other.
+//
+// Instead, the display is ran in it's native orientation, but rotational transforms
+//  are applied to the display's draw target so that drawing operations are pre-rotated
+//  to align with the display's portrait orientation, even though the coordinates are
+//  written for landscape orientation.
+pub const WIDTH: usize = 240;
+pub const HEIGHT: usize = 320;
 pub const FRAMEBUFFER_SIZE: usize = WIDTH * HEIGHT;
 pub type FramebufferArray = [Rgb565; FRAMEBUFFER_SIZE];
 pub type Framebuffer<'a> = FrameBuf<Rgb565, &'a mut FramebufferArray>;
@@ -32,6 +43,9 @@ pub struct Display<'a, DELAY: embedded_hal_async::delay::DelayNs> {
     /// A framebuffer is used instead of drawing to the display directly
     /// to allow full-frame updates that are DMA transfer compatible.
     framebuf: Framebuffer<'a>,
+    /// An array the width of one line of the display,
+    /// used for fast rect fill operations.
+    scanline: &'a mut [Rgb565; WIDTH],
     dma: Peri<'a, AnyChannel>,
 }
 
@@ -43,6 +57,7 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
         delay: DELAY,
         dma: Peri<'a, AnyChannel>,
         framebuf: &'static mut FramebufferArray,
+        scanline: &'a mut [Rgb565; WIDTH],
     ) -> Self {
         Self {
             interface,
@@ -50,6 +65,7 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
             te,
             delay,
             framebuf: FrameBuf::new(framebuf, WIDTH, HEIGHT),
+            scanline,
             dma,
         }
     }
@@ -66,11 +82,12 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
         [pixel.r(), pixel.g(), pixel.b()].map(|x| x << 2)
     } */
 
+    /// Sets the address window in the display GRAM where any data
+    /// subsequent written will be appended to.
+    ///
+    /// Setting the address window is very important for rotated displays,
+    /// otherwise the controller still assumes a non-rotated default window.
     pub fn set_address_window(&mut self) {
-        // Setting the address window is very important for rotated displays!
-        //
-        // Otherwise the controller still assumes a non-rotated default window.
-
         // Set column address window
         let mut column_buffer = [0u8; 4];
         column_buffer[0..2].copy_from_slice(&0_u16.to_be_bytes());
@@ -98,14 +115,31 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
         // subsequent writes increment the counters as data comes in.
         self.write_raw_command(0x2C, &[]);
 
+        // Iterates over each pixel and writes it to the memory
+        // address mapped to the display
         for pixel in self.framebuf.into_iter() {
             self.interface.write_data(pixel.1.into_storage());
         }
     }
 
+    /// Read the current scanline from the display controller.
+    ///
+    /// This can be used for syncronizing writing the display
+    /// framebuffer to the display in tune with the current
+    /// scanline position.
+    pub async fn read_scanline(&mut self) -> u16 {
+        let scanlines = self.read_command::<2>(0x45).await;
+
+        u16::from_be_bytes([scanlines[0], scanlines[1]])
+    }
+
     /// Pushes the buffer to the display using DMA.
     pub async fn push_buffer_dma(&mut self) -> Result<(), ()> {
-        self.set_address_window();
+        // Wait for the next frame start signal from the ILI9341.
+        //
+        // When the signal is HIGH, then the controller is not
+        // updating the display panel contents from memory.
+        self.te.wait_for_rising_edge().await;
 
         // First we need to send a memory addressing command to tell
         // the display where we're starting to write data from.
@@ -123,13 +157,7 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
         // FIFO is 4-words, so can fit8 half-word (16 bit) values.
         //
         // FIFO is required in memory-to-memory mode.
-        transfer_options.fifo_threshold = Some(FifoThreshold::Quarter);
-
-        // Wait for the next frame start signal from the ILI9341.
-        //
-        // When the signal is HIGH, then the controller is not
-        // updating the display panel contents from memory.
-        self.te.wait_for_rising_edge().await;
+        transfer_options.fifo_threshold = Some(FifoThreshold::Full);
 
         // Now that the display knows we're about to write a page of data,
         // we can start a memory-to-memory DMA transfer to offload the
@@ -237,6 +265,9 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
 
     pub async fn read_command<const N: usize>(&mut self, cmd: u8) -> [u8; N] {
         self.interface.write_command(cmd, &[]);
+
+        // First return value is always garbage.
+        let _ = self.interface.read_data();
 
         // Most read commands have more then one result.
         let mut results = [0u8; N];
@@ -416,7 +447,7 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
             0xF6,
             &[
                 // TFT_MAD_MX TFT_MAD_MY TFT_MAD_MV TFT_MAD_BGR
-                0b11100000, // 0x40 | 0x08,
+                0b00000000, // 0x40 | 0x08,
                 0b00011101,
             ],
         );
@@ -469,6 +500,15 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
         self.write_raw_command(0x29, &[]);
         self.delay.delay_ms(50).await;
 
+        // Since we're drawing to the entire display,
+        // we can set the address window once and
+        // not need to update it again.
+        //
+        // This also "fixes" the address pointers if
+        // the display has been rotated, otherwise
+        // there is only a partial display render.
+        self.set_address_window();
+
         // // Read display identification.
         // // 1st response is dummy data
         // // 2nd response is LCD module's manufacturer
@@ -498,5 +538,92 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> DrawTarget for Display<'a, D
         I: IntoIterator<Item = embedded_graphics::Pixel<Self::Color>>,
     {
         self.framebuf.draw_iter(pixels)
+    }
+
+    /// Fill a given area with a solid color.
+    ///
+    /// This overrides the default DrawTarget implementation
+    /// to do an accelerated fill on the target area.
+    ///
+    /// see: https://joshondesign.com/2022/09/29/make_rects_fast_rust
+    fn fill_solid(
+        &mut self,
+        area: &Rectangle,
+        color: <Framebuffer<'a> as DrawTarget>::Color,
+    ) -> Result<(), <Framebuffer<'a> as DrawTarget>::Error> {
+        // TODO: should probably check that we're within bounds...
+
+        // Break our scanline down into the width of the target
+        // rectangle and fill it with the intended color.
+        //
+        // TODO: we can probably get rid of this seconard scanline
+        // struct by using the first line of the fill area in the
+        // framebuffer memory.
+        let slice = &mut self.scanline[0..area.size.width as usize];
+        slice.fill(color);
+
+        // Loop over each row in the framebuffer as a chunk.
+        for (j, row_slice) in self
+            .framebuf
+            .data
+            .chunks_exact_mut(WIDTH as usize)
+            .enumerate()
+        {
+            let j = j as i32;
+
+            // Check that we're below the area to be filled.
+            if j < area.top_left.y {
+                continue;
+            }
+
+            // Check that we're above the lower bound..
+            if j >= area.top_left.y + area.size.height as i32 {
+                continue;
+            }
+
+            let (_, after) = row_slice.split_at_mut((area.top_left.x) as usize);
+            let (middle, _) = after.split_at_mut((area.size.width as usize) as usize);
+            middle.copy_from_slice(&slice);
+        }
+
+        Ok(())
+    }
+
+    /// Fill the entire display with a solid color.
+    ///
+    /// Override the default implementation to use a more
+    /// efficient method of filling the framebuffer instead
+    /// of the default of iterating over every pixel.
+    ///
+    /// The default implementation of this method delegates to [`fill_solid`] to fill the
+    /// [`bounding_box`] returned by the [`Dimensions`] implementation.
+    ///
+    /// [`Dimensions`]: super::geometry::Dimensions
+    /// [`bounding_box`]: super::geometry::Dimensions::bounding_box
+    /// [`fill_solid`]: DrawTarget::fill_solid()
+    ///
+    /// see: https://joshondesign.com/2022/09/29/make_rects_fast_rust
+    fn clear(&mut self, color: Self::Color) -> Result<(), <Framebuffer<'a> as DrawTarget>::Error> {
+        // Fill the framebuffer memory directly.
+        // self.framebuf.data.fill(color);
+        // TODO: try with DMA2D
+
+        self.scanline.fill(color);
+
+        // Loop over each row in the framebuffer as a chunk.
+        //
+        // We benchmarked this as 31x faster then .fill on the framebuffer directly!
+        //
+        // see: https://joshondesign.com/2022/09/29/make_rects_fast_rust
+        for (j, row_slice) in self
+            .framebuf
+            .data
+            .chunks_exact_mut(WIDTH as usize)
+            .enumerate()
+        {
+            row_slice.copy_from_slice(self.scanline);
+        }
+
+        Ok(())
     }
 }

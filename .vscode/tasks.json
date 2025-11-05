@@ -16,6 +16,18 @@
       }
     },
     {
+      "label": "cargo build release",
+      "type": "shell",
+      "command": "cargo build --release",
+      "group": "build",
+      "problemMatcher": [
+        "$rustc"
+      ],
+      "options": {
+        "cwd": "${workspaceRoot}/firmware/stm32",
+      }
+    },
+    {
       "isBackground": true,
       "label": "BMP Serial Output",
       "type": "shell",
@@ -60,6 +72,14 @@
       "dependsOrder": "sequence",
       "dependsOn": [
         "cargo build",
+        "BMP Serial Output"
+      ]
+    },
+    {
+      "label": "BMP Launch Release",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "cargo build release",
         "BMP Serial Output"
       ]
     }

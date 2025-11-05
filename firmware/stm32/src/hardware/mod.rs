@@ -1009,6 +1009,9 @@ use embassy_stm32::fmc;
 static FRAME_BUFFER: ConstStaticCell<[Rgb565; display::FRAMEBUFFER_SIZE]> =
     ConstStaticCell::new([Rgb565::BLACK; display::FRAMEBUFFER_SIZE]);
 
+static SCANLINE: ConstStaticCell<[Rgb565; display::WIDTH]> =
+    ConstStaticCell::new([Rgb565::BLACK; display::WIDTH]);
+
 // static mut FRAME_BUFFER: &'static mut [Rgb565; display::FRAMEBUFFER_SIZE] =
 //     &mut [Rgb565::BLACK; display::FRAMEBUFFER_SIZE];
 
@@ -1197,10 +1200,18 @@ pub async fn get_memory_devices<'a, DELAY: embedded_hal_async::delay::DelayNs>(
 
     trace!("Initializing Display framebuffer...");
     let frame_buffer = FRAME_BUFFER.take();
+    let scanline = SCANLINE.take();
 
     trace!("Initializing display driver...");
-    let mut sram_display =
-        Display::new(interface, rst, te, delay, display.dma.into(), frame_buffer);
+    let mut sram_display = Display::new(
+        interface,
+        rst,
+        te,
+        delay,
+        display.dma.into(),
+        frame_buffer,
+        scanline,
+    );
     sram_display.init().await;
 
     Ok(sram_display)
