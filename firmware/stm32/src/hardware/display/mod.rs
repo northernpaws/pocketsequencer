@@ -7,6 +7,7 @@ use defmt::trace;
 use embassy_stm32::{
     Peri,
     dma::{self, AnyChannel, Burst, FifoThreshold},
+    exti::ExtiInput,
 };
 use embedded_graphics::prelude::*;
 use embedded_graphics::{pixelcolor::Rgb565, prelude::DrawTarget};
@@ -15,8 +16,8 @@ use embedded_graphics_framebuf::FrameBuf;
 
 use crate::hardware::display::fmc::Fmc;
 
-pub const WIDTH: usize = 240;
-pub const HEIGHT: usize = 320;
+pub const WIDTH: usize = 320;
+pub const HEIGHT: usize = 240;
 pub const FRAMEBUFFER_SIZE: usize = WIDTH * HEIGHT;
 pub type FramebufferArray = [Rgb565; FRAMEBUFFER_SIZE];
 pub type Framebuffer<'a> = FrameBuf<Rgb565, &'a mut FramebufferArray>;
@@ -24,6 +25,7 @@ pub type Framebuffer<'a> = FrameBuf<Rgb565, &'a mut FramebufferArray>;
 pub struct Display<'a, DELAY: embedded_hal_async::delay::DelayNs> {
     interface: Fmc<'a>,
     rst: embassy_stm32::gpio::Output<'a>,
+    te: ExtiInput<'a>,
     delay: DELAY,
     /// Embedded-graphics compatible DrawTarget framebuffer for updating the display.
     ///
@@ -37,6 +39,7 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
     pub fn new(
         interface: Fmc<'a>,
         rst: embassy_stm32::gpio::Output<'a>,
+        te: ExtiInput<'a>,
         delay: DELAY,
         dma: Peri<'a, AnyChannel>,
         framebuf: &'static mut FramebufferArray,
@@ -44,6 +47,7 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
         Self {
             interface,
             rst,
+            te,
             delay,
             framebuf: FrameBuf::new(framebuf, WIDTH, HEIGHT),
             dma,
@@ -62,10 +66,30 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
         [pixel.r(), pixel.g(), pixel.b()].map(|x| x << 2)
     } */
 
+    pub fn set_address_window(&mut self) {
+        // Setting the address window is very important for rotated displays!
+        //
+        // Otherwise the controller still assumes a non-rotated default window.
+
+        // Set column address window
+        let mut column_buffer = [0u8; 4];
+        column_buffer[0..2].copy_from_slice(&0_u16.to_be_bytes());
+        column_buffer[2..4].copy_from_slice(&(WIDTH as u16).to_be_bytes());
+        self.write_raw_command(0x2A, &column_buffer);
+
+        // Set page address window
+        let mut row_buffer = [0u8; 4];
+        row_buffer[0..2].copy_from_slice(&0_u16.to_be_bytes());
+        row_buffer[2..4].copy_from_slice(&(HEIGHT as u16).to_be_bytes());
+        self.write_raw_command(0x2B, &row_buffer);
+    }
+
     /// Pushes the buffer to the display, using the CPU.
     ///
     /// DMA transfer methods should always be preferred.
     pub fn push_buffer(&mut self) {
+        self.set_address_window();
+
         // First we need to send a memory addressing command to tell
         // the display where we're starting to write data from.
         //
@@ -81,6 +105,8 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
 
     /// Pushes the buffer to the display using DMA.
     pub async fn push_buffer_dma(&mut self) -> Result<(), ()> {
+        self.set_address_window();
+
         // First we need to send a memory addressing command to tell
         // the display where we're starting to write data from.
         //
@@ -98,6 +124,12 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
         //
         // FIFO is required in memory-to-memory mode.
         transfer_options.fifo_threshold = Some(FifoThreshold::Quarter);
+
+        // Wait for the next frame start signal from the ILI9341.
+        //
+        // When the signal is HIGH, then the controller is not
+        // updating the display panel contents from memory.
+        self.te.wait_for_rising_edge().await;
 
         // Now that the display knows we're about to write a page of data,
         // we can start a memory-to-memory DMA transfer to offload the
@@ -319,7 +351,7 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
             ],
         );
 
-        //VCM control
+        // VCM control
         self.write_raw_command(
             0xC5,
             &[
@@ -343,14 +375,15 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
                 // [MY, MX, MV, ML, BGR, MH, 0, 0]
                 // Invert MX and MY to rotate 180
                 // MV rotates 90
-                0b00000000,
+                // 0b00000000,
+                0b00001100, // [3] RGB to internal BGR swap
             ],
         ); // 0x08
+
         self.write_raw_command(
             0x3A,
             &[
                 //  DBI[2:0] = 101 for 6-bit pixel RGB565 color.
-
                 // [0, DPI[2:0], 0, DBI[2:0]]
                 0b01010101,
             ],
@@ -382,13 +415,11 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
         self.write_raw_command(
             0xF6,
             &[
-                // TFT_MAD_MV TFT_MAD_BGR
-                0b01001000, // 0x40 | 0x08,
+                // TFT_MAD_MX TFT_MAD_MY TFT_MAD_MV TFT_MAD_BGR
+                0b11100000, // 0x40 | 0x08,
                 0b00011101,
             ],
         );
-        // TODO: MADCTRL can do rtoaiton
-
         // 3Gamma Function Disable
         self.write_raw_command(0xF2, &[0x00]);
 

@@ -298,6 +298,7 @@ assign_resources! {
     display: DisplayResources {
         reset: PC11,
         te: PB4,
+        te_exti: EXTI4,
         backlight_ctrl: PC9, // PWM
         backlight_tim: TIM3,
         touch_rst: PC2,
@@ -1192,11 +1193,14 @@ pub async fn get_memory_devices<'a, DELAY: embedded_hal_async::delay::DelayNs>(
     trace!("Initializing Display reset pin...");
     let rst = Output::new(display.reset, Level::High, Speed::Low);
 
+    let te = ExtiInput::new(display.te, display.te_exti, Pull::Up);
+
     trace!("Initializing Display framebuffer...");
     let frame_buffer = FRAME_BUFFER.take();
 
     trace!("Initializing display driver...");
-    let mut sram_display = Display::new(interface, rst, delay, display.dma.into(), frame_buffer);
+    let mut sram_display =
+        Display::new(interface, rst, te, delay, display.dma.into(), frame_buffer);
     sram_display.init().await;
 
     Ok(sram_display)
