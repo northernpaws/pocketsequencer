@@ -1,4 +1,4 @@
-use defmt::{info, trace, unwrap};
+use defmt::{error, info, trace, unwrap};
 use embassy_embedded_hal::shared_bus::{
     I2cDeviceError,
     asynch::{self},
@@ -352,6 +352,17 @@ impl<'a> Keypad<'a> {
         self.cache[led as usize] = color;
         self.notifier.signal(self.cache);
     }
+
+    /// Updates a single LED in the matrix.
+    pub fn set_all(&mut self, color: RGB) {
+        self.cache.fill(color);
+        self.notifier.signal(self.cache);
+    }
+
+    /// Force an imeddiate scan of the keypad FIFO.
+    pub fn scan_keypad(&mut self) {
+        error!("IMPLEMENT scan_keypad!");
+    }
 }
 
 /// Implement an input driver with the keypad for
@@ -384,7 +395,7 @@ pub async fn buttons_event_task(
 
         // Convert the key event into a known button on the hardware.
         if let Ok(button) = Button::try_from(event.key) {
-            button_channel.send(button);
+            button_channel.send(button).await;
         }
     }
 }
@@ -404,7 +415,7 @@ pub async fn buttons_task(
     trace!("Starting keypad button matrix interrupt processor...");
     loop {
         // Wait for an IRQ event and process it.
-        driver.process().await;
+        driver.process().await.unwrap(); // TODO: handle error properly
     }
 }
 

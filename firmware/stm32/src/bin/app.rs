@@ -58,6 +58,7 @@ use {
 };
 
 use firmware::{
+    diagnostics,
     hardware::{
         self, Irqs,
         display::{self, Display},
@@ -205,21 +206,10 @@ unsafe fn HardFault(ef: &ExceptionFrame) -> ! {
     loop {}
 }
 
+// TODO: add general exception handlers with keypad access to bink error LEDs.
+
 #[embassy_executor::main]
 async fn main(spawner: Spawner) {
-    // NOTE: We try to rely on heap allocations as little
-    // as possible for core elements of the system.
-    //
-    // Where possible, core systems should use heapless static
-    // allocation or allocation pools so their size is known
-    // and we avoid running into OOM problems.
-    {
-        use core::mem::MaybeUninit;
-        const HEAP_SIZE: usize = 1024 * 128;
-        static mut HEAP_MEM: [MaybeUninit<u8>; HEAP_SIZE] = [MaybeUninit::uninit(); HEAP_SIZE];
-        unsafe { HEAP.init(&raw mut HEAP_MEM as usize, HEAP_SIZE) }
-    }
-
     info!("program start!");
     // If it returns, something went wrong.
     if let Err(err) = inner_main(spawner).await {
@@ -301,7 +291,7 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     // We initialize the display as soon as possible to display any boot errors.
     info!("Configuring memory controller...");
     keypad.set_led(keypad::Led::Trig1, RGB::new(255, 255, 0));
-    let Ok((sdram, display)) =
+    let Ok((mut sdram, display)) =
         hardware::get_memory_devices(r.fmc, r.display, embassy_time::Delay).await
     else {
         loop {
@@ -322,17 +312,31 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     // scanning direction, causing nasty diagonal tearing.
     let mut display_rot = Rotate270::new(display);
 
+    // Before we continue, force a scan of the keypad to
+    // ensure we have a current map of the key states.
+    //
+    // This is important so we can catch any special key states
+    // for purposes such as diagnostics, bootloader triggers, and
+    // special setting modes.
+    info!("Scanning keypad for boot interruption keybinds..");
+    keypad.scan_keypad();
+
+    // TODO: load diagnostics depending on keypad state
+    info!("Entering diagnostics menu...");
+    diagnostics::run_diagnostics(&mut display_rot, &mut keypad).await;
+    info!("Exited diagnostics menu.");
+
     draw_boot_screen(&mut display_rot, "Memory test..", &[]).unwrap();
     display_rot.push_buffer(); // NOTE: we don't use DMA for the init display to avoid possible DMA problems when displaying init status.
 
-    // Quick SDRAM test
-    info!("RAM contents before writing: {:x}", sdram[..10]);
+    // After we've got the display initialized so we can show status, perform a very
+    // very brief memory test to see if we can write and read from the SDRAM.
 
+    info!("RAM contents before writing: {:x}", sdram[..10]);
     sdram[0] = 1;
     sdram[1] = 2;
     sdram[2] = 3;
     sdram[3] = 4;
-
     info!("RAM contents after writing: {:x}", sdram[..10]);
 
     if sdram[0] != 1 || sdram[1] != 2 || sdram[2] != 3 || sdram[3] != 4 {
@@ -350,6 +354,53 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     }
 
     info!("Memory test succeeded.");
+
+    info!("Initializing heap allocator...");
+
+    // Next we need to initialize the heap allocator for the program.
+    //
+    // Note that this needs to be done before drawing to the display,
+    // as ratataui uses the heap allocator for it's widgets.
+    //
+    // NOTE: We try to rely on heap allocations as little
+    // as possible for core elements of the system.
+    //
+    // Where possible, core systems should use heapless static
+    // allocation or allocation pools so their size is known
+    // and we avoid running into OOM problems.
+    {
+        const HEAP_SIZE: usize = 1024 * 128;
+
+        // Split off a section of the SDRAM memory for the heap allocator.
+        //
+        // This syntax lets us use the SDRAM slice to keep track of how much
+        // of it we can allocate to other parts of the system without needing
+        // to remeber where pointers have been used.
+        let Some((heap_slice, new_sdram)) = sdram.split_at_mut_checked(HEAP_SIZE) else {
+            error!("No space left in SDRAM for heap!");
+
+            draw_boot_screen(
+                &mut display_rot,
+                "No space in SDRAM for heap!",
+                &["Memory test"],
+            )
+            .unwrap();
+            display_rot.push_buffer(); // NOTE: we don't use DMA for the init display to avoid possible DMA problems when displaying init status.
+
+            loop {}
+        };
+
+        // Assign the split-off portion back to our original slice
+        // reference so that we can track the remaining amount of
+        // SDRAM available to allocate to other systems.
+        sdram = new_sdram;
+
+        // Place the heap allocation pool in the external SDRAM.
+        unsafe { HEAP.init(heap_slice.as_ptr().addr(), heap_slice.len()) }
+
+        // TODO: we need an exception handler for over-allocation exceptions to handle them gracefully.
+        info!("Heap successfully initialized.");
+    }
 
     draw_boot_screen(&mut display_rot, "SD Card...", &["Memory test"]).unwrap();
     display_rot.push_buffer(); // NOTE: we don't use DMA for the init display to avoid possible DMA problems when displaying init status.
@@ -462,10 +513,14 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     // info!("Starting USB device...");
     // hardware::usb::start_usb(spawner, r.usb).await;
 
-    keypad.set_led(keypad::Led::Trig1, RGB::new(255, 0, 0));
-    info!("Configuring display peripheral...");
+    // We're basically booted at this point and past any critical
+    // error stages, so clear boot status from the keypad LEDs.
+    keypad.set_all(RGB::new(0, 0, 0));
 
-    // display.push_buffer_dma().await.unwrap();
+    // Clear the display once more before starting the ratataui.
+    info!("Configuring display engine...");
+    display_rot.clear(Rgb565::BLACK).unwrap();
+    display_rot.push_buffer_dma().await.unwrap();
 
     // A Ratatui wrapper for embedded-graphics.
     //
@@ -562,13 +617,15 @@ fn draw_boot_screen<'a, D: DrawTarget<Color = Rgb565>>(
     let small_character_style_success = MonoTextStyle::new(&FONT_6X10, Rgb565::GREEN);
 
     let text_style = TextStyleBuilder::new()
-        .alignment(Alignment::Center)
+        .alignment(Alignment::Left)
         .line_height(LineHeight::Percent(150))
         .build();
 
+    let left_offset = 40;
+
     Text::with_text_style(
         "Booting...",
-        Point::new(display_size.width as i32 / 2, 80),
+        Point::new(left_offset, 50),
         large_character_style,
         text_style,
     )
@@ -578,7 +635,7 @@ fn draw_boot_screen<'a, D: DrawTarget<Color = Rgb565>>(
     for comp in success_components {
         Text::with_text_style(
             comp,
-            Point::new(display_size.width as i32 / 2, 120 + offset),
+            Point::new(left_offset, 80 + offset),
             small_character_style_success,
             text_style,
         )
@@ -588,7 +645,7 @@ fn draw_boot_screen<'a, D: DrawTarget<Color = Rgb565>>(
 
     Text::with_text_style(
         component,
-        Point::new(display_size.width as i32 / 2, 120 + offset),
+        Point::new(left_offset, 80 + offset),
         small_character_style,
         text_style,
     )

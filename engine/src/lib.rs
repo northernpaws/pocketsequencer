@@ -12,28 +12,20 @@ pub mod input;
 
 use prelude::*;
 
-pub struct Engine <
-    I: input::Input,
-    InputDriver: input::Driver<I>
->{
+pub struct Engine<I: input::Input, InputDriver: input::Driver<I>> {
     i: PhantomData<I>,
-    input_manager: input::Manager<I, InputDriver>
+    input_manager: input::Manager<I, InputDriver>,
 }
 
-impl<
-    I: input::Input,
-    InputDriver: input::Driver<I>
-> Engine<I, InputDriver> {
-    pub fn new(
-        input_driver: InputDriver
-    ) -> Self {
+impl<I: input::Input, InputDriver: input::Driver<I>> Engine<I, InputDriver> {
+    pub fn new(input_driver: InputDriver) -> Self {
         Self {
             i: PhantomData::default(),
-            input_manager: input::Manager::new(input_driver)
+            input_manager: input::Manager::new(input_driver),
         }
     }
 
-    pub async fn start (&mut self) {
+    pub async fn start(&mut self) {
         info!("Starting engine...");
     }
 }
