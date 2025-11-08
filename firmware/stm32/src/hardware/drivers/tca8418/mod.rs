@@ -140,7 +140,7 @@ impl<'a, I2C: embedded_hal_async::i2c::I2c> Tca8418<'a, I2C> {
                 key_pressed
             );
 
-            // NOTE: We use `try_send` to imeddiatly try to push
+            // NOTE: We use `try_send` to immediately try to push
             // to the channel to prevent backing up the FIFO.
             //
             // This may need to be revised later to use a timeout.
@@ -159,7 +159,7 @@ impl<'a, I2C: embedded_hal_async::i2c::I2c> Tca8418<'a, I2C> {
     }
 
     /// Reacts to the interrupt line to process interrupt related events
-    pub async fn process(&mut self) -> Result<(), I2C::Error> {
+    pub async fn wait_for_irq(&mut self) -> Result<(), I2C::Error> {
         // INT is active-low.
         //
         // We need to handle the interrupt to clear the FIFO

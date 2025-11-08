@@ -9,8 +9,10 @@ use embassy_stm32::{
     peripherals::{self},
     timer::{self, simple_pwm::SimplePwm},
 };
-use embassy_sync::channel::Channel;
-use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, channel, signal::Signal};
+use embassy_sync::{
+    blocking_mutex::raw::CriticalSectionRawMutex, channel, signal::Signal, watch::Watch,
+};
+use embassy_sync::{channel::Channel, watch};
 
 use rgb_led_pwm_dma_maker::{
     LedDataComposition, LedDmaBuffer, RGB, RgbLedColor, calc_dma_buffer_length,
@@ -71,19 +73,15 @@ static LED_MAX_BRIGHTNESS: u8 = 5;
 
 const LED_COUNT: usize = 16;
 
-// static LED_MATRIX: [RGB; LED_COUNT] = [
-//     RED, GREEN, BLUE, RED,
-//     GREEN, BLUE, RED, GREEN,
-//     BLUE, RED, GREEN, BLUE,
-//     RED, GREEN, BLUE, RED
-// ];
-static LED_DMA_BUFFER: [u16; DMA_BUFFER_LEN * 2] = [0u16; DMA_BUFFER_LEN * 2];
-
 pub type KeypadNotifier = Signal<CriticalSectionRawMutex, [RGB; LED_COUNT]>;
 
 pub type ButtonChannel = Channel<CriticalSectionRawMutex, Button, 10>;
 pub type ButtonSender<'a> = channel::Sender<'a, CriticalSectionRawMutex, Button, 10>;
 pub type ButtonReceiver<'a> = channel::Receiver<'a, CriticalSectionRawMutex, Button, 10>;
+
+pub type LEDUpdateWaiter = watch::Watch<CriticalSectionRawMutex, (), 10>;
+pub type LEDUpdateWaiterSender<'a> = watch::Sender<'a, CriticalSectionRawMutex, (), 10>;
+pub type LEDUpdateWaiterReceiver<'a> = watch::Receiver<'a, CriticalSectionRawMutex, (), 10>;
 
 #[must_use]
 pub const fn notifier() -> KeypadNotifier {
@@ -93,6 +91,11 @@ pub const fn notifier() -> KeypadNotifier {
 #[must_use]
 pub const fn channel() -> ButtonChannel {
     Channel::new()
+}
+
+#[must_use]
+pub const fn updater() -> LEDUpdateWaiter {
+    Watch::new()
 }
 
 /// Mapping from keypad button name to it's LED index.
@@ -124,6 +127,7 @@ pub enum Led {
 /// ROW0-ROW3 is configured as the matrix rows
 /// COL3 - COL3 are configured as columns 3-9 (inverted)
 #[repr(u8)]
+#[derive(defmt::Format, Debug)]
 pub enum Button {
     Unknown = 0,
 
@@ -220,10 +224,8 @@ impl input::Input for Button {}
 
 pub struct Keypad<'a> {
     notifier: &'a KeypadNotifier,
-    button_receiver: ButtonReceiver<'a>,
-
-    // percentage from 0-100
-    led_max_brightness: u8,
+    pub button_receiver: ButtonReceiver<'a>,
+    led_waiter: &'a LEDUpdateWaiter,
 
     cache: [RGB; LED_COUNT],
 }
@@ -253,6 +255,7 @@ impl<'a> Keypad<'a> {
     pub async fn new(
         notifier: &'static KeypadNotifier,
         button_channel: &'static ButtonChannel,
+        led_waiter: &'static LEDUpdateWaiter,
         mut driver: Tca8418<
             'static,
             asynch::i2c::I2cDevice<
@@ -322,23 +325,58 @@ impl<'a> Keypad<'a> {
         let button_receiver = button_channel.receiver();
         let button_sender = button_channel.sender();
 
+        // Run an initial flush to ensure we're caught up on boot.
+        //
+        // This is also used to pre-load the button queue so that
+        // we can check for diagnostic keypresses on boot.
+        trace!("Flushing keypress buffer..");
+        {
+            driver.process_keypad().await?;
+            loop {
+                // Imeddiatly process any keypresses processed by the TCA8418.
+                let Ok(event) = driver.receiver().try_receive() else {
+                    break;
+                };
+
+                // Convert the key event into a known button on the hardware.
+                if let Ok(button) = Button::try_from(event.key) {
+                    button_sender.send(button).await;
+                }
+            }
+        }
+
         // Spawn the tasks for handling the keypad events and LEDs.
         info!("Spawning keypad tasks...");
         spawner.spawn(unwrap!(buttons_event_task(
             driver.receiver(),
             button_sender
         )));
-        spawner.spawn(unwrap!(leds_task(notifier, led_pwm, channel, led_dma)));
+        spawner.spawn(unwrap!(leds_task(
+            notifier,
+            led_pwm,
+            channel,
+            led_dma,
+            led_waiter.sender()
+        )));
         spawner.spawn(unwrap!(buttons_task(driver)));
 
         Ok(Self {
             notifier,
             button_receiver,
-
-            led_max_brightness: 1,
+            led_waiter,
 
             cache: [RGB::new(0, 0, 0); LED_COUNT],
         })
+    }
+
+    pub async fn wait_for_led_update(&mut self) -> Result<(), ()> {
+        let Some(mut receiver) = self.led_waiter.receiver() else {
+            return Err(());
+        };
+
+        receiver.changed().await;
+
+        Ok(())
     }
 
     /// Updates the entire LED matrix.
@@ -359,8 +397,8 @@ impl<'a> Keypad<'a> {
         self.notifier.signal(self.cache);
     }
 
-    /// Force an imeddiate scan of the keypad FIFO.
-    pub fn scan_keypad(&mut self) {
+    /// Flush any pending events from the keypac FIFO channel.
+    pub fn flush_keypad(&mut self) {
         error!("IMPLEMENT scan_keypad!");
     }
 }
@@ -386,7 +424,7 @@ impl<'a> input::Driver<Button> for Keypad<'a> {
 #[embassy_executor::task]
 pub async fn buttons_event_task(
     driver_channel: tca8418::KeyChannelReceiver<'static>,
-    button_channel: ButtonSender<'static>,
+    button_sender: ButtonSender<'static>,
 ) -> ! {
     trace!("Starting keypad button event task...");
     loop {
@@ -395,7 +433,7 @@ pub async fn buttons_event_task(
 
         // Convert the key event into a known button on the hardware.
         if let Ok(button) = Button::try_from(event.key) {
-            button_channel.send(button).await;
+            button_sender.send(button).await;
         }
     }
 }
@@ -415,7 +453,7 @@ pub async fn buttons_task(
     trace!("Starting keypad button matrix interrupt processor...");
     loop {
         // Wait for an IRQ event and process it.
-        driver.process().await.unwrap(); // TODO: handle error properly
+        driver.wait_for_irq().await.unwrap(); // TODO: handle error properly
     }
 }
 
@@ -428,6 +466,7 @@ pub async fn leds_task(
     channel: timer::Channel,
     // led_channel: SimplePwmChannel<'a, TIM>,
     mut led_dma: Peri<'static, embassy_stm32::peripherals::DMA2_CH4>,
+    led_waiter: LEDUpdateWaiterSender<'static>,
 ) -> ! {
     // Enable the timer channel for the PWM pin.
     led_pwm.channel(channel).enable();
@@ -489,5 +528,8 @@ pub async fn leds_task(
         led_pwm
             .waveform::<embassy_stm32::timer::Ch4>(led_dma.reborrow(), &u32_dma_buffer)
             .await;
+
+        // Notify any tasks waiting on LED updates that they've been performed.
+        led_waiter.send(());
     }
 }

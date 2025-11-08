@@ -1065,10 +1065,12 @@ pub async fn get_keypad<'a>(
 
     static NOTIFIER: keypad::KeypadNotifier = keypad::notifier();
     static BUTTON_CH: keypad::ButtonChannel = keypad::channel();
+    static UPDATER: keypad::LEDUpdateWaiter = keypad::updater();
 
     Keypad::new(
         &NOTIFIER,
         &BUTTON_CH,
+        &UPDATER,
         tca8418,
         pwm,
         r.dma,

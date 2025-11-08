@@ -2,7 +2,7 @@ use embassy_time::Delay;
 use embedded_graphics::{
     mono_font::{
         MonoTextStyle,
-        ascii::{FONT_6X10, FONT_10X20},
+        ascii::{FONT_6X10, FONT_9X18_BOLD, FONT_10X20},
     },
     pixelcolor::Rgb565,
     prelude::*,
@@ -13,6 +13,9 @@ use embedded_graphics_coordinate_transform::Rotate270;
 
 use crate::hardware::{display::Display, keypad::Keypad};
 
+use crate::hardware::keypad::Button;
+
+pub mod i2c;
 pub mod input;
 
 pub async fn run_diagnostics(
@@ -21,8 +24,39 @@ pub async fn run_diagnostics(
 ) {
     loop {
         draw_diagnostics_menu(display).await.unwrap();
-
+        display.push_buffer_dma().await;
         // TODO: select diagnostics like input
+
+        loop {
+            // Immediately process any button events in the keypad channel.
+            let Ok(button) = keypad.button_receiver.try_receive() else {
+                break;
+            };
+
+            match button {
+                Button::Unknown => todo!(),
+                Button::Menu0 => todo!(),
+                Button::Menu1 => todo!(),
+                Button::Menu2 => todo!(),
+                Button::Menu3 => todo!(),
+                Button::Trig1 => todo!(),
+                Button::Trig2 => todo!(),
+                Button::Trig3 => todo!(),
+                Button::Trig4 => todo!(),
+                Button::Trig5 => todo!(),
+                Button::Trig6 => todo!(),
+                Button::Trig7 => todo!(),
+                Button::Trig8 => todo!(),
+                Button::Trig9 => todo!(),
+                Button::Trig10 => todo!(),
+                Button::Trig11 => todo!(),
+                Button::Trig12 => todo!(),
+                Button::Trig13 => todo!(),
+                Button::Trig14 => todo!(),
+                Button::Trig15 => todo!(),
+                Button::Trig16 => todo!(),
+            }
+        }
     }
 }
 
@@ -42,7 +76,7 @@ async fn draw_diagnostics_menu<'a>(
         .draw(display)?;
 
     // Black header font color so it appears inverted on a yellow header.
-    let large_character_style = MonoTextStyle::new(&FONT_10X20, Rgb565::BLACK);
+    let large_character_style = MonoTextStyle::new(&FONT_9X18_BOLD, Rgb565::BLACK);
 
     let text_style = TextStyleBuilder::new()
         .alignment(Alignment::Left)
@@ -52,7 +86,7 @@ async fn draw_diagnostics_menu<'a>(
     // "DIAGNOSTICS" header text
     Text::with_text_style(
         "DIAGNOSTICS",
-        Point::new(10, 10),
+        Point::new(10, 19),
         large_character_style,
         text_style,
     )

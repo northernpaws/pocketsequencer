@@ -48,3 +48,4 @@
   - LED footprint needs longer pads with some overhang
   - Dispaly connector needs slightly longer pads
   - Display mode pins are backwards...
+  - LEDs need a power enable switch tied to the main regulator, they never shut off.

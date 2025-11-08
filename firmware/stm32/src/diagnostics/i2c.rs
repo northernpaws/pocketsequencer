@@ -3,15 +3,15 @@ use embedded_graphics_coordinate_transform::Rotate270;
 
 use crate::hardware::{display::Display, keypad::Keypad};
 
-pub async fn input_diagnostics(
+pub async fn i2c_diagnostics(
     display: &'_ mut Rotate270<Display<'_, Delay>>,
     keypad: &'_ mut Keypad<'_>,
 ) {
     loop {
-        draw_input_diagnostics(display).await;
+        draw_i2c_diagnostics(display).await;
         display.push_buffer_dma().await;
     }
 }
 
-/// Updates the display with the input diagnostics info.
-async fn draw_input_diagnostics(display: &'_ mut Rotate270<Display<'_, Delay>>) {}
+/// Updates the display with the i2c diagnostics info.
+async fn draw_i2c_diagnostics(display: &'_ mut Rotate270<Display<'_, Delay>>) {}

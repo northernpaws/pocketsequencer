@@ -1,12 +1,13 @@
 pub mod fmc;
 
-use defmt::trace;
+use defmt::{error, trace};
 
 use embassy_stm32::{
     Peri,
     dma::{self, AnyChannel, Burst, FifoThreshold},
     exti::ExtiInput,
 };
+use embassy_time::{Duration, with_timeout};
 use embedded_graphics::{pixelcolor::Rgb565, prelude::DrawTarget};
 use embedded_graphics::{prelude::*, primitives::Rectangle};
 use embedded_graphics_framebuf::FrameBuf;
@@ -134,11 +135,17 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
     }
 
     /// Pushes the buffer to the display using DMA.
-    pub async fn push_buffer_dma(&mut self) -> Result<(), ()> {
+    pub async fn push_buffer_dma(&mut self) {
         // Wait for the next frame start signal from the ILI9341.
         //
         // When the signal is HIGH, then the controller is not
         // updating the display panel contents from memory.
+        match with_timeout(Duration::from_millis(100), self.te.wait_for_rising_edge()).await {
+            Ok(result) => {}
+            Err(_) => {
+                error!("Timed out waiting for frame sync signal, is the display connected?");
+            }
+        }
         self.te.wait_for_rising_edge().await;
 
         // First we need to send a memory addressing command to tell
@@ -202,14 +209,11 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
             )
             .await;
         }
-
-        Ok(())
     }
 
     /// Writes a command and it's arguments to the display controller,
     pub fn write_raw_command(&mut self, cmd: u8, args: &[u8]) {
-        // , args: &[u8]
-        trace!("display command: 0x{:x} {=[u8]:x}", cmd, args);
+        // trace!("display command: 0x{:x} {=[u8]:x}", cmd, args);
 
         // Write to the lower byte so A0=0 and triggers command mode.
         self.interface.write_command(cmd, args); // as u16
@@ -252,6 +256,8 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
     /// power management setup, manufacturer gamma curves, and
     /// actually turning the display on.
     pub async fn init(&mut self) {
+        trace!("Resetting display and issuing init sequence..");
+
         // Before and during delay timings from ILI9341 datasheet.
         self.delay.delay_ms(5).await;
         self.rst.set_low();
@@ -472,8 +478,8 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
 
         // Clear the display with black so it doesn't flash the
         // default initialization gray when the display turns on.
-        self.clear(Rgb565::BLACK).unwrap();
-        self.push_buffer_dma().await.unwrap();
+        // self.clear(Rgb565::BLACK).unwrap();
+        // self.push_buffer_dma().await.unwrap();
 
         // Display On.
         //

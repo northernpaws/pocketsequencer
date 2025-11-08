@@ -378,9 +378,9 @@ impl Timing {
         Self {
             address_setup_time: 0,                // tast
             address_hold_time: 1,                 // taht - should be 0, but FMC doesn't support 1?
-            data_setup_time: 1,                   // trod - can probably shorted to 10 (tdst)
-            bus_turn_around_duration: 0,          // unused by sram
-            clock_division: 2,                    // not used? should be a way to set clock..
+            data_setup_time: 20,                  // trod - can probably shorted to 10 (tdst)
+            bus_turn_around_duration: 2,          // unused by sram
+            clock_division: 6,                    // not used? should be a way to set clock..
             data_latency: 0,                      // unused by sram
             access_mode: AccessMode::AccessModeA, // TODO: not sure of type to select
         }
@@ -741,8 +741,6 @@ impl<'a> Fmc<'a> {
     /// Write a command byte to the LCD controller, and then
     /// reads a number of response bytes from the controller.
     pub fn write_command(&mut self, cmd: u8, args: &[u8]) {
-        trace!("command: 0x{:x}", cmd);
-
         // Write to the lower byte so A0=0 and triggers command mode.
         // ptr::write(self.cmd_addr(), cmd as u16);
         self.memory[0] = cmd as u16;

@@ -15,6 +15,7 @@ use defmt::*;
 use embassy_executor::Spawner;
 
 use embassy_stm32::{
+    gpio::{Input, Output},
     i2c::{self, I2c},
     mode::Async,
     rcc::clocks,
@@ -62,6 +63,7 @@ use firmware::{
     hardware::{
         self, Irqs,
         display::{self, Display},
+        drivers::stm6601::Stm6601,
         keypad::{self, Keypad},
         preamble::*,
     },
@@ -282,9 +284,17 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     // use the keypad LEDs as status indicators and use
     // the buttons to alter the boot sequence.
     info!("Initializing keypad...");
-    let mut keypad = hardware::get_keypad(spawner, r.keypad, i2c4_bus)
-        .await
-        .unwrap();
+    static KEYPAD: StaticCell<Keypad<'static>> = StaticCell::new();
+    let mut keypad: &mut Keypad<'static> = KEYPAD.init(
+        hardware::get_keypad(spawner, r.keypad, i2c4_bus)
+            .await
+            .unwrap(),
+    );
+    // let mut keypad = hardware::get_keypad(spawner, r.keypad, i2c4_bus)
+    //     .await
+    //     .unwrap();
+
+    spawner.spawn(unwrap!(power_button_task(&mut stm6601, &mut keypad)));
 
     // Next, we configure the memory buses for the SDRAM and the display.
     //
@@ -302,7 +312,7 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
             Timer::after_millis(25).await;
         }
     };
-    keypad.set_led(keypad::Led::Trig1, RGB::new(255, 0, 0));
+    keypad.set_led(keypad::Led::Trig1, RGB::new(0, 255, 0));
 
     // Wrap the display in a translation layer that rotates it
     // 270 degrees into landscape with the correct orientation.
@@ -319,15 +329,31 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     // for purposes such as diagnostics, bootloader triggers, and
     // special setting modes.
     info!("Scanning keypad for boot interruption keybinds..");
-    keypad.scan_keypad();
+    loop {
+        // Imeddiatly receive pending button events until none are left.
+        let Ok(button) = keypad.button_receiver.try_receive() else {
+            break;
+        };
 
-    // TODO: load diagnostics depending on keypad state
-    info!("Entering diagnostics menu...");
-    diagnostics::run_diagnostics(&mut display_rot, &mut keypad).await;
-    info!("Exited diagnostics menu.");
+        // Match the button to a diagnostic or boot setting.
+        match button {
+            keypad::Button::Trig1 => {
+                // TODO: load diagnostics depending on keypad state
+                info!("Entering diagnostics menu...");
+                diagnostics::run_diagnostics(&mut display_rot, &mut keypad).await;
+                info!("Exited diagnostics menu.");
+            }
+            _ => {
+                info!("Ignoring unbound boot hotkey: {}", button);
+            }
+        }
+    }
 
-    draw_boot_screen(&mut display_rot, "Memory test..", &[]).unwrap();
-    display_rot.push_buffer(); // NOTE: we don't use DMA for the init display to avoid possible DMA problems when displaying init status.
+    info!("Running fast memory check...");
+
+    draw_boot_screen(&mut display_rot, "Memory test..", &[])
+        .await
+        .unwrap();
 
     // After we've got the display initialized so we can show status, perform a very
     // very brief memory test to see if we can write and read from the SDRAM.
@@ -341,8 +367,9 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
 
     if sdram[0] != 1 || sdram[1] != 2 || sdram[2] != 3 || sdram[3] != 4 {
         error!("Brief memory test failed!");
-        draw_boot_screen(&mut display_rot, "Memory test failed!", &[]).unwrap();
-        display_rot.push_buffer(); // NOTE: we don't use DMA for the init display to avoid possible DMA problems when displaying init status.
+        draw_boot_screen(&mut display_rot, "Memory test failed!", &[])
+            .await
+            .unwrap();
 
         loop {
             // Blink an LED to indicate an error.
@@ -384,8 +411,8 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
                 "No space in SDRAM for heap!",
                 &["Memory test"],
             )
+            .await
             .unwrap();
-            display_rot.push_buffer(); // NOTE: we don't use DMA for the init display to avoid possible DMA problems when displaying init status.
 
             loop {}
         };
@@ -402,8 +429,9 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
         info!("Heap successfully initialized.");
     }
 
-    draw_boot_screen(&mut display_rot, "SD Card...", &["Memory test"]).unwrap();
-    display_rot.push_buffer(); // NOTE: we don't use DMA for the init display to avoid possible DMA problems when displaying init status.
+    draw_boot_screen(&mut display_rot, "SD Card...", &["Memory test"])
+        .await
+        .unwrap();
 
     // Initialize the bus for the SPI1 peripheral.
     //
@@ -449,8 +477,8 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
         "Internal Storage...",
         &["Memory test", "SD Card"],
     )
+    .await
     .unwrap();
-    display_rot.push_buffer(); // NOTE: we don't use DMA for the init display to avoid possible DMA problems when displaying init status.
 
     // sd_card.list_filesystem().await.unwrap();
 
@@ -468,8 +496,8 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
         "Battery...",
         &["Memory test", "SD Card", "TODO: Internal Storage"],
     )
+    .await
     .unwrap();
-    display_rot.push_buffer(); // NOTE: we don't use DMA for the init display to avoid possible DMA problems when displaying init status.
 
     /*
         // Next initialize the bus for the I2C2 peripheral that
@@ -520,45 +548,45 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     // Clear the display once more before starting the ratataui.
     info!("Configuring display engine...");
     display_rot.clear(Rgb565::BLACK).unwrap();
-    display_rot.push_buffer_dma().await.unwrap();
+    display_rot.push_buffer_dma().await;
 
     // A Ratatui wrapper for embedded-graphics.
     //
     // Will be replaced later with our own embedded-optimized
     // UI framework, but for now it'll work great for testing.
-    let backend_config = EmbeddedBackendConfig {
-        // Define how to display newly rendered widgets to the simulator window
-        flush_callback: Box::new(
-            move |display: &mut embedded_graphics_coordinate_transform::CoordinateTransform<
-                display::Display<'_, embassy_time::Delay>,
-                false,
-                true,
-                true,
-            >| {
-                display.push_buffer();
-                // TODO: dispatch queue in async method for DMA.
-                // async {
-                //     display.push_buffer_dma().await.unwrap();
-                // };
-            },
-        ),
-        ..Default::default()
-    };
-    let backend = EmbeddedBackend::new(&mut display_rot, backend_config);
-    let mut terminal = Terminal::new(backend).unwrap();
+    // let backend_config = EmbeddedBackendConfig {
+    //     // Define how to display newly rendered widgets to the simulator window
+    //     flush_callback: Box::new(
+    //         move |display: &mut embedded_graphics_coordinate_transform::CoordinateTransform<
+    //             display::Display<'_, embassy_time::Delay>,
+    //             false,
+    //             true,
+    //             true,
+    //         >| {
+    //             display.push_buffer_dma().await;
+    //             // TODO: dispatch queue in async method for DMA.
+    //             // async {
+    //             //     display.push_buffer_dma().await.unwrap();
+    //             // };
+    //         },
+    //     ),
+    //     ..Default::default()
+    // };
+    // let backend = EmbeddedBackend::new(&mut display_rot, backend_config);
+    // let mut terminal = Terminal::new(backend).unwrap();
 
     loop {
-        terminal.draw(draw).unwrap();
+        // terminal.draw(draw).unwrap();
         // display_rot.push_buffer_dma().await.unwrap();
 
         // Give other tasks time to do work.
         Timer::after_millis(10).await;
     }
 
-    info!("Initializing engine..");
-    let mut engine_instance = engine::Engine::new(keypad);
+    // info!("Initializing engine..");
+    // let mut engine_instance = engine::Engine::new(keypad);
 
-    engine_instance.start().await;
+    // engine_instance.start().await;
 
     /*info!("Starting wireless UART peripheral...");
         let wireless_uart = hardware::get_uart_rf(r.uart_rf);
@@ -586,16 +614,16 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     Ok(())
 }
 
-fn draw_boot_screen<'a, D: DrawTarget<Color = Rgb565>>(
-    target: &'a mut D,
+async fn draw_boot_screen<'a>(
+    display: &'_ mut Rotate270<Display<'_, Delay>>,
     component: &'a str,
     success_components: &[&'a str],
-) -> Result<(), D::Error> {
+) -> Result<(), <Rotate270<Display<'a, Delay>> as DrawTarget>::Error> {
     use embedded_graphics::prelude::*;
 
     // First, we need to clear the framebuffer to black
     // to overwrite any previously drawn elements.
-    target.clear(Rgb565::BLACK)?;
+    display.clear(Rgb565::BLACK)?;
 
     let border_style = PrimitiveStyleBuilder::new()
         .stroke_color(Rgb565::YELLOW)
@@ -603,14 +631,14 @@ fn draw_boot_screen<'a, D: DrawTarget<Color = Rgb565>>(
         .reset_fill_color()
         .build();
 
-    let display_size = target.bounding_box().size;
+    let display_size = display.bounding_box().size;
 
     Rectangle::new(
         Point::new(20, 20),
         Size::new(display_size.width - 40, display_size.height - 40),
     )
     .into_styled(border_style)
-    .draw(target)?;
+    .draw(display)?;
 
     let large_character_style = MonoTextStyle::new(&FONT_10X20, Rgb565::WHITE);
     let small_character_style = MonoTextStyle::new(&FONT_6X10, Rgb565::WHITE);
@@ -629,7 +657,7 @@ fn draw_boot_screen<'a, D: DrawTarget<Color = Rgb565>>(
         large_character_style,
         text_style,
     )
-    .draw(target)?;
+    .draw(display)?;
 
     let mut offset = 0;
     for comp in success_components {
@@ -639,7 +667,7 @@ fn draw_boot_screen<'a, D: DrawTarget<Color = Rgb565>>(
             small_character_style_success,
             text_style,
         )
-        .draw(target)?;
+        .draw(display)?;
         offset += 15;
     }
 
@@ -649,20 +677,43 @@ fn draw_boot_screen<'a, D: DrawTarget<Color = Rgb565>>(
         small_character_style,
         text_style,
     )
-    .draw(target)?;
+    .draw(display)?;
+
+    display.push_buffer_dma().await;
 
     Ok(())
 }
 
-fn draw(frame: &mut ratatui::Frame) {
-    let text = "Ratatui on embedded devices!";
-    let paragraph = ratatui::widgets::Paragraph::new(ratatui::style::Stylize::dark_gray(text))
-        .wrap(ratatui::widgets::Wrap { trim: true });
-    let bordered_block = ratatui::widgets::Block::bordered()
-        .border_style(ratatui::style::Style::new().yellow())
-        .title("Mousefood");
-    frame.render_widget(paragraph.block(bordered_block), frame.area());
+#[embassy_executor::task]
+pub async fn power_button_task(
+    stm6601: &'static mut Stm6601<'static, Output<'static>, Input<'static>>,
+    keypad: &'static mut Keypad<'static>,
+) -> ! {
+    trace!("Starting power button listener...");
+    loop {
+        // Wait for the power button to be pressed.
+        stm6601.wait_for_button_press().await;
+
+        info!("Power button pressed!");
+
+        // Trigger shutdown routine.
+        // TODO: clear keypad LEDs since they don't have a power switch..
+        keypad.set_all(RGB::new(0, 0, 0));
+        keypad.wait_for_led_update().await;
+        // TODO:
+        stm6601.power_disable().unwrap();
+    }
 }
+
+// fn draw(frame: &mut ratatui::Frame) {
+//     let text = "Ratatui on embedded devices!";
+//     let paragraph = ratatui::widgets::Paragraph::new(ratatui::style::Stylize::dark_gray(text))
+//         .wrap(ratatui::widgets::Wrap { trim: true });
+//     let bordered_block = ratatui::widgets::Block::bordered()
+//         .border_style(ratatui::style::Style::new().yellow())
+//         .title("Mousefood");
+//     frame.render_widget(paragraph.block(bordered_block), frame.area());
+// }
 
 /// Rust's `!` is unstable.  This is a locally-defined equivalent which is stable.
 #[derive(Debug)]
