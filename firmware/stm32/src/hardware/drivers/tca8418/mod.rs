@@ -1,17 +1,12 @@
 pub mod register;
 
-use defmt::{error, info, trace, warn};
+use defmt::{error, trace};
 
-use embassy_stm32::exti::ExtiInput;
-
-use embassy_sync::{
-    blocking_mutex::raw::CriticalSectionRawMutex,
-    channel::{Channel, Receiver, Sender},
-};
-use embassy_time::Timer;
 use embedded_hal_async::i2c::SevenBitAddress;
 
 use grounded::uninit::GroundedArrayCell;
+
+use crate::hardware::drivers::tca8418::register::KeyEventA;
 
 const DEFAULT_ADDRESS: SevenBitAddress = 0b0110100;
 
@@ -26,22 +21,12 @@ pub struct KeyEvent {
     pub pressed: bool,
 }
 
-/// Type for emitting key events from the TAC8418 driver.
-///
-/// N is double the TAC8418 FIFO queue size of 10 to ensure we have
-/// enough time to process events without causing an FIFO overflow.
-pub type KeyChannel = Channel<CriticalSectionRawMutex, KeyEvent, 20>;
-pub type KeyChannelReceiver<'a> = Receiver<'a, CriticalSectionRawMutex, KeyEvent, 20>;
-
 // see: https://github.com/embassy-rs/embassy/blob/abcb6e607c4f13bf99c406fbb92480c32ebd0d4a/docs/pages/faq.adoc#stm32-bdma-only-working-out-of-some-ram-regions
 // Defined in memory.x
 #[unsafe(link_section = ".ram_d3")]
 static mut RAM_D3_BUF: GroundedArrayCell<u8, 4> = GroundedArrayCell::uninit();
 
 pub struct Tca8418<'a, I2C: embedded_hal_async::i2c::I2c> {
-    // Exti-bound input pin for the keypad interrupt signal.
-    _int: ExtiInput<'a>,
-
     /// I2C bus device handle to use for the TAC8418.
     device: I2C,
 
@@ -51,14 +36,11 @@ pub struct Tca8418<'a, I2C: embedded_hal_async::i2c::I2c> {
 
     /// I2C device address.
     address: SevenBitAddress,
-
-    /// Channel for emitting keypress events.
-    channel: &'a KeyChannel,
 }
 
 impl<'a, I2C: embedded_hal_async::i2c::I2c> Tca8418<'a, I2C> {
     /// Constructs a new TCA8418 driver.
-    pub fn new(int: ExtiInput<'a>, device: I2C, channel: &'static KeyChannel) -> Self {
+    pub fn new(device: I2C) -> Self {
         // The I2C4 peripherial on STM32H7 requires the BDMA, and in
         // turn the BDMA can only access data in the D3 section of RAM.
         //
@@ -75,19 +57,12 @@ impl<'a, I2C: embedded_hal_async::i2c::I2c> Tca8418<'a, I2C> {
         };
 
         Self {
-            _int: int,
             device,
-            channel,
             address: DEFAULT_ADDRESS,
             write_buf,
             write_read_buf,
             read_buf,
         }
-    }
-
-    /// Get a receiver handle for the key event channel.
-    pub fn receiver(&mut self) -> KeyChannelReceiver<'a> {
-        self.channel.receiver()
     }
 
     /// Initializes the TCA8418 with the
@@ -101,96 +76,39 @@ impl<'a, I2C: embedded_hal_async::i2c::I2c> Tca8418<'a, I2C> {
         Ok(())
     }
 
-    /// Reads the head of the FIFO queue in a loop until the FIFO is cleared.
-    pub async fn process_keypad(&mut self) -> Result<(), I2C::Error> {
-        loop {
-            // The KEY_EVENT_A (0x04) is the head of the FIFO stack.
-            //
-            // Each read of KEY_EVENT_A will deincrement the key event count
-            // by one, and move all the data in the stack down by one.
-            let mut key_event: register::KeyEventA = self.read_register().await?;
-            trace!("processing key event {:08b}", key_event.raw());
+    /// Reads the head of the FIFO and returns the key event, or `None` if the FIFO was empty.
+    pub async fn poll_fifo(&mut self) -> Result<Option<KeyEventA>, I2C::Error> {
+        // The KEY_EVENT_A (0x04) is the head of the FIFO stack.
+        //
+        // Each read of KEY_EVENT_A will deincrement the key event count
+        // by one, and move all the data in the stack down by one.
+        let key_event: register::KeyEventA = self.read_register().await?;
+        trace!("processing key event {:08b}", key_event.raw());
 
-            // A 0 in the key event A register indicates there are no more key events.
-            if key_event.raw() == 0_u8 {
-                trace!("no more events in FIFO!");
-                break Ok(());
-            }
-
-            // Read the key index.
-            //
-            // A value of 0 to 80 indicate which key has been
-            // pressed or released in a keypad matrix.
-            //
-            // Values of 97 to 114 are for GPI events.
-            //
-            // A value of 0 indicates that there are no more events in the FIFO stack.
-            let key_index = key_event.key_index().get().value();
-            if key_index == 0 {
-                // Warn because hitting this unessessarily will cause a per-frame performance hit.
-                warn!("somehow we read more key events then there where in the FIFO stack?");
-                break Ok(());
-            }
-
-            let key_pressed = key_event.key_pressed().get();
-
-            trace!(
-                "key {} pressed: {}",
-                defmt::Display2Format(&key_index),
-                key_pressed
-            );
-
-            // NOTE: We use `try_send` to immediately try to push
-            // to the channel to prevent backing up the FIFO.
-            //
-            // This may need to be revised later to use a timeout.
-            match self.channel.try_send(KeyEvent {
-                key: key_index,
-                pressed: key_pressed,
-            }) {
-                Ok(_) => {}
-                Err(_) => {
-                    error!("Failed to add keypress event to channel, is the channel full?")
-                }
-            }
-
-            Timer::after_millis(100).await;
+        // A 0 in the key event A register indicates there are no more key events.
+        if key_event.raw() == 0_u8 {
+            return Ok(None);
         }
+
+        Ok(Some(key_event))
     }
 
-    /// Reacts to the interrupt line to process interrupt related events
-    pub async fn wait_for_irq(&mut self) -> Result<(), I2C::Error> {
-        // INT is active-low.
-        //
-        // We need to handle the interrupt to clear the FIFO
-        // if it was triggered before we started listening.
-        if !self._int.is_low() {
-            self._int.wait_for_falling_edge().await;
-        }
-
+    /// Convenience method for getting the current interrupt status.
+    pub async fn get_interrupt_status(&mut self) -> Result<register::InterruptStatus, I2C::Error> {
         // When the interrupt is triggered, we need to read
         // the interrupt status table to see what it was.
         let mut int_status: register::InterruptStatus = self.read_register().await?;
 
-        // If there are logged events for the FIFO stack, then we need to read it.
-        if int_status.key_event_interrupt_status().get() || int_status.gpi_interrupt_status().get()
-        {
-            self.process_keypad().await?;
-        }
-
         // Overflow is triggered if the key event FIFO
         // is full and a new keypress event occurs.
+        //
+        // Normally this is an error condition that indicates an
+        // issue with your input loop, so we log it as an error.
         if int_status.overflow_interrupt_status().get() {
             error!("Keypad input event overflow!")
         }
 
-        // Clear all interrupt bits.
-        //
-        // If one was missed, then the INT line
-        // will be reasserted from INT_CFG(CFG[4])=1.
-        self.clear_all_interrupts().await?;
-
-        Ok(())
+        Ok(int_status)
     }
 
     /// Clears all interrupt flags.

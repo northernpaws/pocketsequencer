@@ -1,7 +1,8 @@
 pub mod fmc;
 
-use defmt::{error, trace};
+use defmt::trace;
 
+use derive_more::{Display, Error};
 use embassy_stm32::{
     Peri,
     dma::{self, AnyChannel, Burst, FifoThreshold},
@@ -29,6 +30,13 @@ pub const HEIGHT: usize = 320;
 pub const FRAMEBUFFER_SIZE: usize = WIDTH * HEIGHT;
 pub type FramebufferArray = [Rgb565; FRAMEBUFFER_SIZE];
 pub type Framebuffer<'a> = FrameBuf<Rgb565, &'a mut FramebufferArray>;
+
+/// Returned from DMA-based buffer operations.
+#[derive(Debug, Display, Error)]
+pub enum DisplayError {
+    #[display("Timed out waiting for display tearing sync signal: is the display connected?")]
+    TearingTimeout,
+}
 
 pub struct Display<'a, DELAY: embedded_hal_async::delay::DelayNs> {
     interface: Fmc<'a>,
@@ -105,7 +113,22 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
     /// Pushes the buffer to the display, using the CPU.
     ///
     /// DMA transfer methods should always be preferred.
-    pub fn push_buffer(&mut self) {
+    pub async fn push_buffer(&mut self) -> Result<(), DisplayError> {
+        // Wait for the next frame start signal from the ILI9341.
+        //
+        // When the signal is HIGH, then the controller is not
+        // updating the display panel contents from memory.
+        match with_timeout(Duration::from_millis(100), self.te.wait_for_rising_edge()).await {
+            Ok(_) => {}
+            Err(_) => {
+                // Return an error if this occurs as it indicates
+                // there is possibly an issue with the display.
+                return Err(DisplayError::TearingTimeout);
+            }
+        }
+
+        // Sets the column and page that we'll
+        // start updating the display from.
         self.set_address_window();
 
         // First we need to send a memory addressing command to tell
@@ -121,6 +144,8 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
         for pixel in self.framebuf.into_iter() {
             self.interface.write_data(pixel.1.into_storage());
         }
+
+        Ok(())
     }
 
     /// Read the current scanline from the display controller.
@@ -135,18 +160,19 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
     }
 
     /// Pushes the buffer to the display using DMA.
-    pub async fn push_buffer_dma(&mut self) {
+    pub async fn push_buffer_dma(&mut self) -> Result<(), DisplayError> {
         // Wait for the next frame start signal from the ILI9341.
         //
         // When the signal is HIGH, then the controller is not
         // updating the display panel contents from memory.
         match with_timeout(Duration::from_millis(100), self.te.wait_for_rising_edge()).await {
-            Ok(result) => {}
+            Ok(_) => {}
             Err(_) => {
-                error!("Timed out waiting for frame sync signal, is the display connected?");
+                // Return an error if this occurs as it indicates
+                // there is possibly an issue with the display.
+                return Err(DisplayError::TearingTimeout);
             }
         }
-        self.te.wait_for_rising_edge().await;
 
         // First we need to send a memory addressing command to tell
         // the display where we're starting to write data from.
@@ -209,6 +235,8 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Display<'a, DELAY> {
             )
             .await;
         }
+
+        Ok(())
     }
 
     /// Writes a command and it's arguments to the display controller,

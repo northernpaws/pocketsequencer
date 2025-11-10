@@ -1,16 +1,8 @@
 use defmt::Format;
 
-// Helper that allows us to write registers as structs and read
-// them directly as their corrosponding binary representation.
-use bit_struct::*;
-
 // Use of proc_bitfield adapted from:
 // https://github.com/fmckeogh/usb-pd-rs/blob/main/fusb302b/src/registers.rs
-use proc_bitfield::{
-    bitfield,
-    Bitfield
-};
-use embassy_usb::descriptor::descriptor_type::DEVICE; 
+use proc_bitfield::{Bitfield, bitfield};
 
 pub const DEVICE_ID_REGISTER: u8 = 0x01;
 pub const SWITCHES_0_REGISTER: u8 = 0x02;
@@ -39,7 +31,7 @@ pub const FIFO_REGISTER: u8 = 0x43;
 
 pub enum RegisterType {
     Read = 0,
-    ReadWrite = 1
+    ReadWrite = 1,
 }
 
 pub trait Register: Bitfield<Storage = u8> {
@@ -166,7 +158,7 @@ impl From<DataRole> for bool {
 }
 
 /// Bit used for constructing the GoodCRC acknowledge packet
-/// 
+///
 /// Adapted from: https://github.com/fmckeogh/usb-pd-rs/blob/main/fusb302b/src/registers.rs
 pub enum Revision {
     R1_0,
@@ -195,14 +187,14 @@ bitfield! {
     #[derive(Format)]
     pub struct Switches1(pub u8): FromStorage, IntoStorage {
         /// Bit used for constructing the GoodCRC acknowledge packet.
-        /// 
+        ///
         /// This bit corresponds to the Port Power Role bit in
         /// the message header if an SOP packet is received:
         ///  1: Source if SOP
         ///  0: Sink if SOP
         pub powerrole: bool [set PowerRole, get PowerRole] @ 7,
         /// Bits used for constructing the GoodCRC acknowledge packet.
-        /// 
+        ///
         /// These bits correspond to the Specification
         /// Revision bits in the message header:
         ///  00: Revision 1.0
@@ -211,9 +203,9 @@ bitfield! {
         ///  11: Do Not Use
         pub specrev: bool [set Revision, get Revision] @ 5,
         /// Bit used for constructing the GoodCRC acknowledge packet.
-        /// 
+        ///
         /// This bit corresponds to the Port Data Role bit in the message header.
-        /// 
+        ///
         /// For SOP:
         ///  1: SRC
         ///  0: SNK
@@ -242,7 +234,6 @@ impl Register for Switches1 {
     const RESET: u8 = 0b0010_0000;
 }
 
-
 bitfield! {
     #[derive(Format)]
     pub struct Measure(pub u8): FromStorage, IntoStorage {
@@ -252,11 +243,11 @@ bitfield! {
         ///    MEAS_CC* bits to be 0
         pub meas_vbus: bool @ 6,
         /// Measure Block DAC data input.
-        /// 
+        ///
         /// LSB is equivalent to 42 mV of voltage which is compared to the
         /// measured CC voltage. The measured CC is selected by MEAS_CC2,
         /// or MEAS_CC1 bits. MDAC[5:0] MEAS_VBUS = 0 MEAS_VBUS = 1 Unit.
-        /// 
+        ///
         /// | `MDAC[5:0]` | `MEAS_VBUS = 0` | `MEAS_VBUS = 1` | Unit |
         /// |-------------|-----------------|-----------------|------|
         /// | `00_0000`   | 0.042           | 0.420           | V    |
@@ -282,8 +273,6 @@ impl Register for Measure {
     const RESET: u8 = 0b0011_0001;
 }
 
-
-
 bitfield! {
     #[derive(Format)]
     pub struct Slice(pub u8): FromStorage, IntoStorage {
@@ -296,7 +285,7 @@ bitfield! {
         ///  00: No hysteresis: higher threshold = SDAC value
         pub sda_hys: u8 @ 6..=7,
         /// BMC Slicer DAC data input.
-        /// 
+        ///
         /// Allows for a programmable threshold so as to meet
         /// the BMC receive mask under all noise conditions.
         pub sdac: u8 @ 0..=5,
@@ -361,7 +350,7 @@ bitfield! {
     pub struct Control1(pub u8): FromStorage, IntoStorage {
         /// 1: Enable SOP”_DEBUG (SOP double prime debug) packets
         /// 0: Ignore SOP”_DEBUG (SOP double prime debug) packets
-        pub ensop2db: bool @ 6, 
+        pub ensop2db: bool @ 6,
         /// 1: Enable SOP‘_DEBUG (SOP prime debug) packets
         /// 0: Ignore SOP‘_DEBUG (SOP prime debug) packets
         pub ensop1db: bool @ 5,
@@ -389,7 +378,6 @@ impl Register for Control1 {
     const WRITEABLE: bool = true;
     const RESET: u8 = 0b0000_0000;
 }
-
 
 bitfield! {
     #[derive(Format)]
@@ -479,7 +467,7 @@ bitfield! {
         pub m_vbusok: bool @ 7,
         /// 1: Mask interrupt for a transition in CC bus activity
         /// *0: Do not mask
-        pub m_activity: bool @ 6, 
+        pub m_activity: bool @ 6,
         /// 1: Mask I_COMP_CHNG interrupt for change is the value of
         ///  COMP, the measure comparator
         /// *0: Do not mask
@@ -513,7 +501,6 @@ impl Register for Mask {
     const WRITEABLE: bool = true;
     const RESET: u8 = 0b0000_0000;
 }
-
 
 bitfield! {
     #[derive(Format)]
@@ -591,7 +578,6 @@ impl Register for OCPReg {
     const RESET: u8 = 0b0000_1111;
 }
 
-
 bitfield! {
     #[derive(Format, Default)]
     pub struct MaskA(pub u8): FromStorage, IntoStorage {
@@ -620,7 +606,6 @@ impl Register for MaskA {
     const RESET: u8 = 0b0000_0000;
 }
 
-
 bitfield! {
     #[derive(Format, Default)]
     pub struct MaskB(u8): FromStorage, IntoStorage {
@@ -631,7 +616,7 @@ bitfield! {
 
 impl Register for MaskB {
     const ADDRESS: u8 = MASK_B_REGISTER;
-    const WRITEABLE: bool = true; 
+    const WRITEABLE: bool = true;
     const RESET: u8 = 0b0000_0000;
 }
 
@@ -646,7 +631,7 @@ bitfield! {
 
 impl Register for Control4 {
     const ADDRESS: u8 = CONTROL_4_REGISTER;
-    const WRITEABLE: bool = true; 
+    const WRITEABLE: bool = true;
     const RESET: u8 = 0b0000_0000;
 }
 
@@ -676,7 +661,7 @@ bitfield! {
 
 impl Register for Status0A {
     const ADDRESS: u8 = STATUS_0_A_REGISTER;
-    const WRITEABLE: bool = false; 
+    const WRITEABLE: bool = false;
     const RESET: u8 = 0b0000_0000;
 }
 
@@ -705,7 +690,7 @@ bitfield! {
 
 impl Register for Status1A {
     const ADDRESS: u8 = STATUS_1_A_REGISTER;
-    const WRITEABLE: bool = false; 
+    const WRITEABLE: bool = false;
     const RESET: u8 = 0b0000_0000;
 }
 
@@ -795,7 +780,7 @@ bitfield! {
         ///  11: > 1.23 V
         /// Note the software must measure these at an appropriate time,
         /// while there is no signaling activity on the selected CC line.
-        /// 
+        ///
         /// BC_LVL is only defined when Measure block is on which is when
         /// register bits PWR[2]=1 and either MEAS_CC1=1 or MEAS_CC2=1
         pub bc_lvl: u8 [read_only] @ 0..=1,
@@ -807,7 +792,6 @@ impl Register for Status0 {
     const WRITEABLE: bool = false; // R
     const RESET: u8 = 0b0000_0000;
 }
-
 
 bitfield! {
     #[derive(Format, Default)]
@@ -839,7 +823,6 @@ impl Register for Status1 {
     const WRITEABLE: bool = false; // R
     const RESET: u8 = 0b0010_1000;
 }
-
 
 bitfield! {
     #[derive(Format, Default)]
@@ -880,7 +863,6 @@ impl Register for Interrupt {
     const WRITEABLE: bool = false; // R/C
     const RESET: u8 = 0b0000_0000;
 }
-
 
 bitfield! {
     #[derive(Format, Default)]

@@ -5,7 +5,7 @@ use crate::hardware::{display::Display, keypad::Keypad};
 
 pub async fn i2c_diagnostics(
     display: &'_ mut Rotate270<Display<'_, Delay>>,
-    keypad: &'_ mut Keypad<'_>,
+    _keypad: &'_ mut Keypad,
 ) {
     loop {
         draw_i2c_diagnostics(display).await;

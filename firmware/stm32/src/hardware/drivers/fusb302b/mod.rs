@@ -1,7 +1,5 @@
 pub mod register;
 
-use defmt::{trace, warn};
-
 use embassy_stm32::exti::ExtiInput;
 
 use embedded_hal_async::i2c::SevenBitAddress;

@@ -66,11 +66,11 @@ pub async fn start_usb(spawner: Spawner, r: UsbResources) {
     // let (sender, receiver) = midi_class.split();
 
     // let mut midi_class: &'static mut MidiClass<'static, Driver<'static, embassy_stm32::peripherals::USB_OTG_HS>> = USB_MIDI_CLASS.init(MidiClass::new(&mut builder, 1, 1, 64));
-    let mut midi_class = MidiClass::new(&mut builder, 1, 1, 64);
+    let midi_class = MidiClass::new(&mut builder, 1, 1, 64);
 
     // Build the builder.
     // let mut usb = USB_DEVICE.init(builder.build());
-    let mut usb = builder.build();
+    let usb = builder.build();
 
     // Run the USB device.
     // let usb_fut = usb.run();
@@ -175,17 +175,17 @@ async fn midi_echo<'d, T: Instance + 'd>(
 
             match event {
                 LiveEvent::Midi { channel, message } => match message {
-                    MidiMessage::NoteOn { key, vel } => info!(
+                    MidiMessage::NoteOn { key, vel: _ } => info!(
                         "MIDI: note on {} on channel {}",
                         key.as_int(),
                         channel.as_int()
                     ),
-                    MidiMessage::NoteOff { key, vel } => info!(
+                    MidiMessage::NoteOff { key, vel: _ } => info!(
                         "MIDI: note off {} on channel {}",
                         key.as_int(),
                         channel.as_int()
                     ),
-                    MidiMessage::Aftertouch { key, vel } => info!(
+                    MidiMessage::Aftertouch { key, vel: _ } => info!(
                         "MIDI: aftertouch {} on channel {}",
                         key.as_int(),
                         channel.as_int()
@@ -201,7 +201,7 @@ async fn midi_echo<'d, T: Instance + 'd>(
                         program.as_int(),
                         channel.as_int()
                     ),
-                    MidiMessage::ChannelAftertouch { vel } => {
+                    MidiMessage::ChannelAftertouch { vel: _ } => {
                         info!("MIDI: aftertouch on channel {}", channel.as_int())
                     }
                     MidiMessage::PitchBend { bend } => info!(
@@ -212,7 +212,7 @@ async fn midi_echo<'d, T: Instance + 'd>(
                 },
                 LiveEvent::Common(system_common) => match system_common {
                     midly::live::SystemCommon::SysEx(_) => info!("MIDI: SYS: SysEx"),
-                    midly::live::SystemCommon::MidiTimeCodeQuarterFrame(_, u4) => {
+                    midly::live::SystemCommon::MidiTimeCodeQuarterFrame(_, _u4) => {
                         info!("MIDI: SYS: quarter frame")
                     }
                     midly::live::SystemCommon::SongPosition(u14) => {

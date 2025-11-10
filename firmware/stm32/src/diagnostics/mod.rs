@@ -1,9 +1,6 @@
 use embassy_time::Delay;
 use embedded_graphics::{
-    mono_font::{
-        MonoTextStyle,
-        ascii::{FONT_6X10, FONT_9X18_BOLD, FONT_10X20},
-    },
+    mono_font::{MonoTextStyle, ascii::FONT_9X18_BOLD},
     pixelcolor::Rgb565,
     prelude::*,
     primitives::{PrimitiveStyleBuilder, Rectangle},
@@ -13,49 +10,61 @@ use embedded_graphics_coordinate_transform::Rotate270;
 
 use crate::hardware::{display::Display, keypad::Keypad};
 
-use crate::hardware::keypad::Button;
-
 pub mod i2c;
 pub mod input;
 
 pub async fn run_diagnostics(
     display: &'_ mut Rotate270<Display<'_, Delay>>,
-    keypad: &'_ mut Keypad<'_>,
+    keypad: &'_ mut Keypad,
 ) {
+    let mut channel = keypad.subscribe().unwrap();
+
     loop {
         draw_diagnostics_menu(display).await.unwrap();
-        display.push_buffer_dma().await;
+        display.push_buffer_dma().await.unwrap();
         // TODO: select diagnostics like input
 
         loop {
             // Immediately process any button events in the keypad channel.
-            let Ok(button) = keypad.button_receiver.try_receive() else {
+            let Some(message) = channel.try_next_message() else {
                 break;
             };
 
-            match button {
-                Button::Unknown => todo!(),
-                Button::Menu0 => todo!(),
-                Button::Menu1 => todo!(),
-                Button::Menu2 => todo!(),
-                Button::Menu3 => todo!(),
-                Button::Trig1 => todo!(),
-                Button::Trig2 => todo!(),
-                Button::Trig3 => todo!(),
-                Button::Trig4 => todo!(),
-                Button::Trig5 => todo!(),
-                Button::Trig6 => todo!(),
-                Button::Trig7 => todo!(),
-                Button::Trig8 => todo!(),
-                Button::Trig9 => todo!(),
-                Button::Trig10 => todo!(),
-                Button::Trig11 => todo!(),
-                Button::Trig12 => todo!(),
-                Button::Trig13 => todo!(),
-                Button::Trig14 => todo!(),
-                Button::Trig15 => todo!(),
-                Button::Trig16 => todo!(),
-            }
+            use embassy_sync::pubsub::WaitResult::Message;
+
+            let Message(event): embassy_sync::pubsub::WaitResult<
+                crate::hardware::keypad::buttons::Event,
+            > = message
+            else {
+                continue;
+            };
+
+            // match event {
+            //     crate::hardware::keypad::buttons::Event::FIFOCleared(_) => todo!(),
+            //     crate::hardware::keypad::buttons::Event::ButtonPress(_) => todo!(),
+            //     crate::hardware::keypad::buttons::Event::ButtonRelease(button) => match button {
+            //         Button::Menu0 => todo!(),
+            //         Button::Menu1 => todo!(),
+            //         Button::Menu2 => todo!(),
+            //         Button::Menu3 => todo!(),
+            //         Button::Trig1 => todo!(),
+            //         Button::Trig2 => todo!(),
+            //         Button::Trig3 => todo!(),
+            //         Button::Trig4 => todo!(),
+            //         Button::Trig5 => todo!(),
+            //         Button::Trig6 => todo!(),
+            //         Button::Trig7 => todo!(),
+            //         Button::Trig8 => todo!(),
+            //         Button::Trig9 => todo!(),
+            //         Button::Trig10 => todo!(),
+            //         Button::Trig11 => todo!(),
+            //         Button::Trig12 => todo!(),
+            //         Button::Trig13 => todo!(),
+            //         Button::Trig14 => todo!(),
+            //         Button::Trig15 => todo!(),
+            //         Button::Trig16 => todo!(),
+            //     },
+            // }
         }
     }
 }

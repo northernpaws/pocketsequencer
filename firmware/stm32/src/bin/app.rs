@@ -5,6 +5,7 @@
 extern crate alloc;
 
 // https://medium.com/@carlmkadie/how-rust-embassy-shine-on-embedded-devices-part-1-9f4911c92007
+// https://medium.com/@carlmkadie/aad1adfccf72
 
 use core::fmt::Debug;
 
@@ -14,6 +15,7 @@ use defmt::*;
 
 use embassy_executor::Spawner;
 
+use embassy_futures::yield_now;
 use embassy_stm32::{
     gpio::{Input, Output},
     i2c::{self, I2c},
@@ -23,7 +25,7 @@ use embassy_stm32::{
     usart::{UartRx, UartTx},
 };
 
-use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, mutex::Mutex};
+use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, mutex::Mutex, signal::Signal};
 
 use embassy_time::{Delay, Timer};
 
@@ -39,7 +41,7 @@ use embedded_graphics::{
 
 use embedded_graphics_coordinate_transform::Rotate270;
 
-use mousefood::{EmbeddedBackend, EmbeddedBackendConfig};
+use mousefood::{EmbeddedBackend, EmbeddedBackendConfig, prelude::Rgb888};
 use ratatui::Terminal;
 use rgb_led_pwm_dma_maker::RGB;
 use sdio_host::{
@@ -64,7 +66,10 @@ use firmware::{
         self, Irqs,
         display::{self, Display},
         drivers::stm6601::Stm6601,
-        keypad::{self, Keypad},
+        keypad::{
+            self, Keypad,
+            buttons::{Event, KeyCode},
+        },
         preamble::*,
     },
     split_resources,
@@ -83,6 +88,8 @@ use embedded_alloc::LlffHeap as Heap;
 #[cfg(feature = "alloc")]
 #[global_allocator]
 static HEAP: Heap = Heap::empty();
+
+static SHUTDOWN_SIGNAL: Signal<CriticalSectionRawMutex, ()> = Signal::new();
 
 // Audio I2C bus.
 //
@@ -209,7 +216,6 @@ unsafe fn HardFault(ef: &ExceptionFrame) -> ! {
 }
 
 // TODO: add general exception handlers with keypad access to bink error LEDs.
-
 #[embassy_executor::main]
 async fn main(spawner: Spawner) {
     info!("program start!");
@@ -284,35 +290,36 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     // use the keypad LEDs as status indicators and use
     // the buttons to alter the boot sequence.
     info!("Initializing keypad...");
-    static KEYPAD: StaticCell<Keypad<'static>> = StaticCell::new();
-    let mut keypad: &mut Keypad<'static> = KEYPAD.init(
+    static KEYPAD: StaticCell<Keypad> = StaticCell::new();
+    let mut keypad: &mut Keypad = KEYPAD.init(
         hardware::get_keypad(spawner, r.keypad, i2c4_bus)
             .await
             .unwrap(),
     );
-    // let mut keypad = hardware::get_keypad(spawner, r.keypad, i2c4_bus)
-    //     .await
-    //     .unwrap();
 
-    spawner.spawn(unwrap!(power_button_task(&mut stm6601, &mut keypad)));
+    // Spawn the task that handles the power button.
+    //
+    // TODO: move this to an EXTI interrupt so that we're
+    // not relying on the task eventually being called.
+    spawner.spawn(unwrap!(power_button_task(stm6601)));
 
     // Next, we configure the memory buses for the SDRAM and the display.
     //
     // We initialize the display as soon as possible to display any boot errors.
     info!("Configuring memory controller...");
-    keypad.set_led(keypad::Led::Trig1, RGB::new(255, 255, 0));
+    keypad.set_led(keypad::Button::Trig1, Rgb888::YELLOW);
     let Ok((mut sdram, display)) =
         hardware::get_memory_devices(r.fmc, r.display, embassy_time::Delay).await
     else {
         loop {
             // Blink an LED to indicate an error.
-            keypad.set_led(keypad::Led::Trig1, RGB::new(255, 0, 0));
+            keypad.set_led(keypad::Button::Trig1, Rgb888::RED);
             Timer::after_millis(25).await;
-            keypad.set_led(keypad::Led::Trig1, RGB::new(0, 0, 0));
+            keypad.set_led(keypad::Button::Trig1, Rgb888::BLACK);
             Timer::after_millis(25).await;
         }
     };
-    keypad.set_led(keypad::Led::Trig1, RGB::new(0, 255, 0));
+    keypad.set_led(keypad::Button::Trig1, Rgb888::GREEN);
 
     // Wrap the display in a translation layer that rotates it
     // 270 degrees into landscape with the correct orientation.
@@ -322,6 +329,14 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     // scanning direction, causing nasty diagonal tearing.
     let mut display_rot = Rotate270::new(display);
 
+    // Next, handle boot diagnostics.
+    //
+    // This runs in a loop so that the diagnostics menu
+    // can be closed and reopened within a short period.
+    let Ok(mut subscriber) = keypad.subscribe() else {
+        defmt::panic!("Failed to get a keypad button subscriber")
+    };
+
     // Before we continue, force a scan of the keypad to
     // ensure we have a current map of the key states.
     //
@@ -329,22 +344,40 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     // for purposes such as diagnostics, bootloader triggers, and
     // special setting modes.
     info!("Scanning keypad for boot interruption keybinds..");
+
+    // Immediately flush the button FIFO from the TCA8418
+    // so that we have an up-to-date button state.
+    //
+    // Flush awaits until the end of the next keypad scan, which
+    // is usually the scan manually triggered by the flush.
+    keypad.flush().await;
+
     loop {
         // Imeddiatly receive pending button events until none are left.
-        let Ok(button) = keypad.button_receiver.try_receive() else {
+        let Some(message) = subscriber.try_next_message() else {
             break;
         };
 
+        use embassy_sync::pubsub::WaitResult::Message;
+
+        let Message(event) = message else {
+            continue;
+        };
+
+        let Event::KeyPress(keycode) = event else {
+            continue;
+        };
+
         // Match the button to a diagnostic or boot setting.
-        match button {
-            keypad::Button::Trig1 => {
+        match keycode {
+            KeyCode::Trig1 => {
                 // TODO: load diagnostics depending on keypad state
                 info!("Entering diagnostics menu...");
                 diagnostics::run_diagnostics(&mut display_rot, &mut keypad).await;
                 info!("Exited diagnostics menu.");
             }
             _ => {
-                info!("Ignoring unbound boot hotkey: {}", button);
+                info!("Ignoring unbound boot hotkey: {}", keycode);
             }
         }
     }
@@ -373,9 +406,9 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
 
         loop {
             // Blink an LED to indicate an error.
-            keypad.set_led(keypad::Led::Trig2, RGB::new(255, 0, 0));
+            keypad.set_led(keypad::Button::Trig2, Rgb888::RED);
             Timer::after_millis(25).await;
-            keypad.set_led(keypad::Led::Trig2, RGB::new(0, 0, 0));
+            keypad.set_led(keypad::Button::Trig2, Rgb888::GREEN);
             Timer::after_millis(25).await;
         }
     }
@@ -437,7 +470,7 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     //
     // This communicates with the internal storage and Micro SD card.
     info!("initializing storage SPI1 bus");
-    keypad.set_led(keypad::Led::Trig2, RGB::new(255, 255, 0));
+    keypad.set_led(keypad::Button::Trig2, Rgb888::RED);
     let (spi1, sd_cs, mut xtsdg_cs) = hardware::get_spi1(r.spi_storage);
 
     // Convert the SPI1 peripheral handle into a bus handle that can be consumed by multiple devices.
@@ -454,11 +487,11 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     // sd_init is a helper function that does this for us.
     info!("Clocking SPI1 74 cyles before initializing SD devices...");
     loop {
-        keypad.set_led(keypad::Led::Trig2, RGB::new(0, 0, 0));
+        keypad.set_led(keypad::Button::Trig2, Rgb888::BLACK);
         match sd_init(spi_bus.get_mut(), &mut xtsdg_cs).await {
             Ok(_) => break,
             Err(_e) => {
-                keypad.set_led(keypad::Led::Trig2, RGB::new(255, 0, 0));
+                keypad.set_led(keypad::Button::Trig2, Rgb888::RED);
                 error!("SPI init error!");
                 embassy_time::Timer::after_millis(10).await;
             }
@@ -470,7 +503,7 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     let mut sd_card = hardware::init_sdcard_async2(spi_bus, sd_cs, embassy_time::Delay)
         .await
         .unwrap();
-    keypad.set_led(keypad::Led::Trig2, RGB::new(0, 255, 0));
+    keypad.set_led(keypad::Button::Trig2, Rgb888::GREEN);
 
     draw_boot_screen(
         &mut display_rot,
@@ -487,9 +520,9 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     // The device internal storage uses an XTSDG IC
     // that acts as a soldered SD card.
     /*info!("Constructing internal storage device...");
-    keypad.set_led(keypad::Led::Trig4, RGB::new(255, 0, 0));
+    keypad.set_led(keypad::Button::Trig4, RGB::new(255, 0, 0));
     let mut internal_storage = hardware::get_internal_storage(spi_bus, xtsdg_cs, embassy_time::Delay);
-    keypad.set_led(keypad::Led::Trig4, RGB::new(0, 255, 0));*/
+    keypad.set_led(keypad::Button::Trig4, RGB::new(0, 255, 0));*/
 
     draw_boot_screen(
         &mut display_rot,
@@ -543,12 +576,12 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
 
     // We're basically booted at this point and past any critical
     // error stages, so clear boot status from the keypad LEDs.
-    keypad.set_all(RGB::new(0, 0, 0));
+    keypad.set_leds(Rgb888::BLACK);
 
     // Clear the display once more before starting the ratataui.
     info!("Configuring display engine...");
     display_rot.clear(Rgb565::BLACK).unwrap();
-    display_rot.push_buffer_dma().await;
+    display_rot.push_buffer_dma().await.unwrap();
 
     // A Ratatui wrapper for embedded-graphics.
     //
@@ -580,7 +613,10 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
         // display_rot.push_buffer_dma().await.unwrap();
 
         // Give other tasks time to do work.
-        Timer::after_millis(10).await;
+        // Timer::after_millis(10).await;
+
+        SHUTDOWN_SIGNAL.wait().await;
+        keypad.set_leds(Rgb888::BLACK);
     }
 
     // info!("Initializing engine..");
@@ -611,7 +647,6 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
 
         join(wireless_read, wireless_write).await;
     */
-    Ok(())
 }
 
 async fn draw_boot_screen<'a>(
@@ -679,15 +714,14 @@ async fn draw_boot_screen<'a>(
     )
     .draw(display)?;
 
-    display.push_buffer_dma().await;
+    display.push_buffer_dma().await.unwrap();
 
     Ok(())
 }
 
 #[embassy_executor::task]
 pub async fn power_button_task(
-    stm6601: &'static mut Stm6601<'static, Output<'static>, Input<'static>>,
-    keypad: &'static mut Keypad<'static>,
+    mut stm6601: Stm6601<'static, Output<'static>, Input<'static>>,
 ) -> ! {
     trace!("Starting power button listener...");
     loop {
@@ -696,11 +730,17 @@ pub async fn power_button_task(
 
         info!("Power button pressed!");
 
+        // Signal that there has been a shutdown button press.
+        SHUTDOWN_SIGNAL.signal(());
+
+        // TODO: actual shutdown confirmation signal
+        yield_now().await;
+
         // Trigger shutdown routine.
         // TODO: clear keypad LEDs since they don't have a power switch..
-        keypad.set_all(RGB::new(0, 0, 0));
-        keypad.wait_for_led_update().await;
-        // TODO:
+        // keypad.set_all(RGB::new(0, 0, 0));
+        // keypad.wait_for_led_update().await;
+        // // TODO:
         stm6601.power_disable().unwrap();
     }
 }

@@ -5,7 +5,7 @@ use crate::hardware::{display::Display, keypad::Keypad};
 
 pub async fn input_diagnostics(
     display: &'_ mut Rotate270<Display<'_, Delay>>,
-    keypad: &'_ mut Keypad<'_>,
+    _keypad: &'_ mut Keypad,
 ) {
     loop {
         draw_input_diagnostics(display).await;
@@ -14,4 +14,4 @@ pub async fn input_diagnostics(
 }
 
 /// Updates the display with the input diagnostics info.
-async fn draw_input_diagnostics(display: &'_ mut Rotate270<Display<'_, Delay>>) {}
+async fn draw_input_diagnostics(_display: &'_ mut Rotate270<Display<'_, Delay>>) {}

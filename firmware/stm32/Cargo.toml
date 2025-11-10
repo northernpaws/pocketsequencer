@@ -162,6 +162,7 @@ mousefood = { git = "https://github.com/j-g00da/mousefood", rev = "2c78249e16931
 ] }
 ratatui = { version = "0.30.0-alpha.5", default-features = false }
 embedded-alloc = "0.6.0"
+derive_more = { version = "2.0.1", default-features = false, features = ["error", "from", "debug", "display", "into", "try_from", "try_into"] }
 
 [patch.crates-io]
 # Adds additional FMC constructors.. requires patching ALL embassy packages for compatability to work correctly.

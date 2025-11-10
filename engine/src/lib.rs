@@ -10,6 +10,8 @@ pub mod prelude;
 
 pub mod input;
 
+pub mod core;
+
 use prelude::*;
 
 pub struct Engine<I: input::Input, InputDriver: input::Driver<I>> {

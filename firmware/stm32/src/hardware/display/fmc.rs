@@ -1,5 +1,6 @@
 use defmt::{Format, trace, warn};
 
+use derive_more::{Display, Error};
 use stm32_metapac::{
     self as pac,
     fmc::{self, vals::Accmod},
@@ -407,14 +408,20 @@ impl From<TimingError> for InitError {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Error, Display)]
 
 pub enum TimingError {
+    #[display("Invalid address setup time")]
     InvalidAddressSetupTime,
+    #[display("Invalid address hold time")]
     InvalidAddressHoldTime,
+    #[display("Invalid data setup time")]
     InvalidDataSetupTime,
+    #[display("Invalid data hold duration")]
     InvalidDataHoldDuration,
+    #[display("Invalid turnaround time")]
     InvalidTurnaroundTime,
+    #[display("Invalid clock divisor")]
     InvalidClockDivisor,
 }
 

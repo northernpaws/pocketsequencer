@@ -49,3 +49,4 @@
   - Dispaly connector needs slightly longer pads
   - Display mode pins are backwards...
   - LEDs need a power enable switch tied to the main regulator, they never shut off.
+  - Either attach power enable pin to the BMP's Vref so the BMP can assert it high, or have a flashing/development jumper on the back.

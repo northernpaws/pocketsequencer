@@ -14,7 +14,7 @@ use static_cell::ConstStaticCell;
 use stm32_fmc::FmcPeripheral;
 
 use core::{cell::RefCell, default::Default, option::Option::Some};
-use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, channel::Channel};
+use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
 
 use assign_resources::assign_resources;
 
@@ -63,11 +63,7 @@ use embassy_executor::Spawner;
 
 use crate::hardware::{
     display::Display,
-    drivers::{
-        bq27531_g1::Bq27531,
-        fusb302b::Fusb302b,
-        tca8418::{self, Tca8418},
-    },
+    drivers::{bq27531_g1::Bq27531, fusb302b::Fusb302b, tca8418::Tca8418},
     keypad::Keypad,
     sd_card::InitError,
 };
@@ -888,27 +884,17 @@ pub fn get_i2c4<'a>(
 /// Gets a handle to the TCA8418 keypad decoder on I2C4.
 pub fn get_tca8418_async<
     'a,
-    INT: gpio::Pin,
     M: RawMutex,
     //BUS: SetConfig<Config = i2c::Config> + embedded_hal_async::i2c::I2c,
     BUS: embedded_hal_async::i2c::I2c,
 >(
-    int: Peri<'a, INT>,
-    exti: Peri<'a, INT::ExtiChannel>,
     i2c_bus: &'a Mutex<M, BUS>,
 ) -> Tca8418<'a, asynch::i2c::I2cDevice<'a, M, BUS>> {
-    // Pulled up to compensate for missing pull-up resistor in board design.
-    let int = ExtiInput::new(int, exti, Pull::Up);
-
-    // Initialize the I2C config for the device.
-    // let config: i2c::Config = Default::default();
-
     // Create the I2C device for the keypad decoder.
     // let device = asynch::i2c::I2cDeviceWithConfig::new(i2c_bus, config);
     let device = asynch::i2c::I2cDevice::new(i2c_bus);
 
-    static DRIVER_CH: tca8418::KeyChannel = Channel::new();
-    Tca8418::new(int, device, &DRIVER_CH)
+    Tca8418::new(device)
 }
 
 /// Create the SPI1 peripheral interface for interacting
@@ -1043,8 +1029,8 @@ pub async fn get_keypad<'a>(
         CriticalSectionRawMutex,
         embassy_stm32::i2c::I2c<'static, mode::Async, embassy_stm32::i2c::Master>,
     >,
-) -> Result<Keypad<'a>, keypad::InitError> {
-    let tca8418 = get_tca8418_async(r.int, r.exti, i2c_bus);
+) -> Result<Keypad, keypad::Error> {
+    let tca8418 = get_tca8418_async(i2c_bus);
 
     // Configure the pin to PWM
     let pwm_pin = PwmPin::new(r.dat, OutputType::PushPull);
@@ -1063,18 +1049,20 @@ pub async fn get_keypad<'a>(
         CountingMode::EdgeAlignedUp,
     );
 
-    static NOTIFIER: keypad::KeypadNotifier = keypad::notifier();
-    static BUTTON_CH: keypad::ButtonChannel = keypad::channel();
-    static UPDATER: keypad::LEDUpdateWaiter = keypad::updater();
+    // Pulled up to compensate for missing pull-up resistor in board design.
+    let int = ExtiInput::new(r.int, r.exti, Pull::Up);
+
+    static NOTIFIER: keypad::Notifier = keypad::notifier();
+    static WATCHER: keypad::buttons::Watcher = keypad::buttons::watcher();
 
     Keypad::new(
-        &NOTIFIER,
-        &BUTTON_CH,
-        &UPDATER,
-        tca8418,
         pwm,
-        r.dma,
         timer::Channel::Ch4,
+        r.dma,
+        &NOTIFIER,
+        &WATCHER,
+        tca8418,
+        int,
         spawner,
     )
     .await
