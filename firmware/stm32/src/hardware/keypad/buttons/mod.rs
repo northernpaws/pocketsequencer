@@ -1,6 +1,6 @@
 use core::u16;
 
-use defmt::{error, info};
+use defmt::{error, info, trace};
 use derive_more::{Display, Error};
 use embassy_embedded_hal::shared_bus::{I2cDeviceError, asynch::i2c::I2cDevice};
 use embassy_executor::{SpawnError, Spawner};
@@ -233,6 +233,8 @@ impl KeypadButtons {
     /// been handled, such as during a state transition or during the boot
     /// process.
     pub async fn flush(&mut self) {
+        trace!("Immediately flushing keypress FIFO...");
+
         // Signal to the button processing task
         // that we want an immediate scan.
         self.notifier.signal(u16::MAX);
@@ -245,6 +247,8 @@ impl KeypadButtons {
         // that the events up to the point the flush was called
         // have been processed and we're not receiving an earlier
         // FIFO event.
+        //
+        // TODO: wrap in a timeout in case the message never arrives..
         loop {
             let message = self.subscriber.next_message().await;
 
@@ -300,7 +304,7 @@ async fn inner_device_loop(
 
         // If the interrupt pin is high at the start of the loop
         // then we need to immediately try to process the FIFO.
-        if !interrupt.is_high() {
+        if !interrupt.is_low() {
             // Wait for either a manual refresh signal, or
             // for the TCA8418 to raise an interrupt.
             let event = select(interrupt.wait_for_falling_edge(), notifier.wait()).await;
@@ -316,7 +320,7 @@ async fn inner_device_loop(
             }
         } else {
             clear_interrupts = true;
-            info!("Interrupt line was already high, uncleared FIFO from previous loop?")
+            info!("Interrupt line was already low, uncleared FIFO from previous loop?")
         }
 
         loop {

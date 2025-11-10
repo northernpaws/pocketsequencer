@@ -291,11 +291,10 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     // the buttons to alter the boot sequence.
     info!("Initializing keypad...");
     static KEYPAD: StaticCell<Keypad> = StaticCell::new();
-    let mut keypad: &mut Keypad = KEYPAD.init(
-        hardware::get_keypad(spawner, r.keypad, i2c4_bus)
-            .await
-            .unwrap(),
-    );
+    let (keypad, mut keypad_sub) = hardware::get_keypad(spawner, r.keypad, i2c4_bus)
+        .await
+        .unwrap();
+    let mut keypad: &mut Keypad = KEYPAD.init(keypad);
 
     // Spawn the task that handles the power button.
     //
@@ -329,14 +328,6 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     // scanning direction, causing nasty diagonal tearing.
     let mut display_rot = Rotate270::new(display);
 
-    // Next, handle boot diagnostics.
-    //
-    // This runs in a loop so that the diagnostics menu
-    // can be closed and reopened within a short period.
-    let Ok(mut subscriber) = keypad.subscribe() else {
-        defmt::panic!("Failed to get a keypad button subscriber")
-    };
-
     // Before we continue, force a scan of the keypad to
     // ensure we have a current map of the key states.
     //
@@ -353,24 +344,32 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     keypad.flush().await;
 
     loop {
-        // Imeddiatly receive pending button events until none are left.
-        let Some(message) = subscriber.try_next_message() else {
+        // TODO: use the menu buttons instead and directly query them with the GPIO state register
+
+        // Immediately receive pending button events until none are left.
+        let Some(message) = keypad_sub.try_next_message() else {
+            info!("No keypress events flushed from queue, proceeeding with boot..");
             break;
         };
 
         use embassy_sync::pubsub::WaitResult::Message;
 
         let Message(event) = message else {
+            info!("Ignoring non-message event from input channel.");
             continue;
         };
 
         let Event::KeyPress(keycode) = event else {
+            info!("Ignoring non-keypress event from keypad.");
             continue;
         };
 
         // Match the button to a diagnostic or boot setting.
         match keycode {
             KeyCode::Trig1 => {
+                keypad.set_leds(Rgb888::YELLOW);
+                yield_now().await;
+
                 // TODO: load diagnostics depending on keypad state
                 info!("Entering diagnostics menu...");
                 diagnostics::run_diagnostics(&mut display_rot, &mut keypad).await;

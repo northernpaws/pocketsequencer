@@ -21,6 +21,27 @@ pub struct KeyEvent {
     pub pressed: bool,
 }
 
+pub enum Gpio {
+    Row7,
+    Row6,
+    Row5,
+    Row4,
+    Row3,
+    Row2,
+    Row1,
+    Row0,
+    Column9,
+    Column8,
+    Column7,
+    Column6,
+    Column5,
+    Column4,
+    Column3,
+    Column2,
+    Column1,
+    Column0,
+}
+
 // see: https://github.com/embassy-rs/embassy/blob/abcb6e607c4f13bf99c406fbb92480c32ebd0d4a/docs/pages/faq.adoc#stm32-bdma-only-working-out-of-some-ram-regions
 // Defined in memory.x
 #[unsafe(link_section = ".ram_d3")]
@@ -74,6 +95,62 @@ impl<'a, I2C: embedded_hal_async::i2c::I2c> Tca8418<'a, I2C> {
         // off so that power consumption is low as the device awaits a key press."
 
         Ok(())
+    }
+
+    /// Read the status of a GPIO pin from the corrosponding register.
+    pub async fn read_gpio_status(&mut self, gpio: Gpio) -> Result<bool, I2C::Error> {
+        match gpio {
+            Gpio::Row7
+            | Gpio::Row6
+            | Gpio::Row5
+            | Gpio::Row4
+            | Gpio::Row3
+            | Gpio::Row2
+            | Gpio::Row1
+            | Gpio::Row0 => {
+                let mut register = self.read_register::<register::GPIODataStatus1>().await?;
+                match gpio {
+                    Gpio::Row7 => Ok(register.row_7().get()),
+                    Gpio::Row6 => Ok(register.row_6().get()),
+                    Gpio::Row5 => Ok(register.row_5().get()),
+                    Gpio::Row4 => Ok(register.row_4().get()),
+                    Gpio::Row3 => Ok(register.row_3().get()),
+                    Gpio::Row2 => Ok(register.row_2().get()),
+                    Gpio::Row1 => Ok(register.row_1().get()),
+                    Gpio::Row0 => Ok(register.row_0().get()),
+                    _ => todo!(),
+                }
+            }
+            Gpio::Column7
+            | Gpio::Column6
+            | Gpio::Column5
+            | Gpio::Column4
+            | Gpio::Column3
+            | Gpio::Column2
+            | Gpio::Column1
+            | Gpio::Column0 => {
+                let mut register = self.read_register::<register::GPIODataStatus2>().await?;
+                match gpio {
+                    Gpio::Column7 => Ok(register.column_7().get()),
+                    Gpio::Column6 => Ok(register.column_6().get()),
+                    Gpio::Column5 => Ok(register.column_5().get()),
+                    Gpio::Column4 => Ok(register.column_4().get()),
+                    Gpio::Column3 => Ok(register.column_3().get()),
+                    Gpio::Column2 => Ok(register.column_2().get()),
+                    Gpio::Column1 => Ok(register.column_1().get()),
+                    Gpio::Column0 => Ok(register.column_0().get()),
+                    _ => todo!(),
+                }
+            }
+            Gpio::Column9 | Gpio::Column8 => {
+                let mut register = self.read_register::<register::GPIODataStatus3>().await?;
+                match gpio {
+                    Gpio::Column9 => Ok(register.column_9().get()),
+                    Gpio::Column8 => Ok(register.column_8().get()),
+                    _ => todo!(),
+                }
+            }
+        }
     }
 
     /// Reads the head of the FIFO and returns the key event, or `None` if the FIFO was empty.

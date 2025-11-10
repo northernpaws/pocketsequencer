@@ -1029,7 +1029,7 @@ pub async fn get_keypad<'a>(
         CriticalSectionRawMutex,
         embassy_stm32::i2c::I2c<'static, mode::Async, embassy_stm32::i2c::Master>,
     >,
-) -> Result<Keypad, keypad::Error> {
+) -> Result<(Keypad, keypad::buttons::WatcherReceiver), keypad::Error> {
     let tca8418 = get_tca8418_async(i2c_bus);
 
     // Configure the pin to PWM
@@ -1055,17 +1055,27 @@ pub async fn get_keypad<'a>(
     static NOTIFIER: keypad::Notifier = keypad::notifier();
     static WATCHER: keypad::buttons::Watcher = keypad::buttons::watcher();
 
-    Keypad::new(
-        pwm,
-        timer::Channel::Ch4,
-        r.dma,
-        &NOTIFIER,
-        &WATCHER,
-        tca8418,
-        int,
-        spawner,
-    )
-    .await
+    // We create and return a subscriber imeddiately so that we
+    // can capture any input events that where in the FIFO before
+    // the TCA8418 driver was initialized, such as for boot flags.
+    let sub = WATCHER
+        .subscriber()
+        .expect("There should be a primary subscriber slot available");
+
+    Ok((
+        Keypad::new(
+            pwm,
+            timer::Channel::Ch4,
+            r.dma,
+            &NOTIFIER,
+            &WATCHER,
+            tca8418,
+            int,
+            spawner,
+        )
+        .await?,
+        sub,
+    ))
 }
 
 /// Constructs the USB high-speed driver.

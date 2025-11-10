@@ -50,3 +50,4 @@
   - Display mode pins are backwards...
   - LEDs need a power enable switch tied to the main regulator, they never shut off.
   - Either attach power enable pin to the BMP's Vref so the BMP can assert it high, or have a flashing/development jumper on the back.
+  - TCA8418 doesn't provide a way to query the matrix state after an active reset. The TAC8418 only emits keypress events when they happen, so we can't check on power on if a key is held from before a reset.
