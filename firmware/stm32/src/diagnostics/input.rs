@@ -6,7 +6,7 @@ use embedded_graphics::{
 };
 use embedded_graphics_coordinate_transform::Rotate270;
 
-pub async fn input_diagnostics(
+pub async fn run_diagnostics(
     display: &'_ mut Rotate270<Display<'_, Delay>>,
     keypad: &'_ mut Keypad,
 ) {

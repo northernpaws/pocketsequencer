@@ -1,3 +1,9 @@
+use embassy_embedded_hal::shared_bus::asynch;
+use embassy_stm32::{
+    i2c::{I2c, Master},
+    mode::Async,
+};
+use embassy_sync::blocking_mutex::raw::{CriticalSectionRawMutex, RawMutex};
 use embassy_time::Delay;
 use embedded_graphics::{
     mono_font::{MonoTextStyle, ascii::FONT_6X10, ascii::FONT_9X18_BOLD},
@@ -10,15 +16,22 @@ use embedded_graphics_coordinate_transform::Rotate270;
 
 use crate::hardware::{
     display::Display,
+    drivers::bq27531_g1::Bq27531,
     keypad::{Button, Keypad, buttons::KeyCode},
 };
 
+pub mod battery;
 pub mod i2c;
 pub mod input;
 
 pub async fn run_diagnostics(
     display: &'_ mut Rotate270<Display<'_, Delay>>,
     keypad: &'_ mut Keypad,
+    fuel_gauge: &'_ mut Bq27531<
+        '_,
+        asynch::i2c::I2cDevice<'_, CriticalSectionRawMutex, I2c<'static, Async, Master>>,
+        Delay,
+    >,
 ) {
     let mut channel = keypad.subscribe().unwrap();
 
@@ -62,7 +75,10 @@ pub async fn run_diagnostics(
                 crate::hardware::keypad::buttons::Event::KeyPress(key_code) => {
                     if let Ok(button) = <KeyCode as TryInto<Button>>::try_into(key_code) {
                         match button {
-                            Button::Trig1 => input::input_diagnostics(display, keypad).await,
+                            Button::Trig1 => input::run_diagnostics(display, keypad).await,
+                            Button::Trig2 => {
+                                battery::run_diagnostics(display, keypad, fuel_gauge).await
+                            }
 
                             // Exit from diagnostics
                             Button::Trig13 => return,
@@ -114,7 +130,7 @@ async fn draw_diagnostics_menu<'a>(
         .stroke_width(3)
         .build();
 
-    let mut content_area = Rectangle::new(
+    let content_area = Rectangle::new(
         Point::new(0, 30),
         Size::new(display_size.width, display_size.height - 31),
     );
@@ -148,6 +164,14 @@ async fn draw_diagnostics_menu<'a>(
             if index == 0 {
                 Text::with_text_style(
                     "INPUT",
+                    box_top_left + Point::new(box_width / 2, box_height - 12),
+                    menu_item_character_style,
+                    menu_item_text_style,
+                )
+                .draw(display)?;
+            } else if index == 1 {
+                Text::with_text_style(
+                    "BATTERY",
                     box_top_left + Point::new(box_width / 2, box_height - 12),
                     menu_item_character_style,
                     menu_item_text_style,

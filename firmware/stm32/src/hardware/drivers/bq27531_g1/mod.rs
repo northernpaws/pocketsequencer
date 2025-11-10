@@ -1,7 +1,9 @@
-/// Module for interacting with the BQ27531-G1 battery fuel gauge.
-///
-/// References
-/// - https://github.com/sparkfun/SparkFun_BQ27441_Arduino_Library/blob/65fcd5553b3087d17c838cbb682121b61fe6881c/src/SparkFunBQ27441.cpp
+// Module for interacting with the BQ27531-G1 battery fuel gauge.
+//
+// References
+// - https://github.com/sparkfun/SparkFun_BQ27441_Arduino_Library/blob/65fcd5553b3087d17c838cbb682121b61fe6881c/src/SparkFunBQ27441.cpp
+
+pub mod charger;
 pub mod command;
 
 use embassy_stm32::exti::ExtiInput;
@@ -183,7 +185,7 @@ impl<'a, I2C: I2c, DELAY: DelayNs> Bq27531<'a, I2C, DELAY> {
     /// This read-word function returns the contents of the fuel-gauge
     /// status register, depicting the current operating status.
     pub async fn read_flags(&mut self) -> Result<u16, I2C::Error> {
-        todo!("convert result to register bitfield"); // https://www.ti.com/lit/ug/sluua96a/sluua96a.pdf?ts=1761223531200 p.g. 15
+        // todo!("convert result to register bitfield"); // https://www.ti.com/lit/ug/sluua96a/sluua96a.pdf?ts=1761223531200 p.g. 15
 
         self.read_u16(command::FLAGS_COMMAND_CODE).await
     }

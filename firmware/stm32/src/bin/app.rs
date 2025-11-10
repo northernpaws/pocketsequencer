@@ -13,6 +13,7 @@ use alloc::boxed::Box;
 use cortex_m_rt::{ExceptionFrame, exception};
 use defmt::*;
 
+use embassy_embedded_hal::shared_bus::asynch;
 use embassy_executor::Spawner;
 
 use embassy_futures::yield_now;
@@ -25,16 +26,22 @@ use embassy_stm32::{
     usart::{UartRx, UartTx},
 };
 
-use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, mutex::Mutex, signal::Signal};
+use embassy_sync::{
+    blocking_mutex::raw::{CriticalSectionRawMutex, RawMutex},
+    mutex::Mutex,
+    signal::Signal,
+};
 
 use embassy_time::{Delay, Timer};
 
 use embedded_graphics::{
+    geometry::AnchorX,
     mono_font::{
         MonoTextStyle,
         ascii::{FONT_6X10, FONT_10X20},
     },
     pixelcolor::{Rgb565, Rgb888},
+    prelude::{Point, Size},
     primitives::{PrimitiveStyleBuilder, Rectangle},
     text::{Alignment, LineHeight, Text, TextStyleBuilder},
 };
@@ -62,7 +69,7 @@ use firmware::{
     hardware::{
         self, Irqs,
         display::{self, Display},
-        drivers::stm6601::Stm6601,
+        drivers::{bq27531_g1::Bq27531, stm6601::Stm6601},
         keypad::{
             self, Keypad,
             buttons::{Event, KeyCode},
@@ -323,7 +330,28 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     // We need to use software rotation instead of rotation in
     // the LCD driver because the LCD driver doesn't rotate the
     // scanning direction, causing nasty diagonal tearing.
-    let mut display_rot = Rotate270::new(display);
+    let mut display = Rotate270::new(display);
+
+    // Next initialize the bus for the I2C2 peripheral that
+    // has all the power management peripherals attatched.
+    //
+    // This communicates with the BQ24193 battery charger,
+    // BQ27531YZFR-G1 fuel gauge, FUSB302B USB-PD.
+    //
+    // Note that the communication with the BQ24193 charger happens
+    // THROUGH the BQ27531YZFR-G1 fuel gauge. They're interconnected
+    // on their own I2C bus with a special set of registers on the
+    // fuel gauge to interact with the charger.
+    info!("Initializing power i2c2 bus...");
+    let i2c2_bus = I2C2_BUS.init(Mutex::new(hardware::get_i2c2(r.i2c2)));
+
+    // Get a handle to the battery fuel gauge peripheral.
+    let mut fuel_gauge = hardware::get_bq27531_g1_async(
+        r.fuel_gauge.int,
+        r.fuel_gauge.int_exti,
+        i2c2_bus,
+        embassy_time::Delay,
+    );
 
     // Before we continue, force a scan of the keypad to
     // ensure we have a current map of the key states.
@@ -369,7 +397,7 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
 
                 // TODO: load diagnostics depending on keypad state
                 info!("Entering diagnostics menu...");
-                diagnostics::run_diagnostics(&mut display_rot, &mut keypad).await;
+                diagnostics::run_diagnostics(&mut display, &mut keypad, &mut fuel_gauge).await;
                 info!("Exited diagnostics menu.");
             }
             _ => {
@@ -380,7 +408,7 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
 
     info!("Running fast memory check...");
 
-    draw_boot_screen(&mut display_rot, "Memory test..", &[])
+    draw_boot_screen(&mut display, "Memory test..", &[])
         .await
         .unwrap();
 
@@ -396,7 +424,7 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
 
     if sdram[0] != 1 || sdram[1] != 2 || sdram[2] != 3 || sdram[3] != 4 {
         error!("Brief memory test failed!");
-        draw_boot_screen(&mut display_rot, "Memory test failed!", &[])
+        draw_boot_screen(&mut display, "Memory test failed!", &[])
             .await
             .unwrap();
 
@@ -436,7 +464,7 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
             error!("No space left in SDRAM for heap!");
 
             draw_boot_screen(
-                &mut display_rot,
+                &mut display,
                 "No space in SDRAM for heap!",
                 &["Memory test"],
             )
@@ -458,7 +486,7 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
         info!("Heap successfully initialized.");
     }
 
-    draw_boot_screen(&mut display_rot, "SD Card...", &["Memory test"])
+    draw_boot_screen(&mut display, "SD Card...", &["Memory test"])
         .await
         .unwrap();
 
@@ -502,7 +530,7 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     keypad.set_led(keypad::Button::Trig2, Rgb888::GREEN);
 
     draw_boot_screen(
-        &mut display_rot,
+        &mut display,
         "Internal Storage...",
         &["Memory test", "SD Card"],
     )
@@ -521,51 +549,54 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     keypad.set_led(keypad::Button::Trig4, RGB::new(0, 255, 0));*/
 
     draw_boot_screen(
-        &mut display_rot,
+        &mut display,
         "Battery...",
         &["Memory test", "SD Card", "TODO: Internal Storage"],
     )
     .await
     .unwrap();
 
-    /*
-        // Next initialize the bus for the I2C2 peripheral that
-        // has all the power management peripherals attatched.
-        //
-        // This communicates with the BQ24193 battery charger,
-        // BQ27531YZFR-G1 fuel gauge, FUSB302B USB-PD.
-        //
-        // Note that the communication with the BQ24193 charger happens
-        // THROUGH the BQ27531YZFR-G1 fuel gauge. They're interconnected
-        // on their own I2C bus with a special set of registers on the
-        // fuel gauge to interact with the charger.
-        info!("Initializing power i2c2 bus...");
-        let i2c2_bus = I2C2_BUS.init(Mutex::new(hardware::get_i2c2(r.i2c2)));
+    info!("Attempting to read fuel gauge flags...");
+    if let Ok(flags) = fuel_gauge.read_flags().await {
+        info!(
+            "Fuel gauge flags: {:b} {:b} ({:b})",
+            flags.to_le_bytes()[0],
+            flags.to_le_bytes()[1],
+            flags
+        );
+    } else {
+        error!("Failed to read fuel gauge flags!");
+    }
 
-        // Get a handle to the battery fuel gauge peripheral.
-        let mut fuel_gauge = hardware::get_bq27531_g1_async(
-            r.fuel_gauge.int,
-            r.fuel_gauge.int_exti,
-            i2c2_bus,
-            embassy_time::Delay);
+    info!("Attempting to read fuel gauge internal temp...");
+    if let Ok(temp) = fuel_gauge.read_internal_temperature().await {
+        info!("Fuel gauge internal temp: {}", temp);
+    } else {
+        error!("Failed to read fuel gauge temp!");
+    }
 
-        info!("Attempting to read battery charger internal temp...");
-        if let Ok(temp) = fuel_gauge.read_internal_temperature().await {
-            info!("Battery charger internal temp: {}", temp);
-        } else {
-            error!("Failed to read battery charger temp!");
-        }
+    info!("Attempting to read fuel gauge remaining capacity...");
+    if let Ok(temp) = fuel_gauge.read_remaining_capacity().await {
+        info!("Fuel gauge remaining capacity: {}mah", temp);
+    } else {
+        error!("Failed to read fuel gauge remaining capacity!");
+    }
 
-        // Get a handle to the FUSB302B device for managing the USB-PD interface.
-        let mut fusb302b = hardware::get_fusb302b_async(r.usb_pd.int, r.usb_pd.int_exti, i2c2_bus);
+    if let Ok(temp) = fuel_gauge.read_instantaneous_current_reading().await {
+        info!("Current current draw: {}mA", temp);
+    } else {
+        error!("Failed to read fuel gauge current draw!");
+    }
 
-        // Initialize the bus for the I2C1 peripheral.
-        //
-        // This communicates with the NAU88C22YG Audio Codec,
-        // FM SI4703-C19-GMR RX / SI4710-B30-GMR TX.
-        info!("initializing audio i2c1 bus");
-        let _i2c1_bus = I2C1_BUS.init(hardware::get_i2c1(r.i2c1));
-    */
+    // Get a handle to the FUSB302B device for managing the USB-PD interface.
+    // let mut fusb302b = hardware::get_fusb302b_async(r.usb_pd.int, r.usb_pd.int_exti, i2c2_bus);
+
+    // Initialize the bus for the I2C1 peripheral.
+    //
+    // This communicates with the NAU88C22YG Audio Codec,
+    // FM SI4703-C19-GMR RX / SI4710-B30-GMR TX.
+    // info!("initializing audio i2c1 bus");
+    // let _i2c1_bus = I2C1_BUS.init(hardware::get_i2c1(r.i2c1));
 
     // info!("Starting USB device...");
     // hardware::usb::start_usb(spawner, r.usb).await;
@@ -576,8 +607,8 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
 
     // Clear the display once more before starting the ratataui.
     info!("Configuring display engine...");
-    display_rot.clear(Rgb565::BLACK).unwrap();
-    display_rot.push_buffer_dma().await.unwrap();
+    display.clear(Rgb565::BLACK).unwrap();
+    display.push_buffer_dma().await.unwrap();
 
     // A Ratatui wrapper for embedded-graphics.
     //
@@ -605,14 +636,15 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     // let mut terminal = Terminal::new(backend).unwrap();
 
     loop {
+        draw_home_screen(&mut display, &mut fuel_gauge);
         // terminal.draw(draw).unwrap();
         // display_rot.push_buffer_dma().await.unwrap();
 
         // Give other tasks time to do work.
-        // Timer::after_millis(10).await;
+        Timer::after_millis(10).await;
 
-        SHUTDOWN_SIGNAL.wait().await;
-        keypad.set_leds(Rgb888::BLACK);
+        // SHUTDOWN_SIGNAL.wait().await;
+        // keypad.set_leds(Rgb888::BLACK);
     }
 
     // info!("Initializing engine..");
@@ -643,6 +675,98 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
 
         join(wireless_read, wireless_write).await;
     */
+}
+
+async fn draw_home_screen<
+    'a,
+    M: RawMutex,
+    BUS: embedded_hal_async::i2c::I2c,
+    DELAY: embedded_hal::delay::DelayNs,
+>(
+    display: &'_ mut Rotate270<Display<'_, Delay>>,
+    fuel_gauge: &'_ mut Bq27531<'a, asynch::i2c::I2cDevice<'a, M, BUS>, DELAY>,
+) -> Result<(), <Rotate270<Display<'a, Delay>> as DrawTarget>::Error> {
+    display.clear(Rgb565::BLACK);
+
+    use embedded_graphics::geometry::OriginDimensions;
+
+    let display_size = display.size();
+
+    let status_bar_rect = Rectangle::new(Point::new(0, 0), Size::new(display_size.width, 30));
+
+    // Battery status
+    {
+        let battery_rect = Rectangle::new(
+            Point::new(display_size.width as i32 - 40, 7),
+            Size::new(30, 16),
+        );
+
+        use embedded_graphics::Drawable;
+        use embedded_graphics::prelude::Primitive;
+
+        battery_rect
+            .into_styled(
+                PrimitiveStyleBuilder::new()
+                    .stroke_color(Rgb565::WHITE)
+                    .stroke_width(1)
+                    .reset_fill_color()
+                    .build(),
+            )
+            .draw(display)?;
+
+        // Draw the battery nub
+        Rectangle::new(
+            Point::new(battery_rect.top_left.x + battery_rect.size.width as i32, 10),
+            Size::new(5, 10),
+        )
+        .into_styled(
+            PrimitiveStyleBuilder::new()
+                .fill_color(Rgb565::WHITE)
+                .build(),
+        )
+        .draw(display)?;
+
+        let mut error = false;
+        if let Ok(maximum_capacity) = fuel_gauge.read_full_charge_capacity_filtered().await {
+            if let Ok(current_capacity) = fuel_gauge.read_remaining_capacity_filtered().await {
+                // let discharged_capacity = maximum_capacity - current_capacity;
+                let fill_percent =
+                    (current_capacity * battery_rect.size.width as u16) / (maximum_capacity);
+
+                battery_rect
+                    .resized_width(fill_percent.into(), AnchorX::Left)
+                    .into_styled(
+                        PrimitiveStyleBuilder::new()
+                            .stroke_color(Rgb565::WHITE)
+                            .stroke_width(1)
+                            .reset_fill_color()
+                            .build(),
+                    )
+                    .draw(display)?;
+            } else {
+                error = true;
+            }
+        } else {
+            error!("failed to read maximum battery capacity!");
+            error = true;
+        }
+
+        if error {
+            battery_rect
+                .into_styled(
+                    PrimitiveStyleBuilder::new()
+                        .stroke_color(Rgb565::RED)
+                        .stroke_width(1)
+                        .reset_fill_color()
+                        .build(),
+                )
+                .draw(display)?;
+        }
+    }
+
+    display.push_buffer_dma().await;
+
+    Ok(())
 }
 
 async fn draw_boot_screen<'a>(
