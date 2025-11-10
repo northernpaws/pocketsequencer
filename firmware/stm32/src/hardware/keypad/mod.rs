@@ -115,6 +115,36 @@ impl Into<KeyCode> for Button {
     }
 }
 
+impl TryFrom<KeyCode> for Button {
+    type Error = ();
+
+    fn try_from(value: KeyCode) -> Result<Self, Self::Error> {
+        match value {
+            KeyCode::Unknown => Err(()),
+            KeyCode::Menu0 => Ok(Button::Menu0),
+            KeyCode::Menu1 => Ok(Button::Menu1),
+            KeyCode::Menu2 => Ok(Button::Menu2),
+            KeyCode::Menu3 => Ok(Button::Menu3),
+            KeyCode::Trig1 => Ok(Button::Trig1),
+            KeyCode::Trig2 => Ok(Button::Trig2),
+            KeyCode::Trig3 => Ok(Button::Trig3),
+            KeyCode::Trig4 => Ok(Button::Trig4),
+            KeyCode::Trig5 => Ok(Button::Trig5),
+            KeyCode::Trig6 => Ok(Button::Trig6),
+            KeyCode::Trig7 => Ok(Button::Trig7),
+            KeyCode::Trig8 => Ok(Button::Trig8),
+            KeyCode::Trig9 => Ok(Button::Trig9),
+            KeyCode::Trig10 => Ok(Button::Trig10),
+            KeyCode::Trig11 => Ok(Button::Trig11),
+            KeyCode::Trig12 => Ok(Button::Trig12),
+            KeyCode::Trig13 => Ok(Button::Trig13),
+            KeyCode::Trig14 => Ok(Button::Trig14),
+            KeyCode::Trig15 => Ok(Button::Trig15),
+            KeyCode::Trig16 => Ok(Button::Trig16),
+        }
+    }
+}
+
 /// Signal used to propagate updates to the keypad components.
 pub type Notifier = (buttons::Notifier, lights::Notifier);
 
@@ -192,7 +222,7 @@ impl Keypad {
             *led = Rgb888::BLACK;
         }
 
-        self.notifier.1.signal(self.leds);
+        self.flush_leds();
     }
 
     /// Sets all the LEDs in the matrix to a single color.
@@ -201,7 +231,7 @@ impl Keypad {
             *led = color;
         }
 
-        self.notifier.1.signal(self.leds);
+        self.flush_leds();
     }
 
     /// Sets a single LED to the specified value.
@@ -212,6 +242,34 @@ impl Keypad {
 
         self.leds[index] = color;
 
+        self.flush_leds();
+    }
+
+    /// Clears all the LEDs in the matrix to off without automatically flushing.
+    pub fn clear_leds_raw(&mut self) {
+        for led in &mut self.leds {
+            *led = Rgb888::BLACK;
+        }
+    }
+
+    /// Sets all the LEDs in the matrix to a single color without automatically flushing.
+    pub fn set_leds_raw(&mut self, color: Rgb888) {
+        for led in &mut self.leds {
+            *led = color;
+        }
+    }
+
+    /// Sets a single LED to the specified value without automatically flushing.
+    pub fn set_led_raw(&mut self, button: Button, color: Rgb888) {
+        let Some(index) = button.led() else {
+            return;
+        };
+
+        self.leds[index] = color;
+    }
+
+    /// Pushes the current LED buffer to the update task.
+    pub fn flush_leds(&mut self) {
         self.notifier.1.signal(self.leds);
     }
 

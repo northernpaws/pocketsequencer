@@ -1,5 +1,4 @@
-use embedded_graphics::prelude::RgbColor;
-use mousefood::prelude::Rgb888;
+use embedded_graphics::{pixelcolor::Rgb888, prelude::RgbColor};
 
 /// Calculates the length needed for the DMA buffer.
 pub const fn calc_dma_buffer_length(
@@ -28,6 +27,11 @@ impl<const DMA_BUFFER_LEN: usize> Buffer<DMA_BUFFER_LEN> {
             t0h,
             brightness: 100,
         }
+    }
+
+    /// Sets the overall maimum brightness limit of the LEDs.
+    pub fn set_brightness(&mut self, brightness: u8) {
+        self.brightness = brightness;
     }
 
     pub fn set_color(&mut self, led_index: usize, color: &Rgb888) {

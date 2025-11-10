@@ -167,6 +167,9 @@ async fn inner_device_loop(
     // of the outputted signal, see: https://github.com/embassy-rs/embassy/issues/4788
     let mut dma_buffer: Buffer<BUFFER_LENGTH> = Buffer::new(t1h, t0h);
 
+    // Set the maximum brightness to 20%.
+    dma_buffer.set_brightness(20);
+
     loop {
         // Wait for an LED update before refreshing the LEDs.
         let led_array = notifier.wait().await;

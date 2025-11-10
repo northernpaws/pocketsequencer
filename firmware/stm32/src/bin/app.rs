@@ -34,16 +34,13 @@ use embedded_graphics::{
         MonoTextStyle,
         ascii::{FONT_6X10, FONT_10X20},
     },
-    pixelcolor::Rgb565,
+    pixelcolor::{Rgb565, Rgb888},
     primitives::{PrimitiveStyleBuilder, Rectangle},
     text::{Alignment, LineHeight, Text, TextStyleBuilder},
 };
 
 use embedded_graphics_coordinate_transform::Rotate270;
 
-use mousefood::{EmbeddedBackend, EmbeddedBackendConfig, prelude::Rgb888};
-use ratatui::Terminal;
-use rgb_led_pwm_dma_maker::RGB;
 use sdio_host::{
     common_cmd::{select_card, set_block_length},
     sd::BlockSize,
