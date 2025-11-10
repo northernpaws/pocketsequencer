@@ -129,7 +129,10 @@ enum Never {}
 const RESET_LENGTH: usize = 64; // 64 frames
 
 // Calculate the length of the buffer required for the PWM data.
-const BUFFER_LENGTH: usize = calc_dma_buffer_length(32, LED_COUNT, RESET_LENGTH);
+//
+// Remember that each item in the DMA buffer is a single
+// encoded bit with a 0 bit stride inbetween.
+const BUFFER_LENGTH: usize = calc_dma_buffer_length(8 * 3, LED_COUNT, RESET_LENGTH);
 
 async fn inner_device_loop(
     mut pwm: SimplePwm<'static, TIM5>,

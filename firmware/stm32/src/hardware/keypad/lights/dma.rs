@@ -31,14 +31,16 @@ impl<const DMA_BUFFER_LEN: usize> Buffer<DMA_BUFFER_LEN> {
     }
 
     pub fn set_color(&mut self, led_index: usize, color: &Rgb888) {
-        self.set_byte(color.g(), led_index);
-        self.set_byte(color.r(), led_index + 8);
+        let byte_index = led_index * 8 * 3;
+
+        self.set_byte(color.g(), byte_index);
+        self.set_byte(color.r(), byte_index + 8);
 
         // RGB encoding.
         // led_dma_buffer.set_byte(self.r, led_index);
         // led_dma_buffer.set_byte(self.g, led_index + 8);
 
-        self.set_byte(color.b(), led_index + 16);
+        self.set_byte(color.b(), byte_index + 16);
     }
 
     /// Set a byte in the DMA buffer
