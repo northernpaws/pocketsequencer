@@ -1,6 +1,10 @@
 # Pocket Sequencer
 
+![Photo of front of board](images/frame_front.jpeg "title-1" =45%x) ![Photo of back of board](images/frame_back.jpeg "title-2" =45%x)
+
 [Board Schematic](https://kicanvas.org/?github=https%3A%2F%2Fgithub.com%2Fnorthernpaws%2Fpocketsequencer%2Fblob%2Fmain%2Fhardware%2Fboards%2Fv0.1%2Fpocket_synth.kicad_pro)
+
+
 [Board v0.1 Errata](hardware/boards/v0.1/README.md)
 
 This repository contains my project for an STM32H7-based sequencer, synthesizer, and sampler, all in a small phone-sized pocketable form factor. 
@@ -54,6 +58,8 @@ This repository contains my project for an STM32H7-based sequencer, synthesizer,
   * Accelerometer and Gyroscope (`LSM6DS3`)
     * Can be used as sequencer parameters
     * Can be recorded for automation inputs
+
+![Photo of front of board](images/boards.jpeg)
 
 ## Step Sequencer
 
