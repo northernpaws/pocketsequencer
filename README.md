@@ -1,6 +1,6 @@
 # Pocket Sequencer
 
-![Photo of front of board](images/frame_front.jpeg "title-1" =45%x) ![Photo of back of board](images/frame_back.jpeg "title-2" =45%x)
+![Photo of front of board](images/frame_front.jpeg) ![Photo of back of board](images/frame_back.jpeg)
 
 [Board Schematic](https://kicanvas.org/?github=https%3A%2F%2Fgithub.com%2Fnorthernpaws%2Fpocketsequencer%2Fblob%2Fmain%2Fhardware%2Fboards%2Fv0.1%2Fpocket_synth.kicad_pro)
 
