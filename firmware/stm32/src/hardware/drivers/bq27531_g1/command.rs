@@ -6,10 +6,10 @@ use bit_struct::*;
 
 /// The command codes in the documentation are fairly
 /// confusing, showing 2 codes for most commands.
-/// 
+///
 /// However, upon inspecting some drivers it appears that
 /// for the vast magority of the codes only the first command
-/// byte is actually used and the second code byte is irrelevant. 
+/// byte is actually used and the second code byte is irrelevant.
 pub type CommandCode = u8;
 
 pub const CONTROL_COMMAND_CODE: CommandCode = 0x00;
@@ -43,6 +43,14 @@ pub const CHARGING_LEVEL_COMMAND_CODE: CommandCode = 0x34;
 pub const LEVEL_TAPER_CURRENT_COMMAND_CODE: CommandCode = 0x6E;
 pub const CALC_CHARGING_CURRENT_COMMAND_CODE: CommandCode = 0x70;
 pub const CALC_CHARGING_VOLTAGE_COMMAND_CODE: CommandCode = 0x72;
+
+pub const DESIGN_CAPACITY_COMMAND_CODE: CommandCode = 0x3C;
+pub const DATA_FLASH_CLASS_COMMAND_CODE: CommandCode = 0x3E;
+pub const DATA_FLASH_BLOCK_COMMAND_CODE: CommandCode = 0x3F;
+pub const BLOCK_DATA_COMMAND_CODE: CommandCode = 0x40;
+pub const BLOCK_DATA_CHECKSUM_COMMAND_CODE: CommandCode = 0x60;
+pub const BLOCK_DATA_CONTROL_COMMAND_CODE: CommandCode = 0x61;
+pub const APPLICATION_STATUS_COMMAND_CODE: CommandCode = 0x6A;
 
 pub const CONTROL_STATUS_SUBCOMMAND: u16 = 0x0000;
 pub const CONTROL_DEVICE_TYPE_SUBCOMMAND: u16 = 0x0001;
@@ -100,11 +108,11 @@ bit_struct! {
         /// Status bit indicating the board calibration routine is active. Active when set.
         board_calibration_active: bool, // BCA
         /// Status bit indicating the fuel gauge has executed the OCV command.
-        /// 
+        ///
         /// This bit can only be set with the presence of the battery. True when set.
         executed_ocv_command: bool, // OCVCMDCOMP
         /// Status bit indicating the OCV reading is failed due to the current.
-        /// 
+        ///
         /// This bit can only be set with the presence of the battery. True when set.
         ocv_failed: bool, // OCVFAIL
     }
@@ -114,11 +122,11 @@ bit_struct! {
     // CONTROL_STATUS: 0x0000
     pub struct ControlStatusLow(u8) {
         /// Initialization completion bit indicating the initialization completed.
-        /// 
+        ///
         /// This bit can only be set with the presence of the battery. True when set.
         initialization_complete: bool, // INITCOMP
         /// Status bit indicating a request for entry into HIBERNATE mode from SLEEP mode.
-        /// 
+        ///
         /// True when set. Default is 0.
         hibernate: bool, // HIBERNATE
         /// Status bit indicating the SLEEP+ mode is enabled. True when set.
@@ -126,11 +134,11 @@ bit_struct! {
         /// Status bit indicating the fuel gauge is in SLEEP mode. True when set.
         sleep: bool, // SLEEP
         /// Status bit indicating the Impedance Track algorithm is using constant-power model.
-        /// 
+        ///
         /// True when set. Default is 0 (constant-current model).
         impedance_track_algorithm_is_using_constant_power_model: bool, // LDMD
         /// Status bit indicating the Ra table updates are disabled.
-        /// 
+        ///
         /// Updates are disabled when set.
         ra_table_updates_disabled: bool, // RUP_DIS
         /// Status bit indicating the voltages are valid for Qmax. True when set.

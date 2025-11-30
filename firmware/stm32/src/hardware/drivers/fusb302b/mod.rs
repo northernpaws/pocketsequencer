@@ -4,7 +4,7 @@ use embassy_stm32::exti::ExtiInput;
 
 use embedded_hal_async::i2c::SevenBitAddress;
 
-const FUSB302BMPX_ADDRESS: SevenBitAddress = 0b0100010;
+pub const FUSB302BMPX_ADDRESS: SevenBitAddress = 0b0100010;
 
 pub struct Fusb302b<'a, I2C: embedded_hal_async::i2c::I2c> {
     // Exti-bound input pin for the keypad interrupt signal.

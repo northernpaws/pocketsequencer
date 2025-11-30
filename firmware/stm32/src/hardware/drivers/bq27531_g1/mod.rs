@@ -5,6 +5,8 @@
 
 pub mod charger;
 pub mod command;
+pub mod flash;
+pub mod registers;
 
 use embassy_stm32::exti::ExtiInput;
 
@@ -12,7 +14,9 @@ use embedded_hal_async::i2c::{I2c, SevenBitAddress};
 
 use embedded_hal::delay::DelayNs;
 
-const DEVICE_ADDRESS: SevenBitAddress = 0b1010101;
+use crate::hardware::drivers::bq27531_g1::flash::DataFlash;
+
+pub const DEVICE_ADDRESS: SevenBitAddress = 0b1010101;
 
 /// Interface for the BQ27531-G1 fuel gauge.
 pub struct Bq27531<'a, I2C: I2c, DELAY: DelayNs> {
@@ -74,6 +78,45 @@ impl<'a, I2C: I2c, DELAY: DelayNs> Bq27531<'a, I2C, DELAY> {
             .write_read(DEVICE_ADDRESS, &[code], &mut result)
             .await?;
         Ok(i16::from_le_bytes(result))
+    }
+
+    pub async fn write_command(&mut self, command: u8) -> Result<(), I2C::Error> {
+        self.device.write(DEVICE_ADDRESS, &[command]).await?;
+        Ok(())
+    }
+
+    pub async fn write_control_command(&mut self, command: u16) -> Result<(), I2C::Error> {
+        self.device
+            .write(
+                DEVICE_ADDRESS,
+                &[
+                    command::CONTROL_COMMAND_CODE,
+                    command.to_le_bytes()[1],
+                    command.to_le_bytes()[0],
+                ],
+            )
+            .await?;
+        Ok(())
+    }
+
+    pub async fn read_control_command<const N: usize>(
+        &mut self,
+        command: u16,
+    ) -> Result<[u8; N], I2C::Error> {
+        let mut result = [0u8; N];
+
+        self.device
+            .write_read(
+                DEVICE_ADDRESS,
+                &[
+                    command::CONTROL_COMMAND_CODE,
+                    command.to_le_bytes()[1],
+                    command.to_le_bytes()[0],
+                ],
+                &mut result,
+            )
+            .await?;
+        Ok(result)
     }
 
     /// The AtRate() read- and write-word function is the first half of a two-function
@@ -431,5 +474,199 @@ impl<'a, I2C: I2c, DELAY: DelayNs> Bq27531<'a, I2C, DELAY> {
     pub async fn read_calc_charging_voltage(&mut self) -> Result<u16, I2C::Error> {
         self.read_u16(command::CALC_CHARGING_VOLTAGE_COMMAND_CODE)
             .await
+    }
+
+    /// ChargerStatus(): 0x74
+    ///
+    /// This register provides the status of direct activity
+    /// between the fuel gauge and the charger.
+    pub async fn read_charger_status_register(
+        &mut self,
+    ) -> Result<charger::ChargerStatusRegister, I2C::Error> {
+        Ok(self.read_u8(0x74).await?.into())
+    }
+
+    /// Chrgr_InCtrl_Reg0(): 0x75
+    ///
+    /// This function returns the hex value corresponding to
+    /// the Input Source Control Register of the charger.
+    pub async fn read_charger_input_source_control_register(
+        &mut self,
+    ) -> Result<charger::InputSourceControlRegister, I2C::Error> {
+        Ok(self.read_u8(0x75).await?.into())
+    }
+
+    /// Chrgr_POR_Config_Reg1(): 0x76
+    ///
+    /// This function returns the hex value corresponding to
+    /// the Power-On Configuration Register of the charger.
+    pub async fn read_charger_power_on_configuration(
+        &mut self,
+    ) -> Result<charger::PowerOnConfigurationRegister, I2C::Error> {
+        Ok(self.read_u8(0x76).await?.into())
+    }
+
+    /// Chrgr_Current_Reg2(): 0x77
+    ///
+    /// This function returns the hex value corresponding
+    /// to the Current Control Register of the charger.
+    pub async fn read_charger_current_control_register(
+        &mut self,
+    ) -> Result<charger::CurrentControlRegister, I2C::Error> {
+        Ok(self.read_u8(0x77).await?.into())
+    }
+
+    /// Chrgr_PreTerm_Reg3(): 0x78
+    ///
+    /// This function returns the hex value corresponding to the
+    /// Pre-Charge/Termination Current Control Register of the charger.
+    pub async fn read_charger_pre_charge_terminal_current_control_register(
+        &mut self,
+    ) -> Result<charger::PreChargeTerminationCurrentControlRegister, I2C::Error> {
+        Ok(self.read_u8(0x78).await?.into())
+    }
+
+    /// Chrgr_Voltage_Reg4(): 0x79
+    ///
+    /// This function returns the hex value corresponding
+    /// to the Voltage Control Register of the charger.
+    pub async fn read_charger_voltage_control_register(
+        &mut self,
+    ) -> Result<charger::VoltageControlRegister, I2C::Error> {
+        Ok(self.read_u8(0x79).await?.into())
+    }
+
+    /// Chrgr_TermTimer_Reg5(): 0x7A
+    ///
+    /// This function returns the hex value corresponding
+    /// to the Voltage Control Register of the charger.
+    pub async fn read_charger_term_timer_register(
+        &mut self,
+    ) -> Result<charger::TermTimerControlRegister, I2C::Error> {
+        Ok(self.read_u8(0x7A).await?.into())
+    }
+
+    /// Chrgr_IRThermal_Reg6(): 0x7B
+    ///
+    /// This function returns the hex value corresponding to the IR
+    /// Compensation/Thermal Regulation Control Register of the charger.
+    pub async fn read_charger_ir_compensation_thermal_regulation_control_register(
+        &mut self,
+    ) -> Result<charger::IRCompensationThermalRegulationControl, I2C::Error> {
+        Ok(self.read_u8(0x7B).await?.into())
+    }
+
+    /// Chrgr_OpCtrl_Reg7(): 0x7C
+    ///
+    /// This function returns the hex value corresponding to
+    /// the Misc Operation Control Register of the charger.
+    pub async fn read_charger_misc_operation_control_register(
+        &mut self,
+    ) -> Result<charger::MiscOperationControlRegister, I2C::Error> {
+        Ok(self.read_u8(0x7C).await?.into())
+    }
+
+    /// Chrgr_Status_Reg8(): 0x7D
+    ///
+    /// This function returns the hex value corresponding
+    /// to the System Status Register of the charger.
+    pub async fn read_charger_system_status_register(
+        &mut self,
+    ) -> Result<charger::SystemStatusRegister, I2C::Error> {
+        Ok(self.read_u8(0x7D).await?.into())
+    }
+
+    /// Chrgr_Fault_Reg9(): 0x7E
+    ///
+    /// This function returns the hex value corresponding
+    /// to the Fault Register of the charger.
+    pub async fn read_charger_fault_register(
+        &mut self,
+    ) -> Result<charger::FaultRegister, I2C::Error> {
+        Ok(self.read_u8(0x7E).await?.into())
+    }
+
+    ///Chrgr_Rev_RegA(): 0x7F
+    ///
+    /// This function returns the hex value corresponding to the
+    /// Vendor/Part/Revision Status Register of the charger.
+    pub async fn read_charger_vendor_register(
+        &mut self,
+    ) -> Result<charger::VendorPartRevisionStatusRegister, I2C::Error> {
+        Ok(self.read_u8(0x7F).await?.into())
+    }
+
+    /// DesignCapacity(): 0x3C and 0x3D (SEALED and UNSEALED Access)
+    ///
+    /// This command returns the value that is stored in Design Capacity
+    /// and is expressed in mAh. This is intended to be the theoretical
+    /// or nominal capacity of a new pack.
+    pub async fn read_extended_design_capacity(&mut self) -> Result<u16, I2C::Error> {
+        self.read_u16(command::DESIGN_CAPACITY_COMMAND_CODE).await
+    }
+
+    /// DataFlashClass(): 0x3E
+    ///
+    /// UNSEALED Access: This command sets the data flash class to be accessed.
+    ///  The class to be accessed must be entered in hexadecimal.
+    /// SEALED Access: This command is not available in the SEALED mode.
+    pub async fn read_extended_data_flash_class(&mut self) -> Result<u8, I2C::Error> {
+        self.read_u8(command::DATA_FLASH_CLASS_COMMAND_CODE).await
+    }
+
+    /// DataFlashBlock(): 0x3F
+    ///
+    /// UNSEALED Access: This command sets the data flash block to be accessed.
+    ///  When 0x00 is written to BlockDataControl(), DataFlashBlock() holds the
+    ///  block number of the data flash to be read or written.
+    ///
+    /// Example: writing a 0x00 to DataFlashBlock() specifies access to the first 32-byte
+    ///  block, a 0x01 specifies access to the second 32-byte block, and so on.
+    ///
+    /// SEALED Access: This command is not available in the SEALED mode.
+    pub async fn read_extended_data_flash_block(&mut self) -> Result<u8, I2C::Error> {
+        self.read_u8(command::DATA_FLASH_BLOCK_COMMAND_CODE).await
+    }
+
+    // TODO: lots to do here...
+    pub async fn read_extended_block_data(&mut self) -> Result<u8, I2C::Error> {
+        self.read_u8(command::BLOCK_DATA_COMMAND_CODE).await
+    }
+
+    /// BlockDataChecksum(): 0x60
+    ///
+    /// UNSEALED Access: This byte contains the checksum on the 32 bytes of block
+    ///  data read from or written to data flash. The least-significant byte of
+    ///  the sum of the data bytes written must be complemented ([255 – x], for x
+    ///  being the least-significant byte) before being written to 0x60.
+    ///
+    /// SEALED Access: This command is not available in the SEALED mode.
+    pub async fn read_extended_block_data_checksum(&mut self) -> Result<u8, I2C::Error> {
+        self.read_u8(command::BLOCK_DATA_CHECKSUM_COMMAND_CODE)
+            .await
+    }
+
+    /// BlockDataControl(): 0x61
+    ///
+    /// UNSEALED Access: This command controls the data flash access mode. Writing 0x00
+    ///  to this command enables BlockData() to access general data flash. Writing a
+    ///  0x01 to this command enables the SEALED mode operation of DataFlashBlock().
+    ///
+    /// SEALED Access: This command is not available in the SEALED mode.
+    pub async fn read_extended_block_data_control(&mut self) -> Result<u8, I2C::Error> {
+        self.read_u8(command::BLOCK_DATA_CONTROL_COMMAND_CODE).await
+    }
+
+    /// ApplicationStatus(): 0x6A
+    ///
+    /// This byte function allows the system to read the Application Status data flash location.
+    ///
+    /// See Table 7-1 for specific bit definitions.
+    pub async fn read_extended_application_status(&mut self) -> Result<u8, I2C::Error> {
+        self.read_u8(command::APPLICATION_STATUS_COMMAND_CODE).await
+    }
+
+    pub fn data_flash(&mut self) -> DataFlash<'_, I2C> {
+        DataFlash::new(&mut self.device)
     }
 }

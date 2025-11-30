@@ -69,11 +69,25 @@ use firmware::{
     hardware::{
         self, Irqs,
         display::{self, Display},
-        drivers::{bq27531_g1::Bq27531, stm6601::Stm6601},
+        drivers::{
+            bq27531_g1::{
+                Bq27531,
+                command::{
+                    CONTROL_GG_CHGRCTL_ENABLE_SUBCOMMAND,
+                    FULL_CHARGE_CAPACITY_FILTERED_COMMAND_CODE,
+                },
+                flash::{
+                    CHARGER_SUBCLASS_CHARGER_CONTROL_CONFIGURATION,
+                    class::configuration::SUBCLASS_REGISTERS,
+                },
+            },
+            stm6601::Stm6601,
+        },
         keypad::{
             self, Keypad,
             buttons::{Event, KeyCode},
         },
+        power::Power,
         preamble::*,
     },
     split_resources,
@@ -345,13 +359,10 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     info!("Initializing power i2c2 bus...");
     let i2c2_bus = I2C2_BUS.init(Mutex::new(hardware::get_i2c2(r.i2c2)));
 
-    // Get a handle to the battery fuel gauge peripheral.
-    let mut fuel_gauge = hardware::get_bq27531_g1_async(
-        r.fuel_gauge.int,
-        r.fuel_gauge.int_exti,
-        i2c2_bus,
-        embassy_time::Delay,
-    );
+    info!("Initializing power and battery management...");
+    let mut power = hardware::get_power(r.fuel_gauge.int, r.fuel_gauge.int_exti, i2c2_bus)
+        .await
+        .unwrap();
 
     // Before we continue, force a scan of the keypad to
     // ensure we have a current map of the key states.
@@ -397,7 +408,7 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
 
                 // TODO: load diagnostics depending on keypad state
                 info!("Entering diagnostics menu...");
-                diagnostics::run_diagnostics(&mut display, &mut keypad, &mut fuel_gauge).await;
+                diagnostics::run_diagnostics(&mut display, &mut keypad, &mut power).await;
                 info!("Exited diagnostics menu.");
             }
             _ => {
@@ -556,38 +567,6 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     .await
     .unwrap();
 
-    info!("Attempting to read fuel gauge flags...");
-    if let Ok(flags) = fuel_gauge.read_flags().await {
-        info!(
-            "Fuel gauge flags: {:b} {:b} ({:b})",
-            flags.to_le_bytes()[0],
-            flags.to_le_bytes()[1],
-            flags
-        );
-    } else {
-        error!("Failed to read fuel gauge flags!");
-    }
-
-    info!("Attempting to read fuel gauge internal temp...");
-    if let Ok(temp) = fuel_gauge.read_internal_temperature().await {
-        info!("Fuel gauge internal temp: {}", temp);
-    } else {
-        error!("Failed to read fuel gauge temp!");
-    }
-
-    info!("Attempting to read fuel gauge remaining capacity...");
-    if let Ok(temp) = fuel_gauge.read_remaining_capacity().await {
-        info!("Fuel gauge remaining capacity: {}mah", temp);
-    } else {
-        error!("Failed to read fuel gauge remaining capacity!");
-    }
-
-    if let Ok(temp) = fuel_gauge.read_instantaneous_current_reading().await {
-        info!("Current current draw: {}mA", temp);
-    } else {
-        error!("Failed to read fuel gauge current draw!");
-    }
-
     // Get a handle to the FUSB302B device for managing the USB-PD interface.
     // let mut fusb302b = hardware::get_fusb302b_async(r.usb_pd.int, r.usb_pd.int_exti, i2c2_bus);
 
@@ -636,12 +615,12 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     // let mut terminal = Terminal::new(backend).unwrap();
 
     loop {
-        draw_home_screen(&mut display, &mut fuel_gauge);
+        draw_home_screen(&mut display, &mut power).await.unwrap();
         // terminal.draw(draw).unwrap();
         // display_rot.push_buffer_dma().await.unwrap();
 
         // Give other tasks time to do work.
-        Timer::after_millis(10).await;
+        Timer::after_secs(1).await;
 
         // SHUTDOWN_SIGNAL.wait().await;
         // keypad.set_leds(Rgb888::BLACK);
@@ -677,16 +656,13 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     */
 }
 
-async fn draw_home_screen<
-    'a,
-    M: RawMutex,
-    BUS: embedded_hal_async::i2c::I2c,
-    DELAY: embedded_hal::delay::DelayNs,
->(
+async fn draw_home_screen<'a>(
     display: &'_ mut Rotate270<Display<'_, Delay>>,
-    fuel_gauge: &'_ mut Bq27531<'a, asynch::i2c::I2cDevice<'a, M, BUS>, DELAY>,
+    power: &'_ mut Power<'a>,
 ) -> Result<(), <Rotate270<Display<'a, Delay>> as DrawTarget>::Error> {
-    display.clear(Rgb565::BLACK);
+    let fuel_gauge = power.fuel_gauge_ref();
+
+    display.clear(Rgb565::BLACK)?;
 
     use embedded_graphics::geometry::OriginDimensions;
 
@@ -696,58 +672,88 @@ async fn draw_home_screen<
 
     // Battery status
     {
+        let battery_height: i32 = 10;
+        let battery_width: i32 = 24;
         let battery_rect = Rectangle::new(
-            Point::new(display_size.width as i32 - 40, 7),
-            Size::new(30, 16),
+            Point::new(
+                display_size.width as i32 - (battery_width + 10),
+                (status_bar_rect.size.height as i32 / 2) - (battery_height / 2),
+            ),
+            Size::new(battery_width as u32, battery_height as u32),
         );
 
         use embedded_graphics::Drawable;
         use embedded_graphics::prelude::Primitive;
 
-        battery_rect
-            .into_styled(
-                PrimitiveStyleBuilder::new()
-                    .stroke_color(Rgb565::WHITE)
-                    .stroke_width(1)
-                    .reset_fill_color()
-                    .build(),
-            )
-            .draw(display)?;
-
-        // Draw the battery nub
-        Rectangle::new(
-            Point::new(battery_rect.top_left.x + battery_rect.size.width as i32, 10),
-            Size::new(5, 10),
-        )
-        .into_styled(
-            PrimitiveStyleBuilder::new()
-                .fill_color(Rgb565::WHITE)
-                .build(),
-        )
-        .draw(display)?;
-
         let mut error = false;
-        if let Ok(maximum_capacity) = fuel_gauge.read_full_charge_capacity_filtered().await {
-            if let Ok(current_capacity) = fuel_gauge.read_remaining_capacity_filtered().await {
-                // let discharged_capacity = maximum_capacity - current_capacity;
-                let fill_percent =
-                    (current_capacity * battery_rect.size.width as u16) / (maximum_capacity);
+        if let Ok(average_power) = fuel_gauge.read_average_power().await {
+            let mut battery_color = Rgb565::WHITE;
+
+            if average_power != 0 {
+                if average_power < 0 {
+                    battery_color = Rgb565::WHITE;
+                } else if average_power > 0 {
+                    battery_color = Rgb565::GREEN;
+                }
 
                 battery_rect
-                    .resized_width(fill_percent.into(), AnchorX::Left)
                     .into_styled(
                         PrimitiveStyleBuilder::new()
-                            .stroke_color(Rgb565::WHITE)
+                            .stroke_color(battery_color)
                             .stroke_width(1)
                             .reset_fill_color()
                             .build(),
                     )
                     .draw(display)?;
+
+                // Draw the battery nub
+                Rectangle::new(
+                    Point::new(battery_rect.top_left.x + battery_rect.size.width as i32, 10),
+                    Size::new(5, 10),
+                )
+                .into_styled(
+                    PrimitiveStyleBuilder::new()
+                        .fill_color(battery_color)
+                        .build(),
+                )
+                .draw(display)?;
+
+                if let Ok(maximum_capacity) = fuel_gauge.read_full_charge_capacity_filtered().await
+                {
+                    if let Ok(current_capacity) =
+                        fuel_gauge.read_remaining_capacity_filtered().await
+                    {
+                        // let discharged_capacity = maximum_capacity - current_capacity;
+                        let fill_width =
+                            (current_capacity / maximum_capacity) * battery_rect.size.width as u16;
+
+                        battery_rect
+                            .resized_width(fill_width.into(), AnchorX::Left)
+                            .into_styled(
+                                PrimitiveStyleBuilder::new()
+                                    .fill_color(battery_color)
+                                    .build(),
+                            )
+                            .draw(display)?;
+                    } else {
+                        error = true;
+                    }
+                } else {
+                    error!("failed to read maximum battery capacity!");
+                    error = true;
+                }
             } else {
-                error = true;
+                // Battery is not charging or discharging.
+                // TODO: adapter indicator
+                battery_rect
+                    .into_styled(
+                        PrimitiveStyleBuilder::new()
+                            .fill_color(Rgb565::YELLOW)
+                            .build(),
+                    )
+                    .draw(display)?;
             }
         } else {
-            error!("failed to read maximum battery capacity!");
             error = true;
         }
 
@@ -764,7 +770,7 @@ async fn draw_home_screen<
         }
     }
 
-    display.push_buffer_dma().await;
+    display.push_buffer_dma().await.unwrap();
 
     Ok(())
 }

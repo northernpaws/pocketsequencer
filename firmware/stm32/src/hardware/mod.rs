@@ -5,10 +5,12 @@ pub mod display;
 pub mod internal_storage;
 pub mod keypad;
 pub mod mpu;
+pub mod power;
 pub mod sd_card;
 pub mod usb;
 
 use defmt::{info, trace};
+use embassy_time::Delay;
 use proc_bitfield::Bitfield;
 use static_cell::ConstStaticCell;
 use stm32_fmc::FmcPeripheral;
@@ -26,7 +28,8 @@ use embassy_stm32::{
     fmc::Fmc,
     gpio::{self, Input, Level, Output, OutputType, Pull, Speed},
     i2c::{self, I2c},
-    mode, peripherals,
+    mode::{self, Async},
+    peripherals,
     spi::{self},
     time::{Hertz, khz, mhz},
     timer::{
@@ -56,7 +59,10 @@ use sdspi::SdSpi;
 
 use embassy_embedded_hal::{
     SetConfig,
-    shared_bus::asynch::{self, spi::SpiDeviceWithConfig},
+    shared_bus::{
+        I2cDeviceError,
+        asynch::{self, spi::SpiDeviceWithConfig},
+    },
 };
 
 use embassy_executor::Spawner;
@@ -65,6 +71,7 @@ use crate::hardware::{
     display::Display,
     drivers::{bq27531_g1::Bq27531, fusb302b::Fusb302b, tca8418::Tca8418},
     keypad::Keypad,
+    power::Power,
     sd_card::InitError,
 };
 use crate::hardware::{drivers::stm6601::Stm6601, mpu::RegionAttributeSizeRegister};
@@ -846,6 +853,23 @@ pub fn get_bq27531_g1_async<
     let device = asynch::i2c::I2cDevice::new(i2c_bus);
 
     Bq27531::new(int, device, delay)
+}
+
+/// Gets a handle to the BQ27531 fuel gauge on I2C2.
+pub async fn get_power<'a, INT: gpio::Pin>(
+    int: Peri<'a, INT>,
+    exti: Peri<'a, INT::ExtiChannel>,
+    i2c_bus: &'a Mutex<CriticalSectionRawMutex, I2c<'static, Async, i2c::Master>>,
+) -> Result<Power<'a>, I2cDeviceError<embassy_stm32::i2c::Error>> {
+    // Pulled up to compensate for missing pull-up resistor in board design.
+    let int = ExtiInput::new(int, exti, Pull::Up);
+
+    // Create the I2C device for the fuel gauge.
+    let device = asynch::i2c::I2cDevice::new(i2c_bus);
+
+    let fuel_gauge = Bq27531::new(int, device, Delay);
+
+    Power::new(fuel_gauge).await
 }
 
 /// Gets a handle to the FUSB302B USB-PD controller on I2C2.

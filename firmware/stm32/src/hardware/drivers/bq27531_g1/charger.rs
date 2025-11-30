@@ -7,23 +7,23 @@ bitfield! {
     pub struct ChargerStatusRegister(pub u8): Debug, FromStorage, IntoStorage {
         /// Indicates that the gauge is waiting on GG_CHGCNTRL_ENABLE subcommand
         /// so that the gauge can control the charger in host mode. True when set.
-        wait_cmd: bool [read_only] @ 7,
+        pub wait_cmd: bool [read_only] @ 7,
         /// Indicates I2C communication error between gauge and charger. True when set.
-        err: bool [read_only] @ 6,
+        pub err: bool [read_only] @ 6,
         /// Indicates host access to a charger register was denied. The fuel gauge allows
         /// access to all charger registers for which this bit would never be set.
-        denied: bool [read_only] @ 5,
+        pub denied: bool [read_only] @ 5,
         /// Indicates that a write intended to the charger has failed. True when set.
-        wfail: bool [read_only] @ 4,
+        pub wfail: bool [read_only] @ 4,
         /// Indicates that the part number read from the charger in Chrgr_Rev_RegA() does not match
         /// the expected part number as programmed in the Product Number of the gauge data flash.
-        authfail: bool [read_only] @ 3,
+        pub authfail: bool [read_only] @ 3,
         /// Indicates when the gauge is in the initializing process of the charge state machine.
-        init: bool [read_only] @ 2,
+        pub init: bool [read_only] @ 2,
         /// Indicates that the SHIPMODE_ENABLE subcommand is active.
         ///
         /// Chrgr_OpCtrl_Reg7() [BATFET_DIS] is set after Shipmode Delay expires.
-        shipmode: bool [read_only] @ 0,
+        pub shipmode: bool [read_only] @ 0,
     }
 }
 
@@ -33,16 +33,16 @@ bitfield! {
     /// This function returns the hex value corresponding to the Input Source Control Register of the charger.
     pub struct InputSourceControlRegister(pub u8): Debug, FromStorage, IntoStorage {
         /// Enables Hi-Z mode.
-        en_hiz: bool @ 7,
+        pub en_hiz: bool @ 7,
         /// VIN DPM setting. Offset is 3.88 V, Range is 3.88 V to 5.08 V
         /// VINDPM[3]: 640 mV
         /// VINDPM[2]: 320 mV
         /// VINDPM[1]: 160 mV
         /// VINDPM[0]: 80 mV
-        vindpm3: bool @ 6,
-        vindpm2:bool @ 5,
-        vindpm1:bool @ 4,
-        vindpm0:bool @ 3,
+        pub vindpm3: bool @ 6,
+        pub vindpm2:bool @ 5,
+        pub vindpm1:bool @ 4,
+        pub vindpm0:bool @ 3,
         /// bq2419x input current limits.
         ///
         /// The defaults are dependent on the specific charger device and
@@ -56,7 +56,7 @@ bitfield! {
         /// 101 = 1.5 A
         /// 110 = 2 A
         /// 111 = 3 A
-        iinlim: u8 @ 0..=2,
+        pub iinlim: u8 @ 0..=2,
     }
 }
 
@@ -72,7 +72,7 @@ bitfield! {
         ///
         /// 0 = Keep current register setting
         /// 1 = Reset register to charger reset state
-        reg_reset: bool [read_only] @ 7,
+        pub reg_reset: bool [read_only] @ 7,
         /// bq2419x charger watchdog bit.
         ///
         /// The fuel gauge sets this bit to reset the watchdog timer every 15
@@ -80,7 +80,7 @@ bitfield! {
         /// AverageCurrent(), and Temperature() are checked to ensure the safety of
         /// continuous charging. This bit is auto-cleared by the charger and always
         /// reads 0. Default is 0.
-        wdt_reset: bool [read_only] @ 6,
+        pub wdt_reset: bool [read_only] @ 6,
         /// The write access of this bit is blocked by the fuel gauge. The firmware must have
         /// MAC commands to perform charge enable (CHG_ENABLE), charge disable (CHG_DISABLE),
         /// and OTG enable functions similar to the bq2419x control of the CE bit.
@@ -88,18 +88,18 @@ bitfield! {
         /// 00 = Disable charge
         /// 01 = Charger battery
         /// 10 or 11 = Enable OTG
-        chg_config: u8 [read_only] @ 4..=5,
+        pub chg_config: u8 [read_only] @ 4..=5,
         /// Offset is 3.0 V, Range is 3.0 V to 3.7 V
         ///
         /// SYS_MIN[2] = 0.4 V
         /// SYS_MIN[1] = 0.2 V
         /// SYS_MIN[0] = 0.1 V
-        sys_min:u8 @ 1..=3,
+        pub sys_min:u8 @ 1..=3,
         /// bq2419x USB OTG current limit
         ///
         /// 0 = 500 mA
         /// 1 = 1.3 A
-        boost_lim: bool @ 0,
+        pub boost_lim: bool @ 0,
     }
 }
 
@@ -114,7 +114,7 @@ bitfield! {
         /// ICHRG[2] = Charge current is 256 mA.
         /// ICHRG[1] = Charge current is 128 mA.
         /// ICHRG[0] = Charge current is 64 mA.
-        icgh: u8 [read_only] @ 2..=7,
+        pub icgh: u8 [read_only] @ 2..=7,
     }
 }
 
@@ -132,12 +132,12 @@ bitfield! {
         /// IPRECHG[2] = Precharge current is 512 mA.
         /// IPRECHG[1] = Precharge current is 256 mA.
         /// IPRECHG[0] = Precharge current is 128 mA.
-        iprech: u8 @ 4..=7,
+        pub iprech: u8 @ 4..=7,
         /// ITERM[3] = Termination current limit is 1024 mA.
         /// ITERM[2] = Termination current limit is 512 mA.
         /// ITERM[1] = Termination current limit is 256 mA.
         /// ITERM[0] = Termination current limit is 128 mA.
-        iterm:u8 [read_only] @ 0..=3,
+        pub iterm:u8 [read_only] @ 0..=3,
     }
 }
 
@@ -153,15 +153,15 @@ bitfield! {
         /// VREG[2] = Charge voltage is 64 mV.
         /// VREG[1] = Charge voltage is 32 mV.
         /// VREG[0] = Charge voltage is 16 mV.
-        vreg: u8 [read_only] @ 2..=7,
+        pub vreg: u8 [read_only] @ 2..=7,
         /// Battery low voltage (transition from precharge to fast charge)
         /// 0 = 2.8 V
         /// 1 = 3.0 V
-        batlowv: bool @ 1,
+        pub batlowv: bool @ 1,
         /// Battery recharge threshold
         /// 0 = 100 mV
         /// 1 = 300 mV
-        vrechg: bool [read_only] @ 0,
+        pub vrechg: bool [read_only] @ 0,
     }
 }
 
@@ -173,28 +173,28 @@ bitfield! {
     pub struct TermTimerControlRegister(pub u8): Debug, FromStorage, IntoStorage {
         /// The fuel gauge disables the termination detection to take over
         /// this function using the coulomb counter for higher performance.
-        en_term: bool [read_only] @ 7,
+        pub en_term: bool [read_only] @ 7,
         /// Not applicable given that the gauge disables the charger termination function.
-        term_stat: bool @ 6,
+        pub term_stat: bool @ 6,
         /// The gauge refreshes the charger watchdog timeout at least every 15 seconds, even during SLEEP mode.
         ///
         /// 00 = Disable timer
         /// 01 = 40 seconds
         /// 10 = 80 seconds
         /// 11 = 160 seconds
-        watch_dog: u8 [read_only] @ 4..=5,
+        pub watch_dog: u8 [read_only] @ 4..=5,
         /// 0 = Disable timer
         /// 1 = Enable timer
-        en_timer: bool @ 3,
+        pub en_timer: bool @ 3,
         /// Fast charge timer (2× during VINDPM, IINDPM, Thermal Regulation)
         ///
         /// 00 = 5 hrs
         /// 01 = 8 hrs
         /// 10 = 12 hrs
         /// 11 = 20 hrs
-        chg_timer: u8 @ 1..=2,
+        pub chg_timer: u8 @ 1..=2,
         /// This bit is a function of bq24193 and not used with bq27531-G1.
-        jeita_iset: bool [read_only] @ 0,
+        pub jeita_iset: bool [read_only] @ 0,
     }
 }
 
@@ -207,17 +207,17 @@ bitfield! {
         /// BAT_COMP[2] = Battery IR compensation resistor setting is 40 mΩ.
         /// BAT_COMP[1] = Battery IR compensation resistor setting is 20 mΩ.
         /// BAT_COMP[0] = Battery IR compensation resistor setting is 10 mΩ.
-        bat_comp: u8 @5..=7,
+        pub bat_comp: u8 @5..=7,
         /// VCLAMP[2] = Battery IR compensation voltage clamp (above regulation voltage) is 64 mV.
         /// VCLAMP[1] = Battery IR compensation voltage clamp (above regulation voltage) is 32 mV.
         /// VCLAMP[0] = Battery IR compensation voltage clamp (above regulation voltage) is 16 mV.
-        vclamp:u8 @ 2..=4,
+        pub vclamp:u8 @ 2..=4,
         /// TREG[1:0] = Thermal regulation threshold
         /// 00 = 60°C
         /// 01 = 80°C
         /// 10 = 100°C
         /// 11 = 120°C
-        treg: u8 @ 0..=1,
+        pub treg: u8 @ 0..=1,
     }
 }
 
@@ -231,19 +231,19 @@ bitfield! {
         ///
         /// 0 = Not in D+/D– detection
         /// 1 = Force D+/D– detection
-        dpdm_en: bool @ 7,
+        pub dpdm_en: bool @ 7,
         ///Run safety timer in half-clock rate during DPM and thermal regulation.
         ///
         /// 0 = Disable 2× extended safety timer
         /// 1 = Enable 2× extended safety timer
-        tmr2x_en: bool @ 6,
+        pub tmr2x_en: bool @ 6,
         /// BATFET (Q4) enable
         ///
         /// 0 = Enable Q4
         /// 1 = Turn off Q4
-        batfet_dis: bool [read_only] @ 5,
+        pub batfet_dis: bool [read_only] @ 5,
         /// This bit is a function of bq24193 and not used with bq27531-G1.
-        jeita_vset: bool [read_only] @ 4,
+        pub jeita_vset: bool [read_only] @ 4,
         /// INT_MASK[1] = Interrupt on Chrgr_Fault_Reg9() CHRG_FAULT[n] bit
         ///  0 = Disable INT
         ///  1 = INT enabled
@@ -251,12 +251,12 @@ bitfield! {
         /// INT_MASK[0] =Interrupt on Chrgr_Fault_Reg9() BAT_FAULT bit
         ///  0 = Disable INT
         ///  1 = INT enabled
-        int_mask: u8 @ 0..=1,
+        pub int_mask: u8 @ 0..=1,
     }
 }
 
 bitfield! {
-    ///Chrgr_Status_Reg8(): 0x7D
+    /// Chrgr_Status_Reg8(): 0x7D
     ///
     /// This function returns the hex value corresponding
     /// to the System Status Register of the charger.
@@ -267,34 +267,34 @@ bitfield! {
         /// 01 = USB host
         /// 10 = Adapter port (from DPDM detection or PSEL detection)
         /// 11 = OTG
-        vbus_stat: u8 [read_only] @ 6..=7,
+        pub vbus_stat: u8 [read_only] @ 6..=7,
         /// Charger status
         ///
         /// 00 = Not charging
         /// 01 = Precharge
         /// 10 = Fast charging
         /// 11 = Charge done
-        chrg_stat: u8 [read_only] @ 4..= 5,
+        pub chrg_stat: u8 [read_only] @ 4..= 5,
         /// Dynamic power management (DPM) status
         ///
         /// 0 = Not DPM
         /// 1 = VINDPM or IINDPM
-        dpm_stat: bool [read_only] @ 3,
+        pub dpm_stat: bool [read_only] @ 3,
         /// Power good status
         ///
         /// 0 = Power not good
         /// 1 = Power good
-        pg_stat: bool [read_only] @ 2,
+        pub pg_stat: bool [read_only] @ 2,
         /// Thermal status
         ///
         /// 0 = Normal
         /// 1 = TREG
-        term_stat: bool [read_only] @ 1,
+        pub term_stat: bool [read_only] @ 1,
         /// Minimum system voltage regulation status
         ///
         /// 0 = Not in VSYSMIN regulation (BAT > VSYSMIN)
         /// 1 = In VSYSMIN regulation, battery is too low.
-        vsys_stat: bool [read_only] @ 0,
+        pub vsys_stat: bool [read_only] @ 0,
     }
 }
 
@@ -308,29 +308,29 @@ bitfield! {
         ///
         /// 0 = Normal
         /// 1 = Watchdog timer expiration
-        watchdog_fault: bool [read_only] @ 7,
+        pub watchdog_fault: bool [read_only] @ 7,
         /// OTG mode fault
         ///
         /// 0 = Normal
         /// 1 = VBUS overloaded in OTG or VBUS OVP or battery is too low (any conditions that cannot start boost function)
-        otg_fault: bool [read_only] @ 6,
+        pub otg_fault: bool [read_only] @ 6,
         /// Charger fault
         ///
         /// 00 = Normal
         /// 01 = Input fault (OVP or bad source)
         /// 10 = Thermal shutdown
         /// 11 = Charge timer expiration
-        chrg_fault:u8 [read_only] @ 4..=5,
+        pub chrg_fault:u8 [read_only] @ 4..=5,
         /// Battery fault
         ///
         /// 0 = Normal
         /// 1 = System OVP
-        bat_fault: bool [read_only] @ 3,
+        pub bat_fault: bool [read_only] @ 3,
         /// Thermistor fault detected at bq2419x charger.
         ///
         /// The thermistor is disabled at the bq2419x charger
         /// when used with the bq27531-G1 fuel gauge.
-        ntc_fault:u8 [read_only] @ 0..=2,
+        pub ntc_fault:u8 [read_only] @ 0..=2,
     }
 }
 
@@ -345,12 +345,55 @@ bitfield! {
         /// 001 = bq24191
         /// 010 = bq24192 (The BMU FW must target bq24192.)
         /// 011 = bq24192I
-        pn: u8 [read_only] @ 3..=5,
+        pub pn: u8 [read_only] @ 3..=5,
         /// Temperature sensing profile at the bq2419x charger
         /// 0 = Cold or hot window (bq24190, bq24192, bq24192I)
         /// 1 = JEITA profile (bq24193)
-        ts_profile: bool [read_only] @ 2,
+        pub ts_profile: bool [read_only] @ 2,
         /// bq2419x device revision
-        rev: u8 [read_only] @ 0..=1,
+        pub rev: u8 [read_only] @ 0..=1,
+    }
+}
+
+bitfield! {
+    pub struct ChargerOptions (pub u8): Debug, FromStorage, IntoStorage {
+        /// Sets the default input current limit for when the charger
+        /// detects a USB-type input using PSEL or D+/D–.
+        ///
+        /// 0 = 100 mA
+        /// 1 = 500 mA
+        pub usb_in_def: bool @ 6,
+        /// GG_CHGRCTL_ENABLE subcommand is not required for the fuel gauge to
+        /// control the charger and continuously reset the charger watchdog.
+        ///
+        /// True when set.
+        pub cmd_not_req: bool @ 5,
+        /// Charge termination Hi-Z.
+        ///
+        /// The charger is configured in Hi-Z mode upon a charge termination
+        /// event. Hi-Z mode is removed once Flags() [FC] bit is cleared.
+        ///
+        /// True when set.
+        pub chgtrm_hiz: bool @ 4,
+        /// Multi-level charge (MLC) enable.
+        ///
+        /// True when set.
+        pub step_en: bool @ 3,
+        /// Charge profile based on State-of-Health enabled.
+        ///
+        /// True when set.
+        pub soh_en: bool @ 2,
+        /// Allows the charger default values stored in the data flash to override
+        /// the charge algorithm masks within the gauge during initialization.
+        ///
+        /// True when set.
+        pub default_ovrd: bool @ 1,
+        /// Gas gauge bypass enable for charger control over I2C.
+        ///
+        /// The gas gauge relays all reads and writes directed to the
+        /// charger and does not autonomously reset the charger watchdog.
+        ///
+        /// True when set.
+        pub bypass: bool @ 0,
     }
 }

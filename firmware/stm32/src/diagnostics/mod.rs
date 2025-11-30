@@ -16,8 +16,8 @@ use embedded_graphics_coordinate_transform::Rotate270;
 
 use crate::hardware::{
     display::Display,
-    drivers::bq27531_g1::Bq27531,
     keypad::{Button, Keypad, buttons::KeyCode},
+    power::Power,
 };
 
 pub mod battery;
@@ -27,11 +27,7 @@ pub mod input;
 pub async fn run_diagnostics(
     display: &'_ mut Rotate270<Display<'_, Delay>>,
     keypad: &'_ mut Keypad,
-    fuel_gauge: &'_ mut Bq27531<
-        '_,
-        asynch::i2c::I2cDevice<'_, CriticalSectionRawMutex, I2c<'static, Async, Master>>,
-        Delay,
-    >,
+    fuel_gauge: &'_ mut Power<'_>,
 ) {
     let mut channel = keypad.subscribe().unwrap();
 
@@ -75,9 +71,13 @@ pub async fn run_diagnostics(
                 crate::hardware::keypad::buttons::Event::KeyPress(key_code) => {
                     if let Ok(button) = <KeyCode as TryInto<Button>>::try_into(key_code) {
                         match button {
-                            Button::Trig1 => input::run_diagnostics(display, keypad).await,
+                            Button::Trig1 => {
+                                input::run_diagnostics(display, keypad).await;
+                                channel.clear(); // clear after return so we're not processing stale input.
+                            }
                             Button::Trig2 => {
-                                battery::run_diagnostics(display, keypad, fuel_gauge).await
+                                battery::run_diagnostics(display, keypad, fuel_gauge).await;
+                                channel.clear(); // clear after return so we're not processing stale input.
                             }
 
                             // Exit from diagnostics
@@ -97,6 +97,8 @@ async fn draw_diagnostics_menu<'a>(
     display: &'_ mut Rotate270<Display<'_, Delay>>,
 ) -> Result<(), <Rotate270<Display<'a, Delay>> as DrawTarget>::Error> {
     let display_size = display.size();
+
+    display.clear(Rgb565::BLACK)?;
 
     // Yellow header background
     Rectangle::new(Point::new(0, 0), Size::new(display_size.width, 30))

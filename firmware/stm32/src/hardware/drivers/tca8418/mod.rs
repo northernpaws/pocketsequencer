@@ -8,7 +8,7 @@ use grounded::uninit::GroundedArrayCell;
 
 use crate::hardware::drivers::tca8418::register::KeyEventA;
 
-const DEFAULT_ADDRESS: SevenBitAddress = 0b0110100;
+pub const DEFAULT_ADDRESS: SevenBitAddress = 0b0110100;
 
 /// Struct containing the key event data from the TAC8418 FIFO.
 pub struct KeyEvent {

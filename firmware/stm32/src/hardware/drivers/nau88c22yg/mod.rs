@@ -2,7 +2,7 @@
 
 use embedded_hal_async::i2c::SevenBitAddress;
 
-const ADDRESS: SevenBitAddress = 0b0011010;
+pub const ADDRESS: SevenBitAddress = 0b0011010;
 
 pub struct Nau88c22yg<I2C: embedded_hal_async::i2c::I2c> {
     /// I2C device on the bus.
