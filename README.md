@@ -1,5 +1,9 @@
 # Pocket Sequencer
 
+> This sequencer is being revised in revision 2 as a target for my embedded Rust audio processing framework, Rythm. Revision 2 will be a carrier board for one of the Rythm modules, and use the Rythm engine for the audio and sequencing.
+>
+> [https://github.com/northernpaws/rythm](https://github.com/northernpaws/rythm)
+
 | ![Photo of front of board](images/frame_front.jpeg) | ![Photo of back of board](images/frame_back.jpeg) |
 |:---:|:---:|
 
