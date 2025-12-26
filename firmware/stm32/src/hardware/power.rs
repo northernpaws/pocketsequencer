@@ -85,7 +85,12 @@ impl<'a> Power<'a> {
             .read_byte_bit(CHARGER_SUBCLASS_CHARGER_CONTROL_CONFIGURATION, 0, 5)
             .await
             .unwrap();
-        if !charge_cmd {
+        let bypass = fuel_gauge
+            .data_flash()
+            .read_byte_bit(CHARGER_SUBCLASS_CHARGER_CONTROL_CONFIGURATION, 0, 0)
+            .await
+            .unwrap();
+        if !charge_cmd || !bypass {
             // Required because charger doesn't have it's own thermistor,
             // so it requires the fuel gauge connection.
             warn!(
@@ -98,7 +103,9 @@ impl<'a> Power<'a> {
                     CHARGER_SUBCLASS_CHARGER_CONTROL_CONFIGURATION,
                     0,
                     // RSVD USB_IN_DEF CMD_NOT_REQ CHGTRM_HIZ STEP_EN SOH_EN DEFAULT_OVRD BYPASS
-                    0b01111100,
+                    //
+                    // TODO: shouldn't need to enable BYPASS one fuel gauge is trained
+                    0b01111101,
                 )
                 .await
                 .unwrap();

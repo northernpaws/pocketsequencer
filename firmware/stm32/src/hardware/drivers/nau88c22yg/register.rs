@@ -1,4 +1,3 @@
-
 use proc_bitfield::bitfield;
 
 const POWER_MANAGEMENT_1: u8 = 0x01;
@@ -143,7 +142,6 @@ bitfield! {
         pub ladcen: bool @ 0
     }
 }
-
 
 bitfield! {
     #[derive(Default)]
@@ -294,18 +292,17 @@ impl Default for ClockControl1 {
     }
 }
 
-
 bitfield! {
     #[derive(Default)]
     pub struct ClockControl2(pub u16): FromStorage, IntoStorage {
         /// 4-wire control interface enable
         pub w4spien: bool @ 8,
         /// Audio data sample rate indication (48kHz default).
-        /// 
+        ///
         /// Sets up scaling for internal filter coefficients, but does not affect in
         /// any way the actual device sample rate. Should be set to value most closely
         /// matching the actual sample rate determined by 256fs internal node.
-        /// 
+        ///
         /// 000 = 48kHz
         /// 001 = 32kHz
         /// 010 = 24kHz
@@ -321,8 +318,6 @@ bitfield! {
         pub sclken: bool @ 0,
     }
 }
-
-
 
 bitfield! {
     #[derive(Default)]
@@ -349,7 +344,6 @@ bitfield! {
         pub gpio1sel: u8 @ 0..=2,
     }
 }
-
 
 bitfield! {
     #[derive(Default)]
@@ -844,7 +838,7 @@ bitfield! {
 
 impl Default for ACLControl1 {
     fn default() -> Self {
-        Self(0x038 )
+        Self(0x038)
     }
 }
 
@@ -960,7 +954,7 @@ bitfield! {
 
 impl Default for PllN {
     fn default() -> Self {
-        Self(0x008 )
+        Self(0x008)
     }
 }
 
@@ -968,7 +962,7 @@ bitfield! {
     pub struct PllK1(pub u16): FromStorage, IntoStorage {
         /// High order bits of fractional portion of PLL
         /// input/output frequency ratio divider.
-        /// 
+        ///
         /// See text for details.
         pub pllk: u8 @ 0..=5, // PLLK[23:18]
     }
@@ -985,7 +979,7 @@ bitfield! {
         /// Middle order bits of fractional portion of PLL input/output frequency ratio divider.
         ///
         /// See text for details.
-        pub pllk: u16 @ 0..=8, // PLLK[17:9] 
+        pub pllk: u16 @ 0..=8, // PLLK[17:9]
     }
 }
 
@@ -999,7 +993,7 @@ bitfield! {
     pub struct PllK3(pub u16): FromStorage, IntoStorage {
         /// Low order bits of fractional portion of PLL
         /// input/output frequency ratio divider.
-        /// 
+        ///
         /// See text for details.
         pub pllk: u16 @ 0..=8,
     }
@@ -1941,4 +1935,3 @@ bitfield! {
         pub shrtrhp: bool @ 0,
     }
 }
-

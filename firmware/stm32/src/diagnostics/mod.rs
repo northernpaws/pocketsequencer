@@ -79,6 +79,10 @@ pub async fn run_diagnostics(
                                 battery::run_diagnostics(display, keypad, fuel_gauge).await;
                                 channel.clear(); // clear after return so we're not processing stale input.
                             }
+                            Button::Trig3 => {
+                                i2c::run_diagnostics(display, keypad).await;
+                                channel.clear(); // clear after return so we're not processing stale input.
+                            }
 
                             // Exit from diagnostics
                             Button::Trig13 => return,
@@ -174,6 +178,14 @@ async fn draw_diagnostics_menu<'a>(
             } else if index == 1 {
                 Text::with_text_style(
                     "BATTERY",
+                    box_top_left + Point::new(box_width / 2, box_height - 12),
+                    menu_item_character_style,
+                    menu_item_text_style,
+                )
+                .draw(display)?;
+            } else if index == 2 {
+                Text::with_text_style(
+                    "I2C",
                     box_top_left + Point::new(box_width / 2, box_height - 12),
                     menu_item_character_style,
                     menu_item_text_style,

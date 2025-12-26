@@ -17,7 +17,7 @@ use crate::hardware::{
     keypad::Keypad,
 };
 
-pub async fn i2c_diagnostics(
+pub async fn run_diagnostics(
     display: &'_ mut Rotate270<Display<'_, Delay>>,
     _keypad: &'_ mut Keypad,
 ) {
@@ -85,9 +85,14 @@ impl Event {
     }
 }
 
+pub enum DiagnosticsPage {
+    DeviceSelect,
+}
+
 struct DiagnosticsConsole<'a> {
     devices: &'a [Device],
     event_log: [Option<Event>; 24],
+    page: DiagnosticsPage,
 }
 
 impl<'a> DiagnosticsConsole<'a> {
@@ -95,6 +100,7 @@ impl<'a> DiagnosticsConsole<'a> {
         Self {
             devices,
             event_log: Default::default(),
+            page: DiagnosticsPage::DeviceSelect,
         }
     }
 
@@ -152,11 +158,20 @@ impl<'a> DiagnosticsConsole<'a> {
         ));
         self.draw_header(&mut header_area)?;
 
-        let mut event_log_area = target.clipped(&Rectangle::new(
+        let mut content_area = target.clipped(&Rectangle::new(
             Point::new(0, 30),
-            Size::new(120, target.size().height - 30),
+            Size::new(target.size().width, target.size().height - 30),
         ));
-        self.draw_event_log(&mut event_log_area)?;
+
+        // let mut event_log_area = target.clipped(&Rectangle::new(
+        //     Point::new(0, 30),
+        //     Size::new(120, target.size().height - 30),
+        // ));
+        // self.draw_event_log(&mut event_log_area)?;
+
+        match self.page {
+            DiagnosticsPage::DeviceSelect => {}
+        }
 
         Ok(())
     }

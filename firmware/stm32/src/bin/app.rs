@@ -228,7 +228,7 @@ unsafe fn HardFault(ef: &ExceptionFrame) -> ! {
         }
     }
 
-    // TODO: attempt hard fault recovery https://github.com/kendiser5000/Hardfault-Recovery-Cortex-M4/blob/master/hardfault_handler.c
+    // TODO: attempt hard fault recovery https://github.com/kendiser5 000/Hardfault-Recovery-Cortex-M4/blob/master/hardfault_handler.c
 
     loop {}
 }

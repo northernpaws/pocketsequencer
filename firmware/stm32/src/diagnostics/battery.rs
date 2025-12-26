@@ -38,11 +38,14 @@ pub async fn run_diagnostics(
 
     let mut learning = false;
 
+    let mut registers = false;
+
     loop {
         // We use *_raw and the flush methods to incrementally update the buffer
         // and push the update all at once instead of repeatedly signaling the
         // LED update task.
         keypad.clear_leds_raw();
+        keypad.set_led_raw(Button::Trig4, Rgb888::YELLOW);
         keypad.set_led_raw(Button::Trig8, Rgb888::WHITE);
         keypad.set_led_raw(Button::Trig12, Rgb888::RED);
         keypad.set_led_raw(Button::Trig13, Rgb888::RED);
@@ -71,7 +74,12 @@ pub async fn run_diagnostics(
             }
         }
 
-        draw_diagnostics(display, power).await.unwrap();
+        if registers {
+            draw_registers(display, power).await.unwrap();
+        } else {
+            draw_diagnostics(display, power).await.unwrap();
+        }
+
         display.push_buffer_dma().await.unwrap();
 
         // Process input events.
@@ -94,8 +102,14 @@ pub async fn run_diagnostics(
                 crate::hardware::keypad::buttons::Event::KeyRelease(key_code) => {
                     if let Ok(button) = <KeyCode as TryInto<Button>>::try_into(key_code) {
                         match button {
+                            Button::Trig1 => {
+                                registers = !registers;
+                            }
                             Button::Trig4 => {
                                 // Enable the Impedance Track algorithm to run a learn cycle.
+                                //
+                                // see: https://e2e.ti.com/cfs-file/__key/communityserver-discussions-components-files/196/Achieving-the-Successful-Learning-Cycle.pdf
+                                //  Section 3.2.1
                                 info!("Starting Impedance Track battery pack learning cycle...");
                                 power
                                     .fuel_gauge_ref()
@@ -132,6 +146,215 @@ pub async fn run_diagnostics(
     }
 }
 
+fn draw_register_u8<D: DrawTarget<Color = Rgb565>>(
+    target: &mut D,
+    names: [&'static str; 8],
+    register: u8,
+) -> Result<(), D::Error>
+where
+    D::Color: RgbColor,
+{
+    let one_character_style = MonoTextStyle::new(&FONT_6X10, Rgb565::GREEN);
+    let zero_character_style = MonoTextStyle::new(&FONT_6X10, Rgb565::RED);
+    let text_style = TextStyleBuilder::new().alignment(Alignment::Left).build();
+
+    let mut x: usize = 0;
+
+    for b in 0..8 {
+        let label = names[b];
+
+        let mask = 1 << (7 - b);
+        let bit_is_set = (mask & register) > 0;
+
+        let pos = Point::new(x as i32, 0);
+
+        if bit_is_set {
+            Text::with_text_style(label, pos, one_character_style, text_style).draw(target)?;
+        } else {
+            Text::with_text_style(label, pos, zero_character_style, text_style).draw(target)?;
+        }
+
+        x = x + (names[b].len() * 6) + 4 // padding of 4
+    }
+
+    Ok(())
+}
+
+async fn draw_registers<'a>(
+    display: &'_ mut Rotate270<Display<'_, Delay>>,
+    power: &'_ mut Power<'_>,
+) -> Result<(), <Rotate270<Display<'a, Delay>> as DrawTarget>::Error> {
+    let fuel_gauge = power.fuel_gauge_ref();
+
+    display.clear(Rgb565::BLACK)?;
+
+    let display_size = display.size();
+
+    let padding = Point::new(10, 15);
+
+    let mut y = 0;
+
+    if let Ok(control_status) = fuel_gauge.read_control_command::<2>(0x0000).await {
+        draw_register_u8(
+            &mut display.cropped(&Rectangle::new(
+                padding + Point::new(0, y),
+                Size::new(display_size.width, 10),
+            )),
+            [
+                "-",          // high 7
+                "FAS",        // high 6
+                "SS",         // high 5
+                "CSV",        // high 4
+                "CCA",        // high 3
+                "BCA",        // high 2
+                "OCVCMDCOMP", // high 1
+                "OCVFAIL",    // high 0
+            ],
+            control_status[0],
+        )?;
+
+        y = y + 12;
+
+        draw_register_u8(
+            &mut display.cropped(&Rectangle::new(
+                padding + Point::new(0, y),
+                Size::new(display_size.width, 10),
+            )),
+            [
+                "INITCOMP",  // low 7
+                "HIBERNATE", // low 6
+                "SNOOZE",    // low 5
+                "SLEEP",     // low 4
+                "LDMD",      // low 3
+                "RUP_DIS",   // low 2
+                "VOK",       // low 1
+                "QEN",       // low 0
+            ],
+            control_status[1],
+        )?;
+    } else {
+        draw_err_graphic(display, Point::new(0, y), "FAILED TO READ STATUS REGISTER")?;
+    }
+
+    y = y + 24;
+
+    if let Ok(flags) = fuel_gauge.read_flags().await {
+        draw_register_u8(
+            &mut display.cropped(&Rectangle::new(
+                padding + Point::new(0, y),
+                Size::new(display_size.width, 10),
+            )),
+            [
+                "OT",             // high 7
+                "UT",             // high 6
+                "-",              // high 5
+                "CALMODE",        // high 4
+                "DIV_CUR ",       // high 3
+                "GG_CHGRCTL_EN ", // high 2
+                "FC",             // high 1
+                "CHG",            // high 0
+            ],
+            flags.to_le_bytes()[0],
+        )?;
+
+        y = y + 12;
+
+        draw_register_u8(
+            &mut display.cropped(&Rectangle::new(
+                padding + Point::new(0, y),
+                Size::new(display_size.width, 10),
+            )),
+            [
+                "-",       // low 7
+                "-",       // low 6
+                "OCV_GD",  // low 5
+                "WAIT_ID", // low 4
+                "BAT_DET", // low 3
+                "SOC1",    // low 2
+                "SYSDOWN", // low 1
+                "DSG",     // low 0
+            ],
+            flags.to_le_bytes()[1],
+        )?;
+    } else {
+        draw_err_graphic(display, Point::new(0, y), "FAILED TO READ FLAGS")?;
+    }
+
+    y = y + 24;
+
+    if let Ok(charger_status) = fuel_gauge.read_charger_status_register().await {
+        draw_register_u8(
+            &mut display.cropped(&Rectangle::new(
+                padding + Point::new(0, y),
+                Size::new(display_size.width, 10),
+            )),
+            [
+                "WAIT_CMD ", // high 7
+                "ERR",       // high 6
+                "DENIED",    // high 5
+                "WFAIL",     // high 4
+                "AUTHFAIL",  // high 3
+                "INIT",      // high 2
+                "-",         // high 1
+                "SHIPMODE",  // high 0
+            ],
+            charger_status.0,
+        )?;
+    } else {
+        draw_err_graphic(display, Point::new(0, y), "FAILED TO READ CHR STATUS")?;
+    }
+
+    y = y + 24;
+
+    if let Ok(reg) = fuel_gauge
+        .data_flash()
+        .read_byte(CHARGER_SUBCLASS_CHARGER_CONTROL_CONFIGURATION, 0)
+        .await
+    {
+        draw_register_u8(
+            &mut display.cropped(&Rectangle::new(
+                padding + Point::new(0, y),
+                Size::new(display_size.width, 10),
+            )),
+            [
+                "-",           // high 7
+                "USB_IN_DEF",  // high 6
+                "CMD_NOT_REQ", // high 5
+                "CHGTRM_HIZ",  // high 4
+                "",            // high 3
+                "",            // high 2
+                "",            // high 1
+                "",            // high 0
+            ],
+            reg,
+        )?;
+
+        y = y + 12;
+
+        draw_register_u8(
+            &mut display.cropped(&Rectangle::new(
+                padding + Point::new(0, y),
+                Size::new(display_size.width, 10),
+            )),
+            [
+                "",             // high 7
+                "",             // high 6
+                "",             // high 5
+                "",             // high 4
+                "STEP_EN",      // high 3
+                "SOH_EN",       // high 2
+                "DEFAULT_OVRD", // high 1
+                "BYPASS",       // high 0
+            ],
+            reg,
+        )?;
+    } else {
+        draw_err_graphic(display, padding + Point::new(0, y), "Charger Config")?;
+    }
+
+    Ok(())
+}
+
 async fn draw_diagnostics<'a>(
     display: &'_ mut Rotate270<Display<'_, Delay>>,
     power: &'_ mut Power<'_>,
@@ -159,7 +382,7 @@ async fn draw_diagnostics<'a>(
             draw_ok_graphic(display, padding + Point::new(0, y), "IT Enable", it_enable)?;
         }
     } else {
-        draw_err_graphic(display, padding + Point::new(0, y), "Learning")?;
+        draw_err_graphic(display, padding + Point::new(0, y), "IT Enable")?;
     }
     y += 10;
 
@@ -169,17 +392,47 @@ async fn draw_diagnostics<'a>(
         .await
     {
         if learning_state == 0x00 {
-            draw_ok_graphic(display, padding + Point::new(0, y), "Learning", "Unknown")?;
+            draw_ok_graphic(
+                display,
+                padding + Point::new(0, y),
+                "Learning",
+                "Unknown (0x00)",
+            )?;
         } else if learning_state == 0x01 {
-            draw_ok_graphic(display, padding + Point::new(0, y), "Learning", "Init QMAX")?;
+            draw_ok_graphic(
+                display,
+                padding + Point::new(0, y),
+                "Learning",
+                "Init QMAX (0x01)",
+            )?;
         } else if learning_state == 0x04 {
-            draw_ok_graphic(display, padding + Point::new(0, y), "Learning", "Charge")?;
+            draw_ok_graphic(
+                display,
+                padding + Point::new(0, y),
+                "Learning",
+                "Charge (0x04)",
+            )?;
         } else if learning_state == 0x05 {
-            draw_ok_graphic(display, padding + Point::new(0, y), "Learning", "Discharge")?;
+            draw_ok_graphic(
+                display,
+                padding + Point::new(0, y),
+                "Learning",
+                "Discharge (0x05)",
+            )?;
         } else if learning_state == 0x06 {
-            draw_ok_graphic(display, padding + Point::new(0, y), "Learning", "Complete")?;
+            draw_ok_graphic(
+                display,
+                padding + Point::new(0, y),
+                "Learning",
+                "Complete (0x06)",
+            )?;
         } else if learning_state == 0x02 {
-            draw_ok_graphic(display, padding + Point::new(0, y), "Learning", "Optimized")?;
+            draw_ok_graphic(
+                display,
+                padding + Point::new(0, y),
+                "Learning",
+                "Optimized (0x02)",
+            )?;
         } else {
             draw_ok_graphic(
                 display,
@@ -417,71 +670,72 @@ async fn draw_diagnostics<'a>(
         } else if charger_status.init() {
             draw_err_graphic(display, padding + Point::new(0, y), "Charger initializing")?;
         } else {
-            if let Ok(charger_system_status) =
-                fuel_gauge.read_charger_system_status_register().await
-            {
-                if charger_system_status.vbus_stat() == 0 {
-                    draw_ok_graphic(
-                        display,
-                        padding + Point::new(0, y),
-                        "VBUS Status",
-                        "Unknown",
-                    )?;
-                } else if charger_system_status.vbus_stat() == 1 {
-                    draw_ok_graphic(
-                        display,
-                        padding + Point::new(0, y),
-                        "VBUS Status",
-                        "USB Host",
-                    )?;
-                } else if charger_system_status.vbus_stat() == 2 {
-                    draw_ok_graphic(
-                        display,
-                        padding + Point::new(0, y),
-                        "VBUS Status",
-                        "Adapter",
-                    )?;
-                } else if charger_system_status.vbus_stat() == 3 {
-                    draw_ok_graphic(display, padding + Point::new(0, y), "VBUS Status", "OTG")?;
-                }
-
-                y += 10;
-
-                if charger_system_status.chrg_stat() == 0 {
-                    draw_ok_graphic(
-                        display,
-                        padding + Point::new(0, y),
-                        "Charger Status",
-                        "Unknown",
-                    )?;
-                } else if charger_system_status.chrg_stat() == 1 {
-                    draw_ok_graphic(
-                        display,
-                        padding + Point::new(0, y),
-                        "Charger Status",
-                        "Precharge",
-                    )?;
-                } else if charger_system_status.chrg_stat() == 2 {
-                    draw_ok_graphic(
-                        display,
-                        padding + Point::new(0, y),
-                        "Charger Status",
-                        "Fast Charging",
-                    )?;
-                } else if charger_system_status.chrg_stat() == 3 {
-                    draw_ok_graphic(
-                        display,
-                        padding + Point::new(0, y),
-                        "Charger Status",
-                        "Charge Done",
-                    )?;
-                }
-            } else {
-                draw_err_graphic(display, padding + Point::new(0, y), "Charger system status")?;
-            }
         }
     } else {
         draw_err_graphic(display, padding + Point::new(0, y), "Charger connection")?;
+    }
+
+    y += 10;
+
+    if let Ok(charger_system_status) = fuel_gauge.read_charger_system_status_register().await {
+        if charger_system_status.vbus_stat() == 0 {
+            draw_ok_graphic(
+                display,
+                padding + Point::new(0, y),
+                "VBUS Status",
+                "Unknown",
+            )?;
+        } else if charger_system_status.vbus_stat() == 1 {
+            draw_ok_graphic(
+                display,
+                padding + Point::new(0, y),
+                "VBUS Status",
+                "USB Host",
+            )?;
+        } else if charger_system_status.vbus_stat() == 2 {
+            draw_ok_graphic(
+                display,
+                padding + Point::new(0, y),
+                "VBUS Status",
+                "Adapter",
+            )?;
+        } else if charger_system_status.vbus_stat() == 3 {
+            draw_ok_graphic(display, padding + Point::new(0, y), "VBUS Status", "OTG")?;
+        }
+
+        y += 10;
+
+        if charger_system_status.chrg_stat() == 0 {
+            draw_ok_graphic(
+                display,
+                padding + Point::new(0, y),
+                "Charger Status",
+                "No Charging",
+            )?;
+        } else if charger_system_status.chrg_stat() == 1 {
+            draw_ok_graphic(
+                display,
+                padding + Point::new(0, y),
+                "Charger Status",
+                "Precharge",
+            )?;
+        } else if charger_system_status.chrg_stat() == 2 {
+            draw_ok_graphic(
+                display,
+                padding + Point::new(0, y),
+                "Charger Status",
+                "Fast Charging",
+            )?;
+        } else if charger_system_status.chrg_stat() == 3 {
+            draw_ok_graphic(
+                display,
+                padding + Point::new(0, y),
+                "Charger Status",
+                "Charge Done",
+            )?;
+        }
+    } else {
+        draw_err_graphic(display, padding + Point::new(0, y), "Charger system status")?;
     }
 
     display.push_buffer_dma().await.unwrap();
