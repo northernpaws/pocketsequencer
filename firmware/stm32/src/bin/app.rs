@@ -112,7 +112,8 @@ static SHUTDOWN_SIGNAL: Signal<CriticalSectionRawMutex, ()> = Signal::new();
 // Audio I2C bus.
 //
 // This communicates with the NAU88C22YG Audio Codec, FM SI4703-C19-GMR RX / SI4710-B30-GMR TX.
-// static I2C1_BUS: <NoopMutex<RefCell<I2c<'static, Async, i2c::Master>>>> = StaticCell::new();
+static I2C1_BUS: StaticCell<Mutex<CriticalSectionRawMutex, I2c<'static, Async, i2c::Master>>> =
+    StaticCell::new();
 
 // Power management bus.
 //
@@ -574,8 +575,20 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     //
     // This communicates with the NAU88C22YG Audio Codec,
     // FM SI4703-C19-GMR RX / SI4710-B30-GMR TX.
-    // info!("initializing audio i2c1 bus");
-    // let _i2c1_bus = I2C1_BUS.init(hardware::get_i2c1(r.i2c1));
+    info!("initializing audio i2c1 bus");
+    let i2c1_bus = I2C1_BUS.init(Mutex::new(hardware::get_i2c1(r.i2c1)));
+
+    draw_boot_screen(
+        &mut display,
+        "Audio...",
+        &["Memory test", "SD Card", "TODO: Internal Storage, Battery"],
+    )
+    .await
+    .unwrap();
+
+    info!("initializing audio codec");
+    let mut audio = hardware::get_audio(i2c1_bus, embassy_time::Delay).await;
+    audio.init().await.unwrap();
 
     // info!("Starting USB device...");
     // hardware::usb::start_usb(spawner, r.usb).await;

@@ -24,4 +24,9 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Audio<'a, DELAY> {
             codec: nau88c22_rs::Nau88c22::new(device),
         }
     }
+
+    /// Initializes the audio component.
+    pub async fn init(&self) -> Result<(), i2c::Error> {
+        Ok(())
+    }
 }

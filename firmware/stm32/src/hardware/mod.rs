@@ -804,20 +804,9 @@ pub fn get_stm6601<'a>(r: PowerResources) -> Stm6601<'a, Output<'a>, Input<'a>> 
 /// Audio Codec, FM SI4703-C19-GMR RX / SI4710-B30-GMR TX.
 pub fn get_i2c1<'a>(
     r: I2C1Resources,
-) -> embassy_sync::blocking_mutex::Mutex<
-    NoopRawMutex,
-    RefCell<I2c<'a, embassy_stm32::mode::Async, embassy_stm32::i2c::Master>>,
-> {
-    let i2c = I2c::new(
-        r.peri,
-        r.scl,
-        r.sda,
-        Irqs,
-        r.tx_dma,
-        r.rx_dma,
-        Default::default(),
-    );
-    NoopMutex::new(RefCell::new(i2c))
+) -> I2c<'a, embassy_stm32::mode::Async, embassy_stm32::i2c::Master> {
+    let config: i2c::Config = Default::default();
+    I2c::new(r.peri, r.scl, r.sda, Irqs, r.tx_dma, r.rx_dma, config)
 }
 
 /// Creates the I2C2 interface for communicating with the BQ24193
