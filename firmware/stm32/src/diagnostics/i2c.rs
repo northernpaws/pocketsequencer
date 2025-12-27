@@ -13,7 +13,7 @@ use embedded_hal::i2c::SevenBitAddress;
 
 use crate::hardware::{
     display::Display,
-    drivers::{bq27531_g1, fusb302b, nau88c22yg, tca8418},
+    drivers::{bq27531_g1, fusb302b, tca8418},
     keypad::Keypad,
 };
 
@@ -25,7 +25,6 @@ pub async fn run_diagnostics(
         make_bq27532_g1_device(),
         make_tca8418_device(),
         make_fusb302b_device(),
-        make_nau88c22yg_device(),
     ];
 
     let mut console = DiagnosticsConsole::new(&devices);
@@ -46,10 +45,6 @@ fn make_tca8418_device() -> Device {
 
 fn make_fusb302b_device() -> Device {
     Device::new(2, "fusb302b", fusb302b::FUSB302BMPX_ADDRESS)
-}
-
-fn make_nau88c22yg_device() -> Device {
-    Device::new(1, "nau88c22yg", nau88c22yg::ADDRESS)
 }
 
 struct Device {

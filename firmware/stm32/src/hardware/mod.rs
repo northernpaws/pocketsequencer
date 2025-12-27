@@ -1,5 +1,6 @@
 pub mod drivers;
 
+pub mod audio;
 pub mod codec;
 pub mod display;
 pub mod internal_storage;
@@ -68,6 +69,7 @@ use embassy_embedded_hal::{
 use embassy_executor::Spawner;
 
 use crate::hardware::{
+    audio::Audio,
     display::Display,
     drivers::{bq27531_g1::Bq27531, fusb302b::Fusb302b, tca8418::Tca8418},
     keypad::Keypad,
@@ -870,6 +872,21 @@ pub async fn get_power<'a, INT: gpio::Pin>(
     let fuel_gauge = Bq27531::new(int, device, Delay);
 
     Power::new(fuel_gauge).await
+}
+
+/// Gets a handle to the audio codec.
+pub async fn get_audio<'a, DELAY: embedded_hal_async::delay::DelayNs>(
+    i2c_bus: &'a Mutex<CriticalSectionRawMutex, I2c<'static, Async, i2c::Master>>,
+    delay: DELAY,
+) -> Audio<'a, DELAY> {
+    // Create the I2C device for the audio codec.
+    let device: asynch::i2c::I2cDevice<
+        '_,
+        CriticalSectionRawMutex,
+        I2c<'static, Async, i2c::Master>,
+    > = asynch::i2c::I2cDevice::new(i2c_bus);
+
+    Audio::new(device, delay)
 }
 
 /// Gets a handle to the FUSB302B USB-PD controller on I2C2.
