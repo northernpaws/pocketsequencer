@@ -53,13 +53,13 @@ impl<
     }
 
     /// Reads the current power button state.
-    pub fn button_pressed(&mut self) -> Result<bool, PBOUT::Error> {
-        self.pin_pbout.is_high()
+    pub fn button_pressed(&mut self) -> bool {
+        self.pin_int.is_low()
     }
 
     /// Reads the current power button state.
-    pub fn button_released(&mut self) -> Result<bool, PBOUT::Error> {
-        self.pin_pbout.is_low()
+    pub fn button_released(&mut self) -> bool {
+        self.pin_int.is_high()
     }
 
     pub async fn wait_for_button_press(&mut self) {

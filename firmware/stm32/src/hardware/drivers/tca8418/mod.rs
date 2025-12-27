@@ -44,7 +44,7 @@ pub enum Gpio {
 
 // see: https://github.com/embassy-rs/embassy/blob/abcb6e607c4f13bf99c406fbb92480c32ebd0d4a/docs/pages/faq.adoc#stm32-bdma-only-working-out-of-some-ram-regions
 // Defined in memory.x
-#[unsafe(link_section = ".ram_d3")]
+#[unsafe(link_section = ".sram4_d3")]
 static mut RAM_D3_BUF: GroundedArrayCell<u8, 4> = GroundedArrayCell::uninit();
 
 pub struct Tca8418<'a, I2C: embedded_hal_async::i2c::I2c> {

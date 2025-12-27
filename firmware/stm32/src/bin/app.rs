@@ -46,8 +46,10 @@ use embedded_graphics::{
     text::{Alignment, LineHeight, Text, TextStyleBuilder},
 };
 
-use embedded_graphics_coordinate_transform::Rotate270;
+use embedded_graphics_coordinate_transform::{CoordinateTransform, Rotate270};
 
+use embedded_hal_async::delay::DelayNs;
+use grounded::uninit::GroundedArrayCell;
 use sdio_host::{
     common_cmd::{select_card, set_block_length},
     sd::BlockSize,
@@ -133,6 +135,11 @@ static I2C4_BUS: StaticCell<Mutex<CriticalSectionRawMutex, I2c<'static, Async, i
 /// SPI bus for internal and SD card storage.
 static SPI_BUS: StaticCell<Mutex<CriticalSectionRawMutex, Spi<'static, Async>>> = StaticCell::new();
 // static SPI_BUS: StaticCell<blocking_mutex::Mutex<CriticalSectionRawMutex, RefCell<Spi<'static, Async>>>> = StaticCell::new();
+
+static DISPLAY: StaticCell<
+    CoordinateTransform<Display<'static, embassy_time::Delay>, false, true, true>,
+> = StaticCell::new();
+static POWER: StaticCell<Power<'static>> = StaticCell::new();
 
 /// Custom HardFault handler to improve debugging.
 ///
@@ -319,7 +326,7 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     //
     // TODO: move this to an EXTI interrupt so that we're
     // not relying on the task eventually being called.
-    spawner.spawn(unwrap!(power_button_task(stm6601)));
+    // spawner.spawn(unwrap!(power_button_task(stm6601)));
 
     // Next, we configure the memory buses for the SDRAM and the display.
     //
@@ -345,7 +352,7 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     // We need to use software rotation instead of rotation in
     // the LCD driver because the LCD driver doesn't rotate the
     // scanning direction, causing nasty diagonal tearing.
-    let mut display = Rotate270::new(display);
+    let mut display = DISPLAY.init(Rotate270::new(display));
 
     // Next initialize the bus for the I2C2 peripheral that
     // has all the power management peripherals attatched.
@@ -361,9 +368,11 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     let i2c2_bus = I2C2_BUS.init(Mutex::new(hardware::get_i2c2(r.i2c2)));
 
     info!("Initializing power and battery management...");
-    let mut power = hardware::get_power(r.fuel_gauge.int, r.fuel_gauge.int_exti, i2c2_bus)
-        .await
-        .unwrap();
+    let mut power = POWER.init(
+        hardware::get_power(r.fuel_gauge.int, r.fuel_gauge.int_exti, i2c2_bus)
+            .await
+            .unwrap(),
+    );
 
     // Before we continue, force a scan of the keypad to
     // ensure we have a current map of the key states.
@@ -586,9 +595,12 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     .await
     .unwrap();
 
+    info!("initializing audio buffers");
+
     info!("initializing audio codec");
-    let mut audio = hardware::get_audio(i2c1_bus, embassy_time::Delay).await;
-    audio.init().await.unwrap();
+    let mut audio = hardware::get_audio(i2c1_bus, embassy_time::Delay, r.codec, spawner)
+        .await
+        .unwrap();
 
     // info!("Starting USB device...");
     // hardware::usb::start_usb(spawner, r.usb).await;
@@ -627,17 +639,32 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     // let backend = EmbeddedBackend::new(&mut display_rot, backend_config);
     // let mut terminal = Terminal::new(backend).unwrap();
 
-    loop {
-        draw_home_screen(&mut display, &mut power).await.unwrap();
-        // terminal.draw(draw).unwrap();
-        // display_rot.push_buffer_dma().await.unwrap();
+    spawner.spawn(home_task(display, power).unwrap());
 
-        // Give other tasks time to do work.
-        Timer::after_secs(1).await;
+    // loop {
+    //     info!("drawing home screen");
+    //     draw_home_screen(&mut display, &mut power).await.unwrap();
+    //     info!("finished drawing home screen");
 
-        // SHUTDOWN_SIGNAL.wait().await;
-        // keypad.set_leds(Rgb888::BLACK);
-    }
+    //     // Give other tasks time to do work.
+    //     Timer::after_secs(1).await;
+    //     yield_now().await;
+
+    //     // If the power button is pressed, turn off the device.
+    //     if stm6601.button_pressed() {
+    //         warn!("Powering off..");
+
+    //         // Blank the keypad before shutting off.
+    //         keypad.set_leds(Rgb888::BLACK);
+
+    //         // Disable the 3.3v regulator.
+    //         stm6601.power_disable().unwrap();
+
+    //         break;
+    //     }
+    // }
+
+    Ok(())
 
     // info!("Initializing engine..");
     // let mut engine_instance = engine::Engine::new(keypad);
@@ -667,6 +694,22 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
 
         join(wireless_read, wireless_write).await;
     */
+}
+
+#[embassy_executor::task]
+pub async fn home_task(
+    mut display: &'static mut Rotate270<Display<'static, Delay>>,
+    mut power: &'static mut Power<'static>,
+) -> ! {
+    loop {
+        info!("drawing home screen");
+        draw_home_screen(&mut display, &mut power).await.unwrap();
+        info!("finished drawing home screen");
+
+        // Why is this stalling other tasks?????
+        // Give other tasks time to do work.
+        // Timer::after_secs(1).await;
+    }
 }
 
 async fn draw_home_screen<'a>(

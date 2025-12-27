@@ -30,7 +30,8 @@ use embassy_stm32::{
     gpio::{self, Input, Level, Output, OutputType, Pull, Speed},
     i2c::{self, I2c},
     mode::{self, Async},
-    peripherals,
+    peripherals, rcc,
+    sai::{self, MasterClockDivider},
     spi::{self},
     time::{Hertz, khz, mhz},
     timer::{
@@ -120,13 +121,16 @@ assign_resources! {
     }
 
     /// Primary I2S interface, to NAU88C22YG audio codec.
-    codec: CodecResources {
+    codec: CodecSAIResources {
         peri: SAI1 = CodecPeri,
         mclk: PG7, // SAI1_MCLK_A
         adcdat: PE3, // SAI1_SD_B
         fs: PE4, // SAI1_FS_A
         sck: PE5, // SAI1_SCK_A,
         dacdat: PE6, //  SAI1_SD_A
+
+        rx_dma: DMA2_CH7,
+        tx_dma: DMA2_CH6,
 
         mic_l: PC8, // HIGH = mic-level input
         mic_r: PC7, // HIGH = mic-level input
@@ -300,7 +304,7 @@ assign_resources! {
 
 pub mod preamble {
     pub use super::{
-        AssignedResources, CodecResources, DisplayResources, FMCResources, FlashResources,
+        AssignedResources, CodecSAIResources, DisplayResources, FMCResources, FlashResources,
         FuelGaugeResources, I2C1Resources, I2C2Resources, I2C4Interrupts, I2C4Resources,
         KeypadResources, PowerResources, RFAudioResources, SPIStorageResources, USBPDResources,
         UartDebugResources, UartMIDIResources, UartRFResources, UsbResources,
@@ -865,9 +869,14 @@ pub async fn get_power<'a, INT: gpio::Pin>(
 
 /// Gets a handle to the audio codec.
 pub async fn get_audio<'a, DELAY: embedded_hal_async::delay::DelayNs>(
-    i2c_bus: &'a Mutex<CriticalSectionRawMutex, I2c<'static, Async, i2c::Master>>,
+    i2c_bus: &'static Mutex<CriticalSectionRawMutex, I2c<'static, Async, i2c::Master>>,
     delay: DELAY,
-) -> Audio<'a, DELAY> {
+    codec_sai: CodecSAIResources,
+    spawner: Spawner,
+) -> Result<Audio<'a, DELAY>, audio::InitError> {
+    // let mic_l_en = Output::new(codec_sai.mic_l, Level::Low, Speed::Low);
+    // let mic_r_en = Output::new(codec_sai.mic_r, Level::Low, Speed::Low);
+
     // Create the I2C device for the audio codec.
     let device: asynch::i2c::I2cDevice<
         '_,
@@ -875,7 +884,7 @@ pub async fn get_audio<'a, DELAY: embedded_hal_async::delay::DelayNs>(
         I2c<'static, Async, i2c::Master>,
     > = asynch::i2c::I2cDevice::new(i2c_bus);
 
-    Audio::new(device, delay)
+    Audio::new(device, codec_sai, /*sai_rx,*/ delay, spawner).await
 }
 
 /// Gets a handle to the FUSB302B USB-PD controller on I2C2.
