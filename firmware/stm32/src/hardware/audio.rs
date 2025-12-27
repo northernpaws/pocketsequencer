@@ -1,3 +1,5 @@
+use core::f32::consts::PI;
+
 use defmt::{error, info};
 use derive_more::{Display, Error};
 use embassy_embedded_hal::shared_bus::I2cDeviceError;
@@ -7,6 +9,7 @@ use embassy_stm32::i2c::{self, I2c};
 use embassy_stm32::sai::MasterClockDivider;
 use embassy_stm32::{mode, peripherals, rcc, sai};
 use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
+use embassy_time::Timer;
 use grounded::uninit::GroundedArrayCell;
 
 use crate::hardware::CodecSAIResources;
@@ -118,7 +121,7 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Audio<'a, DELAY> {
             .modify_aux2mixer(|reg| reg.with_lmixaux2(true))
             .await?;*/
 
-        // Enable the power paths we need on the codec.
+        /*// Enable the power paths we need on the codec.
         let before = codec.read_powermanagement1().await?;
         codec
             .modify_powermanagement1(|reg| {
@@ -207,6 +210,117 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Audio<'a, DELAY> {
         // AUX2 can only connect to LMIX but not RMIX.
         codec
             .modify_aux2mixer(|reg| reg.with_lmixaux2(true).with_ldacaux2(true))
+            .await?;*/
+
+        codec
+            .modify_clockcontrol1(|reg| {
+                reg.with_clkm(false) // MCLK, pin#11 used as master clock
+            })
+            .await?;
+
+        codec
+            .modify_powermanagement1(|reg| {
+                reg.with_dcbufen(true)
+                    .with_aux1mxen(true)
+                    .with_aux2mxen(true)
+                    .with_pllen(false)
+                    .with_micbiasen(true)
+                    .with_abiasen(true)
+                    .with_iobufen(true)
+                    .with_refimp(0b11)
+                    .with_dcbufen(false) // false for lower then 3.6v operation
+            })
+            .await?;
+
+        // Datasheet sets to wait 250ms after setting IOBUFEN, DCBUFEN,
+        // REFIMP and ABIASEN to charge output capacitors.
+        Timer::after_millis(250).await;
+
+        codec
+            .modify_powermanagement2(|reg| {
+                reg.with_rhpen(false)
+                    .with_lphen(false)
+                    .with_sleep(false)
+                    .with_rbsten(true)
+                    .with_lbsten(true)
+                    .with_rpgaen(true)
+                    .with_lpgaen(true)
+                    .with_radcen(true)
+                    .with_ladcen(true)
+            })
+            .await?;
+
+        codec
+            .modify_powermanagement3(|reg| {
+                reg.with_auxout1en(true)
+                    .with_auxout2en(true)
+                    .with_lspken(false)
+                    .with_rspken(false)
+                    .with_rmixen(true)
+                    .with_lmixen(true)
+                    .with_rdacen(true)
+                    .with_ldacen(true)
+            })
+            .await?;
+
+        // TODO: configure PLL
+
+        // Wait for the PLL to stabalize.
+        Timer::after_millis(255).await;
+
+        // Enable the PLL.
+        codec
+            .modify_powermanagement1(|reg| reg.with_pllen(true))
+            .await?;
+
+        // Enable the left aux in as the left ADC source.
+        codec
+            .modify_leftadcboost(|reg| {
+                reg.with_lauxbstegain(0b101)
+                    .with_lpgabst(false)
+                    .with_lpgabstgaun(0)
+            })
+            .await?;
+
+        // Enable the right aux in as the right ADC source.
+        codec
+            .modify_rightadcboost(|reg| {
+                reg.with_rauxbstgain(0b101)
+                    .with_rpgabst(false)
+                    .with_rpgabstgain(0)
+            })
+            .await?;
+
+        // Set the left main mix to use the left aux input.
+        codec
+            .modify_leftmixer(|reg| reg.with_lauxlmx(true).with_lauxmxgain(0b101))
+            .await?;
+
+        // Set the right main mix to use the right aux input.
+        codec
+            .modify_rightmixer(|reg| reg.with_rauxrmx(true).with_rauxmxgain(0b101))
+            .await?;
+
+        // Connect the left output mixer to the aux1 out.
+        //
+        // AUX1 can only connect to LMIX or RMIX.
+        codec
+            .modify_aux1mixer(|reg| {
+                reg.with_auxiut1mt(false)
+                    .with_rmixaux1(true) // mix in right mixer
+                    .with_rdacaux1(true) // mix in right DAC output
+            })
+            .await?;
+
+        // Connect the left output mixer to the aux2 out.
+        //
+        // AUX2 can only connect to LMIX but not RMIX.
+        codec
+            .modify_aux2mixer(|reg| {
+                reg.with_auxout2mt(false)
+                    .with_lmixaux2(true) // mix in left mixer
+                    .with_ldacaux2(true) // mix in left dac output
+            })
             .await?;
 
         // Spawn the task that processes the codec data.
@@ -259,7 +373,22 @@ async fn inner_device_loop(
 
     let mut sai_transmitter = setup_sai(&mut sai_resources, audio_tx_buffer, audio_rx_buffer);
 
+    const AMPLITUDE: f32 = 0.10;
+
+    let mut phase: f32 = 0.0;
+    const FREQUENCY: f32 = 261.625565; // middle C
+    let phase_inc = (2.0 * PI * FREQUENCY) / SAMPLE_RATE as f32;
+
     loop {
+        for i in 0..buf.len() {
+            let sine = libm::sinf(2.0 * PI * phase);
+            buf[i] = ((sine * u32::MAX as f32) * AMPLITUDE) as u32;
+            phase = phase + phase_inc;
+            if phase >= 1.0 {
+                phase = 0.0;
+            }
+        }
+
         // A write() must be called before read() to start the
         // master (transmitter) clock used by the receiver.
         match sai_transmitter.write(&buf).await {
