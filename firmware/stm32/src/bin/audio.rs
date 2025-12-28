@@ -4,6 +4,10 @@
 #[cfg(feature = "alloc")]
 extern crate alloc;
 
+use catalina::engine::audio::FromSample;
+use catalina::engine::core::Hertz;
+use embassy_stm32::rcc::mux::Saisel;
+use embassy_stm32::{mode, rcc::*};
 // NOTE: We try to rely on heap allocations as little
 // as possible for core elements of the system.
 //
@@ -23,28 +27,22 @@ use defmt::*;
 
 use embassy_executor::Spawner;
 
+use embassy_embedded_hal::shared_bus::asynch::{self};
+use embassy_stm32::sai::MasterClockDivider;
+use embassy_stm32::{Config, peripherals, rcc, sai};
 use embassy_stm32::{
     i2c::{self, I2c},
     mode::Async,
     rcc::clocks,
     usart::{UartRx, UartTx},
 };
-
-use defmt::{error, info};
-use derive_more::{Display, Error};
-use embassy_embedded_hal::shared_bus::asynch::{self};
-use embassy_stm32::sai::MasterClockDivider;
-use embassy_stm32::{interrupt, mode, peripherals, rcc, sai};
 use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
 use embassy_sync::mutex::Mutex;
 use embassy_time::Timer;
 use grounded::uninit::GroundedArrayCell;
 
-use catalina::engine::{
-    audio::oscillator::{self, Oscillator},
-    core::Hertz,
-};
-
+use defmt::{error, info};
+use derive_more::{Display, Error};
 use static_cell::StaticCell;
 
 use {
@@ -95,7 +93,7 @@ static DEBUG_SERIAL_RX: StaticCell<UartRx<'static, Async>> = StaticCell::new();
 #[expect(clippy::items_after_statements, reason = "Keeps related code together")]
 async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     // TODO: add error type
-    info!("initializing clocks and PLL to 480Mhz");
+    info!("initializing clocks and PLL");
     let p = hardware::init();
 
     info!("getting handles to hardware peripherals");
@@ -136,6 +134,21 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     println!("APB2  clock speed: {}", clocks.pclk2);
     println!("APB2 Timer clock speed: {}", clocks.pclk2_tim);
 
+    // Calculate the SAI master clock divisor and derrived codec master clock divisor and PLL.
+    let kernel_clock = rcc::frequency::<peripherals::SAI1>().0;
+    let mclk_div: MasterClockDivider = mclk_div_from_u8((kernel_clock / (SAMPLE_RATE * 256)) as u8);
+    let mclk_div_u8: u8 = mclk_div.into();
+    let adjusted_mclk = kernel_clock / mclk_div_u8 as u32;
+    info!("SAI1 master clock base: {}hz", kernel_clock);
+    info!("SAI1 master clock divisor: {}", mclk_div);
+    info!("SAI1 master clock adjusted: {}hz", adjusted_mclk);
+
+    info!("Ideal SAI clock for sample rate: {}", SAMPLE_RATE * 256);
+    info!(
+        "SAI clock skew: {}%",
+        (adjusted_mclk / (SAMPLE_RATE * 256)) as f32 * 100.0
+    );
+
     // Initialize the bus for the I2C1 peripheral.
     //
     // This communicates with the NAU88C22YG Audio Codec,
@@ -159,7 +172,7 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     info!("audio codec device ID: {}", device_id.id());
 
     info!("initializing audio codec...");
-
+    // codec_init(&mut codec, mclk_div);
     codec
         .modify_clockcontrol1(|reg| {
             reg.with_clkm(false) // MCLK, pin#11 used as master clock
@@ -221,18 +234,9 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     let mclk_div: MasterClockDivider = mclk_div_from_u8((kernel_clock / (SAMPLE_RATE * 256)) as u8);
     let mclk_div_u8: u8 = mclk_div.into();
     let adjusted_mclk = kernel_clock / mclk_div_u8 as u32;
-    info!("SAI1 master clock base: {}hz", kernel_clock);
-    info!("SAI1 master clock divisor: {}", mclk_div);
-    info!("SAI1 master clock adjusted: {}hz", adjusted_mclk);
 
     let (mclk_div, pllmclk, plln, pllk1, pllk2, pllk3) =
         nau88c22_calc_pll(adjusted_mclk as f32, SAMPLE_RATE as f32).unwrap();
-
-    info!("Ideal SAI clock for sample rate: {}", SAMPLE_RATE * 256);
-    info!(
-        "SAI clock skew: {}%",
-        (adjusted_mclk / (SAMPLE_RATE * 256)) as f32 * 100.0
-    );
 
     info!(
         "codec mclk_div={} pllmclk={} plln={} pllk1={} pllk2={} pllk3={}",
@@ -350,7 +354,6 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
         .unwrap();
 
     info!("initializing SAI buffers...");
-
     let audio_tx_buffer: &mut [u32] = unsafe {
         AUDIO_TX_BUFFER.initialize_all_copied(0);
         let (ptr, len) = AUDIO_TX_BUFFER.get_ptr_len();
@@ -370,86 +373,254 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     // Initialize the SAI receiver.
     // TODO: remove unwrap and use proper error type
 
-    let (mut sai_transmitter, mut sai_receiver) = setup_sai(
-        &mut r.codec,
+    // The SAI config used for the A block configured in transmit mode.
+    let mut tx_config = sai::Config::default();
+    tx_config.slot_count = sai::word::U4(OUTPUT_CHANNEL_COUNT as u8); // The number of slots in the audio frame.
+    tx_config.slot_enable = 0b11; // First 2 slots.
+    tx_config.frame_sync_definition = sai::FrameSyncDefinition::StartOfFrame;
+    tx_config.frame_sync_active_level_length = sai::word::U7(32); // 1-bit cycle for i2s?
+    tx_config.bit_order = sai::BitOrder::MsbFirst; // nac88c22 runs in MSB
+    tx_config.frame_sync_offset = sai::FrameSyncOffset::OnFirstBit;
+    tx_config.data_size = sai::DataSize::Data24;
+    tx_config.frame_length = 64; // The audio frame length expressed in number of SCK clock cycles. // (channels * 32) for 24 and 32 bit
+    tx_config.master_clock_divider = Some(mclk_div.into());
+    tx_config.clock_strobe = sai::ClockStrobe::Rising; // nac88c22 uses rising edge latching on bclk
+    tx_config.fifo_threshold = sai::FifoThreshold::Quarter;
+    tx_config.sync_output = true; // passes sync to the second block
+
+    // The SAI config used for the B block configured in receive mode.
+    let mut rx_config = tx_config.clone();
+    rx_config.mode = sai::Mode::Slave; // slaved to the transmitter block
+    rx_config.tx_rx = sai::TxRx::Receiver; // configure this block as a receiver
+    rx_config.sync_input = sai::SyncInput::Internal; // passes sync to the second block
+    rx_config.sync_output = false; // passes sync to the second block
+    rx_config.clock_strobe = sai::ClockStrobe::Rising; // nac88c22 uses rising edge latching on bclk
+
+    // Split the SAI periperal into it's two subblock peripherals.
+    let (sub_block_tx, sub_block_rx) = sai::split_subblocks(r.codec.peri.reborrow());
+
+    // Configure the first sub block as the transmitter and the main clock source.
+    let mut sai_tx = sai::Sai::new_asynchronous_with_mclk(
+        sub_block_tx,
+        r.codec.sck.reborrow(),
+        r.codec.dacdat.reborrow(),
+        r.codec.fs.reborrow(),
+        r.codec.mclk.reborrow(),
+        r.codec.tx_dma.reborrow(),
         audio_tx_buffer,
-        audio_rx_buffer,
-        mclk_div.into(),
+        tx_config,
     );
 
-    let mut osc = oscillator::RuntimeOscillator::new(
-        oscillator::OscillatorType::Sine,
-        SAMPLE_RATE as usize,
-        Hertz::from_hertz(261.63), // middle C
+    // Configure the second sub block as a receiver,
+    // syncronous to the mclk of the transmitter block.
+    let mut sai_rx = sai::Sai::new_synchronous(
+        sub_block_rx,
+        r.codec.adcdat.reborrow(),
+        r.codec.rx_dma.reborrow(),
+        audio_rx_buffer,
+        rx_config,
     );
 
     info!("starting SAI receiver");
-    sai_receiver.start().unwrap();
+    sai_rx.start().unwrap();
 
     info!("starting SAI loop");
     let mut buf = [0u32; HALF_DMA_BUFFER_LENGTH];
     loop {
-        // for frame in buf.chunks_mut(OUTPUT_CHANNEL_COUNT) {
-        //     let value: U24 = osc.sample();
-        //     for sample in frame.iter_mut() {
-        //         *sample = value.to_sample();
-        //     }
-        // }
-
         // A write() must be called before read() to start the
         // master (transmitter) clock used by the receiver.
-        match sai_transmitter.write(&buf).await {
-            Ok(_) => {
-                // info!("Write ok!");
-            }
-            Err(err) => {
-                error!("Recreating SAI due to transmit error: {}", err);
-
-                info!("SAI transmit buffer size: {}", tx_size);
-                info!("SAI block transfer size: {}", buf.len());
-
-                // In the event of an overrun error, re-create the SAI devices to clear the DMA status.
-                drop(sai_transmitter);
-                drop(sai_receiver);
-
-                (sai_transmitter, sai_receiver) = setup_sai(
-                    &mut r.codec,
-                    audio_tx_buffer,
-                    audio_rx_buffer,
-                    mclk_div.into(),
-                );
-            }
-        }
-
-        match sai_receiver.read(&mut buf).await {
-            Ok(_) => {
-                // info!("Read ok!");
-            }
-            Err(err) => {
-                error!("Recreating SAI due to receive error: {}", err);
-
-                info!("SAI receive buffer size: {}", rx_size);
-                info!("SAI block transfer size: {}", buf.len());
-
-                // In the event of an overrun error, re-create the SAI devices to clear the DMA status.
-                drop(sai_transmitter);
-                drop(sai_receiver);
-
-                (sai_transmitter, sai_receiver) = setup_sai(
-                    &mut r.codec,
-                    audio_tx_buffer,
-                    audio_rx_buffer,
-                    mclk_div.into(),
-                );
-            }
-        }
-
-        // info!("sai tick")
-
-        // info!("sai receive: {}", buf[0]);
+        sai_tx.write(&buf).await.unwrap();
+        sai_rx.read(&mut buf).await.unwrap();
     }
 
     Ok(())
+}
+
+pub async fn codec_init(
+    codec: &'_ mut nau88c22_rs::Nau88c22<
+        asynch::i2c::I2cDevice<'_, CriticalSectionRawMutex, I2c<'static, mode::Async, i2c::Master>>,
+    >,
+    adjusted_mclk: MasterClockDivider,
+) {
+    codec
+        .modify_clockcontrol1(|reg| {
+            reg.with_clkm(false) // MCLK, pin#11 used as master clock
+                .with_clkioen(false) // clock is in slave mode
+        })
+        .await
+        .unwrap();
+
+    codec
+        .modify_powermanagement1(|reg| {
+            reg.with_dcbufen(true)
+                .with_aux1mxen(true)
+                .with_aux2mxen(true)
+                .with_pllen(false)
+                .with_micbiasen(true)
+                .with_abiasen(true)
+                .with_iobufen(true)
+                .with_refimp(0b11)
+                .with_dcbufen(false) // false for lower then 3.6v operation
+        })
+        .await
+        .unwrap();
+
+    // Datasheet sets to wait 250ms after setting IOBUFEN, DCBUFEN,
+    // REFIMP and ABIASEN to charge output capacitors.
+    Timer::after_millis(250).await;
+
+    codec
+        .modify_powermanagement2(|reg| {
+            reg.with_rhpen(false)
+                .with_lphen(false)
+                .with_sleep(false)
+                .with_rbsten(true)
+                .with_lbsten(true)
+                .with_rpgaen(true)
+                .with_lpgaen(true)
+                .with_radcen(true)
+                .with_ladcen(true)
+        })
+        .await
+        .unwrap();
+
+    codec
+        .modify_powermanagement3(|reg| {
+            reg.with_auxout1en(true)
+                .with_auxout2en(true)
+                .with_lspken(false)
+                .with_rspken(false)
+                .with_rmixen(true)
+                .with_lmixen(true)
+                .with_rdacen(true)
+                .with_ldacen(true)
+        })
+        .await
+        .unwrap();
+
+    // Calculate the SAI master clock divisor and derrived codec master clock divisor and PLL.
+    let kernel_clock = rcc::frequency::<peripherals::SAI1>().0;
+    let mclk_div: MasterClockDivider = mclk_div_from_u8((kernel_clock / (SAMPLE_RATE * 256)) as u8);
+    let mclk_div_u8: u8 = mclk_div.into();
+    let adjusted_mclk = kernel_clock / mclk_div_u8 as u32;
+
+    let (mclk_div, pllmclk, plln, pllk1, pllk2, pllk3) =
+        nau88c22_calc_pll(adjusted_mclk as f32, SAMPLE_RATE as f32).unwrap();
+
+    info!(
+        "codec mclk_div={} pllmclk={} plln={} pllk1={} pllk2={} pllk3={}",
+        mclk_div,
+        pllmclk > 0,
+        plln,
+        pllk1,
+        pllk2,
+        pllk3
+    );
+
+    // Configure the PLL.
+    codec
+        .modify_clockcontrol1(|reg| reg.with_mclksel(mclk_div))
+        .await
+        .unwrap();
+    codec
+        .modify_plln(|reg| reg.with_pllmclk(pllmclk > 0).with_plln(plln))
+        .await
+        .unwrap();
+    codec
+        .modify_pllk1(|reg| reg.with_pllk(pllk1))
+        .await
+        .unwrap();
+    codec
+        .modify_pllk2(|reg| reg.with_pllk(pllk2))
+        .await
+        .unwrap();
+    codec
+        .modify_pllk3(|reg| reg.with_pllk(pllk3))
+        .await
+        .unwrap();
+
+    // Wait for the PLL to stabalize.
+    Timer::after_millis(255).await;
+
+    // Enable the PLL.
+    codec
+        .modify_powermanagement1(|reg| reg.with_pllen(true))
+        .await
+        .unwrap();
+
+    // Configure the audio format
+    codec
+        .modify_audiointerface(|reg| {
+            reg.with_wlen(0b11) // 32-bit words
+                .with_aifmt(0b10) // standard i2s
+                .with_mono(false) // stereo mode
+        })
+        .await
+        .unwrap();
+
+    // Enable the left aux in as the left ADC source.
+    codec
+        .modify_leftadcboost(|reg| {
+            reg.with_lauxbstegain(0b101)
+                .with_lpgabst(false)
+                .with_lpgabstgaun(0)
+        })
+        .await
+        .unwrap();
+
+    // Enable the right aux in as the right ADC source.
+    codec
+        .modify_rightadcboost(|reg| {
+            reg.with_rauxbstgain(0b101)
+                .with_rpgabst(false)
+                .with_rpgabstgain(0)
+        })
+        .await
+        .unwrap();
+
+    // Set the left main mix to use the left aux input.
+    codec
+        .modify_leftmixer(|reg| {
+            reg //.with_lauxlmx(true) // mix in the left audio input
+                //.with_lauxmxgain(0b101)
+                .with_ldaclmx(true) // mix in the left dac output
+        })
+        .await
+        .unwrap();
+
+    // Set the right main mix to use the right aux input.
+    codec
+        .modify_rightmixer(|reg| {
+            reg //.with_rauxrmx(true) // mix in the right aux input
+                //.with_rauxmxgain(0b101)
+                .with_rdacrmx(true) // mix in the right dac output
+        })
+        .await
+        .unwrap();
+
+    // Connect the left output mixer to the aux1 out.
+    //
+    // AUX1 can only connect to LMIX or RMIX.
+    codec
+        .modify_aux1mixer(|reg| {
+            reg.with_auxiut1mt(false)
+                //.with_rmixaux1(true) // mix in right mixer
+                .with_rdacaux1(true) // mix in right DAC output
+        })
+        .await
+        .unwrap();
+
+    // Connect the left output mixer to the aux2 out.
+    //
+    // AUX2 can only connect to LMIX but not RMIX.
+    codec
+        .modify_aux2mixer(|reg| {
+            reg.with_auxout2mt(false)
+                //.with_lmixaux2(true) // mix in left mixer
+                .with_ldacaux2(true) // mix in left dac output
+        })
+        .await
+        .unwrap();
 }
 
 fn mclk_div_from_u8(v: u8) -> MasterClockDivider {
@@ -459,73 +630,6 @@ fn mclk_div_from_u8(v: u8) -> MasterClockDivider {
 
 pub type SAITransmitter<'a> = sai::Sai<'a, peripherals::SAI1, u32>;
 pub type SAIReceiver<'a> = sai::Sai<'a, peripherals::SAI1, u32>;
-
-fn setup_sai<'d>(
-    sai_resources: &'d mut CodecSAIResources,
-    transmit_buffer: &'d mut [u32],
-    receive_buffer: &'d mut [u32],
-    mclk_div: MasterClockDivider,
-) -> (SAITransmitter<'d>, SAIReceiver<'d>) {
-    // Derrive the required SAI clock divider based on
-    // the configured sample rate for the audio engine.
-    // let kernel_clock = rcc::frequency::<peripherals::SAI1>().0;
-    // let mclk_div = mclk_div_from_u8((kernel_clock / (SAMPLE_RATE * 256)) as u8);
-
-    // info!("SAI1 master clock: {}", kernel_clock);
-    // info!("SAI1 master clock divider: {}", mclk_div);
-
-    let mut tx_config = sai::Config::default();
-    tx_config.protocol = sai::Protocol::Free; // mode for I2S, PCM, TDM, etc.
-    // The number of slots in the audio frame.
-    tx_config.slot_count = sai::word::U4(OUTPUT_CHANNEL_COUNT as u8);
-    // Enables the slots we're going to use.
-    tx_config.slot_enable = 0b11; // First 2 slots.
-    tx_config.frame_sync_definition = sai::FrameSyncDefinition::StartOfFrame;
-    tx_config.frame_sync_active_level_length = sai::word::U7(32); // 1-bit cycle for i2s?
-    tx_config.bit_order = sai::BitOrder::MsbFirst; // nac88c22 runs in MSB
-    tx_config.frame_sync_offset = sai::FrameSyncOffset::OnFirstBit;
-    tx_config.data_size = sai::DataSize::Data24;
-    // The audio frame length expressed in number of SCK clock cycles.
-    tx_config.frame_length = 64; // (channels * 32) for 24 and 32 bit
-    tx_config.master_clock_divider = Some(mclk_div);
-    tx_config.clock_strobe = sai::ClockStrobe::Rising; // nac88c22 uses rising edge latching on bclk
-    tx_config.fifo_threshold = sai::FifoThreshold::Quarter;
-    tx_config.sync_output = true; // passes sync to the second block
-
-    let mut rx_config = tx_config.clone();
-    rx_config.mode = sai::Mode::Slave; // slaved to the transmitter block
-    rx_config.tx_rx = sai::TxRx::Receiver; // configure this block as a receiver
-    rx_config.sync_input = sai::SyncInput::Internal; // passes sync to the second block
-    rx_config.sync_output = false; // passes sync to the second block
-    rx_config.clock_strobe = sai::ClockStrobe::Rising; // nac88c22 uses rising edge latching on bclk
-
-    // Split the SAI periperal into it's two subblocks.
-    let (sub_block_tx, sub_block_rx) = sai::split_subblocks(sai_resources.peri.reborrow());
-
-    // Configure the first sub block as the transmitter and the main clock source.
-    let sai_tx = sai::Sai::new_asynchronous_with_mclk(
-        sub_block_tx,
-        sai_resources.sck.reborrow(),
-        sai_resources.dacdat.reborrow(),
-        sai_resources.fs.reborrow(),
-        sai_resources.mclk.reborrow(),
-        sai_resources.tx_dma.reborrow(),
-        transmit_buffer,
-        tx_config,
-    );
-
-    // Configure the second sub block as a receiver,
-    // syncronous to the mclk of the transmitter block.
-    let sai_rx = sai::Sai::new_synchronous(
-        sub_block_rx,
-        sai_resources.adcdat.reborrow(),
-        sai_resources.rx_dma.reborrow(),
-        receive_buffer,
-        rx_config,
-    );
-
-    (sai_tx, sai_rx)
-}
 
 const NAU_MCLKSEL: [f32; 8] = [1.0, 1.5, 2.0, 3.0, 4.0, 6.0, 8.0, 12.0];
 
