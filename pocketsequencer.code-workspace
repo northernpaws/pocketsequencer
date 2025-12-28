@@ -1,0 +1,22 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "firmware/stm32"
+		}
+	],
+	"settings": {
+		"rust-analyzer.cargo.target": "thumbv7em-none-eabihf",
+		"rust-analyzer.linkedProjects": [
+			"firmware/stm32/Cargo.toml"
+		],
+		"files.associations": {
+			"uart_async_adapter.h": "c",
+			"log.h": "c",
+			"nrfx_log.h": "c"
+		},
+		"device-manager.manageAllDevices": true
+	}
+}

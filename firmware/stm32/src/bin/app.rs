@@ -303,297 +303,295 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     println!("APB2  clock speed: {}", clocks.pclk2);
     println!("APB2 Timer clock speed: {}", clocks.pclk2_tim);
 
-    // Initialize the bus for the I2C4 peripheral.
-    //
-    // This communicates with the FT6206 Capacitive Touch sensor,
-    // TCA8418RTWR Keypad matrix, ADS7128IRTER GPIO Breakout for
-    // Velocity Grid, DA7280 Haptics driver, and MMA8653FCR1 9DOF.
-    info!("initializing input I2C4 bus");
-    let i2c4 = hardware::get_i2c4(r.i2c4);
-    let i2c4_bus = I2C4_BUS.init(Mutex::new(i2c4));
-
-    // Initialize the keypad fairly early so that we can
-    // use the keypad LEDs as status indicators and use
-    // the buttons to alter the boot sequence.
-    info!("Initializing keypad...");
-    static KEYPAD: StaticCell<Keypad> = StaticCell::new();
-    let (keypad, mut keypad_sub) = hardware::get_keypad(spawner, r.keypad, i2c4_bus)
-        .await
-        .unwrap();
-    let mut keypad: &mut Keypad = KEYPAD.init(keypad);
-
-    // Spawn the task that handles the power button.
-    //
-    // TODO: move this to an EXTI interrupt so that we're
-    // not relying on the task eventually being called.
-    // spawner.spawn(unwrap!(power_button_task(stm6601)));
-
-    // Next, we configure the memory buses for the SDRAM and the display.
-    //
-    // We initialize the display as soon as possible to display any boot errors.
-    info!("Configuring memory controller...");
-    keypad.set_led(keypad::Button::Trig1, Rgb888::YELLOW);
-    let Ok((mut sdram, display)) =
-        hardware::get_memory_devices(r.fmc, r.display, embassy_time::Delay).await
-    else {
-        loop {
-            // Blink an LED to indicate an error.
-            keypad.set_led(keypad::Button::Trig1, Rgb888::RED);
-            Timer::after_millis(25).await;
-            keypad.set_led(keypad::Button::Trig1, Rgb888::BLACK);
-            Timer::after_millis(25).await;
-        }
-    };
-    keypad.set_led(keypad::Button::Trig1, Rgb888::GREEN);
-
-    // Wrap the display in a translation layer that rotates it
-    // 270 degrees into landscape with the correct orientation.
-    //
-    // We need to use software rotation instead of rotation in
-    // the LCD driver because the LCD driver doesn't rotate the
-    // scanning direction, causing nasty diagonal tearing.
-    let mut display = DISPLAY.init(Rotate270::new(display));
-
-    // Next initialize the bus for the I2C2 peripheral that
-    // has all the power management peripherals attatched.
-    //
-    // This communicates with the BQ24193 battery charger,
-    // BQ27531YZFR-G1 fuel gauge, FUSB302B USB-PD.
-    //
-    // Note that the communication with the BQ24193 charger happens
-    // THROUGH the BQ27531YZFR-G1 fuel gauge. They're interconnected
-    // on their own I2C bus with a special set of registers on the
-    // fuel gauge to interact with the charger.
-    info!("Initializing power i2c2 bus...");
-    let i2c2_bus = I2C2_BUS.init(Mutex::new(hardware::get_i2c2(r.i2c2)));
-
-    info!("Initializing power and battery management...");
-    let mut power = POWER.init(
-        hardware::get_power(r.fuel_gauge.int, r.fuel_gauge.int_exti, i2c2_bus)
-            .await
-            .unwrap(),
-    );
-
-    // Before we continue, force a scan of the keypad to
-    // ensure we have a current map of the key states.
-    //
-    // This is important so we can catch any special key states
-    // for purposes such as diagnostics, bootloader triggers, and
-    // special setting modes.
-    info!("Scanning keypad for boot interruption keybinds..");
-
-    // Immediately flush the button FIFO from the TCA8418
-    // so that we have an up-to-date button state.
-    //
-    // Flush awaits until the end of the next keypad scan, which
-    // is usually the scan manually triggered by the flush.
-    keypad.flush().await;
-
-    loop {
-        // TODO: use the menu buttons instead and directly query them with the GPIO state register
-
-        // Immediately receive pending button events until none are left.
-        let Some(message) = keypad_sub.try_next_message() else {
-            info!("No keypress events flushed from queue, proceeeding with boot..");
-            break;
-        };
-
-        use embassy_sync::pubsub::WaitResult::Message;
-
-        let Message(event) = message else {
-            info!("Ignoring non-message event from input channel.");
-            continue;
-        };
-
-        let Event::KeyPress(keycode) = event else {
-            info!("Ignoring non-keypress event from keypad.");
-            continue;
-        };
-
-        // Match the button to a diagnostic or boot setting.
-        match keycode {
-            KeyCode::Trig1 => {
-                keypad.set_leds(Rgb888::YELLOW);
-                yield_now().await;
-
-                // TODO: load diagnostics depending on keypad state
-                info!("Entering diagnostics menu...");
-                diagnostics::run_diagnostics(&mut display, &mut keypad, &mut power).await;
-                info!("Exited diagnostics menu.");
-            }
-            _ => {
-                info!("Ignoring unbound boot hotkey: {}", keycode);
-            }
-        }
-    }
-
-    info!("Running fast memory check...");
-
-    draw_boot_screen(&mut display, "Memory test..", &[])
-        .await
-        .unwrap();
-
-    // After we've got the display initialized so we can show status, perform a very
-    // very brief memory test to see if we can write and read from the SDRAM.
-
-    info!("RAM contents before writing: {:x}", sdram[..10]);
-    sdram[0] = 1;
-    sdram[1] = 2;
-    sdram[2] = 3;
-    sdram[3] = 4;
-    info!("RAM contents after writing: {:x}", sdram[..10]);
-
-    if sdram[0] != 1 || sdram[1] != 2 || sdram[2] != 3 || sdram[3] != 4 {
-        error!("Brief memory test failed!");
-        draw_boot_screen(&mut display, "Memory test failed!", &[])
-            .await
-            .unwrap();
-
-        loop {
-            // Blink an LED to indicate an error.
-            keypad.set_led(keypad::Button::Trig2, Rgb888::RED);
-            Timer::after_millis(25).await;
-            keypad.set_led(keypad::Button::Trig2, Rgb888::GREEN);
-            Timer::after_millis(25).await;
-        }
-    }
-
-    info!("Memory test succeeded.");
-
-    info!("Initializing heap allocator...");
-
-    // Next we need to initialize the heap allocator for the program.
-    //
-    // Note that this needs to be done before drawing to the display,
-    // as ratataui uses the heap allocator for it's widgets.
-    //
-    // NOTE: We try to rely on heap allocations as little
-    // as possible for core elements of the system.
-    //
-    // Where possible, core systems should use heapless static
-    // allocation or allocation pools so their size is known
-    // and we avoid running into OOM problems.
-    {
-        const HEAP_SIZE: usize = 1024 * 128;
-
-        // Split off a section of the SDRAM memory for the heap allocator.
+    /*// Initialize the bus for the I2C4 peripheral.
         //
-        // This syntax lets us use the SDRAM slice to keep track of how much
-        // of it we can allocate to other parts of the system without needing
-        // to remeber where pointers have been used.
-        let Some((heap_slice, new_sdram)) = sdram.split_at_mut_checked(HEAP_SIZE) else {
-            error!("No space left in SDRAM for heap!");
+        // This communicates with the FT6206 Capacitive Touch sensor,
+        // TCA8418RTWR Keypad matrix, ADS7128IRTER GPIO Breakout for
+        // Velocity Grid, DA7280 Haptics driver, and MMA8653FCR1 9DOF.
+        info!("initializing input I2C4 bus");
+        let i2c4 = hardware::get_i2c4(r.i2c4);
+        let i2c4_bus = I2C4_BUS.init(Mutex::new(i2c4));
 
-            draw_boot_screen(
-                &mut display,
-                "No space in SDRAM for heap!",
-                &["Memory test"],
-            )
+        // Initialize the keypad fairly early so that we can
+        // use the keypad LEDs as status indicators and use
+        // the buttons to alter the boot sequence.
+        info!("Initializing keypad...");
+        static KEYPAD: StaticCell<Keypad> = StaticCell::new();
+        let (keypad, mut keypad_sub) = hardware::get_keypad(spawner, r.keypad, i2c4_bus)
+            .await
+            .unwrap();
+        let mut keypad: &mut Keypad = KEYPAD.init(keypad);
+
+        // Spawn the task that handles the power button.
+        //
+        // TODO: move this to an EXTI interrupt so that we're
+        // not relying on the task eventually being called.
+        // spawner.spawn(unwrap!(power_button_task(stm6601)));
+
+        // Next, we configure the memory buses for the SDRAM and the display.
+        //
+        // We initialize the display as soon as possible to display any boot errors.
+        info!("Configuring memory controller...");
+        keypad.set_led(keypad::Button::Trig1, Rgb888::YELLOW);
+        let Ok((mut sdram, display)) =
+            hardware::get_memory_devices(r.fmc, r.display, embassy_time::Delay).await
+        else {
+            loop {
+                // Blink an LED to indicate an error.
+                keypad.set_led(keypad::Button::Trig1, Rgb888::RED);
+                Timer::after_millis(25).await;
+                keypad.set_led(keypad::Button::Trig1, Rgb888::BLACK);
+                Timer::after_millis(25).await;
+            }
+        };
+        keypad.set_led(keypad::Button::Trig1, Rgb888::GREEN);
+
+        // Wrap the display in a translation layer that rotates it
+        // 270 degrees into landscape with the correct orientation.
+        //
+        // We need to use software rotation instead of rotation in
+        // the LCD driver because the LCD driver doesn't rotate the
+        // scanning direction, causing nasty diagonal tearing.
+        let mut display = DISPLAY.init(Rotate270::new(display));
+
+        // Next initialize the bus for the I2C2 peripheral that
+        // has all the power management peripherals attatched.
+        //
+        // This communicates with the BQ24193 battery charger,
+        // BQ27531YZFR-G1 fuel gauge, FUSB302B USB-PD.
+        //
+        // Note that the communication with the BQ24193 charger happens
+        // THROUGH the BQ27531YZFR-G1 fuel gauge. They're interconnected
+        // on their own I2C bus with a special set of registers on the
+        // fuel gauge to interact with the charger.
+        info!("Initializing power i2c2 bus...");
+        let i2c2_bus = I2C2_BUS.init(Mutex::new(hardware::get_i2c2(r.i2c2)));
+
+        info!("Initializing power and battery management...");
+        let mut power = POWER.init(
+            hardware::get_power(r.fuel_gauge.int, r.fuel_gauge.int_exti, i2c2_bus)
+                .await
+                .unwrap(),
+        );
+
+        // Before we continue, force a scan of the keypad to
+        // ensure we have a current map of the key states.
+        //
+        // This is important so we can catch any special key states
+        // for purposes such as diagnostics, bootloader triggers, and
+        // special setting modes.
+        info!("Scanning keypad for boot interruption keybinds..");
+
+        // Immediately flush the button FIFO from the TCA8418
+        // so that we have an up-to-date button state.
+        //
+        // Flush awaits until the end of the next keypad scan, which
+        // is usually the scan manually triggered by the flush.
+        keypad.flush().await;
+
+        loop {
+            // TODO: use the menu buttons instead and directly query them with the GPIO state register
+
+            // Immediately receive pending button events until none are left.
+            let Some(message) = keypad_sub.try_next_message() else {
+                info!("No keypress events flushed from queue, proceeeding with boot..");
+                break;
+            };
+
+            use embassy_sync::pubsub::WaitResult::Message;
+
+            let Message(event) = message else {
+                info!("Ignoring non-message event from input channel.");
+                continue;
+            };
+
+            let Event::KeyPress(keycode) = event else {
+                info!("Ignoring non-keypress event from keypad.");
+                continue;
+            };
+
+            // Match the button to a diagnostic or boot setting.
+            match keycode {
+                KeyCode::Trig1 => {
+                    keypad.set_leds(Rgb888::YELLOW);
+                    yield_now().await;
+
+                    // TODO: load diagnostics depending on keypad state
+                    info!("Entering diagnostics menu...");
+                    diagnostics::run_diagnostics(&mut display, &mut keypad, &mut power).await;
+                    info!("Exited diagnostics menu.");
+                }
+                _ => {
+                    info!("Ignoring unbound boot hotkey: {}", keycode);
+                }
+            }
+        }
+
+        info!("Running fast memory check...");
+
+        draw_boot_screen(&mut display, "Memory test..", &[])
             .await
             .unwrap();
 
-            loop {}
-        };
+        // After we've got the display initialized so we can show status, perform a very
+        // very brief memory test to see if we can write and read from the SDRAM.
 
-        // Assign the split-off portion back to our original slice
-        // reference so that we can track the remaining amount of
-        // SDRAM available to allocate to other systems.
-        sdram = new_sdram;
+        info!("RAM contents before writing: {:x}", sdram[..10]);
+        sdram[0] = 1;
+        sdram[1] = 2;
+        sdram[2] = 3;
+        sdram[3] = 4;
+        info!("RAM contents after writing: {:x}", sdram[..10]);
 
-        // Place the heap allocation pool in the external SDRAM.
-        unsafe { HEAP.init(heap_slice.as_ptr().addr(), heap_slice.len()) }
+        if sdram[0] != 1 || sdram[1] != 2 || sdram[2] != 3 || sdram[3] != 4 {
+            error!("Brief memory test failed!");
+            draw_boot_screen(&mut display, "Memory test failed!", &[])
+                .await
+                .unwrap();
 
-        // TODO: we need an exception handler for over-allocation exceptions to handle them gracefully.
-        info!("Heap successfully initialized.");
-    }
-
-    draw_boot_screen(&mut display, "SD Card...", &["Memory test"])
-        .await
-        .unwrap();
-
-    // Initialize the bus for the SPI1 peripheral.
-    //
-    // This communicates with the internal storage and Micro SD card.
-    info!("initializing storage SPI1 bus");
-    keypad.set_led(keypad::Button::Trig2, Rgb888::RED);
-    let (spi1, sd_cs, mut xtsdg_cs) = hardware::get_spi1(r.spi_storage);
-
-    // Convert the SPI1 peripheral handle into a bus handle that can be consumed by multiple devices.
-    let spi_bus = SPI_BUS.init(Mutex::new(spi1));
-
-    // Initialize the internal and SD card storage next.
-    //
-    // We also want to initialize storage fairly early in the startup process so that
-    // we can check for key files on the device, such as firmware update indicators.
-
-    // SD cards need to be clocked with a at least 74 cycles
-    // on their SPI clock with the CS pin held HIGH.
-    //
-    // sd_init is a helper function that does this for us.
-    info!("Clocking SPI1 74 cyles before initializing SD devices...");
-    loop {
-        keypad.set_led(keypad::Button::Trig2, Rgb888::BLACK);
-        match sd_init(spi_bus.get_mut(), &mut xtsdg_cs).await {
-            Ok(_) => break,
-            Err(_e) => {
+            loop {
+                // Blink an LED to indicate an error.
                 keypad.set_led(keypad::Button::Trig2, Rgb888::RED);
-                error!("SPI init error!");
-                embassy_time::Timer::after_millis(10).await;
+                Timer::after_millis(25).await;
+                keypad.set_led(keypad::Button::Trig2, Rgb888::GREEN);
+                Timer::after_millis(25).await;
             }
         }
-    }
 
-    // Now we can initialize the Micro SD card driver.
-    info!("Initializing SD card device..");
-    let mut sd_card = hardware::init_sdcard_async2(spi_bus, sd_cs, embassy_time::Delay)
+        info!("Memory test succeeded.");
+
+        info!("Initializing heap allocator...");
+
+        // Next we need to initialize the heap allocator for the program.
+        //
+        // Note that this needs to be done before drawing to the display,
+        // as ratataui uses the heap allocator for it's widgets.
+        //
+        // NOTE: We try to rely on heap allocations as little
+        // as possible for core elements of the system.
+        //
+        // Where possible, core systems should use heapless static
+        // allocation or allocation pools so their size is known
+        // and we avoid running into OOM problems.
+        {
+            const HEAP_SIZE: usize = 1024 * 128;
+
+            // Split off a section of the SDRAM memory for the heap allocator.
+            //
+            // This syntax lets us use the SDRAM slice to keep track of how much
+            // of it we can allocate to other parts of the system without needing
+            // to remeber where pointers have been used.
+            let Some((heap_slice, new_sdram)) = sdram.split_at_mut_checked(HEAP_SIZE) else {
+                error!("No space left in SDRAM for heap!");
+
+                draw_boot_screen(
+                    &mut display,
+                    "No space in SDRAM for heap!",
+                    &["Memory test"],
+                )
+                .await
+                .unwrap();
+
+                loop {}
+            };
+
+            // Assign the split-off portion back to our original slice
+            // reference so that we can track the remaining amount of
+            // SDRAM available to allocate to other systems.
+            sdram = new_sdram;
+
+            // Place the heap allocation pool in the external SDRAM.
+            unsafe { HEAP.init(heap_slice.as_ptr().addr(), heap_slice.len()) }
+
+            // TODO: we need an exception handler for over-allocation exceptions to handle them gracefully.
+            info!("Heap successfully initialized.");
+        }
+
+        draw_boot_screen(&mut display, "SD Card...", &["Memory test"])
+            .await
+            .unwrap();
+
+        // Initialize the bus for the SPI1 peripheral.
+        //
+        // This communicates with the internal storage and Micro SD card.
+        info!("initializing storage SPI1 bus");
+        keypad.set_led(keypad::Button::Trig2, Rgb888::RED);
+        let (spi1, sd_cs, mut xtsdg_cs) = hardware::get_spi1(r.spi_storage);
+
+        // Convert the SPI1 peripheral handle into a bus handle that can be consumed by multiple devices.
+        let spi_bus = SPI_BUS.init(Mutex::new(spi1));
+
+        // Initialize the internal and SD card storage next.
+        //
+        // We also want to initialize storage fairly early in the startup process so that
+        // we can check for key files on the device, such as firmware update indicators.
+
+        // SD cards need to be clocked with a at least 74 cycles
+        // on their SPI clock with the CS pin held HIGH.
+        //
+        // sd_init is a helper function that does this for us.
+        info!("Clocking SPI1 74 cyles before initializing SD devices...");
+        loop {
+            keypad.set_led(keypad::Button::Trig2, Rgb888::BLACK);
+            match sd_init(spi_bus.get_mut(), &mut xtsdg_cs).await {
+                Ok(_) => break,
+                Err(_e) => {
+                    keypad.set_led(keypad::Button::Trig2, Rgb888::RED);
+                    error!("SPI init error!");
+                    embassy_time::Timer::after_millis(10).await;
+                }
+            }
+        }
+
+        // Now we can initialize the Micro SD card driver.
+        info!("Initializing SD card device..");
+        let mut sd_card = hardware::init_sdcard_async2(spi_bus, sd_cs, embassy_time::Delay)
+            .await
+            .unwrap();
+        keypad.set_led(keypad::Button::Trig2, Rgb888::GREEN);
+
+        draw_boot_screen(
+            &mut display,
+            "Internal Storage...",
+            &["Memory test", "SD Card"],
+        )
         .await
         .unwrap();
-    keypad.set_led(keypad::Button::Trig2, Rgb888::GREEN);
 
-    draw_boot_screen(
-        &mut display,
-        "Internal Storage...",
-        &["Memory test", "SD Card"],
-    )
-    .await
-    .unwrap();
+        // sd_card.list_filesystem().await.unwrap();
 
-    // sd_card.list_filesystem().await.unwrap();
+        // Initialize the internal storage.
+        //
+        // The device internal storage uses an XTSDG IC
+        // that acts as a soldered SD card.
+        /*info!("Constructing internal storage device...");
+        keypad.set_led(keypad::Button::Trig4, RGB::new(255, 0, 0));
+        let mut internal_storage = hardware::get_internal_storage(spi_bus, xtsdg_cs, embassy_time::Delay);
+        keypad.set_led(keypad::Button::Trig4, RGB::new(0, 255, 0));*/
 
-    // Initialize the internal storage.
-    //
-    // The device internal storage uses an XTSDG IC
-    // that acts as a soldered SD card.
-    /*info!("Constructing internal storage device...");
-    keypad.set_led(keypad::Button::Trig4, RGB::new(255, 0, 0));
-    let mut internal_storage = hardware::get_internal_storage(spi_bus, xtsdg_cs, embassy_time::Delay);
-    keypad.set_led(keypad::Button::Trig4, RGB::new(0, 255, 0));*/
+        draw_boot_screen(
+            &mut display,
+            "Battery...",
+            &["Memory test", "SD Card", "TODO: Internal Storage"],
+        )
+        .await
+        .unwrap();
 
-    draw_boot_screen(
-        &mut display,
-        "Battery...",
-        &["Memory test", "SD Card", "TODO: Internal Storage"],
-    )
-    .await
-    .unwrap();
-
-    // Get a handle to the FUSB302B device for managing the USB-PD interface.
-    // let mut fusb302b = hardware::get_fusb302b_async(r.usb_pd.int, r.usb_pd.int_exti, i2c2_bus);
-
-    // Initialize the bus for the I2C1 peripheral.
-    //
-    // This communicates with the NAU88C22YG Audio Codec,
-    // FM SI4703-C19-GMR RX / SI4710-B30-GMR TX.
-    info!("initializing audio i2c1 bus");
-    let i2c1_bus = I2C1_BUS.init(Mutex::new(hardware::get_i2c1(r.i2c1)));
-
+        // Get a handle to the FUSB302B device for managing the USB-PD interface.
+        // let mut fusb302b = hardware::get_fusb302b_async(r.usb_pd.int, r.usb_pd.int_exti, i2c2_bus);
     draw_boot_screen(
         &mut display,
         "Audio...",
         &["Memory test", "SD Card", "TODO: Internal Storage, Battery"],
     )
     .await
-    .unwrap();
+    .unwrap();*/
+    // Initialize the bus for the I2C1 peripheral.
+    //
+    // This communicates with the NAU88C22YG Audio Codec,
+    // FM SI4703-C19-GMR RX / SI4710-B30-GMR TX.
+    info!("initializing audio i2c1 bus");
+    let i2c1_bus = I2C1_BUS.init(Mutex::new(hardware::get_i2c1(r.i2c1)));
 
     info!("initializing audio buffers");
 
@@ -602,67 +600,73 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
         .await
         .unwrap();
 
-    // info!("Starting USB device...");
-    // hardware::usb::start_usb(spawner, r.usb).await;
+    /*    // info!("Starting USB device...");
+        // hardware::usb::start_usb(spawner, r.usb).await;
 
-    // We're basically booted at this point and past any critical
-    // error stages, so clear boot status from the keypad LEDs.
-    keypad.set_leds(Rgb888::BLACK);
+        // We're basically booted at this point and past any critical
+        // error stages, so clear boot status from the keypad LEDs.
+        keypad.set_leds(Rgb888::BLACK);
 
-    // Clear the display once more before starting the ratataui.
-    info!("Configuring display engine...");
-    display.clear(Rgb565::BLACK).unwrap();
-    display.push_buffer_dma().await.unwrap();
+        // Clear the display once more before starting the ratataui.
+        info!("Configuring display engine...");
+        display.clear(Rgb565::BLACK).unwrap();
+        display.push_buffer_dma().await.unwrap();
 
-    // A Ratatui wrapper for embedded-graphics.
-    //
-    // Will be replaced later with our own embedded-optimized
-    // UI framework, but for now it'll work great for testing.
-    // let backend_config = EmbeddedBackendConfig {
-    //     // Define how to display newly rendered widgets to the simulator window
-    //     flush_callback: Box::new(
-    //         move |display: &mut embedded_graphics_coordinate_transform::CoordinateTransform<
-    //             display::Display<'_, embassy_time::Delay>,
-    //             false,
-    //             true,
-    //             true,
-    //         >| {
-    //             display.push_buffer_dma().await;
-    //             // TODO: dispatch queue in async method for DMA.
-    //             // async {
-    //             //     display.push_buffer_dma().await.unwrap();
-    //             // };
-    //         },
-    //     ),
-    //     ..Default::default()
-    // };
-    // let backend = EmbeddedBackend::new(&mut display_rot, backend_config);
-    // let mut terminal = Terminal::new(backend).unwrap();
+        // A Ratatui wrapper for embedded-graphics.
+        //
+        // Will be replaced later with our own embedded-optimized
+        // UI framework, but for now it'll work great for testing.
+        // let backend_config = EmbeddedBackendConfig {
+        //     // Define how to display newly rendered widgets to the simulator window
+        //     flush_callback: Box::new(
+        //         move |display: &mut embedded_graphics_coordinate_transform::CoordinateTransform<
+        //             display::Display<'_, embassy_time::Delay>,
+        //             false,
+        //             true,
+        //             true,
+        //         >| {
+        //             display.push_buffer_dma().await;
+        //             // TODO: dispatch queue in async method for DMA.
+        //             // async {
+        //             //     display.push_buffer_dma().await.unwrap();
+        //             // };
+        //         },
+        //     ),
+        //     ..Default::default()
+        // };
+        // let backend = EmbeddedBackend::new(&mut display_rot, backend_config);
+        // let mut terminal = Terminal::new(backend).unwrap();
 
-    spawner.spawn(home_task(display, power).unwrap());
+        // spawner.spawn(home_task(display, power).unwrap());
 
-    // loop {
-    //     info!("drawing home screen");
-    //     draw_home_screen(&mut display, &mut power).await.unwrap();
-    //     info!("finished drawing home screen");
+        // loop {
+        //     info!("drawing home screen");
+        //     draw_home_screen(&mut display, &mut power).await.unwrap();
+        //     info!("finished drawing home screen");
 
-    //     // Give other tasks time to do work.
-    //     Timer::after_secs(1).await;
-    //     yield_now().await;
+        //     // Give other tasks time to do work.
+        //     Timer::after_secs(1).await;
+        //     yield_now().await;
 
-    //     // If the power button is pressed, turn off the device.
-    //     if stm6601.button_pressed() {
-    //         warn!("Powering off..");
+        //     // If the power button is pressed, turn off the device.
+        //     if stm6601.button_pressed() {
+        //         warn!("Powering off..");
 
-    //         // Blank the keypad before shutting off.
-    //         keypad.set_leds(Rgb888::BLACK);
+        //         // Blank the keypad before shutting off.
+        //         keypad.set_leds(Rgb888::BLACK);
 
-    //         // Disable the 3.3v regulator.
-    //         stm6601.power_disable().unwrap();
+        //         // Disable the 3.3v regulator.
+        //         stm6601.power_disable().unwrap();
 
-    //         break;
-    //     }
-    // }
+        //         break;
+        //     }
+        // }
+    */
+
+    loop {
+        info!("main tick");
+        Timer::after_millis(300).await;
+    }
 
     Ok(())
 

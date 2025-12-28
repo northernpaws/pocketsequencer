@@ -175,6 +175,7 @@ embedded-charts = { version = "0.3.0", default-features = false, features = [
 nau88c22 = "0.9.0"
 nau88c22-rs = "0.1.0"
 libm = "0.2.15"
+catalina = { version = "0.0.1", features = ["engine"] }
 
 [patch.crates-io]
 # Adds additional FMC constructors.. requires patching ALL embassy packages for compatability to work correctly.
@@ -191,3 +192,6 @@ sdspi = { git = 'https://github.com/northernpaws/embedded-fatfs', branch = 'mast
 block-device-adapters = { git = 'https://github.com/northernpaws/embedded-fatfs', branch = 'master' }
 fatfs = { git = 'https://github.com/rafalh/rust-fatfs', branch = 'master' }
 # mipidsi = { git = "https://github.com/almindor/mipidsi", branch = "master" }
+
+catalina-engine = { git = 'https://github.com/northernpaws/catalina', branch = 'main' }
+catalina = { git = 'https://github.com/northernpaws/catalina', branch = 'main' }

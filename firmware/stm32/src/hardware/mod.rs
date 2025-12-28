@@ -86,8 +86,8 @@ assign_resources! {
         peri: UART5 = UartDebugPeri,
         rx_pin: PD2,
         tx_pin: PC12,
-        rx_dma: DMA1_CH0,
-        tx_dma: DMA1_CH1,
+        rx_dma: DMA2_CH7,
+        tx_dma: DMA2_CH6,
     }
 
     /// For TRS MIDI in and out/thru connections.
@@ -129,8 +129,8 @@ assign_resources! {
         sck: PE5, // SAI1_SCK_A,
         dacdat: PE6, //  SAI1_SD_A
 
-        rx_dma: DMA2_CH7,
-        tx_dma: DMA2_CH6,
+        tx_dma: DMA1_CH0,
+        rx_dma: DMA1_CH1,
 
         mic_l: PC8, // HIGH = mic-level input
         mic_r: PC7, // HIGH = mic-level input
