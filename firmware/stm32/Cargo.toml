@@ -179,6 +179,7 @@ catalina = { version = "0.0.1", features = ["engine"] }
 
 [patch.crates-io]
 # Adds additional FMC constructors.. requires patching ALL embassy packages for compatability to work correctly.
+#7ec6d4f
 embassy-stm32 = { git = 'https://github.com/northernpaws/embassy', branch = "dma-mem-to-mem" }
 embassy-embedded-hal = { git = 'https://github.com/northernpaws/embassy', branch = "dma-mem-to-mem" }
 embassy-executor = { git = 'https://github.com/northernpaws/embassy', branch = "dma-mem-to-mem" }

@@ -1,15 +1,42 @@
-use catalina::engine::audio::Sample;
-use catalina::engine::audio::sample::U24;
+#![no_std]
+#![no_main]
+
+#[cfg(feature = "alloc")]
+extern crate alloc;
+
+// NOTE: We try to rely on heap allocations as little
+// as possible for core elements of the system.
+//
+// Where possible, core systems should use heapless static
+// allocation or allocation pools so their size is known
+// and we avoid running into OOM problems.
+#[cfg(feature = "alloc")]
+use embedded_alloc::LlffHeap as Heap;
+#[cfg(feature = "alloc")]
+#[global_allocator]
+static HEAP: Heap = Heap::empty();
+
+// https://medium.com/@carlmkadie/how-rust-embassy-shine-on-embedded-devices-part-1-9f4911c92007
+// https://medium.com/@carlmkadie/aad1adfccf72
+
+use defmt::*;
+
+use embassy_executor::Spawner;
+
+use embassy_stm32::{
+    i2c::{self, I2c},
+    mode::Async,
+    rcc::clocks,
+    usart::{UartRx, UartTx},
+};
+
 use defmt::{error, info};
 use derive_more::{Display, Error};
-use embassy_embedded_hal::shared_bus::I2cDeviceError;
 use embassy_embedded_hal::shared_bus::asynch::{self};
-use embassy_executor::{InterruptExecutor, SpawnError, Spawner};
-use embassy_stm32::i2c::{self, I2c};
-use embassy_stm32::interrupt::{InterruptExt, Priority};
 use embassy_stm32::sai::MasterClockDivider;
 use embassy_stm32::{interrupt, mode, peripherals, rcc, sai};
 use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
+use embassy_sync::mutex::Mutex;
 use embassy_time::Timer;
 use grounded::uninit::GroundedArrayCell;
 
@@ -18,7 +45,23 @@ use catalina::engine::{
     core::Hertz,
 };
 
-use crate::hardware::CodecSAIResources;
+use static_cell::StaticCell;
+
+use {
+    // defmt_rtt as _,
+    panic_probe as _,
+};
+
+use firmware::{
+    hardware::{self, preamble::*},
+    split_resources,
+};
+
+// Audio I2C bus.
+//
+// This communicates with the NAU88C22YG Audio Codec, FM SI4703-C19-GMR RX / SI4710-B30-GMR TX.
+static I2C1_BUS: StaticCell<Mutex<CriticalSectionRawMutex, I2c<'static, Async, i2c::Master>>> =
+    StaticCell::new();
 
 const OUTPUT_CHANNEL_COUNT: usize = 2; // stereo
 pub const BLOCK_LENGTH: usize = 32; // samples
@@ -32,283 +75,280 @@ static AUDIO_TX_BUFFER: GroundedArrayCell<u32, { DMA_BUFFER_LENGTH }> = Grounded
 // #[unsafe(link_section = ".sram1_bss")]
 static AUDIO_RX_BUFFER: GroundedArrayCell<u32, { DMA_BUFFER_LENGTH }> = GroundedArrayCell::uninit();
 
-pub type SAITransmitter<'a> = sai::Sai<'a, peripherals::SAI1, u32>;
-pub type SAIReceiver<'a> = sai::Sai<'a, peripherals::SAI1, u32>;
-
-static AUDIO_EXECUTOR: InterruptExecutor = InterruptExecutor::new();
-
-#[interrupt]
-unsafe fn SAI1() {
-    AUDIO_EXECUTOR.on_interrupt()
-}
-
-pub struct Audio<'a, DELAY: embedded_hal_async::delay::DelayNs> {
-    codec: nau88c22_rs::Nau88c22<
-        asynch::i2c::I2cDevice<'a, CriticalSectionRawMutex, I2c<'static, mode::Async, i2c::Master>>,
-    >,
-
-    delay: DELAY,
-}
-
-/// Errors the happen when initializing the audio component.
-#[derive(Debug, Display, Error)]
-pub enum InitError {
-    /// Occurs if there was an issue communicating with one of the I2C devices.
-    #[display("{_0:?}")]
-    I2CError(#[error(not(source))] I2cDeviceError<embassy_stm32::i2c::Error>),
-
-    /// Occurs if there was an error spawning one of the tasks.
-    #[display("{_0:?}")]
-    SpawnError(#[error(not(source))] SpawnError),
-
-    /// Occurs if the codec master clock prescaler and PLL is not resolvable.
-    CodecClockError(CodecClockError),
-}
-
-impl From<I2cDeviceError<embassy_stm32::i2c::Error>> for InitError {
-    fn from(value: I2cDeviceError<embassy_stm32::i2c::Error>) -> Self {
-        Self::I2CError(value)
+#[embassy_executor::main]
+async fn main(spawner: Spawner) {
+    info!("program start!");
+    // If it returns, something went wrong.
+    if let Err(err) = inner_main(spawner).await {
+        defmt::panic!("{}", err);
     }
 }
 
-impl From<SpawnError> for InitError {
-    fn from(value: SpawnError) -> Self {
-        Self::SpawnError(value)
-    }
-}
+static DEBUG_SERIAL_TX: StaticCell<UartTx<'static, Async>> = StaticCell::new();
+static DEBUG_SERIAL_RX: StaticCell<UartRx<'static, Async>> = StaticCell::new();
 
-impl From<CodecClockError> for InitError {
-    fn from(value: CodecClockError) -> Self {
-        Self::CodecClockError(value)
-    }
-}
+// Inner-main allows us us to returns errors via Result instead of relying on panics.
+#[expect(
+    clippy::future_not_send,
+    reason = "Safe in single-threaded, bare-metal embedded context"
+)]
+#[expect(clippy::items_after_statements, reason = "Keeps related code together")]
+async fn inner_main(spawner: Spawner) -> Result<(), ()> {
+    // TODO: add error type
+    info!("initializing clocks and PLL to 480Mhz");
+    let p = hardware::init();
 
-impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Audio<'a, DELAY> {
-    pub async fn new(
-        device: asynch::i2c::I2cDevice<
-            'static,
-            CriticalSectionRawMutex,
-            I2c<'static, mode::Async, i2c::Master>,
-        >,
-        sai_resources: CodecSAIResources,
-        // sai_transmitter: SAITransmitter<'static>,
-        // mut sai_receiver: SAIReceiver<'static>,
-        mut delay: DELAY,
-        spawner: Spawner,
-    ) -> Result<Self, InitError> {
-        let mut codec = nau88c22_rs::Nau88c22::new(device);
+    info!("getting handles to hardware peripherals");
+    let mut r = split_resources!(p);
 
-        // Software reset the codec to a known state.
-        info!("software resetting audio codec");
-        codec.reset().await?;
+    // Get a handle to the STM6601 power manager and enable PS_HOLD as early as
+    // possible to make sure the STM6601 won't power the system regulator off.
+    //
+    // This MUST be configured as early as possible to ensure that the
+    // PS_HOLD pin is held high by the MCU to keep the power enabled.
+    //
+    // NOTE: PLL errors before this point will cause the power controller to shut
+    // off the paniced MCU after 5 seconds, leaving little time for debugging.
+    info!("Configuring stm6601...");
+    let mut stm6601 = hardware::get_stm6601(r.power);
+    stm6601.power_enable().unwrap(); // TODO: change to result error
 
-        // Give time for the reset to finish.
-        delay.delay_ms(200).await;
+    info!("Power good confirmed!");
 
-        let device_id = codec.read_deviceid().await?;
-        info!("audio codec device ID: {}", device_id.id());
+    // Initialize the debug UART connection to the BMP
+    // header and configure it for use with defmt.
+    //
+    // Baud: 115200
+    // DataBits8
+    // ParityNone
+    // Stop1
+    let mut debug_uart = hardware::get_uart_debug(r.uart_debug);
+    debug_uart.blocking_write(b"debug serial ready").unwrap();
+    let (debug_tx_raw, debug_rx_raw) = debug_uart.split();
+    let debug_tx = DEBUG_SERIAL_TX.init(debug_tx_raw);
+    let _debug_rx = DEBUG_SERIAL_RX.init(debug_rx_raw);
+    defmt_serial::defmt_serial(debug_tx);
 
-        codec
-            .modify_clockcontrol1(|reg| {
-                reg.with_clkm(false) // MCLK, pin#11 used as master clock
-                    .with_clkioen(false) // clock is in slave mode
-            })
-            .await?;
+    let clocks = clocks(&p.RCC);
+    println!("System clock speed: {}", clocks.sys);
+    println!("APB1  clock speed: {}", clocks.pclk1);
+    println!("APB1 Timer clock speed: {}", clocks.pclk1_tim);
+    println!("APB2  clock speed: {}", clocks.pclk2);
+    println!("APB2 Timer clock speed: {}", clocks.pclk2_tim);
 
-        codec
-            .modify_powermanagement1(|reg| {
-                reg.with_dcbufen(true)
-                    .with_aux1mxen(true)
-                    .with_aux2mxen(true)
-                    .with_pllen(false)
-                    .with_micbiasen(true)
-                    .with_abiasen(true)
-                    .with_iobufen(true)
-                    .with_refimp(0b11)
-                    .with_dcbufen(false) // false for lower then 3.6v operation
-            })
-            .await?;
+    // Initialize the bus for the I2C1 peripheral.
+    //
+    // This communicates with the NAU88C22YG Audio Codec,
+    // FM SI4703-C19-GMR RX / SI4710-B30-GMR TX.
+    info!("initializing audio i2c1 bus");
+    let i2c1_bus = I2C1_BUS.init(Mutex::new(hardware::get_i2c1(r.i2c1)));
 
-        // Datasheet sets to wait 250ms after setting IOBUFEN, DCBUFEN,
-        // REFIMP and ABIASEN to charge output capacitors.
-        Timer::after_millis(250).await;
+    info!("initializing audio device");
+    let device = asynch::i2c::I2cDevice::new(i2c1_bus);
 
-        codec
-            .modify_powermanagement2(|reg| {
-                reg.with_rhpen(false)
-                    .with_lphen(false)
-                    .with_sleep(false)
-                    .with_rbsten(true)
-                    .with_lbsten(true)
-                    .with_rpgaen(true)
-                    .with_lpgaen(true)
-                    .with_radcen(true)
-                    .with_ladcen(true)
-            })
-            .await?;
+    let mut codec = nau88c22_rs::Nau88c22::new(device);
 
-        codec
-            .modify_powermanagement3(|reg| {
-                reg.with_auxout1en(true)
-                    .with_auxout2en(true)
-                    .with_lspken(false)
-                    .with_rspken(false)
-                    .with_rmixen(true)
-                    .with_lmixen(true)
-                    .with_rdacen(true)
-                    .with_ldacen(true)
-            })
-            .await?;
+    // Software reset the codec to a known state.
+    info!("software resetting audio codec");
+    codec.reset().await.unwrap();
 
-        // Calculate the SAI master clock divisor and derrived codec master clock divisor and PLL.
-        let kernel_clock = rcc::frequency::<peripherals::SAI1>().0;
-        let mclk_div: MasterClockDivider =
-            mclk_div_from_u8((kernel_clock / (SAMPLE_RATE * 256)) as u8);
-        let mclk_div_u8: u8 = mclk_div.into();
-        let adjusted_mclk = kernel_clock / mclk_div_u8 as u32;
-        info!("SAI1 master clock base: {}hz", kernel_clock);
-        info!("SAI1 master clock divisor: {}", mclk_div);
-        info!("SAI1 master clock adjusted: {}hz", adjusted_mclk);
+    // Give time for the reset to finish.
+    Timer::after_millis(200).await;
 
-        let (mclk_div, pllmclk, plln, pllk1, pllk2, pllk3) =
-            nau88c22_calc_pll(adjusted_mclk as f32, SAMPLE_RATE as f32)?;
+    let device_id = codec.read_deviceid().await.unwrap();
+    info!("audio codec device ID: {}", device_id.id());
 
-        info!("Ideal SAI clock for sample rate: {}", SAMPLE_RATE * 256);
-        info!(
-            "SAI clock skew: {}%",
-            (adjusted_mclk / (SAMPLE_RATE * 256)) as f32 * 100.0
-        );
+    info!("initializing audio codec...");
 
-        info!(
-            "codec mclk_div={} pllmclk={} plln={} pllk1={} pllk2={} pllk3={}",
-            mclk_div,
-            pllmclk > 0,
-            plln,
-            pllk1,
-            pllk2,
-            pllk3
-        );
+    codec
+        .modify_clockcontrol1(|reg| {
+            reg.with_clkm(false) // MCLK, pin#11 used as master clock
+                .with_clkioen(false) // clock is in slave mode
+        })
+        .await
+        .unwrap();
 
-        // Configure the PLL.
-        codec
-            .modify_clockcontrol1(|reg| reg.with_mclksel(mclk_div))
-            .await?;
-        codec
-            .modify_plln(|reg| reg.with_pllmclk(pllmclk > 0).with_plln(plln))
-            .await?;
-        codec.modify_pllk1(|reg| reg.with_pllk(pllk1)).await?;
-        codec.modify_pllk2(|reg| reg.with_pllk(pllk2)).await?;
-        codec.modify_pllk3(|reg| reg.with_pllk(pllk3)).await?;
+    codec
+        .modify_powermanagement1(|reg| {
+            reg.with_dcbufen(true)
+                .with_aux1mxen(true)
+                .with_aux2mxen(true)
+                .with_pllen(false)
+                .with_micbiasen(true)
+                .with_abiasen(true)
+                .with_iobufen(true)
+                .with_refimp(0b11)
+                .with_dcbufen(false) // false for lower then 3.6v operation
+        })
+        .await
+        .unwrap();
 
-        // Wait for the PLL to stabalize.
-        Timer::after_millis(255).await;
+    // Datasheet sets to wait 250ms after setting IOBUFEN, DCBUFEN,
+    // REFIMP and ABIASEN to charge output capacitors.
+    Timer::after_millis(250).await;
 
-        // Enable the PLL.
-        codec
-            .modify_powermanagement1(|reg| reg.with_pllen(true))
-            .await?;
+    codec
+        .modify_powermanagement2(|reg| {
+            reg.with_rhpen(false)
+                .with_lphen(false)
+                .with_sleep(false)
+                .with_rbsten(true)
+                .with_lbsten(true)
+                .with_rpgaen(true)
+                .with_lpgaen(true)
+                .with_radcen(true)
+                .with_ladcen(true)
+        })
+        .await
+        .unwrap();
 
-        // Configure the audio format
-        codec
-            .modify_audiointerface(|reg| {
-                reg.with_wlen(0b11) // 32-bit words
-                    .with_aifmt(0b10) // standard i2s
-                    .with_mono(false) // stereo mode
-            })
-            .await?;
+    codec
+        .modify_powermanagement3(|reg| {
+            reg.with_auxout1en(true)
+                .with_auxout2en(true)
+                .with_lspken(false)
+                .with_rspken(false)
+                .with_rmixen(true)
+                .with_lmixen(true)
+                .with_rdacen(true)
+                .with_ldacen(true)
+        })
+        .await
+        .unwrap();
 
-        // Enable the left aux in as the left ADC source.
-        codec
-            .modify_leftadcboost(|reg| {
-                reg.with_lauxbstegain(0b101)
-                    .with_lpgabst(false)
-                    .with_lpgabstgaun(0)
-            })
-            .await?;
+    // Calculate the SAI master clock divisor and derrived codec master clock divisor and PLL.
+    let kernel_clock = rcc::frequency::<peripherals::SAI1>().0;
+    let mclk_div: MasterClockDivider = mclk_div_from_u8((kernel_clock / (SAMPLE_RATE * 256)) as u8);
+    let mclk_div_u8: u8 = mclk_div.into();
+    let adjusted_mclk = kernel_clock / mclk_div_u8 as u32;
+    info!("SAI1 master clock base: {}hz", kernel_clock);
+    info!("SAI1 master clock divisor: {}", mclk_div);
+    info!("SAI1 master clock adjusted: {}hz", adjusted_mclk);
 
-        // Enable the right aux in as the right ADC source.
-        codec
-            .modify_rightadcboost(|reg| {
-                reg.with_rauxbstgain(0b101)
-                    .with_rpgabst(false)
-                    .with_rpgabstgain(0)
-            })
-            .await?;
+    let (mclk_div, pllmclk, plln, pllk1, pllk2, pllk3) =
+        nau88c22_calc_pll(adjusted_mclk as f32, SAMPLE_RATE as f32).unwrap();
 
-        // Set the left main mix to use the left aux input.
-        codec
-            .modify_leftmixer(|reg| {
-                reg //.with_lauxlmx(true) // mix in the left audio input
-                    //.with_lauxmxgain(0b101)
-                    .with_ldaclmx(true) // mix in the left dac output
-            })
-            .await?;
+    info!("Ideal SAI clock for sample rate: {}", SAMPLE_RATE * 256);
+    info!(
+        "SAI clock skew: {}%",
+        (adjusted_mclk / (SAMPLE_RATE * 256)) as f32 * 100.0
+    );
 
-        // Set the right main mix to use the right aux input.
-        codec
-            .modify_rightmixer(|reg| {
-                reg //.with_rauxrmx(true) // mix in the right aux input
-                    //.with_rauxmxgain(0b101)
-                    .with_rdacrmx(true) // mix in the right dac output
-            })
-            .await?;
+    info!(
+        "codec mclk_div={} pllmclk={} plln={} pllk1={} pllk2={} pllk3={}",
+        mclk_div,
+        pllmclk > 0,
+        plln,
+        pllk1,
+        pllk2,
+        pllk3
+    );
 
-        // Connect the left output mixer to the aux1 out.
-        //
-        // AUX1 can only connect to LMIX or RMIX.
-        codec
-            .modify_aux1mixer(|reg| {
-                reg.with_auxiut1mt(false)
-                    //.with_rmixaux1(true) // mix in right mixer
-                    .with_rdacaux1(true) // mix in right DAC output
-            })
-            .await?;
+    // Configure the PLL.
+    codec
+        .modify_clockcontrol1(|reg| reg.with_mclksel(mclk_div))
+        .await
+        .unwrap();
+    codec
+        .modify_plln(|reg| reg.with_pllmclk(pllmclk > 0).with_plln(plln))
+        .await
+        .unwrap();
+    codec
+        .modify_pllk1(|reg| reg.with_pllk(pllk1))
+        .await
+        .unwrap();
+    codec
+        .modify_pllk2(|reg| reg.with_pllk(pllk2))
+        .await
+        .unwrap();
+    codec
+        .modify_pllk3(|reg| reg.with_pllk(pllk3))
+        .await
+        .unwrap();
 
-        // Connect the left output mixer to the aux2 out.
-        //
-        // AUX2 can only connect to LMIX but not RMIX.
-        codec
-            .modify_aux2mixer(|reg| {
-                reg.with_auxout2mt(false)
-                    //.with_lmixaux2(true) // mix in left mixer
-                    .with_ldacaux2(true) // mix in left dac output
-            })
-            .await?;
+    // Wait for the PLL to stabalize.
+    Timer::after_millis(255).await;
 
-        // Spawn the task that processes the codec data.
-        info!("spawning SAI loop");
+    // Enable the PLL.
+    codec
+        .modify_powermanagement1(|reg| reg.with_pllen(true))
+        .await
+        .unwrap();
 
-        // Use an interrupt executor to run the audio task at a higher priority.
-        interrupt::SAI1.set_priority(Priority::P6);
-        let spawner = AUDIO_EXECUTOR.start(interrupt::SAI1);
-        spawner.spawn(device_loop(
-            mclk_div.into(),
-            sai_resources, /*sai_receiver*/
-        )?);
+    // Configure the audio format
+    codec
+        .modify_audiointerface(|reg| {
+            reg.with_wlen(0b11) // 32-bit words
+                .with_aifmt(0b10) // standard i2s
+                .with_mono(false) // stereo mode
+        })
+        .await
+        .unwrap();
 
-        Ok(Self { delay, codec })
-    }
-}
+    // Enable the left aux in as the left ADC source.
+    codec
+        .modify_leftadcboost(|reg| {
+            reg.with_lauxbstegain(0b101)
+                .with_lpgabst(false)
+                .with_lpgabstgaun(0)
+        })
+        .await
+        .unwrap();
 
-#[embassy_executor::task]
-async fn device_loop(
-    mclk_div: MasterClockDivider,
-    sai_resources: CodecSAIResources,
-    // sai_receiver: SAIReceiver<'static>,
-) -> ! {
-    // should never return
-    let err = inner_device_loop(mclk_div, sai_resources /* , sai_receiver*/).await;
-    panic!("{:?}", err);
-}
+    // Enable the right aux in as the right ADC source.
+    codec
+        .modify_rightadcboost(|reg| {
+            reg.with_rauxbstgain(0b101)
+                .with_rpgabst(false)
+                .with_rpgabstgain(0)
+        })
+        .await
+        .unwrap();
 
-#[derive(Debug)]
-enum Never {}
+    // Set the left main mix to use the left aux input.
+    codec
+        .modify_leftmixer(|reg| {
+            reg //.with_lauxlmx(true) // mix in the left audio input
+                //.with_lauxmxgain(0b101)
+                .with_ldaclmx(true) // mix in the left dac output
+        })
+        .await
+        .unwrap();
 
-async fn inner_device_loop(
-    mclk_div: MasterClockDivider,
-    mut sai_resources: CodecSAIResources,
-    // mut sai_receiver: SAIReceiver<'static>,
-) -> Result<(), Never> {
+    // Set the right main mix to use the right aux input.
+    codec
+        .modify_rightmixer(|reg| {
+            reg //.with_rauxrmx(true) // mix in the right aux input
+                //.with_rauxmxgain(0b101)
+                .with_rdacrmx(true) // mix in the right dac output
+        })
+        .await
+        .unwrap();
+
+    // Connect the left output mixer to the aux1 out.
+    //
+    // AUX1 can only connect to LMIX or RMIX.
+    codec
+        .modify_aux1mixer(|reg| {
+            reg.with_auxiut1mt(false)
+                //.with_rmixaux1(true) // mix in right mixer
+                .with_rdacaux1(true) // mix in right DAC output
+        })
+        .await
+        .unwrap();
+
+    // Connect the left output mixer to the aux2 out.
+    //
+    // AUX2 can only connect to LMIX but not RMIX.
+    codec
+        .modify_aux2mixer(|reg| {
+            reg.with_auxout2mt(false)
+                //.with_lmixaux2(true) // mix in left mixer
+                .with_ldacaux2(true) // mix in left dac output
+        })
+        .await
+        .unwrap();
+
     info!("initializing SAI buffers...");
 
     let audio_tx_buffer: &mut [u32] = unsafe {
@@ -331,10 +371,10 @@ async fn inner_device_loop(
     // TODO: remove unwrap and use proper error type
 
     let (mut sai_transmitter, mut sai_receiver) = setup_sai(
-        &mut sai_resources,
+        &mut r.codec,
         audio_tx_buffer,
         audio_rx_buffer,
-        mclk_div,
+        mclk_div.into(),
     );
 
     let mut osc = oscillator::RuntimeOscillator::new(
@@ -373,10 +413,10 @@ async fn inner_device_loop(
                 drop(sai_receiver);
 
                 (sai_transmitter, sai_receiver) = setup_sai(
-                    &mut sai_resources,
+                    &mut r.codec,
                     audio_tx_buffer,
                     audio_rx_buffer,
-                    mclk_div,
+                    mclk_div.into(),
                 );
             }
         }
@@ -396,10 +436,10 @@ async fn inner_device_loop(
                 drop(sai_receiver);
 
                 (sai_transmitter, sai_receiver) = setup_sai(
-                    &mut sai_resources,
+                    &mut r.codec,
                     audio_tx_buffer,
                     audio_rx_buffer,
-                    mclk_div,
+                    mclk_div.into(),
                 );
             }
         }
@@ -408,12 +448,17 @@ async fn inner_device_loop(
 
         // info!("sai receive: {}", buf[0]);
     }
+
+    Ok(())
 }
 
 fn mclk_div_from_u8(v: u8) -> MasterClockDivider {
-    assert!((1..=63).contains(&v));
+    defmt::assert!((1..=63).contains(&v));
     MasterClockDivider::from_bits(v)
 }
+
+pub type SAITransmitter<'a> = sai::Sai<'a, peripherals::SAI1, u32>;
+pub type SAIReceiver<'a> = sai::Sai<'a, peripherals::SAI1, u32>;
 
 fn setup_sai<'d>(
     sai_resources: &'d mut CodecSAIResources,
@@ -447,22 +492,12 @@ fn setup_sai<'d>(
     tx_config.fifo_threshold = sai::FifoThreshold::Quarter;
     tx_config.sync_output = true; // passes sync to the second block
 
-    // const RECEIVE_CHANNEL_COUNT: usize = 2;
-    // const SAMPLE_WIDTH_BIT: usize = 32;
-
     let mut rx_config = tx_config.clone();
     rx_config.mode = sai::Mode::Slave; // slaved to the transmitter block
     rx_config.tx_rx = sai::TxRx::Receiver; // configure this block as a receiver
     rx_config.sync_input = sai::SyncInput::Internal; // passes sync to the second block
     rx_config.sync_output = false; // passes sync to the second block
     rx_config.clock_strobe = sai::ClockStrobe::Rising; // nac88c22 uses rising edge latching on bclk
-    // rx_config.slot_count = sai::word::U4(RECEIVE_CHANNEL_COUNT as u8);
-    // rx_config.slot_enable = 0xFFFF; // All slots
-    // rx_config.data_size = sai::DataSize::Data32;
-    // rx_config.frame_length = (RECEIVE_CHANNEL_COUNT * SAMPLE_WIDTH_BIT) as u8;
-    // rx_config.frame_sync_active_level_length = sai::word::U7(SAMPLE_WIDTH_BIT as u8);
-    // rx_config.bit_order = sai::BitOrder::MsbFirst;
-    // rx_config.mute_value = sai::MuteValue::LastValue;
 
     // Split the SAI periperal into it's two subblocks.
     let (sub_block_tx, sub_block_rx) = sai::split_subblocks(sai_resources.peri.reborrow());
@@ -601,22 +636,6 @@ fn nau88c22_calc_pll(
     if nau_r1_ready != 1 {
         return Err(CodecClockError::UnresolvablePLL);
     }
-
-    // if nau_r1_ready == 1 {
-    //     nau8812_clr_bit(POWER_MANAGMENT_1, (1 << PLLEN));
-    //     nau8812_write(
-    //         CLOCK_CONTROL_1,
-    //         (1 << CLKM) | (mclkseldiv << MCLKSEL) | (0xD),
-    //     );
-    //     nau8812_write(PLLN_N, ((nau_pres_mckl - 1) << PLLMCLK) | (nau_nxy));
-    //     nau8812_write(PLL_K_1, pll_k1);
-    //     nau8812_write(PLL_K_2, pll_k2);
-    //     nau8812_write(PLL_K_3, pll_k3);
-    // } else {
-    //     return 5;
-    // }
-
-    // nau8812_set_bit(POWER_MANAGMENT_1, (1 << PLLEN));
 
     Ok((
         mclkseldiv,
