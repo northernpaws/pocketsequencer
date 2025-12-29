@@ -307,7 +307,7 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
                 // to_sample() would convert to a u32 range, but the I2S
                 // sample audio format is actually 24-bit so we want to
                 // cap it at 24.
-                *sample = value.inner();
+                *sample = value.inner() as u32;
             }
         }
 
