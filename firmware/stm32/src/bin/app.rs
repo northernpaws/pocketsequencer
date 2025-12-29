@@ -597,9 +597,7 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     info!("initializing audio buffers");
 
     info!("initializing audio codec");
-    let mut audio = hardware::get_audio(i2c1_bus, embassy_time::Delay, r.codec, spawner)
-        .await
-        .unwrap();
+    let mut audio = hardware::get_audio(i2c1_bus, r.codec).await.unwrap();
 
     /*    // info!("Starting USB device...");
         // hardware::usb::start_usb(spawner, r.usb).await;

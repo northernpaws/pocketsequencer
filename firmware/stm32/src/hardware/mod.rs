@@ -847,12 +847,11 @@ pub async fn get_power<'a, INT: gpio::Pin + ExtiPin>(
 }
 
 /// Gets a handle to the audio codec.
-pub async fn get_audio<'a, DELAY: embedded_hal_async::delay::DelayNs>(
+pub async fn get_audio<'a>(
     i2c_bus: &'static Mutex<CriticalSectionRawMutex, I2c<'static, Async, i2c::Master>>,
-    delay: DELAY,
     codec_sai: CodecSAIResources,
-    spawner: Spawner,
-) -> Result<Audio<'a, DELAY>, audio::InitError> {
+) -> Result<Audio<'a>, audio::InitError> {
+    // Switches for micbiased mic-in vs aux-in (defaults to aux)
     // let mic_l_en = Output::new(codec_sai.mic_l, Level::Low, Speed::Low);
     // let mic_r_en = Output::new(codec_sai.mic_r, Level::Low, Speed::Low);
 
@@ -863,7 +862,7 @@ pub async fn get_audio<'a, DELAY: embedded_hal_async::delay::DelayNs>(
         I2c<'static, Async, i2c::Master>,
     > = asynch::i2c::I2cDevice::new(i2c_bus);
 
-    Audio::new(device, codec_sai, /*sai_rx,*/ delay, spawner).await
+    Audio::new(device, codec_sai /*sai_rx,*/).await
 }
 
 /// Gets a handle to the FUSB302B USB-PD controller on I2C2.
