@@ -281,25 +281,33 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     sai_rx.start().unwrap();
 
     // Initially fill the buffer.
-    let mut initial_buf = [0u32; DMA_BUFFER_LENGTH];
-    for frame in initial_buf.chunks_mut(OUTPUT_CHANNEL_COUNT) {
-        let value: U24 = osc.sample();
-        for sample in frame.iter_mut() {
-            *sample = value.to_sample();
-        }
-    }
-    sai_tx.write(&initial_buf).await.unwrap();
+    // let mut initial_buf = [0u32; DMA_BUFFER_LENGTH];
+    // for frame in initial_buf.chunks_mut(OUTPUT_CHANNEL_COUNT) {
+    //     let value: U24 = osc.sample();
+    //     for sample in frame.iter_mut() {
+    //         *sample = value.to_sample();
+    //     }
+    // }
+    // sai_tx.write(&initial_buf).await.unwrap();
 
-    /*info!("starting SAI loop");
+    info!("starting SAI loop");
     let mut buf = [0u32; HALF_DMA_BUFFER_LENGTH];
     let mut i = 0;
     loop {
         info!("iter: {}", i);
 
         for frame in buf.chunks_mut(OUTPUT_CHANNEL_COUNT) {
+            // Output is 24-bit I2S data, so format
+            // the oscillator sample to U24 sizes.
             let value: U24 = osc.sample();
+
             for sample in frame.iter_mut() {
-                *sample = value.to_sample();
+                // Note that we use value.inner() instead of to_sample().
+                //
+                // to_sample() would convert to a u32 range, but the I2S
+                // sample audio format is actually 24-bit so we want to
+                // cap it at 24.
+                *sample = value.inner();
             }
         }
 
@@ -309,7 +317,7 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
         // sai_rx.read(&mut buf).await.unwrap();
 
         i = i + 1;
-    }*/
+    }
 
     loop {}
 
@@ -486,11 +494,12 @@ pub async fn codec_init(
             .unwrap();
 
         // TODO: remove after testing clock!!
+        // Internal ADC -> DAC Loopback
         // Test routing ADC output to DAC input
-        codec
-            .modify_companding(|reg| reg.with_addap(true))
-            .await
-            .unwrap();
+        // codec
+        //     .modify_companding(|reg| reg.with_addap(true))
+        //     .await
+        //     .unwrap();
 
         // Connect the left output mixer to the aux1 out.
         //
