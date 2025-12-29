@@ -902,22 +902,6 @@ pub fn get_i2c4<'a>(
     )
 }
 
-/// Gets a handle to the TCA8418 keypad decoder on I2C4.
-pub fn get_tca8418_async<
-    'a,
-    M: RawMutex,
-    //BUS: SetConfig<Config = i2c::Config> + embedded_hal_async::i2c::I2c,
-    BUS: embedded_hal_async::i2c::I2c,
->(
-    i2c_bus: &'a Mutex<M, BUS>,
-) -> Tca8418<'a, asynch::i2c::I2cDevice<'a, M, BUS>> {
-    // Create the I2C device for the keypad decoder.
-    // let device = asynch::i2c::I2cDeviceWithConfig::new(i2c_bus, config);
-    let device = asynch::i2c::I2cDevice::new(i2c_bus);
-
-    Tca8418::new(device)
-}
-
 /// Create the SPI1 peripheral interface for interacting
 /// with the Micro SD card and onboard storage.
 pub fn get_spi1<'a>(
@@ -1051,7 +1035,9 @@ pub async fn get_keypad<'a>(
         embassy_stm32::i2c::I2c<'static, mode::Async, embassy_stm32::i2c::Master>,
     >,
 ) -> Result<(Keypad, keypad::buttons::WatcherReceiver<'static>), keypad::Error> {
-    let tca8418 = get_tca8418_async(i2c_bus);
+    // Create the I2C device for the keypad decoder.
+    let device = asynch::i2c::I2cDevice::new(i2c_bus);
+    let tca8418 = Tca8418::new(device);
 
     // Configure the pin to PWM
     let pwm_pin = PwmPin::new(r.dat, OutputType::PushPull);
