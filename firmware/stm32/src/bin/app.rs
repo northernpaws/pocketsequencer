@@ -587,6 +587,54 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     )
     .await
     .unwrap();*/
+
+    // Initialize the bus for the SPI1 peripheral.
+    //
+    // This communicates with the internal storage and Micro SD card.
+    info!("initializing storage SPI1 bus");
+    let (spi1, sd_cs, mut xtsdg_cs) = hardware::get_spi1(r.spi_storage);
+
+    // Convert the SPI1 peripheral handle into a bus handle that can be consumed by multiple devices.
+    let spi_bus = SPI_BUS.init(Mutex::new(spi1));
+
+    // Initialize the internal and SD card storage next.
+    //
+    // We also want to initialize storage fairly early in the startup process so that
+    // we can check for key files on the device, such as firmware update indicators.
+
+    // SD cards need to be clocked with a at least 74 cycles
+    // on their SPI clock with the CS pin held HIGH.
+    //
+    // sd_init is a helper function that does this for us.
+    info!("Clocking SPI1 74 cyles before initializing SD devices...");
+    loop {
+        match sd_init(spi_bus.get_mut(), &mut xtsdg_cs).await {
+            Ok(_) => break,
+            Err(_e) => {
+                error!("SPI init error!");
+                embassy_time::Timer::after_millis(10).await;
+            }
+        }
+    }
+
+    // Now we can initialize the Micro SD card driver.
+    info!("Initializing SD card device..");
+    let mut sd_card = hardware::init_sdcard(spi_bus, sd_cs, embassy_time::Delay)
+        .await
+        .unwrap();
+
+    // sd_card.list_filesystem().await.unwrap();
+
+    // Initialize the internal storage.
+    //
+    // The device internal storage uses an XTSDG IC
+    // that acts as a soldered SD card.
+    info!("Constructing internal storage device...");
+    let mut internal_storage =
+        hardware::init_internal_storage(spi_bus, xtsdg_cs, embassy_time::Delay)
+            .await
+            .unwrap();
+
     // Initialize the bus for the I2C1 peripheral.
     //
     // This communicates with the NAU88C22YG Audio Codec,

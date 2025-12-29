@@ -13,7 +13,6 @@ use sdspi::SdSpi;
 use block_device_adapters::BufStream;
 use block_device_adapters::BufStreamError;
 
-//  use embedded_hal::delay::DelayNs;
 use embedded_hal_async::delay::DelayNs;
 
 use mbr_nostd::{MasterBootRecord, PartitionTable};

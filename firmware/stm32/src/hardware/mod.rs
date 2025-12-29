@@ -955,40 +955,8 @@ pub fn get_sdcard_blocking<'a, DELAY: embedded_hal::delay::DelayNs + core::marke
     // println!("SD card size is {} bytes", sdcard.num_bytes()?);
 }
 
-/// Uses the embedded-fatfs crate which is async.
-pub async fn get_sdcard_async<
-    'a,
-    M: RawMutex,
-    BUS: SetConfig<Config = spi::Config> + embedded_hal_async::spi::SpiBus,
-    DELAY: embedded_hal_async::delay::DelayNs + Clone,
->(
-    spi_bus: &'a Mutex<M, BUS>,
-    cs: gpio::Output<'a>,
-    delay: DELAY,
-) -> SdSpi<
-    embassy_embedded_hal::shared_bus::asynch::spi::SpiDeviceWithConfig<
-        'a,
-        M,
-        BUS,
-        embassy_stm32::gpio::Output<'a>,
-    >,
-    DELAY,
-    aligned::A4,
-> {
-    // Configure the SPI settings for the SD card.
-    //
-    // Before knowing the SD card's capabilities we need to start with a 400khz clock.
-    let mut spi_config: spi::Config = spi::Config::default();
-    spi_config.frequency = khz(400);
-
-    // Create the SPI device for the SD card, using the SD card's CS pin.
-    let spid = SpiDeviceWithConfig::new(spi_bus, cs, spi_config);
-
-    // Initialize the SD-over-SPI wrapper.
-    SdSpi::<_, _, aligned::A4>::new(spid, delay)
-}
-
-pub async fn init_sdcard_async2<
+/// Constructs and initializes a driver for the external SD card SPI interface.
+pub async fn init_sdcard<
     'a,
     'b,
     M: RawMutex,
@@ -998,7 +966,7 @@ pub async fn init_sdcard_async2<
     spi_bus: &'a Mutex<M, BUS>,
     cs: gpio::Output<'a>,
     delay: DELAY,
-) -> Result<sd_card::SdCard<'a, M, BUS, DELAY>, InitError> {
+) -> Result<sd_card::SdCard<'a, M, BUS, DELAY>, sd_card::InitError> {
     // Configure the SPI settings for the SD card.
     //
     // Before knowing the SD card's capabilities we need to start with a 400khz clock.
@@ -1013,6 +981,34 @@ pub async fn init_sdcard_async2<
         SdSpi::new(spid, delay);
 
     sd_card::SdCard::init(spi_sd).await
+}
+
+/// Constructs and initializes a driver for the internal SD card SPI interface.
+pub async fn init_internal_storage<
+    'a,
+    'b,
+    M: RawMutex,
+    BUS: SetConfig<Config = spi::Config> + embedded_hal_async::spi::SpiBus,
+    DELAY: embedded_hal_async::delay::DelayNs + Clone,
+>(
+    spi_bus: &'a Mutex<M, BUS>,
+    cs: gpio::Output<'a>,
+    delay: DELAY,
+) -> Result<internal_storage::InternalStorage<'a, M, BUS, DELAY>, internal_storage::InitError> {
+    // Configure the SPI settings for the SD card.
+    //
+    // Before knowing the SD card's capabilities we need to start with a 400khz clock.
+    let mut spi_config: spi::Config = spi::Config::default();
+    spi_config.frequency = khz(400);
+
+    // Create the SPI device for the SD card, using the SD card's CS pin.
+    let spid = SpiDeviceWithConfig::new(spi_bus, cs, spi_config);
+
+    // Initialize the SD-over-SPI wrapper.
+    let spi_sd: SdSpi<SpiDeviceWithConfig<'a, M, BUS, Output<'a>>, DELAY, aligned::A4> =
+        SdSpi::new(spid, delay);
+
+    internal_storage::InternalStorage::init(spi_sd).await
 }
 
 // pub fn get_internal_storage<
