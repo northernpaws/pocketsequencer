@@ -1,17 +1,12 @@
 use defmt::info;
-use embassy_embedded_hal::shared_bus::asynch;
-use embassy_stm32::{
-    i2c::{I2c, Master},
-    mode::Async,
-};
-use embassy_sync::blocking_mutex::raw::{CriticalSectionRawMutex, RawMutex};
+
 use embassy_time::{Delay, Timer};
 use embedded_graphics::{
-    mono_font::{MonoTextStyle, ascii::FONT_6X10, ascii::FONT_9X18_BOLD},
+    mono_font::{MonoTextStyle, ascii::FONT_6X10},
     pixelcolor::{Rgb565, Rgb888},
     prelude::*,
-    primitives::{PrimitiveStyleBuilder, Rectangle},
-    text::{Alignment, LineHeight, Text, TextStyleBuilder},
+    primitives::Rectangle,
+    text::{Alignment, Text, TextStyleBuilder},
 };
 use embedded_graphics_coordinate_transform::Rotate270;
 use heapless::String;
@@ -19,7 +14,6 @@ use heapless::String;
 use crate::hardware::{
     display::Display,
     drivers::bq27531_g1::{
-        Bq27531,
         command::CONTROL_IT_ENABLE_SUBCOMMAND,
         flash::{CHARGER_SUBCLASS_CHARGER_CONTROL_CONFIGURATION, FUEL_GAUGING_SUBCLASS_STATE},
     },
@@ -35,8 +29,6 @@ pub async fn run_diagnostics(
     let mut channel = keypad.subscribe().unwrap();
 
     let mut on = true;
-
-    let mut learning = false;
 
     let mut registers = false;
 
@@ -362,8 +354,6 @@ async fn draw_diagnostics<'a>(
     let fuel_gauge = power.fuel_gauge_ref();
 
     display.clear(Rgb565::BLACK)?;
-
-    let display_size = display.size();
 
     let padding = Point::new(10, 15);
 

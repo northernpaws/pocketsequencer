@@ -1,4 +1,4 @@
-use embedded_hal_async::i2c::{I2c, SevenBitAddress};
+use embedded_hal_async::i2c::I2c;
 
 use crate::hardware::drivers::bq27531_g1::DEVICE_ADDRESS;
 

@@ -5,7 +5,6 @@ use defmt::trace;
 use embassy_executor::{SpawnError, Spawner};
 use embassy_stm32::{
     Peri,
-    dma::Channel,
     peripherals::{DMA2_CH4, TIM5},
     timer::{self, simple_pwm::SimplePwm},
 };

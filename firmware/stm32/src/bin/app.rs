@@ -22,7 +22,7 @@ use embassy_stm32::{
     i2c::{self, I2c},
     mode::Async,
     rcc::clocks,
-    spi::Spi,
+    spi::{self, Spi, mode::CommunicationMode},
     usart::{UartRx, UartTx},
 };
 
@@ -133,7 +133,8 @@ static I2C4_BUS: StaticCell<Mutex<CriticalSectionRawMutex, I2c<'static, Async, i
     StaticCell::new();
 
 /// SPI bus for internal and SD card storage.
-static SPI_BUS: StaticCell<Mutex<CriticalSectionRawMutex, Spi<'static, Async>>> = StaticCell::new();
+static SPI_BUS: StaticCell<Mutex<CriticalSectionRawMutex, Spi<'static, Async, spi::mode::Master>>> =
+    StaticCell::new();
 // static SPI_BUS: StaticCell<blocking_mutex::Mutex<CriticalSectionRawMutex, RefCell<Spi<'static, Async>>>> = StaticCell::new();
 
 static DISPLAY: StaticCell<

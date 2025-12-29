@@ -31,8 +31,7 @@ use embassy_stm32::{
     i2c::{self, I2c},
     interrupt,
     mode::{self, Async},
-    peripherals, rcc,
-    sai::{self, MasterClockDivider},
+    peripherals,
     spi::{self},
     time::{Hertz, khz, mhz},
     timer::{
@@ -43,13 +42,7 @@ use embassy_stm32::{
     usart::{self, Uart},
 };
 
-use embassy_sync::{
-    blocking_mutex::{
-        NoopMutex,
-        raw::{NoopRawMutex, RawMutex},
-    },
-    mutex::Mutex,
-};
+use embassy_sync::{blocking_mutex::raw::RawMutex, mutex::Mutex};
 
 // Provides types and interfaces common to display and graphics operations.
 use embedded_graphics::{pixelcolor::Rgb565, prelude::RgbColor};
@@ -839,8 +832,6 @@ pub fn get_i2c2<'a>(
 
 /// Gets a handle to the BQ27531 fuel gauge on I2C2.
 pub async fn get_power<'a, INT: gpio::Pin + ExtiPin>(
-    int: Peri<'a, INT>,
-    exti: Peri<'a, INT::ExtiChannel>,
     i2c_bus: &'a Mutex<CriticalSectionRawMutex, I2c<'static, Async, i2c::Master>>,
     r: FuelGaugeResources,
 ) -> Result<Power<'a>, I2cDeviceError<embassy_stm32::i2c::Error>> {
@@ -1060,7 +1051,7 @@ pub async fn get_keypad<'a>(
         CriticalSectionRawMutex,
         embassy_stm32::i2c::I2c<'static, mode::Async, embassy_stm32::i2c::Master>,
     >,
-) -> Result<(Keypad, keypad::buttons::WatcherReceiver), keypad::Error> {
+) -> Result<(Keypad, keypad::buttons::WatcherReceiver<'static>), keypad::Error> {
     let tca8418 = get_tca8418_async(i2c_bus);
 
     // Configure the pin to PWM

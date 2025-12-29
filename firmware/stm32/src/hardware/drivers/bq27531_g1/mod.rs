@@ -372,8 +372,8 @@ impl<'a, I2C: I2c, DELAY: DelayNs> Bq27531<'a, I2C, DELAY> {
         todo!(
             "read both and splut: uint8_t BQ27441::soh(soh_measure type) https://github.com/sparkfun/SparkFun_BQ27441_Arduino_Library/blob/65fcd5553b3087d17c838cbb682121b61fe6881c/src/SparkFunBQ27441.cpp#L199"
         );
-        self.read_u8(command::STATE_OF_HEALTH_COMMAND_CODE_PERCENTAGE)
-            .await
+        // self.read_u8(command::STATE_OF_HEALTH_COMMAND_CODE_PERCENTAGE)
+        //     .await
     }
 
     /// 0x29 SOH status: this read-only function returns an unsigned
@@ -391,12 +391,12 @@ impl<'a, I2C: I2c, DELAY: DelayNs> Bq27531<'a, I2C, DELAY> {
     ///   – Updated after complete charge and relax is complete
     /// • 0x04 to 0xFF: Reserved
     pub async fn read_state_of_health_status(&mut self) -> Result<u16, I2C::Error> {
-        todo!("enum of status");
+        // todo!("enum of status");
         todo!(
             "read both and splut: uint8_t BQ27441::soh(soh_measure type) https://github.com/sparkfun/SparkFun_BQ27441_Arduino_Library/blob/65fcd5553b3087d17c838cbb682121b61fe6881c/src/SparkFunBQ27441.cpp#L199"
         );
-        self.read_u16(command::STATE_OF_HEALTH_COMMAND_CODE_STATUS)
-            .await
+        // self.read_u16(command::STATE_OF_HEALTH_COMMAND_CODE_STATUS)
+        //     .await
     }
 
     /// This read-only function returns a signed integer value of the number of cycles
@@ -405,7 +405,7 @@ impl<'a, I2C: I2c, DELAY: DelayNs> Bq27531<'a, I2C, DELAY> {
     /// for both cell profiles and resets to 0 if the insertion of a new pack is detected.
     pub async fn read_cycle_count(&mut self) -> Result<i16, I2C::Error> {
         todo!("is 8 or 16?");
-        self.read_i16(command::CYCLE_COUNT_COMMAND_CODE).await
+        // self.read_i16(command::CYCLE_COUNT_COMMAND_CODE).await
     }
 
     /// This read-only function returns an unsigned integer value of the predicted

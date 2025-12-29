@@ -1,7 +1,5 @@
-use embedded_hal_async::i2c::{I2c, SevenBitAddress};
+use embedded_hal_async::i2c::I2c;
 use num::PrimInt;
-
-use crate::hardware::drivers::bq27531_g1::DEVICE_ADDRESS;
 
 // https://www.ti.com/lit/ug/sluua96a/sluua96a.pdf?ts=1761223531200 (P.g. 34)
 

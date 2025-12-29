@@ -1,10 +1,5 @@
-use embassy_embedded_hal::shared_bus::asynch;
-use embassy_stm32::{
-    i2c::{I2c, Master},
-    mode::Async,
-};
-use embassy_sync::blocking_mutex::raw::{CriticalSectionRawMutex, RawMutex};
 use embassy_time::Delay;
+
 use embedded_graphics::{
     mono_font::{MonoTextStyle, ascii::FONT_6X10, ascii::FONT_9X18_BOLD},
     pixelcolor::{Rgb565, Rgb888},

@@ -1,10 +1,7 @@
 use embassy_time::Delay;
-use embedded_graphics::pixelcolor::Rgb565;
 use embedded_graphics::prelude::*;
 use embedded_graphics::{
-    mono_font::{MonoTextStyle, ascii::FONT_6X10, ascii::FONT_9X18_BOLD},
-    pixelcolor::Rgb888,
-    prelude::*,
+    mono_font::{MonoTextStyle, ascii::FONT_9X18_BOLD},
     primitives::{PrimitiveStyleBuilder, Rectangle},
     text::{Alignment, LineHeight, Text, TextStyleBuilder},
 };
@@ -133,7 +130,7 @@ impl<'a> DiagnosticsConsole<'a> {
         Ok(())
     }
 
-    pub fn draw_event_log<D: DrawTarget>(&mut self, target: &mut D) -> Result<(), D::Error>
+    pub fn draw_event_log<D: DrawTarget>(&mut self, _target: &mut D) -> Result<(), D::Error>
     where
         D::Color: RgbColor,
     {
@@ -153,10 +150,10 @@ impl<'a> DiagnosticsConsole<'a> {
         ));
         self.draw_header(&mut header_area)?;
 
-        let mut content_area = target.clipped(&Rectangle::new(
-            Point::new(0, 30),
-            Size::new(target.size().width, target.size().height - 30),
-        ));
+        // let mut content_area = target.clipped(&Rectangle::new(
+        //     Point::new(0, 30),
+        //     Size::new(target.size().width, target.size().height - 30),
+        // ));
 
         // let mut event_log_area = target.clipped(&Rectangle::new(
         //     Point::new(0, 30),

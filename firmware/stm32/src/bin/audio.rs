@@ -6,7 +6,7 @@ extern crate alloc;
 
 use catalina::engine::audio::oscillator::Oscillator;
 use catalina::engine::audio::sample::U24;
-use catalina::engine::audio::{FromSample, Sample, oscillator};
+use catalina::engine::audio::{Frame, FromSample, Sample, oscillator};
 use catalina::engine::core::Hertz;
 use embassy_stm32::rcc::mux::Saisel;
 use embassy_stm32::{mode, rcc::*};
@@ -280,16 +280,6 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     info!("starting SAI receiver");
     sai_rx.start().unwrap();
 
-    // Initially fill the buffer.
-    // let mut initial_buf = [0u32; DMA_BUFFER_LENGTH];
-    // for frame in initial_buf.chunks_mut(OUTPUT_CHANNEL_COUNT) {
-    //     let value: U24 = osc.sample();
-    //     for sample in frame.iter_mut() {
-    //         *sample = value.to_sample();
-    //     }
-    // }
-    // sai_tx.write(&initial_buf).await.unwrap();
-
     info!("starting SAI loop");
     let mut buf = [0u32; HALF_DMA_BUFFER_LENGTH];
     let mut i = 0;
@@ -307,7 +297,10 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
                 // to_sample() would convert to a u32 range, but the I2S
                 // sample audio format is actually 24-bit so we want to
                 // cap it at 24.
-                *sample = value.inner() as u32;
+                //
+                // We also scale it to turn the digital volume down so
+                // the sine isn't horribly loud!
+                *sample = value.scale_amp(0.15).inner() as u32;
             }
         }
 
@@ -318,8 +311,6 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
 
         i = i + 1;
     }
-
-    loop {}
 
     Ok(())
 }
