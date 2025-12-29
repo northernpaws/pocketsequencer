@@ -5,6 +5,7 @@ use defmt::trace;
 use embassy_executor::{SpawnError, Spawner};
 use embassy_stm32::{
     Peri,
+    dma::Channel,
     peripherals::{DMA2_CH4, TIM5},
     timer::{self, simple_pwm::SimplePwm},
 };
@@ -193,7 +194,11 @@ async fn inner_device_loop(
         // PWM signal without extra padding to make the 32-bit timer happy.
         //
         // see: https://github.com/embassy-rs/embassy/issues/4788
-        pwm.waveform::<embassy_stm32::timer::Ch4>(dma.reborrow(), dma_buffer.get_dma_buffer())
-            .await;
+        pwm.waveform::<embassy_stm32::timer::Ch4, u16>(
+            dma.reborrow(),
+            timer::Channel::Ch4,
+            dma_buffer.get_dma_buffer(),
+        )
+        .await;
     }
 }

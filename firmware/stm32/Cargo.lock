@@ -25,9 +25,9 @@ dependencies = [
 
 [[package]]
 name = "aligned"
-version = "0.4.2"
+version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "377e4c0ba83e4431b10df45c1d4666f178ea9c552cac93e60c3a88bf32785923"
+checksum = "ee4508988c62edf04abd8d92897fca0c2995d907ce1dfeaf369dac3716a40685"
 dependencies = [
  "as-slice",
 ]
@@ -137,11 +137,11 @@ checksum = "812e12b5285cc515a9c72a5c1d3b6d46a19dac5acfef5265968c166106e31dd3"
 [[package]]
 name = "block-device-adapters"
 version = "0.2.0"
-source = "git+https://github.com/northernpaws/embedded-fatfs?branch=master#27332a27c75b7a90080ba761dd28e845299c47ab"
+source = "git+https://github.com/northernpaws/embedded-fatfs?branch=master#d3108fc8b559d8f836e86458219aa23108749af6"
 dependencies = [
  "aligned",
  "block-device-driver 0.2.0 (git+https://github.com/northernpaws/embedded-fatfs?branch=master)",
- "embedded-io-async",
+ "embedded-io-async 0.7.0",
 ]
 
 [[package]]
@@ -156,7 +156,7 @@ dependencies = [
 [[package]]
 name = "block-device-driver"
 version = "0.2.0"
-source = "git+https://github.com/northernpaws/embedded-fatfs?branch=master#27332a27c75b7a90080ba761dd28e845299c47ab"
+source = "git+https://github.com/northernpaws/embedded-fatfs?branch=master#d3108fc8b559d8f836e86458219aa23108749af6"
 dependencies = [
  "aligned",
 ]
@@ -365,12 +365,11 @@ dependencies = [
 [[package]]
 name = "defmt-serial"
 version = "0.10.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f58b953e44512ad9e2a5cbd0924d975619e84d017e7f77eb0c94955f73d19813"
+source = "git+https://github.com/gauteh/defmt-serial.git?rev=411ae7f#411ae7fa909b4fd2667885aff687e009b9108190"
 dependencies = [
  "critical-section",
  "defmt 0.3.100",
- "embedded-io",
+ "embedded-io 0.7.1",
 ]
 
 [[package]]
@@ -422,7 +421,7 @@ dependencies = [
 [[package]]
 name = "embassy-embedded-hal"
 version = "0.5.0"
-source = "git+https://github.com/northernpaws/embassy?branch=dma-mem-to-mem#7ec6d4f034fbfa52cb254e2282eb3217565e72c8"
+source = "git+https://github.com/northernpaws/embassy?branch=devel#e1d4b779a1cea57661364410caf1babf623f39f8"
 dependencies = [
  "defmt 1.0.1",
  "embassy-futures",
@@ -440,7 +439,7 @@ dependencies = [
 [[package]]
 name = "embassy-executor"
 version = "0.9.1"
-source = "git+https://github.com/northernpaws/embassy?branch=dma-mem-to-mem#7ec6d4f034fbfa52cb254e2282eb3217565e72c8"
+source = "git+https://github.com/northernpaws/embassy?branch=devel#e1d4b779a1cea57661364410caf1babf623f39f8"
 dependencies = [
  "cordyceps",
  "cortex-m",
@@ -454,7 +453,7 @@ dependencies = [
 [[package]]
 name = "embassy-executor-macros"
 version = "0.7.0"
-source = "git+https://github.com/northernpaws/embassy?branch=dma-mem-to-mem#7ec6d4f034fbfa52cb254e2282eb3217565e72c8"
+source = "git+https://github.com/northernpaws/embassy?branch=devel#e1d4b779a1cea57661364410caf1babf623f39f8"
 dependencies = [
  "darling",
  "proc-macro2",
@@ -465,17 +464,17 @@ dependencies = [
 [[package]]
 name = "embassy-executor-timer-queue"
 version = "0.1.0"
-source = "git+https://github.com/northernpaws/embassy?branch=dma-mem-to-mem#7ec6d4f034fbfa52cb254e2282eb3217565e72c8"
+source = "git+https://github.com/northernpaws/embassy?branch=devel#e1d4b779a1cea57661364410caf1babf623f39f8"
 
 [[package]]
 name = "embassy-futures"
 version = "0.1.2"
-source = "git+https://github.com/northernpaws/embassy?branch=dma-mem-to-mem#7ec6d4f034fbfa52cb254e2282eb3217565e72c8"
+source = "git+https://github.com/northernpaws/embassy?branch=devel#e1d4b779a1cea57661364410caf1babf623f39f8"
 
 [[package]]
 name = "embassy-hal-internal"
 version = "0.3.0"
-source = "git+https://github.com/northernpaws/embassy?branch=dma-mem-to-mem#7ec6d4f034fbfa52cb254e2282eb3217565e72c8"
+source = "git+https://github.com/northernpaws/embassy?branch=devel#e1d4b779a1cea57661364410caf1babf623f39f8"
 dependencies = [
  "cortex-m",
  "critical-section",
@@ -486,7 +485,7 @@ dependencies = [
 [[package]]
 name = "embassy-net-driver"
 version = "0.2.0"
-source = "git+https://github.com/northernpaws/embassy?branch=dma-mem-to-mem#7ec6d4f034fbfa52cb254e2282eb3217565e72c8"
+source = "git+https://github.com/northernpaws/embassy?branch=devel#e1d4b779a1cea57661364410caf1babf623f39f8"
 dependencies = [
  "defmt 1.0.1",
 ]
@@ -494,7 +493,7 @@ dependencies = [
 [[package]]
 name = "embassy-net-driver-channel"
 version = "0.3.2"
-source = "git+https://github.com/northernpaws/embassy?branch=dma-mem-to-mem#7ec6d4f034fbfa52cb254e2282eb3217565e72c8"
+source = "git+https://github.com/northernpaws/embassy?branch=devel#e1d4b779a1cea57661364410caf1babf623f39f8"
 dependencies = [
  "embassy-futures",
  "embassy-net-driver",
@@ -504,7 +503,7 @@ dependencies = [
 [[package]]
 name = "embassy-stm32"
 version = "0.4.0"
-source = "git+https://github.com/northernpaws/embassy?branch=dma-mem-to-mem#7ec6d4f034fbfa52cb254e2282eb3217565e72c8"
+source = "git+https://github.com/northernpaws/embassy?branch=devel#e1d4b779a1cea57661364410caf1babf623f39f8"
 dependencies = [
  "aligned",
  "bit_field",
@@ -532,8 +531,8 @@ dependencies = [
  "embedded-hal 1.0.0",
  "embedded-hal-async",
  "embedded-hal-nb",
- "embedded-io",
- "embedded-io-async",
+ "embedded-io 0.7.1",
+ "embedded-io-async 0.7.0",
  "embedded-storage",
  "embedded-storage-async",
  "futures-util",
@@ -547,6 +546,7 @@ dependencies = [
  "static_assertions",
  "stm32-fmc",
  "stm32-metapac",
+ "trait-set",
  "vcell",
  "volatile-register",
 ]
@@ -554,12 +554,12 @@ dependencies = [
 [[package]]
 name = "embassy-sync"
 version = "0.7.2"
-source = "git+https://github.com/northernpaws/embassy?branch=dma-mem-to-mem#7ec6d4f034fbfa52cb254e2282eb3217565e72c8"
+source = "git+https://github.com/northernpaws/embassy?branch=devel#e1d4b779a1cea57661364410caf1babf623f39f8"
 dependencies = [
  "cfg-if",
  "critical-section",
  "defmt 1.0.1",
- "embedded-io-async",
+ "embedded-io-async 0.7.0",
  "futures-core",
  "futures-sink",
  "heapless 0.8.0",
@@ -568,7 +568,7 @@ dependencies = [
 [[package]]
 name = "embassy-time"
 version = "0.5.0"
-source = "git+https://github.com/northernpaws/embassy?branch=dma-mem-to-mem#7ec6d4f034fbfa52cb254e2282eb3217565e72c8"
+source = "git+https://github.com/northernpaws/embassy?branch=devel#e1d4b779a1cea57661364410caf1babf623f39f8"
 dependencies = [
  "cfg-if",
  "critical-section",
@@ -584,7 +584,7 @@ dependencies = [
 [[package]]
 name = "embassy-time-driver"
 version = "0.2.1"
-source = "git+https://github.com/northernpaws/embassy?branch=dma-mem-to-mem#7ec6d4f034fbfa52cb254e2282eb3217565e72c8"
+source = "git+https://github.com/northernpaws/embassy?branch=devel#e1d4b779a1cea57661364410caf1babf623f39f8"
 dependencies = [
  "document-features",
 ]
@@ -592,7 +592,7 @@ dependencies = [
 [[package]]
 name = "embassy-time-queue-utils"
 version = "0.3.0"
-source = "git+https://github.com/northernpaws/embassy?branch=dma-mem-to-mem#7ec6d4f034fbfa52cb254e2282eb3217565e72c8"
+source = "git+https://github.com/northernpaws/embassy?branch=devel#e1d4b779a1cea57661364410caf1babf623f39f8"
 dependencies = [
  "embassy-executor-timer-queue",
  "heapless 0.8.0",
@@ -601,14 +601,14 @@ dependencies = [
 [[package]]
 name = "embassy-usb"
 version = "0.5.1"
-source = "git+https://github.com/northernpaws/embassy?branch=dma-mem-to-mem#7ec6d4f034fbfa52cb254e2282eb3217565e72c8"
+source = "git+https://github.com/northernpaws/embassy?branch=devel#e1d4b779a1cea57661364410caf1babf623f39f8"
 dependencies = [
  "defmt 1.0.1",
  "embassy-futures",
  "embassy-net-driver-channel",
  "embassy-sync",
  "embassy-usb-driver",
- "embedded-io-async",
+ "embedded-io-async 0.7.0",
  "heapless 0.8.0",
  "ssmarshal",
  "usbd-hid",
@@ -617,16 +617,16 @@ dependencies = [
 [[package]]
 name = "embassy-usb-driver"
 version = "0.2.0"
-source = "git+https://github.com/northernpaws/embassy?branch=dma-mem-to-mem#7ec6d4f034fbfa52cb254e2282eb3217565e72c8"
+source = "git+https://github.com/northernpaws/embassy?branch=devel#e1d4b779a1cea57661364410caf1babf623f39f8"
 dependencies = [
  "defmt 1.0.1",
- "embedded-io-async",
+ "embedded-io-async 0.6.1",
 ]
 
 [[package]]
 name = "embassy-usb-synopsys-otg"
 version = "0.3.1"
-source = "git+https://github.com/northernpaws/embassy?branch=dma-mem-to-mem#7ec6d4f034fbfa52cb254e2282eb3217565e72c8"
+source = "git+https://github.com/northernpaws/embassy?branch=devel#e1d4b779a1cea57661364410caf1babf623f39f8"
 dependencies = [
  "critical-section",
  "defmt 1.0.1",
@@ -678,11 +678,11 @@ dependencies = [
 [[package]]
 name = "embedded-fatfs"
 version = "0.1.0"
-source = "git+https://github.com/northernpaws/embedded-fatfs?branch=master#27332a27c75b7a90080ba761dd28e845299c47ab"
+source = "git+https://github.com/northernpaws/embedded-fatfs?branch=master#d3108fc8b559d8f836e86458219aa23108749af6"
 dependencies = [
  "bitflags 1.3.2",
  "defmt 0.3.100",
- "embedded-io-async",
+ "embedded-io-async 0.7.0",
 ]
 
 [[package]]
@@ -779,8 +779,14 @@ name = "embedded-io"
 version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "edd0f118536f44f5ccd48bcb8b111bdc3de888b58c74639dfb034a357d0f206d"
+
+[[package]]
+name = "embedded-io"
+version = "0.7.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9eb1aa714776b75c7e67e1da744b81a129b3ff919c8712b5e1b32252c1f07cc7"
 dependencies = [
- "defmt 0.3.100",
+ "defmt 1.0.1",
 ]
 
 [[package]]
@@ -789,8 +795,17 @@ version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3ff09972d4073aa8c299395be75161d582e7629cd663171d62af73c8d50dba3f"
 dependencies = [
- "defmt 0.3.100",
- "embedded-io",
+ "embedded-io 0.6.1",
+]
+
+[[package]]
+name = "embedded-io-async"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2564b9f813c544241430e147d8bc454815ef9ac998878d30cc3055449f7fd4c0"
+dependencies = [
+ "defmt 1.0.1",
+ "embedded-io 0.7.1",
 ]
 
 [[package]]
@@ -801,7 +816,7 @@ checksum = "ce3c7f9ea039eeafc4a49597b7bd5ae3a1c8e51b2803a381cb0f29ce90fe1ec6"
 dependencies = [
  "byteorder",
  "embedded-hal 1.0.0",
- "embedded-io",
+ "embedded-io 0.6.1",
  "heapless 0.8.0",
  "log",
 ]
@@ -886,7 +901,7 @@ dependencies = [
  "embedded-hal 1.0.0",
  "embedded-hal-async",
  "embedded-hal-bus",
- "embedded-io-async",
+ "embedded-io-async 0.7.0",
  "embedded-sdmmc",
  "engine",
  "fatfs",
@@ -1401,7 +1416,7 @@ checksum = "b328e2cb950eeccd55b7f55c3a963691455dcd044cfb5354f0c5e68d2c2d6ee2"
 [[package]]
 name = "sdspi"
 version = "0.1.0"
-source = "git+https://github.com/northernpaws/embedded-fatfs?branch=master#27332a27c75b7a90080ba761dd28e845299c47ab"
+source = "git+https://github.com/northernpaws/embedded-fatfs?branch=master#d3108fc8b559d8f836e86458219aa23108749af6"
 dependencies = [
  "aligned",
  "block-device-driver 0.2.0 (git+https://github.com/northernpaws/embedded-fatfs?branch=master)",
@@ -1522,7 +1537,7 @@ dependencies = [
 [[package]]
 name = "stm32-metapac"
 version = "18.0.0"
-source = "git+https://github.com/embassy-rs/stm32-data-generated?tag=stm32-data-b9f6b0c542d85ee695d71c35ced195e0cef51ac0#9b8fb67703361e2237b6c1ec4f1ee5949223d412"
+source = "git+https://github.com/embassy-rs/stm32-data-generated?tag=stm32-data-24369dbbc177b111de7d6a14403123a46fbc4bfb#d7f8c227284ca1f901d156073b450bc6d5d41f86"
 dependencies = [
  "cortex-m",
  "cortex-m-rt",
@@ -1661,6 +1676,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "trait-set"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b79e2e9c9ab44c6d7c20d5976961b47e8f49ac199154daa514b77cd1ab536625"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
+]
+
+[[package]]
 name = "unicode-ident"
 version = "1.0.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1690,9 +1716,9 @@ dependencies = [
 
 [[package]]
 name = "usbd-hid"
-version = "0.8.2"
+version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e6f291ab53d428685cc780f08a2eb9d5d6ff58622db2b36e239a4f715f1e184c"
+checksum = "9a7cd3bfb2bb57779f2aeab3f679e5ec6c80265adfe77894539792be7c22aaf0"
 dependencies = [
  "serde",
  "ssmarshal",
@@ -1702,18 +1728,18 @@ dependencies = [
 
 [[package]]
 name = "usbd-hid-descriptors"
-version = "0.8.2"
+version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0eee54712c5d778d2fb2da43b1ce5a7b5060886ef7b09891baeb4bf36910a3ed"
+checksum = "ac781e4d4c61a4d3bea4cda03fb4ed4d13578c55386b29c5cdc70b3bd89c47df"
 dependencies = [
  "bitfield 0.14.0",
 ]
 
 [[package]]
 name = "usbd-hid-macros"
-version = "0.8.2"
+version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bb573c76e7884035ac5e1ab4a81234c187a82b6100140af0ab45757650ccda38"
+checksum = "ab457064302de0aca303a13cd520dcf035fdfd2aff713fa69d713d0a8e4291d8"
 dependencies = [
  "byteorder",
  "hashbrown",

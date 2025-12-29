@@ -4,7 +4,9 @@
 #[cfg(feature = "alloc")]
 extern crate alloc;
 
-use catalina::engine::audio::FromSample;
+use catalina::engine::audio::oscillator::Oscillator;
+use catalina::engine::audio::sample::U24;
+use catalina::engine::audio::{FromSample, Sample, oscillator};
 use catalina::engine::core::Hertz;
 use embassy_stm32::rcc::mux::Saisel;
 use embassy_stm32::{mode, rcc::*};
@@ -171,9 +173,6 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     let device_id = codec.read_deviceid().await.unwrap();
     info!("audio codec device ID: {}", device_id.id());
 
-    info!("initializing audio codec...");
-    codec_init(&mut codec, mclk_div);
-
     info!("initializing SAI buffers...");
     let audio_tx_buffer: &mut [u32] = unsafe {
         AUDIO_TX_BUFFER.initialize_all_copied(0);
@@ -204,7 +203,7 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     tx_config.frame_sync_offset = sai::FrameSyncOffset::OnFirstBit;
     tx_config.data_size = sai::DataSize::Data24;
     tx_config.frame_length = 64; // The audio frame length expressed in number of SCK clock cycles. // (channels * 32) for 24 and 32 bit
-    tx_config.master_clock_divider = Some(mclk_div.into());
+    tx_config.master_clock_divider = mclk_div.into();
     tx_config.clock_strobe = sai::ClockStrobe::Rising; // nac88c22 uses rising edge latching on bclk
     tx_config.fifo_threshold = sai::FifoThreshold::Quarter;
     tx_config.sync_output = true; // passes sync to the second block
@@ -216,6 +215,12 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     rx_config.sync_input = sai::SyncInput::Internal; // passes sync to the second block
     rx_config.sync_output = false; // passes sync to the second block
     rx_config.clock_strobe = sai::ClockStrobe::Rising; // nac88c22 uses rising edge latching on bclk
+
+    let mut osc = oscillator::RuntimeOscillator::new(
+        oscillator::OscillatorType::Sine,
+        SAMPLE_RATE as usize,
+        Hertz::from_hertz(261.63), // middle C
+    );
 
     // Split the SAI periperal into it's two subblock peripherals.
     let (sub_block_tx, sub_block_rx) = sai::split_subblocks(r.codec.peri.reborrow());
@@ -231,6 +236,15 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
         audio_tx_buffer,
         tx_config,
     );
+
+    // After the transmitter has been configured, mclk goes active.
+    // Now we can configure our codec to run off the mclk signal.
+
+    info!("initializing audio codec...");
+    codec_init(&mut codec, adjusted_mclk).await;
+
+    // Codec wants delay from mclk start to sending frames
+    Timer::after_millis(250).await;
 
     // Configure the second sub block as a receiver,
     // syncronous to the mclk of the transmitter block.
@@ -248,6 +262,13 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     info!("starting SAI loop");
     let mut buf = [0u32; HALF_DMA_BUFFER_LENGTH];
     loop {
+        for frame in buf.chunks_mut(OUTPUT_CHANNEL_COUNT) {
+            let value: U24 = osc.sample();
+            for sample in frame.iter_mut() {
+                *sample = value.to_sample();
+            }
+        }
+
         // A write() must be called before read() to start the
         // master (transmitter) clock used by the receiver.
         sai_tx.write(&buf).await.unwrap();
@@ -257,11 +278,12 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     Ok(())
 }
 
+/// https://www.nuvoton.com/export/resource-files/en-us--DS_NAU88C22_DataSheet_EN_Rev2.2.pdf
 pub async fn codec_init(
     codec: &'_ mut nau88c22_rs::Nau88c22<
         asynch::i2c::I2cDevice<'_, CriticalSectionRawMutex, I2c<'static, mode::Async, i2c::Master>>,
     >,
-    adjusted_mclk: MasterClockDivider,
+    adjusted_mclk: u32,
 ) {
     codec
         .modify_clockcontrol1(|reg| {
@@ -319,12 +341,17 @@ pub async fn codec_init(
         .await
         .unwrap();
 
-    // Calculate the SAI master clock divisor and derrived codec master clock divisor and PLL.
-    let kernel_clock = rcc::frequency::<peripherals::SAI1>().0;
-    let mclk_div: MasterClockDivider = mclk_div_from_u8((kernel_clock / (SAMPLE_RATE * 256)) as u8);
-    let mclk_div_u8: u8 = mclk_div.into();
-    let adjusted_mclk = kernel_clock / mclk_div_u8 as u32;
+    // Configure the audio format
+    codec
+        .modify_audiointerface(|reg| {
+            reg.with_wlen(0b10) // 24-bit words
+                .with_aifmt(0b10) // standard i2s
+                .with_mono(false) // stereo mode
+        })
+        .await
+        .unwrap();
 
+    // Calculate the SAI master clock divisor and derrived codec master clock divisor and PLL.
     let (mclk_div, pllmclk, plln, pllk1, pllk2, pllk3) =
         nau88c22_calc_pll(adjusted_mclk as f32, SAMPLE_RATE as f32).unwrap();
 
@@ -369,16 +396,6 @@ pub async fn codec_init(
         .await
         .unwrap();
 
-    // Configure the audio format
-    codec
-        .modify_audiointerface(|reg| {
-            reg.with_wlen(0b11) // 32-bit words
-                .with_aifmt(0b10) // standard i2s
-                .with_mono(false) // stereo mode
-        })
-        .await
-        .unwrap();
-
     // Enable the left aux in as the left ADC source.
     codec
         .modify_leftadcboost(|reg| {
@@ -399,49 +416,76 @@ pub async fn codec_init(
         .await
         .unwrap();
 
-    // Set the left main mix to use the left aux input.
-    codec
-        .modify_leftmixer(|reg| {
-            reg //.with_lauxlmx(true) // mix in the left audio input
-                //.with_lauxmxgain(0b101)
-                .with_ldaclmx(true) // mix in the left dac output
-        })
-        .await
-        .unwrap();
+    // DAC setup
+    {
+        // Disable DAC mutes.
+        codec
+            .modify_daccontrol(|reg| reg.with_automt(false).with_softmt(false))
+            .await
+            .unwrap();
 
-    // Set the right main mix to use the right aux input.
-    codec
-        .modify_rightmixer(|reg| {
-            reg //.with_rauxrmx(true) // mix in the right aux input
-                //.with_rauxmxgain(0b101)
-                .with_rdacrmx(true) // mix in the right dac output
-        })
-        .await
-        .unwrap();
+        // Set volumes to initial 0dB
+        codec
+            .modify_leftdacvolume(|reg| reg.with_ldacvu(false).with_ldacgain(0b11111111))
+            .await
+            .unwrap();
+        codec
+            .modify_rightdacvolume(|reg| reg.with_rdacvu(true).with_rdacgain(0b11111111))
+            .await
+            .unwrap();
+    }
 
-    // Connect the left output mixer to the aux1 out.
-    //
-    // AUX1 can only connect to LMIX or RMIX.
-    codec
-        .modify_aux1mixer(|reg| {
-            reg.with_auxiut1mt(false)
-                //.with_rmixaux1(true) // mix in right mixer
-                .with_rdacaux1(true) // mix in right DAC output
-        })
-        .await
-        .unwrap();
+    // Output mixer setup
+    {
+        // Set the left main mix to use the left aux input.
+        codec
+            .modify_leftmixer(|reg| {
+                reg //.with_lauxlmx(true) // mix in the left audio input
+                    //.with_lauxmxgain(0b101)
+                    .with_ldaclmx(true) // mix in the left dac output
+            })
+            .await
+            .unwrap();
 
-    // Connect the left output mixer to the aux2 out.
-    //
-    // AUX2 can only connect to LMIX but not RMIX.
-    codec
-        .modify_aux2mixer(|reg| {
-            reg.with_auxout2mt(false)
-                //.with_lmixaux2(true) // mix in left mixer
-                .with_ldacaux2(true) // mix in left dac output
-        })
-        .await
-        .unwrap();
+        // Set the right main mix to use the right aux input.
+        codec
+            .modify_rightmixer(|reg| {
+                reg //.with_rauxrmx(true) // mix in the right aux input
+                    //.with_rauxmxgain(0b101)
+                    .with_rdacrmx(true) // mix in the right dac output
+            })
+            .await
+            .unwrap();
+    }
+
+    // AUX out mixer setup
+    {
+        // Connect the left output mixer to the aux1 out.
+        //
+        // AUX1 can only connect to LMIX or RMIX.
+        codec
+            .modify_aux1mixer(|reg| {
+                reg.with_auxiut1mt(false)
+                    // TODO: shouldn't need both..
+                    .with_rmixaux1(true) // mix in right mixer
+                    .with_rdacaux1(true) // mix in right DAC output
+            })
+            .await
+            .unwrap();
+
+        // Connect the left output mixer to the aux2 out.
+        //
+        // AUX2 can only connect to LMIX but not RMIX.
+        codec
+            .modify_aux2mixer(|reg| {
+                reg.with_auxout2mt(false)
+                    // TODO: shouldn't need both..
+                    .with_lmixaux2(true) // mix in left mixer
+                    .with_ldacaux2(true) // mix in left dac output
+            })
+            .await
+            .unwrap();
+    }
 }
 
 fn mclk_div_from_u8(v: u8) -> MasterClockDivider {
@@ -508,12 +552,12 @@ fn nau88c22_calc_pll(
 
     let mut mclkseldiv: u8 = 0;
 
-    let mut nau_pll_f2: f32 = 0.0;
-    let mut nau_pll_f1: f32 = 0.0;
+    let mut pll_f2: f32 = 0.0; // PLL Oscillator f2
+    let mut pll_f1: f32 = nau_mckl_in; // input MCLK frequency
 
     for i in 0..8 {
-        nau_pll_f2 = 4.0 * NAU_MCLKSEL[i] * frq_imclk;
-        if (nau_pll_f2 >= 80000000.0) && (nau_pll_f2 < 110000000.0) {
+        pll_f2 = 4.0 * NAU_MCLKSEL[i] * frq_imclk;
+        if (pll_f2 >= 80000000.0) && (pll_f2 < 110000000.0) {
             mclkseldiv = i as u8;
             break;
         };
@@ -521,8 +565,8 @@ fn nau88c22_calc_pll(
 
     if mclkseldiv == 0 {
         for i in 0..8 {
-            nau_pll_f2 = 2.0 * NAU_MCLKSEL[i] * frq_imclk;
-            if (nau_pll_f2 >= 80000000.0) && (nau_pll_f2 < 110000000.0) {
+            pll_f2 = 2.0 * NAU_MCLKSEL[i] * frq_imclk;
+            if (pll_f2 >= 80000000.0) && (pll_f2 < 110000000.0) {
                 mclkseldiv = i as u8;
                 break;
             };
@@ -531,41 +575,59 @@ fn nau88c22_calc_pll(
 
     let mut nau_pres_mckl: u8 = 3;
     let mut nau_r1_ready: u8 = 0;
-    let mut nau_nxy: u8 = 0;
+    let mut integer_portion_n: u8 = 0; // Integer portion N
     let mut nau_pll: f32 = 0.0;
     let mut nau_int_pll: u32 = 0;
 
-    nau_pll_f1 = nau_mckl_in;
-
-    let mut nau_pll_r: f32 = nau_pll_f2 / nau_pll_f1;
+    // Fractional multipler R=f2/f1
+    let mut nau_pll_r: f32 = pll_f2 / pll_f1;
 
     if (nau_pll_r > 6.0) && (nau_pll_r < 13.0) {
         nau_pres_mckl = 1;
     } else {
-        nau_pll_r = nau_pll_f2 / (nau_pll_f1 * 2.0);
+        nau_pll_r = pll_f2 / (pll_f1 * 2.0);
         nau_pres_mckl = 2;
     };
 
+    // Check that the fractional multiplier is within the supported PLL clock bounds,
+    // and then calculate the derrived integer (H) and fractional (K) portions.
     if (nau_pll_r > 6.0) && (nau_pll_r < 13.0) {
-        nau_nxy = libm::floorf(nau_pll_r) as u8;
-        nau_pll = nau_pll_r - (nau_nxy as f32);
-        nau_pll *= 16777216.0;
+        // Get the intergel part by flooring the fractional multiplier.
+        integer_portion_n = libm::floorf(nau_pll_r) as u8;
+
+        // Derrive the fractional portion from the floored intger portion.
+        nau_pll = nau_pll_r - (integer_portion_n as f32);
+        // Multiply by 2^24 to derrive the 24-bit binary fractional value.
+        nau_pll *= 16777216.0; // 2^24
+        // Cast to u32 to round to nearest whole number.
         nau_int_pll = nau_pll as u32;
+
         nau_r1_ready = 1;
     };
 
-    let pll_k1: u8 = ((nau_int_pll >> 18) & 0x3F) as u8;
-    let pll_k2: u16 = ((nau_int_pll >> 9) & 0x1FF) as u16;
-    let pll_k3: u16 = ((nau_int_pll >> 0) & 0x1FF) as u16;
+    // Convert the fractional binary value into it's bit
+    // segments to write to the corrosponding registers.
+    let pll_k1: u8 = ((nau_int_pll >> 18) & 0x3F) as u8; // Highest order 6-bits of 24-bit fraction
+    let pll_k2: u16 = ((nau_int_pll >> 9) & 0x1FF) as u16; // Middle 9-bits of 24-bit fraction
+    let pll_k3: u16 = ((nau_int_pll >> 0) & 0x1FF) as u16; // Lowest order 9-bits of 24-bit fraction
 
     if nau_r1_ready != 1 {
         return Err(CodecClockError::UnresolvablePLL);
     }
 
+    info!("NAC88C22 desired IMCLK rate (256*fs): {}hz", frq_imclk);
+    info!("NAC88C22 fractional multiplier R=(f2/f1): {}", nau_pll_r);
+    info!("NAC88C22 PLL oscillator (f2): {}hz", pll_f2);
+    info!(
+        "NAC88C22 integer portion N (Hex): 0x{:x}",
+        integer_portion_n
+    );
+    info!("NAC88C22 fractional portion K (Hex): 0x{:x}", nau_int_pll);
+
     Ok((
         mclkseldiv,
         (nau_pres_mckl - 1),
-        nau_nxy,
+        integer_portion_n,
         pll_k1,
         pll_k2,
         pll_k3,

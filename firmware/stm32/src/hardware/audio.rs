@@ -442,7 +442,7 @@ fn setup_sai<'d>(
     tx_config.data_size = sai::DataSize::Data24;
     // The audio frame length expressed in number of SCK clock cycles.
     tx_config.frame_length = 64; // (channels * 32) for 24 and 32 bit
-    tx_config.master_clock_divider = Some(mclk_div);
+    tx_config.master_clock_divider = mclk_div;
     tx_config.clock_strobe = sai::ClockStrobe::Rising; // nac88c22 uses rising edge latching on bclk
     tx_config.fifo_threshold = sai::FifoThreshold::Quarter;
     tx_config.sync_output = true; // passes sync to the second block

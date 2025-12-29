@@ -25,10 +25,11 @@ use stm32_metapac::{self as pac};
 
 use embassy_stm32::{
     Config, Peri, Peripherals, bind_interrupts,
-    exti::ExtiInput,
+    exti::{self, ExtiInput},
     fmc::Fmc,
-    gpio::{self, Input, Level, Output, OutputType, Pull, Speed},
+    gpio::{self, ExtiPin, Input, Level, Output, OutputType, Pin, Pull, Speed},
     i2c::{self, I2c},
+    interrupt,
     mode::{self, Async},
     peripherals, rcc,
     sai::{self, MasterClockDivider},
@@ -327,6 +328,14 @@ bind_interrupts!(pub struct Irqs {
     I2C4_ER => i2c::ErrorInterruptHandler<peripherals::I2C4>;
 
     OTG_HS => embassy_stm32::usb::InterruptHandler<peripherals::USB_OTG_HS>;
+
+    EXTI0 => exti::InterruptHandler<interrupt::typelevel::EXTI0>;
+    EXTI1 => exti::InterruptHandler<interrupt::typelevel::EXTI1>;
+    EXTI2 => exti::InterruptHandler<interrupt::typelevel::EXTI2>;
+    EXTI4 => exti::InterruptHandler<interrupt::typelevel::EXTI4>;
+    EXTI9_5 => exti::InterruptHandler<interrupt::typelevel::EXTI9_5>;
+    EXTI15_10 => exti::InterruptHandler<interrupt::typelevel::EXTI15_10>;
+
 });
 
 /// Initializes the Embassy STM32 HAL by configuring
@@ -774,7 +783,7 @@ pub async fn get_memory_devices<
     trace!("Initializing Display reset pin...");
     let rst = Output::new(display.reset, Level::High, Speed::Low);
 
-    let te = ExtiInput::new(display.te, display.te_exti, Pull::Up);
+    let te = ExtiInput::new(display.te, display.te_exti, Pull::Up, Irqs);
 
     trace!("Initializing Display framebuffer...");
     let frame_buffer = FRAME_BUFFER.take();
@@ -797,7 +806,7 @@ pub async fn get_memory_devices<
 
 /// Returns the STM6601 driver for managing the system power state.
 pub fn get_stm6601<'a>(r: PowerResources) -> Stm6601<'a, Output<'a>, Input<'a>> {
-    let int = ExtiInput::new(r.int, r.int_exit, Pull::Down);
+    let int = ExtiInput::new(r.int, r.int_exit, Pull::Down, Irqs);
     let ps_hold = Output::new(r.pwr_hold, Level::High, Speed::Low);
     let pb_state = Input::new(r.pbout, Pull::Down);
 
@@ -829,35 +838,14 @@ pub fn get_i2c2<'a>(
 }
 
 /// Gets a handle to the BQ27531 fuel gauge on I2C2.
-pub fn get_bq27531_g1_async<
-    'a,
-    INT: gpio::Pin,
-    M: RawMutex,
-    BUS: embedded_hal_async::i2c::I2c,
-    DELAY: embedded_hal::delay::DelayNs,
->(
-    int: Peri<'a, INT>,
-    exti: Peri<'a, INT::ExtiChannel>,
-    i2c_bus: &'a Mutex<M, BUS>,
-    delay: DELAY,
-) -> Bq27531<'a, asynch::i2c::I2cDevice<'a, M, BUS>, DELAY> {
-    // Pulled up to compensate for missing pull-up resistor in board design.
-    let int = ExtiInput::new(int, exti, Pull::Up);
-
-    // Create the I2C device for the fuel gauge.
-    let device = asynch::i2c::I2cDevice::new(i2c_bus);
-
-    Bq27531::new(int, device, delay)
-}
-
-/// Gets a handle to the BQ27531 fuel gauge on I2C2.
-pub async fn get_power<'a, INT: gpio::Pin>(
+pub async fn get_power<'a, INT: gpio::Pin + ExtiPin>(
     int: Peri<'a, INT>,
     exti: Peri<'a, INT::ExtiChannel>,
     i2c_bus: &'a Mutex<CriticalSectionRawMutex, I2c<'static, Async, i2c::Master>>,
+    r: FuelGaugeResources,
 ) -> Result<Power<'a>, I2cDeviceError<embassy_stm32::i2c::Error>> {
     // Pulled up to compensate for missing pull-up resistor in board design.
-    let int = ExtiInput::new(int, exti, Pull::Up);
+    let int = ExtiInput::new(r.int, r.int_exti, Pull::Up, Irqs);
 
     // Create the I2C device for the fuel gauge.
     let device = asynch::i2c::I2cDevice::new(i2c_bus);
@@ -888,13 +876,17 @@ pub async fn get_audio<'a, DELAY: embedded_hal_async::delay::DelayNs>(
 }
 
 /// Gets a handle to the FUSB302B USB-PD controller on I2C2.
-pub fn get_fusb302b_async<'a, INT: gpio::Pin, M: RawMutex, BUS: embedded_hal_async::i2c::I2c>(
-    int: Peri<'a, INT>,
-    exti: Peri<'a, INT::ExtiChannel>,
+pub fn get_fusb302b_async<
+    'a,
+    INT: ExtiPin + Pin,
+    M: RawMutex,
+    BUS: embedded_hal_async::i2c::I2c,
+>(
     i2c_bus: &'a Mutex<M, BUS>,
+    r: USBPDResources,
 ) -> Fusb302b<'a, asynch::i2c::I2cDevice<'a, M, BUS>> {
     // Pulled up to compensate for missing pull-up resistor in board design.
-    let int = ExtiInput::new(int, exti, Pull::Up);
+    let int = ExtiInput::new(r.int, r.int_exti, Pull::Up, Irqs);
 
     // Create the I2C device for the fuel gauge.
     let device = asynch::i2c::I2cDevice::new(i2c_bus);
@@ -941,7 +933,7 @@ pub fn get_tca8418_async<
 pub fn get_spi1<'a>(
     r: SPIStorageResources,
 ) -> (
-    embassy_stm32::spi::Spi<'a, embassy_stm32::mode::Async>,
+    embassy_stm32::spi::Spi<'a, embassy_stm32::mode::Async, spi::mode::Master>,
     embassy_stm32::gpio::Output<'a>,
     embassy_stm32::gpio::Output<'a>,
 ) {
@@ -969,13 +961,13 @@ pub fn get_spi1<'a>(
 /// let spi_bus = RefCell::new(spi1);
 /// ```
 pub fn get_sdcard_blocking<'a, DELAY: embedded_hal::delay::DelayNs + core::marker::Copy>(
-    spi_bus: &'a RefCell<spi::Spi<'a, mode::Async>>,
+    spi_bus: &'a RefCell<spi::Spi<'a, mode::Async, spi::mode::Master>>,
     sd_cs: embassy_stm32::gpio::Output<'a>,
     delay: DELAY,
 ) -> embedded_sdmmc::SdCard<
     embedded_hal_bus::spi::RefCellDevice<
         'a,
-        embassy_stm32::spi::Spi<'a, embassy_stm32::mode::Async>,
+        embassy_stm32::spi::Spi<'a, embassy_stm32::mode::Async, spi::mode::Master>,
         embassy_stm32::gpio::Output<'a>,
         DELAY,
     >,
@@ -1089,7 +1081,7 @@ pub async fn get_keypad<'a>(
     );
 
     // Pulled up to compensate for missing pull-up resistor in board design.
-    let int = ExtiInput::new(r.int, r.exti, Pull::Up);
+    let int = ExtiInput::new(r.int, r.exti, Pull::Up, Irqs);
 
     static NOTIFIER: keypad::Notifier = keypad::notifier();
     static WATCHER: keypad::buttons::Watcher = keypad::buttons::watcher();
