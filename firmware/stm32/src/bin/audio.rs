@@ -30,7 +30,7 @@ use defmt::*;
 use embassy_executor::Spawner;
 
 use embassy_embedded_hal::shared_bus::asynch::{self};
-use embassy_stm32::sai::MasterClockDivider;
+use embassy_stm32::sai::{MasterClockDivider, StereoMono};
 use embassy_stm32::{Config, peripherals, rcc, sai};
 use embassy_stm32::{
     i2c::{self, I2c},
@@ -148,7 +148,7 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     info!("Ideal SAI clock for sample rate: {}", SAMPLE_RATE * 256);
     info!(
         "SAI clock skew: {}%",
-        (adjusted_mclk / (SAMPLE_RATE * 256)) as f32 * 100.0
+        (adjusted_mclk as f32 / (SAMPLE_RATE as f32 * 256.0)) as f32 * 100.0
     );
 
     // Initialize the bus for the I2C1 peripheral.
@@ -162,16 +162,6 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     let device = asynch::i2c::I2cDevice::new(i2c1_bus);
 
     let mut codec = nau88c22_rs::Nau88c22::new(device);
-
-    // Software reset the codec to a known state.
-    info!("software resetting audio codec");
-    codec.reset().await.unwrap();
-
-    // Give time for the reset to finish.
-    Timer::after_millis(200).await;
-
-    let device_id = codec.read_deviceid().await.unwrap();
-    info!("audio codec device ID: {}", device_id.id());
 
     info!("initializing SAI buffers...");
     let audio_tx_buffer: &mut [u32] = unsafe {
@@ -195,18 +185,48 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
 
     // The SAI config used for the A block configured in transmit mode.
     let mut tx_config = sai::Config::default();
-    tx_config.slot_count = sai::word::U4(OUTPUT_CHANNEL_COUNT as u8); // The number of slots in the audio frame.
-    tx_config.slot_enable = 0b11; // First 2 slots.
-    tx_config.frame_sync_definition = sai::FrameSyncDefinition::StartOfFrame;
-    tx_config.frame_sync_active_level_length = sai::word::U7(32); // 1-bit cycle for i2s?
-    tx_config.bit_order = sai::BitOrder::MsbFirst; // nac88c22 runs in MSB
-    tx_config.frame_sync_offset = sai::FrameSyncOffset::OnFirstBit;
-    tx_config.data_size = sai::DataSize::Data24;
-    tx_config.frame_length = 64; // The audio frame length expressed in number of SCK clock cycles. // (channels * 32) for 24 and 32 bit
+    tx_config.mode = sai::Mode::Master;
+    tx_config.tx_rx = sai::TxRx::Transmitter;
+    tx_config.stereo_mono = sai::StereoMono::Stereo;
+    tx_config.output_drive = sai::OutputDrive::OnStart; // disabled
     tx_config.master_clock_divider = mclk_div.into();
-    tx_config.clock_strobe = sai::ClockStrobe::Rising; // nac88c22 uses rising edge latching on bclk
-    tx_config.fifo_threshold = sai::FifoThreshold::Quarter;
-    tx_config.sync_output = true; // passes sync to the second block
+    tx_config.nodiv = false;
+
+    tx_config.fifo_threshold = sai::FifoThreshold::Empty;
+    tx_config.companding = sai::Companding::None;
+
+    tx_config.protocol = sai::Protocol::Free; // free for i2s
+    tx_config.bit_order = sai::BitOrder::MsbFirst; // nac88c22 runs in MSB
+    tx_config.clock_strobe = sai::ClockStrobe::Falling;
+
+    tx_config.frame_sync_definition = sai::FrameSyncDefinition::ChannelIdentification;
+
+    tx_config.slot_enable = 0xFFFF; // All configured slots active
+    tx_config.slot_count = sai::word::U4(OUTPUT_CHANNEL_COUNT as u8); // The number of slots in the audio frame.
+    tx_config.first_bit_offset = sai::word::U5(0);
+
+    // standard i2s
+    tx_config.frame_sync_polarity = sai::FrameSyncPolarity::ActiveLow;
+    tx_config.frame_sync_offset = sai::FrameSyncOffset::BeforeFirstBit;
+    // inverted
+    // tx_config.frame_sync_polarity = sai::FrameSyncPolarity::ActiveHigh;
+    // tx_config.frame_sync_offset = sai::FrameSyncOffset::OnFirstBit;
+
+    // Data size
+    tx_config.data_size = sai::DataSize::Data24;
+    tx_config.frame_length = 64; // 64U * (nbslot / 2U)
+    tx_config.frame_sync_active_level_length = sai::word::U7(32); // 32U * (nbslot / 2U)
+    tx_config.slot_size = sai::SlotSize::Channel32; // sai::SlotSize::DataSize
+
+    //SAI_I2S_LSBJUSTIFIED (24-bit)
+    // tx_config.first_bit_offset = sai::U5(8);
+
+    // tx_config.data_size = sai::DataSize::Data24;
+    // tx_config.frame_length = 32; // 24 * 2; // 64; // The audio frame length expressed in number of SCK clock cycles. // (channels * 32) for 24 and 32 bit
+    // tx_config.master_clock_divider = mclk_div.into();
+    // tx_config.fifo_threshold = sai::FifoThreshold::Quarter;
+    // tx_config.sync_output = true; // passes sync to the second block
+    // tx_config.output_drive = sai::OutputDrive::OnStart; // on_start/disabled for i2s
 
     // The SAI config used for the B block configured in receive mode.
     let mut rx_config = tx_config.clone();
@@ -259,9 +279,22 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     info!("starting SAI receiver");
     sai_rx.start().unwrap();
 
-    info!("starting SAI loop");
+    // Initially fill the buffer.
+    let mut initial_buf = [0u32; DMA_BUFFER_LENGTH];
+    for frame in initial_buf.chunks_mut(OUTPUT_CHANNEL_COUNT) {
+        let value: U24 = osc.sample();
+        for sample in frame.iter_mut() {
+            *sample = value.to_sample();
+        }
+    }
+    sai_tx.write(&initial_buf).await.unwrap();
+
+    /*info!("starting SAI loop");
     let mut buf = [0u32; HALF_DMA_BUFFER_LENGTH];
+    let mut i = 0;
     loop {
+        info!("iter: {}", i);
+
         for frame in buf.chunks_mut(OUTPUT_CHANNEL_COUNT) {
             let value: U24 = osc.sample();
             for sample in frame.iter_mut() {
@@ -272,8 +305,12 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
         // A write() must be called before read() to start the
         // master (transmitter) clock used by the receiver.
         sai_tx.write(&buf).await.unwrap();
-        sai_rx.read(&mut buf).await.unwrap();
-    }
+        // sai_rx.read(&mut buf).await.unwrap();
+
+        i = i + 1;
+    }*/
+
+    loop {}
 
     Ok(())
 }
@@ -285,25 +322,27 @@ pub async fn codec_init(
     >,
     adjusted_mclk: u32,
 ) {
-    codec
-        .modify_clockcontrol1(|reg| {
-            reg.with_clkm(false) // MCLK, pin#11 used as master clock
-                .with_clkioen(false) // clock is in slave mode
-        })
-        .await
-        .unwrap();
+    // Software reset the codec to a known state.
+    info!("software resetting audio codec");
+    codec.reset().await.unwrap(); // register 0
 
+    // Give time for the reset to finish.
+    Timer::after_millis(200).await;
+
+    let device_id = codec.read_deviceid().await.unwrap();
+    info!("audio codec device ID: {}", device_id.id());
+
+    // Register 1
     codec
         .modify_powermanagement1(|reg| {
-            reg.with_dcbufen(true)
-                .with_aux1mxen(true)
+            reg.with_dcbufen(false) // false for lower then 3.6v operation
+                .with_aux1mxen(true) // Enable the aux 1&2 output mixers.
                 .with_aux2mxen(true)
-                .with_pllen(false)
-                .with_micbiasen(true)
-                .with_abiasen(true)
-                .with_iobufen(true)
-                .with_refimp(0b11)
-                .with_dcbufen(false) // false for lower then 3.6v operation
+                .with_pllen(false) // Ensure the PLL is disabled.
+                .with_micbiasen(true) // Enable the micbias buffer output.
+                .with_abiasen(true) // Enable internal Analog Bias Buffer.
+                .with_iobufen(true) // Internal Tie-off Buffer In Non-boost 1.0X Mode
+                .with_refimp(0b11) // VREF Impedance Select - 80k breaks headphone output?
         })
         .await
         .unwrap();
@@ -312,115 +351,116 @@ pub async fn codec_init(
     // REFIMP and ABIASEN to charge output capacitors.
     Timer::after_millis(250).await;
 
+    // Register 2
     codec
         .modify_powermanagement2(|reg| {
-            reg.with_rhpen(false)
-                .with_lphen(false)
-                .with_sleep(false)
-                .with_rbsten(true)
-                .with_lbsten(true)
-                .with_rpgaen(true)
-                .with_lpgaen(true)
-                .with_radcen(true)
-                .with_ladcen(true)
+            reg.with_rhpen(false) // Right headphone driver
+                .with_lphen(false) // Left headphone driver
+                .with_sleep(false) // Normal mode
+                .with_rbsten(true) // Right channel ADC input enable
+                .with_lbsten(true) // Left channel ADC input enable
+                .with_rpgaen(true) // Right channel input PGA enable
+                .with_lpgaen(true) // Left channel input PGA enable
+                .with_radcen(true) // Right channel ADC enable
+                .with_ladcen(true) // Left channel ADC enable
         })
         .await
         .unwrap();
 
-    codec
-        .modify_powermanagement3(|reg| {
-            reg.with_auxout1en(true)
-                .with_auxout2en(true)
-                .with_lspken(false)
-                .with_rspken(false)
-                .with_rmixen(true)
-                .with_lmixen(true)
-                .with_rdacen(true)
-                .with_ldacen(true)
-        })
-        .await
-        .unwrap();
-
-    // Configure the audio format
-    codec
-        .modify_audiointerface(|reg| {
-            reg.with_wlen(0b10) // 24-bit words
-                .with_aifmt(0b10) // standard i2s
-                .with_mono(false) // stereo mode
-        })
-        .await
-        .unwrap();
-
-    // Calculate the SAI master clock divisor and derrived codec master clock divisor and PLL.
-    let (mclk_div, pllmclk, plln, pllk1, pllk2, pllk3) =
-        nau88c22_calc_pll(adjusted_mclk as f32, SAMPLE_RATE as f32).unwrap();
-
-    info!(
-        "codec mclk_div={} pllmclk={} plln={} pllk1={} pllk2={} pllk3={}",
-        mclk_div,
-        pllmclk > 0,
-        plln,
-        pllk1,
-        pllk2,
-        pllk3
-    );
-
-    // Configure the PLL.
-    codec
-        .modify_clockcontrol1(|reg| reg.with_mclksel(mclk_div))
-        .await
-        .unwrap();
-    codec
-        .modify_plln(|reg| reg.with_pllmclk(pllmclk > 0).with_plln(plln))
-        .await
-        .unwrap();
-    codec
-        .modify_pllk1(|reg| reg.with_pllk(pllk1))
-        .await
-        .unwrap();
-    codec
-        .modify_pllk2(|reg| reg.with_pllk(pllk2))
-        .await
-        .unwrap();
-    codec
-        .modify_pllk3(|reg| reg.with_pllk(pllk3))
-        .await
-        .unwrap();
-
-    // Wait for the PLL to stabalize.
-    Timer::after_millis(255).await;
-
-    // Enable the PLL.
-    codec
-        .modify_powermanagement1(|reg| reg.with_pllen(true))
-        .await
-        .unwrap();
-
-    // Enable the left aux in as the left ADC source.
-    codec
-        .modify_leftadcboost(|reg| {
-            reg.with_lauxbstegain(0b101)
-                .with_lpgabst(false)
-                .with_lpgabstgaun(0)
-        })
-        .await
-        .unwrap();
-
-    // Enable the right aux in as the right ADC source.
-    codec
-        .modify_rightadcboost(|reg| {
-            reg.with_rauxbstgain(0b101)
-                .with_rpgabst(false)
-                .with_rpgabstgain(0)
-        })
-        .await
-        .unwrap();
-
-    // DAC setup
+    // Input routing
     {
-        // Disable DAC mutes.
+        // Register 14.
         codec
-            .modify_daccontrol(|reg| reg.with_automt(false).with_softmt(false))
+            .modify_adccontrol(|reg| {
+                reg.with_adcos(true) //128x oversampling
+                    .with_hpf(0)
+                    .with_hpfen(false) // disable high pass filter
+            })
+            .await
+            .unwrap();
+
+        // Register 44.
+        codec
+            .modify_inputcontrol(|reg| {
+                reg.with_rmicnrpga(false)
+                    .with_rmicnrpga(false) // disable default right differential mix in to PGA
+                    .with_lmicnlpga(false)
+                    .with_lmicnlpga(false) // disable default right differential mix in to PGA
+            })
+            .await
+            .unwrap();
+
+        // Mute left and right PGA (registers 45, 46)
+        codec
+            .modify_leftinputpgagain(|reg| reg.with_lpgamt(true))
+            .await
+            .unwrap();
+        codec
+            .modify_rightinputpgagain(|reg| reg.with_rpgamt(true))
+            .await
+            .unwrap();
+
+        // Enable the left aux in as the left ADC source.
+        codec
+            .modify_leftadcboost(|reg| {
+                reg.with_lpgabst(false) // Disable the left PGA input
+                    .with_lauxbstegain(0b101) // Enable the left aux in at 0db
+                    .with_lpgabstgaun(0) // Left line-in to boost stage
+            })
+            .await
+            .unwrap();
+
+        // Enable the right aux in as the right ADC source.
+        codec
+            .modify_rightadcboost(|reg| {
+                reg.with_rpgabst(false) // disable the PGA input
+                    .with_rauxbstgain(0b101) // Enable the right aux in at 0db
+                    .with_rpgabstgain(0) // Right line-in boost stage input
+            })
+            .await
+            .unwrap();
+    }
+
+    // Output routing and DAC setup
+    {
+        // Register 3 - output power
+        codec
+            .modify_powermanagement3(|reg| {
+                reg.with_auxout1en(true) // Aux out 1 (pin#21) enable
+                    .with_auxout2en(true) // Aux out 2 (pin#22) enable
+                    .with_lspken(false) // Left speaker output driver enable
+                    .with_rspken(false) // Right speaker output driver enable
+                    .with_rmixen(true) // Right output main mixer enable
+                    .with_lmixen(true) // Left output main mixer enable
+                    .with_rdacen(true) // Right DAC enable
+                    .with_ldacen(true) // Left DAC enable
+            })
+            .await
+            .unwrap();
+
+        // Register 10
+        codec
+            .modify_daccontrol(|reg| {
+                reg.with_dacos(true) // 128x oversampling
+            })
+            .await
+            .unwrap();
+
+        // Register 50
+        // Set the left main mix to use the left aux input.
+        codec
+            .modify_leftmixer(|reg| {
+                reg.with_ldaclmx(true) // mix in the left dac output
+            })
+            .await
+            .unwrap();
+
+        // Register 51
+        // Set the right main mix to use the right aux input.
+        codec
+            .modify_rightmixer(|reg| {
+                reg.with_rdacrmx(true) // mix in the right dac output
+            })
             .await
             .unwrap();
 
@@ -433,42 +473,14 @@ pub async fn codec_init(
             .modify_rightdacvolume(|reg| reg.with_rdacvu(true).with_rdacgain(0b11111111))
             .await
             .unwrap();
-    }
 
-    // Output mixer setup
-    {
-        // Set the left main mix to use the left aux input.
-        codec
-            .modify_leftmixer(|reg| {
-                reg //.with_lauxlmx(true) // mix in the left audio input
-                    //.with_lauxmxgain(0b101)
-                    .with_ldaclmx(true) // mix in the left dac output
-            })
-            .await
-            .unwrap();
-
-        // Set the right main mix to use the right aux input.
-        codec
-            .modify_rightmixer(|reg| {
-                reg //.with_rauxrmx(true) // mix in the right aux input
-                    //.with_rauxmxgain(0b101)
-                    .with_rdacrmx(true) // mix in the right dac output
-            })
-            .await
-            .unwrap();
-    }
-
-    // AUX out mixer setup
-    {
         // Connect the left output mixer to the aux1 out.
         //
         // AUX1 can only connect to LMIX or RMIX.
         codec
             .modify_aux1mixer(|reg| {
-                reg.with_auxiut1mt(false)
-                    // TODO: shouldn't need both..
-                    .with_rmixaux1(true) // mix in right mixer
-                    .with_rdacaux1(true) // mix in right DAC output
+                // reg.with_rdacaux1(true) // mix in right DAC output
+                reg.with_rdacaux1(true).with_radcaux1(true)
             })
             .await
             .unwrap();
@@ -478,13 +490,99 @@ pub async fn codec_init(
         // AUX2 can only connect to LMIX but not RMIX.
         codec
             .modify_aux2mixer(|reg| {
-                reg.with_auxout2mt(false)
-                    // TODO: shouldn't need both..
-                    .with_lmixaux2(true) // mix in left mixer
-                    .with_ldacaux2(true) // mix in left dac output
+                // reg.with_ldacaux2(true) // mix in left dac output
+                reg.with_ldacaux2(true).with_ldacaux(true)
             })
             .await
             .unwrap();
+    }
+
+    // Audio format and clock
+    {
+        // Register 4
+        //
+        // Configure the audio format
+        codec
+            .modify_audiointerface(|reg| {
+                reg.with_wlen(0b10) // 24-bit words
+                    .with_aifmt(0b10) // standard i2s
+            })
+            .await
+            .unwrap();
+
+        // Config without PLL
+        {
+            // Register 6
+            //
+            // Set MCLK (pin#11) as a master clock input, and configure
+            // the clock pins (BCLK and FS) in slave mode.
+            codec
+                .modify_clockcontrol1(|reg| {
+                    reg.with_clkm(false) // MCLK, pin#11 used directly master clock
+                })
+                .await
+                .unwrap();
+        }
+
+        // Config with PLL
+        /*{
+            // Register 6
+            //
+            // Set MCLK (pin#11) as a master clock input, and configure
+            // the clock pins (BCLK and FS) in slave mode.
+            codec
+                .modify_clockcontrol1(|reg| {
+                    reg.with_clkm(true) // Internal PLL is used
+                        .with_mclksel(0b010) // Divide by two
+                })
+                .await
+                .unwrap();
+
+            // Calculate the SAI master clock divisor and derrived codec master clock divisor and PLL.
+            let (mclk_div, pllmclk, plln, pllk1, pllk2, pllk3) =
+                nau88c22_calc_pll(adjusted_mclk as f32, SAMPLE_RATE as f32).unwrap();
+
+            info!(
+                "codec mclk_div={} pllmclk={} plln={} pllk1={} pllk2={} pllk3={}",
+                mclk_div,
+                pllmclk > 0,
+                plln,
+                pllk1,
+                pllk2,
+                pllk3
+            );
+
+            // Configure the PLL.
+            codec
+                .modify_clockcontrol1(|reg| reg.with_mclksel(mclk_div))
+                .await
+                .unwrap();
+            codec
+                .modify_plln(|reg| reg.with_pllmclk(pllmclk > 0).with_plln(plln))
+                .await
+                .unwrap();
+            codec
+                .modify_pllk1(|reg| reg.with_pllk(pllk1))
+                .await
+                .unwrap();
+            codec
+                .modify_pllk2(|reg| reg.with_pllk(pllk2))
+                .await
+                .unwrap();
+            codec
+                .modify_pllk3(|reg| reg.with_pllk(pllk3))
+                .await
+                .unwrap();
+
+            // Enable the PLL.
+            codec
+                .modify_powermanagement1(|reg| reg.with_pllen(true))
+                .await
+                .unwrap();
+
+            // Wait for the PLL to stabalize.
+            Timer::after_millis(255).await;
+        }*/
     }
 }
 
