@@ -45,6 +45,7 @@ use grounded::uninit::GroundedArrayCell;
 
 use defmt::{error, info};
 use derive_more::{Display, Error};
+use nau88c22_rs::registers::AudioInterfaceDataFormat;
 use static_cell::StaticCell;
 
 use {
@@ -404,8 +405,8 @@ pub async fn codec_init(
         codec
             .modify_leftadcboost(|reg| {
                 reg.with_lpgabst(false) // Disable the left PGA input
-                    .with_lauxbstegain(0b101) // Enable the left aux in at 0db
-                    .with_lpgabstgaun(0) // Left line-in to boost stage
+                    .with_lauxbstgain(0b101) // Enable the left aux in at 0db
+                    .with_lpgabstgain(0) // Left line-in to boost stage
             })
             .await
             .unwrap();
@@ -417,6 +418,16 @@ pub async fn codec_init(
                     .with_rauxbstgain(0b101) // Enable the right aux in at 0db
                     .with_rpgabstgain(0) // Right line-in boost stage input
             })
+            .await
+            .unwrap();
+
+        // Ensure ADC input volumes are at 0db.
+        codec
+            .modify_leftadcvolume(|reg| reg.with_ladcgain(0b11111111))
+            .await
+            .unwrap();
+        codec
+            .modify_rightadcvolume(|reg| reg.with_radcgain(0b11111111))
             .await
             .unwrap();
     }
@@ -474,13 +485,21 @@ pub async fn codec_init(
             .await
             .unwrap();
 
+        // TODO: remove after testing clock!!
+        // Test routing ADC output to DAC input
+        codec
+            .modify_companding(|reg| reg.with_addap(true))
+            .await
+            .unwrap();
+
         // Connect the left output mixer to the aux1 out.
         //
         // AUX1 can only connect to LMIX or RMIX.
         codec
             .modify_aux1mixer(|reg| {
                 // reg.with_rdacaux1(true) // mix in right DAC output
-                reg.with_rdacaux1(true).with_radcaux1(true)
+                // reg.with_rdacaux1(true).with_radcaux1(true)
+                reg.with_rdacaux1(true)
             })
             .await
             .unwrap();
@@ -491,7 +510,8 @@ pub async fn codec_init(
         codec
             .modify_aux2mixer(|reg| {
                 // reg.with_ldacaux2(true) // mix in left dac output
-                reg.with_ldacaux2(true).with_ldacaux(true)
+                // reg.with_ldacaux2(true).with_ldacaux(true)
+                reg.with_ldacaux2(true)
             })
             .await
             .unwrap();
@@ -504,27 +524,22 @@ pub async fn codec_init(
         // Configure the audio format
         codec
             .modify_audiointerface(|reg| {
-                reg.with_wlen(0b10) // 24-bit words
-                    .with_aifmt(0b10) // standard i2s
+                reg.with_wlen(nau88c22_rs::registers::WordLength::Word24Bit) // 24-bit words
+                    .with_aifmt(AudioInterfaceDataFormat::StandardI2S) // standard i2s
+            })
+            .await
+            .unwrap();
+
+        // Test by outputting the clock on GPIO1
+        codec
+            .modify_gpio(|reg| {
+                reg.with_gpio1sel(nau88c22_rs::registers::GPIO1FunctionSelect::DividedPLLClock)
+                    .with_gpio1pll(nau88c22_rs::registers::GPIO1PllDivisor::Divide1)
             })
             .await
             .unwrap();
 
         // Config without PLL
-        {
-            // Register 6
-            //
-            // Set MCLK (pin#11) as a master clock input, and configure
-            // the clock pins (BCLK and FS) in slave mode.
-            codec
-                .modify_clockcontrol1(|reg| {
-                    reg.with_clkm(false) // MCLK, pin#11 used directly master clock
-                })
-                .await
-                .unwrap();
-        }
-
-        // Config with PLL
         /*{
             // Register 6
             //
@@ -532,12 +547,15 @@ pub async fn codec_init(
             // the clock pins (BCLK and FS) in slave mode.
             codec
                 .modify_clockcontrol1(|reg| {
-                    reg.with_clkm(true) // Internal PLL is used
-                        .with_mclksel(0b010) // Divide by two
+                    reg.with_clkm(false) // MCLK, pin#11 used directly master clock
+                        .with_clkioen(false) // fs and bclk are inputs
                 })
                 .await
                 .unwrap();
+        }*/
 
+        // Config with PLL
+        {
             // Calculate the SAI master clock divisor and derrived codec master clock divisor and PLL.
             let (mclk_div, pllmclk, plln, pllk1, pllk2, pllk3) =
                 nau88c22_calc_pll(adjusted_mclk as f32, SAMPLE_RATE as f32).unwrap();
@@ -552,11 +570,22 @@ pub async fn codec_init(
                 pllk3
             );
 
-            // Configure the PLL.
+            // Register 6
+            //
+            // Set MCLK (pin#11) as a master clock input, configure
+            // the clock pins (BCLK and FS) in slave mode, and set
+            // the desired MCLK divider.
             codec
-                .modify_clockcontrol1(|reg| reg.with_mclksel(mclk_div))
+                .modify_clockcontrol1(|reg| {
+                    reg.with_clkm(true) // Internal PLL is used
+                        // TODO: use mclk_div
+                        .with_mclksel(nau88c22_rs::registers::MasterClockSourceScaling::Divide1) // divide PLL before MCLK
+                        .with_clkioen(false) // fs and bclk are inputs
+                })
                 .await
                 .unwrap();
+
+            // Configure the PLL.
             codec
                 .modify_plln(|reg| reg.with_pllmclk(pllmclk > 0).with_plln(plln))
                 .await
@@ -582,7 +611,7 @@ pub async fn codec_init(
 
             // Wait for the PLL to stabalize.
             Timer::after_millis(255).await;
-        }*/
+        }
     }
 }
 
@@ -635,14 +664,20 @@ fn nau88c22_calc_pll(
 
     // First, derrive the desired IMCLK frequency
     // which can be calculated as 256 * sample_Rate.
+    //
+    // IMCLK = desired Master Clock = (256)*(desired codec sample rate)
+    //
+    // 12_288_000hz for 48k
     let frq_imclk = 256.0 * sample_rate_hz;
-    // let nau_mckl_in = master_clock_fq / pck_prescaller;
+    info!("NAC88C22 desired IMCLK rate (256*fs): {}hz", frq_imclk);
 
-    // Check that the MCLK being provided to the codec is within a workable range.
+    // Check that the MCLK being provided to the codec is within the
+    // workable PLL reference frequency range of 8MHz to 33MHz.
     if nau_mckl_in > 33_000_000.0 {
         error!("SAI mclk too high, {} > 33000000.0", nau_mckl_in);
         return Err(CodecClockError::MCLKTooHigh);
     }
+
     if nau_mckl_in < 9_000_000.0 {
         error!("SAI mclk too low, {} < 9000000.0", nau_mckl_in);
         return Err(CodecClockError::MCLKTooLow);
@@ -650,9 +685,13 @@ fn nau88c22_calc_pll(
 
     let mut mclkseldiv: u8 = 0;
 
+    // f2 = (4)*(P)(IMCLK) or (2)*(P)(IMCLK) when PLL49MOUT bit R72[2] = 1
+    // > where P is the Master Clock Prescale integer value
+    //
+    // optimal f2: 90MHz< f2 <100MHz
     let mut pll_f2: f32 = 0.0; // PLL Oscillator f2
-    let mut pll_f1: f32 = nau_mckl_in; // input MCLK frequency
 
+    // Try to find a divisor that hits the optimal f2 frequency.
     for i in 0..8 {
         pll_f2 = 4.0 * NAU_MCLKSEL[i] * frq_imclk;
         if (pll_f2 >= 80000000.0) && (pll_f2 < 110000000.0) {
@@ -671,33 +710,73 @@ fn nau88c22_calc_pll(
         }
     };
 
+    info!(
+        "NAU88C22 PLL oscillator f2={}hz (mclkseldiv={}={})",
+        pll_f2, mclkseldiv, NAU_MCLKSEL[mclkseldiv as usize]
+    );
+
+    // There are two dividers between the PLL and the output pin.
+    info!("NAU88C22 expected GPIO1 PLL output freq {}hz", pll_f2 / 4.0);
+
+    info!(
+        "NAC88C22 calculated achieved IMCLK rate: {}hz!",
+        (pll_f2 / 4.0) / NAU_MCLKSEL[mclkseldiv as usize]
+    );
+
+    // f1 = (MCLK)/(D)
+    //  D = PLL Prescale factor of 1, or 2
+    //  MCLK = is the frequency at the MCLK pin
+    let mut pll_f1: f32 = nau_mckl_in; // input MCLK frequency
+    info!("NAC88C22 input mclk frequency f1={}hz", pll_f1);
+
     let mut nau_pres_mckl: u8 = 3;
     let mut nau_r1_ready: u8 = 0;
-    let mut integer_portion_n: u8 = 0; // Integer portion N
+
     let mut nau_pll: f32 = 0.0;
     let mut nau_int_pll: u32 = 0;
 
+    // Fractional frequency multiplication factor for the PLL.
+    //
+    // R = f2/f1 = xy.abcdefgh
     // Fractional multipler R=f2/f1
     let mut nau_pll_r: f32 = pll_f2 / pll_f1;
+
+    info!(
+        "NAC88C22 fractional multiplier R=(f2/f1)=({}/{})={} (nau_pres_mckl={})",
+        pll_f2, pll_f1, nau_pll_r, nau_pres_mckl
+    );
 
     if (nau_pll_r > 6.0) && (nau_pll_r < 13.0) {
         nau_pres_mckl = 1;
     } else {
         nau_pll_r = pll_f2 / (pll_f1 * 2.0);
         nau_pres_mckl = 2;
+
+        info!(
+            "NAC88C22 scaled! fractional multiplier R=(f2/f1)={} (nau_pres_mckl={})",
+            nau_pll_r, nau_pres_mckl
+        );
     };
+
+    // Truncated integer portion of the R value, and limited
+    // to decimal value 6, 7, 8, 9, 10, 11, or 12.
+    //
+    // N = xy
+    let mut integer_portion_n: u8 = 0;
 
     // Check that the fractional multiplier is within the supported PLL clock bounds,
     // and then calculate the derrived integer (H) and fractional (K) portions.
     if (nau_pll_r > 6.0) && (nau_pll_r < 13.0) {
         // Get the intergel part by flooring the fractional multiplier.
-        integer_portion_n = libm::floorf(nau_pll_r) as u8;
+        integer_portion_n = libm::floorf(nau_pll_r) as u8; // N = xy
 
-        // Derrive the fractional portion from the floored intger portion.
-        nau_pll = nau_pll_r - (integer_portion_n as f32);
+        // TODO check that N is 6, 7, 8, 9, 10, 11, or 12
+
+        // Derrive the fractional portion K from the floored intger portion.
+        nau_pll = nau_pll_r - (integer_portion_n as f32); // (0.abcdefgh)
         // Multiply by 2^24 to derrive the 24-bit binary fractional value.
-        nau_pll *= 16777216.0; // 2^24
-        // Cast to u32 to round to nearest whole number.
+        nau_pll *= 16777216.0; // K = (2^24)*(0.abcdefgh)
+        // Cast to u32 to round to nearest whole integer.
         nau_int_pll = nau_pll as u32;
 
         nau_r1_ready = 1;
@@ -713,14 +792,22 @@ fn nau88c22_calc_pll(
         return Err(CodecClockError::UnresolvablePLL);
     }
 
-    info!("NAC88C22 desired IMCLK rate (256*fs): {}hz", frq_imclk);
-    info!("NAC88C22 fractional multiplier R=(f2/f1): {}", nau_pll_r);
-    info!("NAC88C22 PLL oscillator (f2): {}hz", pll_f2);
     info!(
         "NAC88C22 integer portion N (Hex): 0x{:x}",
         integer_portion_n
     );
     info!("NAC88C22 fractional portion K (Hex): 0x{:x}", nau_int_pll);
+
+    info!("Registers:");
+    info!("R6[7:5](MCLKSEL)={}", mclkseldiv);
+    info!(
+        "R36[3:0](PLLN)={} R36[4](PLLMCLK)={}",
+        integer_portion_n,
+        (nau_pres_mckl - 1)
+    );
+    info!("R37(PLLK[23:18])={:06b}", pll_k1);
+    info!("R38(PLLK[17:9])={:09b}", pll_k2);
+    info!("R38(PLLK[8:0])={:09b}", pll_k3);
 
     Ok((
         mclkseldiv,

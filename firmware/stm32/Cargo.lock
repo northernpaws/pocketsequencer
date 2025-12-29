@@ -911,7 +911,6 @@ dependencies = [
  "libm",
  "mbr-nostd",
  "midly",
- "nau88c22",
  "nau88c22-rs",
  "num",
  "panic-probe",
@@ -1139,20 +1138,9 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "207d755f4cb882d20c4da58d707ca9130a0c9bc5061f657a4f299b8e36362b7a"
 
 [[package]]
-name = "nau88c22"
-version = "0.9.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3bdc59137f5e0f998d33161341fca9e398b5b398e3ad152bfdab359655f2c6d1"
-dependencies = [
- "bitfield 0.14.0",
- "embedded-hal 1.0.0",
-]
-
-[[package]]
 name = "nau88c22-rs"
 version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "285fcab5b90c00505ebe1bf635d68ec7281483c937077ec94cddf01838aa51b6"
+source = "git+https://github.com/northernpaws/nau88c22-rs.git?branch=main#c5459666cd9937450cd5e13b1727743b428c0ce0"
 dependencies = [
  "embedded-hal-async",
  "paste",

@@ -172,7 +172,7 @@ embedded-charts = { version = "0.3.0", default-features = false, features = [
     "basic-charts",
     "minimal-memory",
 ] }
-nau88c22 = "0.9.0"
+
 nau88c22-rs = "0.1.0"
 libm = "0.2.15"
 catalina = { version = "0.0.1", features = ["engine"] }
@@ -199,3 +199,5 @@ catalina = { git = 'https://github.com/northernpaws/catalina', branch = 'main' }
 
 # Use specific revision with embedded-io 0.7 update
 defmt-serial = { git = "https://github.com/gauteh/defmt-serial.git", rev = "411ae7f" }
+
+nau88c22-rs = { git = "https://github.com/northernpaws/nau88c22-rs.git", branch = "main" }

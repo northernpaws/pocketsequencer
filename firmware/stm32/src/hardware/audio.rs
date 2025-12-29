@@ -191,7 +191,9 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Audio<'a, DELAY> {
 
         // Configure the PLL.
         codec
-            .modify_clockcontrol1(|reg| reg.with_mclksel(mclk_div))
+            .modify_clockcontrol1(|reg| {
+                reg.with_mclksel(nau88c22_rs::registers::MasterClockSourceScaling::Divide1)
+            })
             .await?;
         codec
             .modify_plln(|reg| reg.with_pllmclk(pllmclk > 0).with_plln(plln))
@@ -211,8 +213,8 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Audio<'a, DELAY> {
         // Configure the audio format
         codec
             .modify_audiointerface(|reg| {
-                reg.with_wlen(0b11) // 32-bit words
-                    .with_aifmt(0b10) // standard i2s
+                reg.with_wlen(nau88c22_rs::registers::WordLength::Word24Bit)
+                    .with_aifmt(nau88c22_rs::registers::AudioInterfaceDataFormat::StandardI2S) // standard i2s
                     .with_mono(false) // stereo mode
             })
             .await?;
@@ -220,9 +222,9 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Audio<'a, DELAY> {
         // Enable the left aux in as the left ADC source.
         codec
             .modify_leftadcboost(|reg| {
-                reg.with_lauxbstegain(0b101)
+                reg.with_lauxbstgain(0b101)
                     .with_lpgabst(false)
-                    .with_lpgabstgaun(0)
+                    .with_lpgabstgain(0)
             })
             .await?;
 
@@ -258,7 +260,7 @@ impl<'a, DELAY: embedded_hal_async::delay::DelayNs> Audio<'a, DELAY> {
         // AUX1 can only connect to LMIX or RMIX.
         codec
             .modify_aux1mixer(|reg| {
-                reg.with_auxiut1mt(false)
+                reg.with_auxout1mt(false)
                     //.with_rmixaux1(true) // mix in right mixer
                     .with_rdacaux1(true) // mix in right DAC output
             })
