@@ -217,9 +217,10 @@ impl<
         Ok(())
     }
 
-    // TODO: re-do with MBR
-    // /// Deletes and re-creates the volume information, and then erases the card.
-    // pub async fn format(&mut self) -> Result<(), embedded_fatfs::Error<BufStreamError<sdspi::Error>>> {
+    //// Deletes and re-creates the volume information, and then erases the card.
+    // pub async fn format(
+    //     &mut self,
+    // ) -> Result<(), embedded_fatfs::Error<BufStreamError<sdspi::Error>>> {
     //     trace!("Formatting SD card...");
     //     let mut format_inner = BufStream::<_, 512>::new(&mut self.spi_sd);
     //     let format_options = FormatVolumeOptions::new()

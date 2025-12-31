@@ -1,3 +1,4 @@
+use catalina::engine::audio::Frame;
 use defmt::{error, info};
 use derive_more::{Display, Error};
 
@@ -26,7 +27,7 @@ use nau88c22_rs::registers::{
 use crate::hardware::CodecSAIResources;
 
 const OUTPUT_CHANNEL_COUNT: usize = 2; // stereo
-pub const BLOCK_LENGTH: usize = 32; // samples
+pub const BLOCK_LENGTH: usize = 128; // samples
 pub const HALF_DMA_BUFFER_LENGTH: usize = (BLOCK_LENGTH) * OUTPUT_CHANNEL_COUNT; //  2 channels
 pub const DMA_BUFFER_LENGTH: usize = HALF_DMA_BUFFER_LENGTH * 2; //  2 half-blocks
 
@@ -108,9 +109,12 @@ impl<'a> Audio<'a> {
         info!("SAI1 master clock adjusted: {}hz", adjusted_mclk);
 
         info!("Ideal SAI clock for sample rate: {}", SAMPLE_RATE * 256);
+
+        let actual_sample_rate = adjusted_mclk as f32 / 256.0;
         info!(
-            "SAI clock skew: {}%",
-            (adjusted_mclk as f32 / (SAMPLE_RATE as f32 * 256.0)) as f32 * 100.0
+            "SAI clock skew: {}% actual_sample_rate={}hz",
+            (adjusted_mclk as f32 / (SAMPLE_RATE as f32 * 256.0)) as f32 * 100.0,
+            actual_sample_rate
         );
 
         let mut codec = nau88c22_rs::Nau88c22::new(device);
@@ -133,6 +137,7 @@ impl<'a> Audio<'a> {
         spawner.spawn(device_loop(
             mclk_div.into(),
             sai_resources, /*sai_receiver*/
+            actual_sample_rate,
         )?);
 
         Ok(Self { codec })
@@ -143,10 +148,16 @@ impl<'a> Audio<'a> {
 async fn device_loop(
     mclk_div: MasterClockDivider,
     sai_resources: CodecSAIResources,
+    sample_rate: f32,
     // sai_receiver: SAIReceiver<'static>,
 ) -> ! {
     // should never return
-    let err = inner_device_loop(mclk_div, sai_resources /* , sai_receiver*/).await;
+    let err = inner_device_loop(
+        mclk_div,
+        sai_resources,
+        sample_rate, /* , sai_receiver*/
+    )
+    .await;
     panic!("{:?}", err);
 }
 
@@ -156,6 +167,7 @@ enum Never {}
 async fn inner_device_loop(
     mclk_div: MasterClockDivider,
     mut sai_resources: CodecSAIResources,
+    sample_rate: f32,
     // mut sai_receiver: SAIReceiver<'static>,
 ) -> Result<(), Never> {
     info!("initializing SAI buffers...");
@@ -184,7 +196,10 @@ async fn inner_device_loop(
 
     let mut osc = oscillator::RuntimeOscillator::new(
         oscillator::OscillatorType::Sine,
-        SAMPLE_RATE as usize,
+        // NOTE: We pass in the actual sampling rate calculated from the SAI clock
+        //  difference, instead of hard-coding our desired 48kHz sample rate because
+        //  any clock skew will shift the frequency otherwise.
+        sample_rate as usize,
         Hertz::from_hertz(261.63), // middle C
     );
 
@@ -206,7 +221,7 @@ async fn inner_device_loop(
                 // to_sample() would convert to a u32 range, but the I2S
                 // sample audio format is actually 24-bit so we want to
                 // cap it at 24.
-                *sample = value.inner() as u32;
+                *sample = value.inner().scale_amp(0.25) as u32;
             }
         }
 
