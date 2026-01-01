@@ -1,22 +1,22 @@
 use defmt::{info, trace};
 
-use block_device_adapters::{StreamSlice, StreamSliceError};
-use embassy_embedded_hal::{SetConfig, shared_bus::asynch::spi::SpiDeviceWithConfig};
+use embassy_embedded_hal::shared_bus::asynch::spi::SpiDeviceWithConfig;
 use embassy_stm32::mode;
 use embassy_stm32::spi::Spi;
 use embassy_stm32::{gpio::Output, spi, time::mhz};
-use embassy_sync::blocking_mutex::raw::RawMutex;
+use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
 use embedded_fatfs::{FileSystem, FsOptions};
 use embedded_fatfs::{FormatVolumeOptions, format_volume};
-use embedded_io_async::Read;
-use embedded_io_async::Write;
+use embedded_io_async::Seek;
 
+use embedded_io_async::SeekFrom;
 use sdspi::SdSpi;
 
 use block_device_adapters::BufStream;
 use block_device_adapters::BufStreamError;
 
 use embedded_hal_async::delay::DelayNs;
+use static_cell::StaticCell;
 
 #[derive(Debug)]
 pub enum InitError {
@@ -44,46 +44,44 @@ impl From<sdspi::Error> for InitError {
     }
 }
 
+type SdCardSpi<'a> = SdSpi<
+    &'a mut embassy_embedded_hal::shared_bus::asynch::spi::SpiDeviceWithConfig<
+        'a,
+        CriticalSectionRawMutex,
+        Spi<'static, mode::Async, spi::mode::Master>,
+        Output<'a>,
+    >,
+    embassy_time::Delay,
+    aligned::A4,
+>;
+
 /// Driver for the internal storage provided
 /// by a XTSDG08GWSIGA flash chip with an SD
 /// card "style" interface.
 ///
 /// Note that unlike typical SD cards, this device
 /// has a 1024 block size.
-pub struct InternalStorage<'a, M: RawMutex> {
+pub struct InternalStorage {
     filesystem: FileSystem<
-        BufStream<
-            SdSpi<
-                embassy_embedded_hal::shared_bus::asynch::spi::SpiDeviceWithConfig<
-                    'a,
-                    M,
-                    Spi<'static, mode::Async, spi::mode::Master>,
-                    Output<'a>,
-                >,
-                embassy_time::Delay,
-                aligned::A4,
-            >,
-            1024,
-        >,
+        &'static mut BufStream<SdCardSpi<'static>, 1024>,
         embedded_fatfs::NullTimeProvider,
         embedded_fatfs::LossyOemCpConverter,
     >,
 }
 
-impl<'a, M: RawMutex> InternalStorage<'a, M> {
+impl InternalStorage {
     /// Initialize a new internal storage driver.
     pub async fn init(
-        mut spi_sd: SdSpi<
-            SpiDeviceWithConfig<
-                'a,
-                M,
-                Spi<'static, mode::Async, spi::mode::Master>,
-                embassy_stm32::gpio::Output<'a>,
-            >,
-            embassy_time::Delay,
-            aligned::A4,
+        spi_device: &'static mut SpiDeviceWithConfig<
+            'static,
+            CriticalSectionRawMutex,
+            Spi<'static, mode::Async, spi::mode::Master>,
+            Output<'static>,
         >,
     ) -> Result<Self, InitError> {
+        // Initialize the SD-over-SPI wrapper.
+        let mut spi_sd = SdSpi::new(spi_device, embassy_time::Delay);
+
         // Initialize the internal storage.
         info!("Configuring internal storage...");
 
@@ -121,80 +119,38 @@ impl<'a, M: RawMutex> InternalStorage<'a, M> {
             embassy_time::Delay.delay_ns(5000u32).await;
         }
 
-        let size = spi_sd.size().await?;
-        info!(
-            "Internal storage storage size: {}Gb",
-            size / 1000 / 1000 / 1000
-        );
-
-        let Some(card) = spi_sd.card() else {
-            panic!("failed to initialize card");
-        };
-
-        if card.ocr.high_capacity() {
-            info!("uses sector addressing");
-        } else {
-            info!("uses byte addressing");
-        }
-
         // NOTE: We don't put a partition table on the internal storage, we just use it as FatFS.
 
-        let mut buf_stream = BufStream::new(spi_sd);
+        // let buf_stream = BufStream::new(spi_sd);
 
-        /*let mut buf_stream = BufStream::new(spi_sd);
-        if let Ok(filesystem) = FileSystem::new(buf_stream, FsOptions::new()).await {
-            return Ok(Self { filesystem });
-        } else {
+        // Create a buffer wrapping the SD card device.
+        static BUFFER: StaticCell<BufStream<SdCardSpi<'static>, 1024>> = StaticCell::new();
+        let buf_stream: &'static mut BufStream<_, 1024> = BUFFER.init(BufStream::new(spi_sd));
+
+        info!("Checking for valid filesystem..");
+        let needs_format = FileSystem::new(&mut *buf_stream, FsOptions::new())
+            .await
+            .is_err();
+
+        // We need to seek the buffer back to the start before continuing.
+        buf_stream.seek(SeekFrom::Start(0)).await?;
+
+        if needs_format {
+            // If loading the filesystem fails, attempt to format the device with FAT32.
             info!("Failed to load filesystem, formatting volume...");
-            let mut buf_stream = BufStream::new(spi_sd);
             format_volume(
-                &mut buf_stream,
+                &mut *buf_stream,
                 FormatVolumeOptions::default().bytes_per_sector(1024), // IC uses 1024 blocks.
             )
             .await
             .unwrap();
 
-            // Create a filesystem using the stream slice from the partition table.
-            info!("Attempting to load volume as FATFS again...");
-            let filesystem = FileSystem::new(buf_stream, FsOptions::new()).await?;
-
-            // info!("Attempting to read from filesystem...");
-            // let root_dir = filesystem.root_dir();
-            // let mut iter = root_dir.iter();
-            // while let Some(r) = iter.next().await {
-            //     let e = r?;
-            //     info!("found file: {}", e.short_file_name_as_bytes());
-            // }
-
-            Ok(Self { filesystem })
-        }*/
-
-        // Create a filesystem using the stream slice from the partition table.
-        info!("Attempting to load volume as FATFS...");
-        let filesystem = FileSystem::new(buf_stream, FsOptions::new()).await?;
-
-        {
-            let root_dir = filesystem.root_dir();
-
-            info!("Attempting to read from filesystem...");
-            if !root_dir.file_exists("test.txt").await.unwrap() {
-                info!("Creating test file...");
-                let mut file = root_dir.create_file("test.txt").await.unwrap();
-                file.write("this is a test".as_bytes()).await.unwrap();
-                file.close().await.unwrap();
-            }
-
-            info!("Filesystem directory:");
-            let mut iter = root_dir.iter();
-            while let Some(r) = iter.next().await {
-                let e = r?;
-                info!(
-                    "found file: {=[u8]:x} {:a}",
-                    e.short_file_name_as_bytes(),
-                    e.short_file_name_as_bytes()
-                );
-            }
+            info!("Format finished!");
         }
+
+        // Attempt to load a FAT filesystem again from the formatted device.
+        info!("Loading FAT filesystem..");
+        let filesystem = FileSystem::new(&mut *buf_stream, FsOptions::new()).await?;
 
         Ok(Self { filesystem })
     }

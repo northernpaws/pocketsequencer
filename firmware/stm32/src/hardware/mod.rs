@@ -461,7 +461,7 @@ pub struct Hardware<'a> {
     pub sd_card: sd_card::SdCard<'a, CriticalSectionRawMutex>,
 
     /// Internal storage filesystem interface.
-    pub internal_storage: internal_storage::InternalStorage<'a, CriticalSectionRawMutex>,
+    pub internal_storage: internal_storage::InternalStorage,
 
     /// Audio codec controller.
     pub audio: Audio<'a>,
@@ -1191,10 +1191,10 @@ pub async fn init_sdcard<'a, 'b, M: RawMutex>(
 }
 
 /// Constructs and initializes a driver for the internal SD card SPI interface.
-pub async fn init_internal_storage<'a, 'b, M: RawMutex>(
-    spi_bus: &'a Mutex<M, Spi<'static, mode::Async, spi::mode::Master>>,
-    cs: gpio::Output<'a>,
-) -> Result<internal_storage::InternalStorage<'a, M>, internal_storage::InitError> {
+pub async fn init_internal_storage<'a, 'b>(
+    spi_bus: &'static Mutex<CriticalSectionRawMutex, Spi<'static, mode::Async, spi::mode::Master>>,
+    cs: gpio::Output<'static>,
+) -> Result<internal_storage::InternalStorage, internal_storage::InitError> {
     // Configure the SPI settings for the SD card.
     //
     // Before knowing the SD card's capabilities we need to start with a 400khz clock.
@@ -1202,12 +1202,17 @@ pub async fn init_internal_storage<'a, 'b, M: RawMutex>(
     spi_config.frequency = khz(400);
 
     // Create the SPI device for the SD card, using the SD card's CS pin.
-    let spid = SpiDeviceWithConfig::new(spi_bus, cs, spi_config);
+    static DEVICE: StaticCell<
+        SpiDeviceWithConfig<
+            'static,
+            CriticalSectionRawMutex,
+            Spi<'static, Async, spi::mode::Master>,
+            Output<'static>,
+        >,
+    > = StaticCell::new();
+    let spid = DEVICE.init(SpiDeviceWithConfig::new(spi_bus, cs, spi_config));
 
-    // Initialize the SD-over-SPI wrapper.
-    let spi_sd = SdSpi::new(spid, embassy_time::Delay);
-
-    internal_storage::InternalStorage::init(spi_sd).await
+    internal_storage::InternalStorage::init(spid).await
 }
 
 // pub fn get_internal_storage<
