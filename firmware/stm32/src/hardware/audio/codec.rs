@@ -48,15 +48,13 @@ pub async fn codec_init(
                     input_mixer_left: None,
                     output_mixer_right: None,
                     output_mixer_left: None,
+                    enable_speaker_right: false,
+                    enable_speaker_left: false,
                     adc: None,
                     dac: Some(DACConfig {
                         oversample_128: false,
-                        dac_left: Some(DACChannelConfig {
-                            gain: Default::default(),
-                        }),
-                        dac_right: Some(DACChannelConfig {
-                            gain: Default::default(),
-                        }),
+                        dac_left: Some(DACChannelConfig { gain: 0xFF }),
+                        dac_right: Some(DACChannelConfig { gain: 0xFF }),
                     }),
                     format: Default::default(),
                 },

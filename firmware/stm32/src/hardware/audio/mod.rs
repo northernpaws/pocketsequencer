@@ -127,7 +127,7 @@ impl<'a> Audio<'a> {
         // Now we can configure our codec to run off the mclk signal.
 
         info!("initializing audio codec...");
-        codec::codec_init(&mut codec, adjusted_mclk, actual_sample_rate).await;
+        codec::codec_init(&mut codec, adjusted_mclk, actual_sample_rate).await?;
 
         // Codec wants delay from mclk start to sending frames
         Timer::after_millis(250).await;
