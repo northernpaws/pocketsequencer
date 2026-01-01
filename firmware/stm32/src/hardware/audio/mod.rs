@@ -32,22 +32,16 @@ pub const DMA_BUFFER_LENGTH: usize = HALF_DMA_BUFFER_LENGTH * 2; //  2 half-bloc
 
 pub const SAMPLE_RATE: u32 = 48000;
 
-// #[unsafe(link_section = ".sram1_bss")]
-static AUDIO_TX_BUFFER: GroundedArrayCell<u32, { DMA_BUFFER_LENGTH }> = GroundedArrayCell::uninit();
-// #[unsafe(link_section = ".sram1_bss")]
-static AUDIO_RX_BUFFER: GroundedArrayCell<u32, { DMA_BUFFER_LENGTH }> = GroundedArrayCell::uninit();
-
 pub type SAITransmitter<'a> = sai::Sai<'a, peripherals::SAI1, u32>;
 pub type SAIReceiver<'a> = sai::Sai<'a, peripherals::SAI1, u32>;
 
-static AUDIO_EXECUTOR: InterruptExecutor = InterruptExecutor::new();
-
-#[interrupt]
-unsafe fn SAI1() {
-    unsafe { AUDIO_EXECUTOR.on_interrupt() }
-}
-
 pub struct Audio<'a> {
+    /// The divider applied to the SAI1 clock to get
+    /// it close to the desired 48kHz sampling rate.
+    mclk_div: MasterClockDivider,
+    sai_resources: CodecSAIResources,
+    /// The actual sample rate derived from the clock in hertz.
+    sample_rate: f32,
     codec: nau88c22_rs::Nau88c22<
         asynch::i2c::I2cDevice<'a, CriticalSectionRawMutex, I2c<'static, mode::Async, i2c::Master>>,
     >,
@@ -86,6 +80,16 @@ impl From<nau88c22_rs::InitError<I2cDeviceError<embassy_stm32::i2c::Error>>> for
     }
 }
 
+/// Convert from a u8 to a master clock divider enum.
+fn mclk_div_from_u8(v: u8) -> MasterClockDivider {
+    if v == 0 {
+        return MasterClockDivider::DIV1;
+    }
+
+    assert!((1..=63).contains(&v));
+    MasterClockDivider::from_bits(v)
+}
+
 impl<'a> Audio<'a> {
     pub async fn new(
         device: asynch::i2c::I2cDevice<
@@ -94,8 +98,6 @@ impl<'a> Audio<'a> {
             I2c<'static, mode::Async, i2c::Master>,
         >,
         sai_resources: CodecSAIResources,
-        // sai_transmitter: SAITransmitter<'static>,
-        // mut sai_receiver: SAIReceiver<'static>,
     ) -> Result<Self, InitError> {
         // Calculate the SAI master clock divisor and derrived codec master clock divisor and PLL.
         let kernel_clock = rcc::frequency::<peripherals::SAI1>().0;
@@ -116,33 +118,27 @@ impl<'a> Audio<'a> {
             actual_sample_rate
         );
 
-        let mut codec = nau88c22_rs::Nau88c22::new(device);
+        info!("initializing audio codec...");
 
         // After the transmitter has been configured, mclk goes active.
         // Now we can configure our codec to run off the mclk signal.
-
-        info!("initializing audio codec...");
+        let mut codec = nau88c22_rs::Nau88c22::new(device);
         codec::codec_init(&mut codec, adjusted_mclk, actual_sample_rate).await?;
 
-        // Codec wants delay from mclk start to sending frames
-        Timer::after_millis(250).await;
+        Ok(Self {
+            mclk_div,
+            sai_resources,
+            sample_rate: actual_sample_rate,
+            codec,
+        })
+    }
 
-        // Spawn the task that processes the codec data.
-        info!("spawning SAI loop");
-
-        // Use an interrupt executor to run the audio task at a higher priority.
-        interrupt::SAI1.set_priority(Priority::P6);
-        let spawner = AUDIO_EXECUTOR.start(interrupt::SAI1);
-        spawner.spawn(device_loop(
-            mclk_div.into(),
-            sai_resources, /*sai_receiver*/
-            actual_sample_rate,
-        )?);
-
-        Ok(Self { codec })
+    pub const fn get_sample_rate(&self) -> f32 {
+        self.sample_rate
     }
 }
 
+/*
 #[embassy_executor::task]
 async fn device_loop(
     mclk_div: MasterClockDivider,
@@ -206,7 +202,7 @@ async fn inner_device_loop(
     sai_receiver.start().unwrap();
 
     info!("starting SAI loop");
-    let mut buf = [0u32; HALF_DMA_BUFFER_LENGTH];
+    let mut buf: [u32; HALF_DMA_BUFFER_LENGTH] = [0u32; HALF_DMA_BUFFER_LENGTH];
     const AMPLITUDE: f32 = 0.25;
     loop {
         // Chunk the sample buffer into left and right channel frames.
@@ -277,14 +273,7 @@ async fn inner_device_loop(
     }
 }
 
-fn mclk_div_from_u8(v: u8) -> MasterClockDivider {
-    if v == 0 {
-        return MasterClockDivider::DIV1;
-    }
 
-    assert!((1..=63).contains(&v));
-    MasterClockDivider::from_bits(v)
-}
 
 fn setup_sai<'d>(
     sai_resources: &'d mut CodecSAIResources,
@@ -368,3 +357,4 @@ fn setup_sai<'d>(
 
     (sai_tx, sai_rx)
 }
+*/

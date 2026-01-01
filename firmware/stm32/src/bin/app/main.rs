@@ -79,7 +79,7 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     println!("APB2 Timer clock speed: {}", clocks.pclk2_tim);
 
     // Spawn the primary resource tasks.
-    spawner.spawn(audio_task(hw.audio).unwrap());
+    audio::start_audio(hw.audio).unwrap();
     spawner.spawn(display_task(hw.display).unwrap());
 
     loop {

@@ -36,7 +36,7 @@ async fn inner_display_task(mut display: RotatedDisplay<'static>) -> Result<(), 
         // on rendering the display.
         let time_ms = Instant::now().as_micros() - start.as_micros();
         if time_ms < 33_333 {
-            Timer::after_micros(33_333 - time_ms);
+            Timer::after_micros(33_333 - time_ms).await;
         } else {
             warn!("display rendering behind {}us", 33_333 - time_ms);
         }

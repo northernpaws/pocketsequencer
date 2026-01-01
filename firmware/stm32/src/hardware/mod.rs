@@ -1,3 +1,14 @@
+//! The hardware module wraps all the hardware controllers,
+//! drivers, and initializtion code into one place.
+//!
+//! Generally the controllers returned from the hardware
+//! module should not spawn tasks, they should instead wrap
+//! and initialize the peripherals required to do so at
+//! another point. This is because the hardware controllers
+//! might be used in a program, or might be used in something
+//! like a bootloader where you just want to read a value and
+//! not accidentally trigger something like audio playback.
+
 pub mod drivers;
 
 pub mod audio;
@@ -10,7 +21,7 @@ pub mod power;
 pub mod sd_card;
 pub mod usb;
 
-use defmt::{error, info, println, trace};
+use defmt::{error, info, trace};
 use embassy_time::Delay;
 use embedded_graphics_coordinate_transform::{CoordinateTransform, Rotate270};
 use proc_bitfield::Bitfield;
@@ -32,7 +43,7 @@ use embassy_stm32::{
     i2c::{self, I2c},
     interrupt,
     mode::{self, Async},
-    peripherals, rcc,
+    peripherals,
     spi::{self, Spi},
     time::{Hertz, khz, mhz},
     timer::{
@@ -70,7 +81,6 @@ use crate::hardware::{
     drivers::{bq27531_g1::Bq27531, fusb302b::Fusb302b, tca8418::Tca8418},
     keypad::Keypad,
     power::Power,
-    sd_card::InitError,
 };
 use crate::hardware::{drivers::stm6601::Stm6601, mpu::RegionAttributeSizeRegister};
 
