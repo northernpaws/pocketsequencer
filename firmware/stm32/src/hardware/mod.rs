@@ -356,6 +356,7 @@ pub fn init() -> Peripherals {
             source: PllSource::HSE,
             prediv: PllPreDiv::DIV5,
             mul: PllMul::MUL192,
+            fracn: None,
             divp: Some(PllDiv::DIV2),
             divq: Some(PllDiv::DIV7),
             divr: Some(PllDiv::DIV2),
@@ -365,19 +366,22 @@ pub fn init() -> Peripherals {
             source: PllSource::HSE,
             prediv: PllPreDiv::DIV2,
             mul: PllMul::MUL12,
+            fracn: None,
             divp: Some(PllDiv::DIV2),
             divq: Some(PllDiv::DIV2),
             divr: Some(PllDiv::DIV2),
         });
 
-        config.rcc.pll3 = None; /* Some(Pll{
-        source: PllSource::HSE,
-        prediv: PllPreDiv::DIV32,
-        mul:  PllMul::MUL129,
-        divp: Some(PllDiv::DIV2),
-        divq: Some(PllDiv::DIV2),
-        divr: Some(PllDiv::DIV2),
-        }); */
+        // Primarilly used for SAI
+        config.rcc.pll3 = Some(Pll {
+            source: PllSource::HSE,
+            prediv: PllPreDiv::DIV2,
+            mul: PllMul::MUL37,
+            fracn: Some(2816),         // ((25000000/2)*(37+(2816/8192)))/38
+            divp: Some(PllDiv::DIV38), // 12.284 -0.03% for 48kHz
+            divq: Some(PllDiv::DIV2),
+            divr: Some(PllDiv::DIV2),
+        });
 
         config.rcc.d1c_pre = AHBPrescaler::DIV1; // D1CPRE - 480MHz
         config.rcc.ahb_pre = AHBPrescaler::DIV2; // HPRE 140Mhz (todo: double check)
@@ -406,7 +410,12 @@ pub fn init() -> Peripherals {
         config.rcc.mux.quadspisel = mux::Fmcsel::HCLK3;
         config.rcc.mux.sdmmcsel = mux::Sdmmcsel::PLL1_Q; // Unused
         config.rcc.mux.fdcansel = mux::Fdcansel::PLL1_Q; // Unused
-        config.rcc.mux.sai1sel = mux::Saisel::PLL1_Q;
+
+        // SAI1 requires an input clock that's divisable by 2 into either:
+        // 48kHz sampling rate - 12_288_000hz clock
+        // 44.1kHz sampling rate - 11_289_600hz clock
+        config.rcc.mux.sai1sel = mux::Saisel::PLL3_P;
+
         config.rcc.mux.sai23sel = mux::Saisel::PLL1_Q; // Unused
         config.rcc.mux.spdifrxsel = mux::Spdifrxsel::PLL1_Q;
         config.rcc.mux.spi123sel = mux::Saisel::PLL1_Q;
@@ -425,7 +434,16 @@ pub fn init() -> Peripherals {
         config.rcc.mux.spi6sel = mux::Spi6sel::PCLK4;
     }
 
-    embassy_stm32::init(config)
+    let p = embassy_stm32::init(config);
+
+    // Enable the FPU since Embassy does not for H7 devices..
+    info!("Enabling FPU..");
+    unsafe {
+        let p = cortex_m::Peripherals::steal();
+        p.SCB.cpacr.modify(|w| w | (3 << 20) | (3 << 22));
+    }
+
+    p
 }
 
 pub fn get_uart_debug_blocking<'a>(r: UartDebugResources) -> Uart<'a, mode::Blocking> {
