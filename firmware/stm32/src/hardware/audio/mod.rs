@@ -3,7 +3,6 @@ mod codec;
 use defmt::{error, info};
 use derive_more::{Display, Error};
 
-use embassy_stm32::hrtim::Master;
 use grounded::uninit::GroundedArrayCell;
 
 use embassy_embedded_hal::shared_bus::I2cDeviceError;
@@ -17,13 +16,9 @@ use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
 use embassy_time::Timer;
 
 use catalina::engine::{
-    audio::Frame,
     audio::oscillator::{self, Oscillator},
-    audio::sample::U24,
     core::Hertz,
 };
-
-use nau88c22_rs::clock::CodecClockError;
 
 use crate::hardware::CodecSAIResources;
 
