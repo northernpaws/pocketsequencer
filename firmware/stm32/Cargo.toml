@@ -173,7 +173,7 @@ embedded-charts = { version = "0.3.0", default-features = false, features = [
     "minimal-memory",
 ] }
 
-nau88c22-rs = "0.1.0"
+nau88c22-rs = "0.2.0"
 libm = "0.2.15"
 catalina = { version = "0.0.1", features = ["engine"] }
 

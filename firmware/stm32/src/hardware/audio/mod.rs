@@ -23,6 +23,8 @@ use catalina::engine::{
     core::Hertz,
 };
 
+use nau88c22_rs::clock::CodecClockError;
+
 use crate::hardware::CodecSAIResources;
 
 const OUTPUT_CHANNEL_COUNT: usize = 2; // stereo
@@ -68,7 +70,7 @@ pub enum InitError {
     SpawnError(#[error(not(source))] SpawnError),
 
     /// Occurs if the codec master clock prescaler and PLL is not resolvable.
-    CodecClockError(codec::CodecClockError),
+    CodecError(nau88c22_rs::InitError<I2cDeviceError<embassy_stm32::i2c::Error>>),
 }
 
 impl From<I2cDeviceError<embassy_stm32::i2c::Error>> for InitError {
@@ -83,9 +85,9 @@ impl From<SpawnError> for InitError {
     }
 }
 
-impl From<codec::CodecClockError> for InitError {
-    fn from(value: codec::CodecClockError) -> Self {
-        Self::CodecClockError(value)
+impl From<nau88c22_rs::InitError<I2cDeviceError<embassy_stm32::i2c::Error>>> for InitError {
+    fn from(value: nau88c22_rs::InitError<I2cDeviceError<embassy_stm32::i2c::Error>>) -> Self {
+        Self::CodecError(value)
     }
 }
 

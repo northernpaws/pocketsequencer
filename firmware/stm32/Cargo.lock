@@ -1139,10 +1139,11 @@ checksum = "207d755f4cb882d20c4da58d707ca9130a0c9bc5061f657a4f299b8e36362b7a"
 
 [[package]]
 name = "nau88c22-rs"
-version = "0.1.0"
-source = "git+https://github.com/northernpaws/nau88c22-rs.git?branch=main#c5459666cd9937450cd5e13b1727743b428c0ce0"
+version = "0.2.0"
+source = "git+https://github.com/northernpaws/nau88c22-rs.git?branch=main#439c027891770d1e224a9f3a66e112c9fd79a603"
 dependencies = [
  "embedded-hal-async",
+ "libm",
  "paste",
  "proc-bitfield",
 ]
