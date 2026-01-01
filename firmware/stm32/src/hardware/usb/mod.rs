@@ -245,3 +245,50 @@ async fn midi_echo<'d, T: Instance + 'd>(
         }
     }
 }
+
+/// Rust's `!` is unstable.  This is a locally-defined equivalent which is stable.
+#[derive(Debug)]
+pub enum Never {}
+
+// struct Disconnected {}
+
+// impl From<EndpointError> for Disconnected {
+//     fn from(val: EndpointError) -> Self {
+//         match val {
+//             EndpointError::BufferOverflow => defmt::panic!("Buffer overflow"),
+//             EndpointError::Disabled => Disconnected {},
+//         }
+//     }
+// }
+
+// async fn echo<'d, T: usb::Instance + 'd>(class: &mut CdcAcmClass<'d, Driver<'d, T>>) -> Result<(), Disconnected> {
+//     let mut buf = [0; 64];
+//     loop {
+//         let n = class.read_packet(&mut buf).await?;
+//         let data = &buf[..n];
+//         info!("data: {:x}", data);
+//         class.write_packet(data).await?;
+//     }
+// }
+
+// async fn midi_echo<'d, T: usb::Instance + 'd>(class: &mut MidiClass<'d, usb::Driver<'d, T>>) -> Result<(), Disconnected> {
+//     let mut buf = [0; 64];
+//     loop {
+//         let n = class.read_packet(&mut buf).await?;
+//         let data = &buf[..n];
+//         info!("data: {:x}", data);
+//         class.write_packet(data).await?;
+//     }
+// }
+
+// #[embassy_executor::task]
+// async fn usb_midi(
+//     mut midi_class: &'static mut MidiClass<'static, Driver<'static, embassy_stm32::peripherals::USB_OTG_HS>>
+// ) {
+//     loop {
+//         midi_class.wait_connection().await;
+//         info!("Connected");
+//         let _ = midi_echo(&mut midi_class).await;
+//         info!("Disconnected");
+//     }
+// }

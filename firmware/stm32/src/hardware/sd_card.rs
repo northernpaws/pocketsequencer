@@ -1,6 +1,8 @@
 use defmt::{info, trace};
 
 use embassy_embedded_hal::{SetConfig, shared_bus::asynch::spi::SpiDeviceWithConfig};
+use embassy_stm32::mode;
+use embassy_stm32::spi::Spi;
 use embassy_stm32::{gpio::Output, spi, time::mhz};
 use embassy_sync::blocking_mutex::raw::RawMutex;
 use embedded_fatfs::{FileSystem, FsOptions};
@@ -43,12 +45,7 @@ impl From<sdspi::Error> for InitError {
     }
 }
 
-pub struct SdCard<
-    'a,
-    M: RawMutex,
-    BUS: SetConfig<Config = spi::Config> + embedded_hal_async::spi::SpiBus,
-    DELAY: embedded_hal_async::delay::DelayNs + Clone,
-> {
+pub struct SdCard<'a, M: RawMutex> {
     // spi_sd: SdSpi<
     //             SpiDeviceWithConfig<'a, M, BUS, embassy_stm32::gpio::Output<'a>>,
     //             DELAY,
@@ -56,24 +53,35 @@ pub struct SdCard<
     // buf_stream: Option<&'b mut BufStream::<&'a mut SdSpi<SpiDeviceWithConfig<'a, M, BUS, Output<'a>>, DELAY, aligned::A4>, 512>>,
     filesystem: FileSystem<
         StreamSlice<
-            BufStream<SdSpi<SpiDeviceWithConfig<'a, M, BUS, Output<'a>>, DELAY, aligned::A4>, 512>,
+            BufStream<
+                SdSpi<
+                    SpiDeviceWithConfig<
+                        'a,
+                        M,
+                        Spi<'static, mode::Async, spi::mode::Master>,
+                        Output<'a>,
+                    >,
+                    embassy_time::Delay,
+                    aligned::A4,
+                >,
+                512,
+            >,
         >,
         embedded_fatfs::NullTimeProvider,
         embedded_fatfs::LossyOemCpConverter,
     >,
 }
 
-impl<
-    'a,
-    M: RawMutex,
-    BUS: SetConfig<Config = spi::Config> + embedded_hal_async::spi::SpiBus,
-    DELAY: embedded_hal_async::delay::DelayNs + Clone,
-> SdCard<'a, M, BUS, DELAY>
-{
+impl<'a, M: RawMutex> SdCard<'a, M> {
     pub async fn init(
         mut spi_sd: SdSpi<
-            SpiDeviceWithConfig<'a, M, BUS, embassy_stm32::gpio::Output<'a>>,
-            DELAY,
+            SpiDeviceWithConfig<
+                'a,
+                M,
+                Spi<'static, mode::Async, spi::mode::Master>,
+                embassy_stm32::gpio::Output<'a>,
+            >,
+            embassy_time::Delay,
             aligned::A4,
         >,
     ) -> Result<Self, InitError> {

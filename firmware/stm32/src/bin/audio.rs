@@ -97,7 +97,7 @@ static DEBUG_SERIAL_RX: StaticCell<UartRx<'static, Async>> = StaticCell::new();
 async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     // TODO: add error type
     info!("initializing clocks and PLL");
-    let p = hardware::init();
+    let p = hardware::init_peripherals();
 
     info!("getting handles to hardware peripherals");
     let mut r = split_resources!(p);

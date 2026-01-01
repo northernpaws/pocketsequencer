@@ -2,6 +2,8 @@ use defmt::{info, trace};
 
 use block_device_adapters::{StreamSlice, StreamSliceError};
 use embassy_embedded_hal::{SetConfig, shared_bus::asynch::spi::SpiDeviceWithConfig};
+use embassy_stm32::mode;
+use embassy_stm32::spi::Spi;
 use embassy_stm32::{gpio::Output, spi, time::mhz};
 use embassy_sync::blocking_mutex::raw::RawMutex;
 use embedded_fatfs::{FileSystem, FsOptions};
@@ -48,22 +50,17 @@ impl From<sdspi::Error> for InitError {
 ///
 /// Note that unlike typical SD cards, this device
 /// has a 1024 block size.
-pub struct InternalStorage<
-    'a,
-    M: RawMutex,
-    BUS: SetConfig<Config = spi::Config> + embedded_hal_async::spi::SpiBus,
-    DELAY: embedded_hal_async::delay::DelayNs + Clone,
-> {
+pub struct InternalStorage<'a, M: RawMutex> {
     filesystem: FileSystem<
         BufStream<
             SdSpi<
                 embassy_embedded_hal::shared_bus::asynch::spi::SpiDeviceWithConfig<
                     'a,
                     M,
-                    BUS,
+                    Spi<'static, mode::Async, spi::mode::Master>,
                     Output<'a>,
                 >,
-                DELAY,
+                embassy_time::Delay,
                 aligned::A4,
             >,
             1024,
@@ -73,18 +70,17 @@ pub struct InternalStorage<
     >,
 }
 
-impl<
-    'a,
-    M: RawMutex,
-    BUS: SetConfig<Config = spi::Config> + embedded_hal_async::spi::SpiBus,
-    DELAY: embedded_hal_async::delay::DelayNs + Clone,
-> InternalStorage<'a, M, BUS, DELAY>
-{
+impl<'a, M: RawMutex> InternalStorage<'a, M> {
     /// Initialize a new internal storage driver.
     pub async fn init(
         mut spi_sd: SdSpi<
-            SpiDeviceWithConfig<'a, M, BUS, embassy_stm32::gpio::Output<'a>>,
-            DELAY,
+            SpiDeviceWithConfig<
+                'a,
+                M,
+                Spi<'static, mode::Async, spi::mode::Master>,
+                embassy_stm32::gpio::Output<'a>,
+            >,
+            embassy_time::Delay,
             aligned::A4,
         >,
     ) -> Result<Self, InitError> {

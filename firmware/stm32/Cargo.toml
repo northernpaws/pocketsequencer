@@ -11,6 +11,7 @@ edition = "2024"
 name = "app"
 test = false
 bench = false
+path = "src/bin/app/main.rs"
 
 # cargo build/run
 [profile.dev]

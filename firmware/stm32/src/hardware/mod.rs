@@ -10,10 +10,11 @@ pub mod power;
 pub mod sd_card;
 pub mod usb;
 
-use defmt::{info, trace};
+use defmt::{error, info, println, trace};
 use embassy_time::Delay;
+use embedded_graphics_coordinate_transform::{CoordinateTransform, Rotate270};
 use proc_bitfield::Bitfield;
-use static_cell::ConstStaticCell;
+use static_cell::{ConstStaticCell, StaticCell};
 use stm32_fmc::FmcPeripheral;
 
 use core::{cell::RefCell, default::Default, option::Option::Some};
@@ -31,15 +32,15 @@ use embassy_stm32::{
     i2c::{self, I2c},
     interrupt,
     mode::{self, Async},
-    peripherals,
-    spi::{self},
+    peripherals, rcc,
+    spi::{self, Spi},
     time::{Hertz, khz, mhz},
     timer::{
         self,
         low_level::CountingMode,
         simple_pwm::{PwmPin, SimplePwm},
     },
-    usart::{self, Uart},
+    usart::{self, Uart, UartRx, UartTx},
 };
 
 use embassy_sync::{blocking_mutex::raw::RawMutex, mutex::Mutex};
@@ -51,7 +52,7 @@ use embedded_graphics::{pixelcolor::Rgb565, prelude::RgbColor};
 use embedded_sdmmc::SdCard;
 
 // Async SDMMC over SPI support.
-use sdspi::SdSpi;
+use sdspi::{SdSpi, sd_init};
 
 use embassy_embedded_hal::{
     SetConfig,
@@ -333,7 +334,7 @@ bind_interrupts!(pub struct Irqs {
 
 /// Initializes the Embassy STM32 HAL by configuring
 /// the RCC, PLL, voltage, and clock matrix.
-pub fn init() -> Peripherals {
+pub fn init_peripherals() -> Peripherals {
     let mut config = Config::default();
 
     {
@@ -434,24 +435,220 @@ pub fn init() -> Peripherals {
         config.rcc.mux.spi6sel = mux::Spi6sel::PCLK4;
     }
 
-    let p = embassy_stm32::init(config);
-
-    // Enable the FPU since Embassy does not for H7 devices..
-    info!("Enabling FPU..");
-    unsafe {
-        let p = cortex_m::Peripherals::steal();
-        p.SCB.cpacr.modify(|w| w | (3 << 20) | (3 << 22));
-    }
-
-    p
+    embassy_stm32::init(config)
 }
 
-pub fn get_uart_debug_blocking<'a>(r: UartDebugResources) -> Uart<'a, mode::Blocking> {
-    let config = usart::Config::default();
-    Uart::new_blocking(r.peri, r.rx_pin, r.tx_pin, config).unwrap()
+/// Alias for a display wrapped in a coordinate transform to rotate it upright.
+pub type RotatedDisplay<'a> = CoordinateTransform<Display<'a, Delay>, false, true, true>;
+
+pub struct Hardware<'a> {
+    /// Power button and regulator enable controller.
+    pub stm6601: Stm6601<'a, Output<'a>, Input<'a>>,
+
+    /// Keypad buttons and LEDs.
+    pub keypad: Keypad,
+
+    /// Array mapped to the external SDRAM memory space.
+    pub sdram: &'a mut [u32],
+
+    /// LCD controller interface.
+    pub display: RotatedDisplay<'a>,
+
+    /// Battery and charging controller.
+    pub power: Power<'a>,
+
+    /// SD card filesystem interface.
+    pub sd_card: sd_card::SdCard<'a, CriticalSectionRawMutex>,
+
+    /// Internal storage filesystem interface.
+    pub internal_storage: internal_storage::InternalStorage<'a, CriticalSectionRawMutex>,
+
+    /// Audio codec controller.
+    pub audio: Audio<'a>,
+}
+
+/// Initialises all the hardware components and returns
+/// a struct containing their initialized drivers.
+///
+/// This only performs top-level initialization which includes
+/// initializing the underlying I2C and SPI buses, and getting
+/// a handle to the indiviudal devices. Furthur initialization
+/// sequences are handled case-by-case to allow the caller to
+/// determine how to handle hardware faults.
+pub async fn init_hardware<'a>(r: AssignedResources, spawner: Spawner) -> Result<Hardware<'a>, ()> {
+    // Get a handle to the STM6601 power manager and enable PS_HOLD as early as
+    // possible to make sure the STM6601 won't power the system regulator off.
+    //
+    // This MUST be configured as early as possible to ensure that the
+    // PS_HOLD pin is held high by the MCU to keep the power enabled.
+    //
+    // NOTE: PLL errors before this point will cause the power controller to shut
+    // off the paniced MCU after 5 seconds, leaving little time for debugging.
+    info!("Configuring stm6601...");
+    let mut stm6601 = get_stm6601(r.power);
+    stm6601.power_enable().unwrap(); // TODO: change to result error
+
+    info!("Power good confirmed!");
+
+    static DEBUG_SERIAL_TX: StaticCell<UartTx<'static, Async>> = StaticCell::new();
+    static DEBUG_SERIAL_RX: StaticCell<UartRx<'static, Async>> = StaticCell::new();
+
+    // Initialize the debug UART connection to the BMP
+    // header and configure it for use with defmt.
+    //
+    // Baud: 115200
+    // DataBits8
+    // ParityNone
+    // Stop1
+    let mut debug_uart = get_uart_debug(r.uart_debug);
+    debug_uart.blocking_write(b"debug serial ready").unwrap();
+    let (debug_tx_raw, debug_rx_raw) = debug_uart.split();
+    let debug_tx = DEBUG_SERIAL_TX.init(debug_tx_raw);
+    let _debug_rx = DEBUG_SERIAL_RX.init(debug_rx_raw);
+    defmt_serial::defmt_serial(debug_tx);
+
+    // Input bus.
+    //
+    // This communicates with the FT6206 Capacitive Touch sensor, TCA8418RTWR Keypad matrix,
+    // ADS7128IRTER GPIO Breakout for Velocity Grid, DA7280 Haptics driver, and MMA8653FCR1 9DOF.
+    // static I2C4_BUS: StaticCell<NoopMutex<RefCell<I2c<'static, Async, i2c::Master>>>> = StaticCell::new();
+    static I2C4_BUS: StaticCell<Mutex<CriticalSectionRawMutex, I2c<'static, Async, i2c::Master>>> =
+        StaticCell::new();
+
+    // Initialize the bus for the I2C4 peripheral.
+    //
+    // This communicates with the FT6206 Capacitive Touch sensor,
+    // TCA8418RTWR Keypad matrix, ADS7128IRTER GPIO Breakout for
+    // Velocity Grid, DA7280 Haptics driver, and MMA8653FCR1 9DOF.
+    info!("initializing input I2C4 bus");
+    let i2c4 = get_i2c4(r.i2c4);
+    let i2c4_bus = I2C4_BUS.init(Mutex::new(i2c4));
+
+    // Initialize the keypad fairly early so that we can
+    // use the keypad LEDs as status indicators and use
+    // the buttons to alter the boot sequence.
+    info!("Initializing keypad...");
+    let (keypad, _keypad_sub) = get_keypad(spawner, r.keypad, i2c4_bus).await.unwrap();
+
+    // Next, we configure the memory buses for the SDRAM and the display.
+    //
+    // We initialize the display as soon as possible to display any boot errors.
+    info!("Configuring memory controller...");
+    let (sdram, display) = get_memory_devices(r.fmc, r.display, embassy_time::Delay)
+        .await
+        .unwrap();
+
+    // Wrap the display in a translation layer that rotates it
+    // 270 degrees into landscape with the correct orientation.
+    //
+    // We need to use software rotation instead of rotation in
+    // the LCD driver because the LCD driver doesn't rotate the
+    // scanning direction, causing nasty diagonal tearing.
+    let display = Rotate270::new(display);
+
+    // Power management bus.
+    //
+    // This communicates with the BQ24193 battery charger, BQ27531YZFR-G1 fuel gauge, and FUSB302B USB-PD manager.
+    // static I2C2_BUS: StaticCell<NoopMutex<RefCell<I2c<'static, Async, i2c::Master>>>> = StaticCell::new();
+    static I2C2_BUS: StaticCell<Mutex<CriticalSectionRawMutex, I2c<'static, Async, i2c::Master>>> =
+        StaticCell::new();
+
+    // Next initialize the bus for the I2C2 peripheral that
+    // has all the power management peripherals attatched.
+    //
+    // This communicates with the BQ24193 battery charger,
+    // BQ27531YZFR-G1 fuel gauge, FUSB302B USB-PD.
+    //
+    // Note that the communication with the BQ24193 charger happens
+    // THROUGH the BQ27531YZFR-G1 fuel gauge. They're interconnected
+    // on their own I2C bus with a special set of registers on the
+    // fuel gauge to interact with the charger.
+    info!("Initializing power i2c2 bus...");
+    let i2c2_bus = I2C2_BUS.init(Mutex::new(get_i2c2(r.i2c2)));
+
+    info!("Initializing power and battery management...");
+    let power = get_power(i2c2_bus, r.fuel_gauge).await.unwrap();
+
+    // Initialize the bus for the SPI1 peripheral.
+    //
+    // This communicates with the internal storage and Micro SD card.
+    info!("initializing storage SPI1 bus");
+    let (spi1, sd_cs, mut xtsdg_cs) = get_spi1(r.spi_storage);
+
+    /// SPI bus for internal and SD card storage.
+    static SPI_BUS: StaticCell<
+        Mutex<CriticalSectionRawMutex, Spi<'static, Async, spi::mode::Master>>,
+    > = StaticCell::new();
+
+    // Convert the SPI1 peripheral handle into a bus handle that can be consumed by multiple devices.
+    let spi_bus = SPI_BUS.init(Mutex::new(spi1));
+
+    // Initialize the internal and SD card storage next.
+    //
+    // We also want to initialize storage fairly early in the startup process so that
+    // we can check for key files on the device, such as firmware update indicators.
+
+    // SD cards need to be clocked with a at least 74 cycles
+    // on their SPI clock with the CS pin held HIGH.
+    //
+    // sd_init is a helper function that does this for us.
+    info!("Clocking SPI1 74 cyles before initializing SD devices...");
+    loop {
+        match sd_init(spi_bus.get_mut(), &mut xtsdg_cs).await {
+            Ok(_) => break,
+            Err(_e) => {
+                error!("SPI init error!");
+                embassy_time::Timer::after_millis(10).await;
+            }
+        }
+    }
+
+    // Now we can initialize the Micro SD card driver.
+    info!("Initializing SD card device..");
+    let sd_card = init_sdcard(spi_bus, sd_cs).await.unwrap();
+
+    // Initialize the internal storage.
+    //
+    // The device internal storage uses an XTSDG IC
+    // that acts as a soldered SD card.
+    info!("Constructing internal storage device...");
+    let internal_storage = init_internal_storage(spi_bus, xtsdg_cs).await.unwrap();
+
+    // Audio I2C bus.
+    //
+    // This communicates with the NAU88C22YG Audio Codec, FM SI4703-C19-GMR RX / SI4710-B30-GMR TX.
+    static I2C1_BUS: StaticCell<Mutex<CriticalSectionRawMutex, I2c<'static, Async, i2c::Master>>> =
+        StaticCell::new();
+
+    // Initialize the bus for the I2C1 peripheral.
+    //
+    // This communicates with the NAU88C22YG Audio Codec,
+    // FM SI4703-C19-GMR RX / SI4710-B30-GMR TX.
+    info!("initializing audio i2c1 bus");
+    let i2c1_bus = I2C1_BUS.init(Mutex::new(get_i2c1(r.i2c1)));
+
+    info!("initializing audio buffers");
+
+    info!("initializing audio codec");
+    let audio = get_audio(i2c1_bus, r.codec).await.unwrap();
+
+    Ok(Hardware {
+        stm6601,
+        keypad,
+        sdram,
+        display,
+        power,
+        sd_card,
+        internal_storage,
+        audio,
+    })
 }
 
 pub fn get_uart_debug<'a>(r: UartDebugResources) -> Uart<'a, mode::Async> {
+    // Baud: 115200
+    // DataBits8
+    // ParityNone
+    // Stop1
     let config = usart::Config::default();
     Uart::new(r.peri, r.rx_pin, r.tx_pin, Irqs, r.tx_dma, r.rx_dma, config).unwrap()
 }
@@ -849,7 +1046,7 @@ pub fn get_i2c2<'a>(
 }
 
 /// Gets a handle to the BQ27531 fuel gauge on I2C2.
-pub async fn get_power<'a, INT: gpio::Pin + ExtiPin>(
+pub async fn get_power<'a>(
     i2c_bus: &'a Mutex<CriticalSectionRawMutex, I2c<'static, Async, i2c::Master>>,
     r: FuelGaugeResources,
 ) -> Result<Power<'a>, I2cDeviceError<embassy_stm32::i2c::Error>> {
@@ -974,17 +1171,10 @@ pub fn get_sdcard_blocking<'a, DELAY: embedded_hal::delay::DelayNs + core::marke
 }
 
 /// Constructs and initializes a driver for the external SD card SPI interface.
-pub async fn init_sdcard<
-    'a,
-    'b,
-    M: RawMutex,
-    BUS: SetConfig<Config = spi::Config> + embedded_hal_async::spi::SpiBus,
-    DELAY: embedded_hal_async::delay::DelayNs + Clone,
->(
-    spi_bus: &'a Mutex<M, BUS>,
+pub async fn init_sdcard<'a, 'b, M: RawMutex>(
+    spi_bus: &'a Mutex<M, Spi<'static, Async, spi::mode::Master>>,
     cs: gpio::Output<'a>,
-    delay: DELAY,
-) -> Result<sd_card::SdCard<'a, M, BUS, DELAY>, sd_card::InitError> {
+) -> Result<sd_card::SdCard<'a, M>, sd_card::InitError> {
     // Configure the SPI settings for the SD card.
     //
     // Before knowing the SD card's capabilities we need to start with a 400khz clock.
@@ -995,24 +1185,16 @@ pub async fn init_sdcard<
     let spid = SpiDeviceWithConfig::new(spi_bus, cs, spi_config);
 
     // Initialize the SD-over-SPI wrapper.
-    let spi_sd: SdSpi<SpiDeviceWithConfig<'a, M, BUS, Output<'a>>, DELAY, aligned::A4> =
-        SdSpi::new(spid, delay);
+    let spi_sd = SdSpi::new(spid, embassy_time::Delay);
 
     sd_card::SdCard::init(spi_sd).await
 }
 
 /// Constructs and initializes a driver for the internal SD card SPI interface.
-pub async fn init_internal_storage<
-    'a,
-    'b,
-    M: RawMutex,
-    BUS: SetConfig<Config = spi::Config> + embedded_hal_async::spi::SpiBus,
-    DELAY: embedded_hal_async::delay::DelayNs + Clone,
->(
-    spi_bus: &'a Mutex<M, BUS>,
+pub async fn init_internal_storage<'a, 'b, M: RawMutex>(
+    spi_bus: &'a Mutex<M, Spi<'static, mode::Async, spi::mode::Master>>,
     cs: gpio::Output<'a>,
-    delay: DELAY,
-) -> Result<internal_storage::InternalStorage<'a, M, BUS, DELAY>, internal_storage::InitError> {
+) -> Result<internal_storage::InternalStorage<'a, M>, internal_storage::InitError> {
     // Configure the SPI settings for the SD card.
     //
     // Before knowing the SD card's capabilities we need to start with a 400khz clock.
@@ -1023,8 +1205,7 @@ pub async fn init_internal_storage<
     let spid = SpiDeviceWithConfig::new(spi_bus, cs, spi_config);
 
     // Initialize the SD-over-SPI wrapper.
-    let spi_sd: SdSpi<SpiDeviceWithConfig<'a, M, BUS, Output<'a>>, DELAY, aligned::A4> =
-        SdSpi::new(spid, delay);
+    let spi_sd = SdSpi::new(spid, embassy_time::Delay);
 
     internal_storage::InternalStorage::init(spi_sd).await
 }
