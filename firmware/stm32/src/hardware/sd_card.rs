@@ -4,7 +4,8 @@ use embassy_embedded_hal::{SetConfig, shared_bus::asynch::spi::SpiDeviceWithConf
 use embassy_stm32::mode;
 use embassy_stm32::spi::Spi;
 use embassy_stm32::{gpio::Output, spi, time::mhz};
-use embassy_sync::blocking_mutex::raw::RawMutex;
+use embassy_sync::blocking_mutex::raw::{CriticalSectionRawMutex, RawMutex};
+use embassy_time::Delay;
 use embedded_fatfs::{FileSystem, FsOptions};
 use embedded_io_async::Read;
 
@@ -45,39 +46,45 @@ impl From<sdspi::Error> for InitError {
     }
 }
 
-pub struct SdCard<'a, M: RawMutex> {
-    // spi_sd: SdSpi<
-    //             SpiDeviceWithConfig<'a, M, BUS, embassy_stm32::gpio::Output<'a>>,
-    //             DELAY,
-    //             aligned::A4>,
-    // buf_stream: Option<&'b mut BufStream::<&'a mut SdSpi<SpiDeviceWithConfig<'a, M, BUS, Output<'a>>, DELAY, aligned::A4>, 512>>,
-    filesystem: FileSystem<
-        StreamSlice<
-            BufStream<
-                SdSpi<
-                    SpiDeviceWithConfig<
-                        'a,
-                        M,
-                        Spi<'static, mode::Async, spi::mode::Master>,
-                        Output<'a>,
-                    >,
-                    embassy_time::Delay,
-                    aligned::A4,
-                >,
-                512,
-            >,
+pub type SPIDevice<'a> = SpiDeviceWithConfig<
+    'a,
+    CriticalSectionRawMutex,
+    Spi<'static, mode::Async, spi::mode::Master>,
+    Output<'a>,
+>;
+
+type SdBufStream<'a> = BufStream<SdSpi<SPIDevice<'a>, Delay, aligned::A4>, 512>;
+
+pub type SdFilesystem<'a> = FileSystem<
+    StreamSlice<SdBufStream<'a>>,
+    embedded_fatfs::NullTimeProvider,
+    embedded_fatfs::LossyOemCpConverter,
+>;
+
+pub type FilesystemError = embedded_fatfs::Error<StreamSliceError<BufStreamError<sdspi::Error>>>;
+
+pub type File<'a, 'b> = embedded_fatfs::File<
+    'a,
+    block_device_adapters::StreamSlice<
+        block_device_adapters::BufStream<
+            sdspi::SdSpi<SPIDevice<'b>, embassy_time::Delay, aligned::A4>,
+            512,
         >,
-        embedded_fatfs::NullTimeProvider,
-        embedded_fatfs::LossyOemCpConverter,
     >,
+    embedded_fatfs::NullTimeProvider,
+    embedded_fatfs::LossyOemCpConverter,
+>;
+
+pub struct SdCard<'a> {
+    filesystem: SdFilesystem<'a>,
 }
 
-impl<'a, M: RawMutex> SdCard<'a, M> {
+impl<'a> SdCard<'a> {
     pub async fn init(
         mut spi_sd: SdSpi<
             SpiDeviceWithConfig<
                 'a,
-                M,
+                CriticalSectionRawMutex,
                 Spi<'static, mode::Async, spi::mode::Master>,
                 embassy_stm32::gpio::Output<'a>,
             >,
@@ -177,6 +184,11 @@ impl<'a, M: RawMutex> SdCard<'a, M> {
         }
 
         Ok(())
+    }
+
+    /// Gets a reference to the SD card's filesystem.
+    pub fn filesystem(&mut self) -> &mut SdFilesystem<'a> {
+        &mut self.filesystem
     }
 
     // TODO: re-do with MBR

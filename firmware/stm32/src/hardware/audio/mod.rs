@@ -39,12 +39,15 @@ pub struct Audio<'a> {
     /// The divider applied to the SAI1 clock to get
     /// it close to the desired 48kHz sampling rate.
     mclk_div: MasterClockDivider,
-    sai_resources: CodecSAIResources,
     /// The actual sample rate derived from the clock in hertz.
     sample_rate: f32,
+    /// The value of the SAI MCLK with the calculated sample rate divisor applied.
+    adjusted_mclk: u32,
+
     codec: nau88c22_rs::Nau88c22<
         asynch::i2c::I2cDevice<'a, CriticalSectionRawMutex, I2c<'static, mode::Async, i2c::Master>>,
     >,
+    codec_initialized: bool,
 }
 
 /// Errors the happen when initializing the audio component.
@@ -91,13 +94,14 @@ fn mclk_div_from_u8(v: u8) -> MasterClockDivider {
 }
 
 impl<'a> Audio<'a> {
+    /// Constructs a new instance of the audio controller.
     pub async fn new(
+        // I2C device for the audio codec.
         device: asynch::i2c::I2cDevice<
             'static,
             CriticalSectionRawMutex,
             I2c<'static, mode::Async, i2c::Master>,
         >,
-        sai_resources: CodecSAIResources,
     ) -> Result<Self, InitError> {
         // Calculate the SAI master clock divisor and derrived codec master clock divisor and PLL.
         let kernel_clock = rcc::frequency::<peripherals::SAI1>().0;
@@ -123,18 +127,131 @@ impl<'a> Audio<'a> {
         // After the transmitter has been configured, mclk goes active.
         // Now we can configure our codec to run off the mclk signal.
         let mut codec = nau88c22_rs::Nau88c22::new(device);
-        codec::codec_init(&mut codec, adjusted_mclk, actual_sample_rate).await?;
 
         Ok(Self {
             mclk_div,
-            sai_resources,
             sample_rate: actual_sample_rate,
+            adjusted_mclk,
             codec,
+            codec_initialized: false,
         })
     }
 
     pub const fn get_sample_rate(&self) -> f32 {
         self.sample_rate
+    }
+
+    pub fn sai_tx_config(&self) -> sai::Config {
+        // The SAI config used for the A block configured in transmit mode.
+        //
+        // Configured for standard I2S.
+        let mut tx_config = sai::Config::default();
+        tx_config.mode = sai::Mode::Master;
+        tx_config.tx_rx = sai::TxRx::Transmitter;
+        tx_config.stereo_mono = sai::StereoMono::Stereo;
+        tx_config.output_drive = sai::OutputDrive::OnStart; // disabled
+
+        if self.mclk_div != MasterClockDivider::_RESERVED_0 {
+            tx_config.master_clock_divider = self.mclk_div.into();
+            tx_config.nodiv = false;
+        } else {
+            tx_config.master_clock_divider = MasterClockDivider::DIV1;
+            tx_config.nodiv = true;
+        }
+
+        tx_config.fifo_threshold = sai::FifoThreshold::Empty;
+        tx_config.companding = sai::Companding::None;
+        tx_config.protocol = sai::Protocol::Free; // free for i2s
+        tx_config.bit_order = sai::BitOrder::MsbFirst; // nac88c22 runs in MSB
+        tx_config.clock_strobe = sai::ClockStrobe::Falling;
+        tx_config.frame_sync_definition = sai::FrameSyncDefinition::ChannelIdentification;
+        tx_config.slot_enable = 0xFFFF; // All configured slots active
+        tx_config.slot_count = sai::word::U4(OUTPUT_CHANNEL_COUNT as u8); // The number of slots in the audio frame.
+        tx_config.first_bit_offset = sai::word::U5(0);
+        tx_config.frame_sync_polarity = sai::FrameSyncPolarity::ActiveLow;
+        tx_config.frame_sync_offset = sai::FrameSyncOffset::BeforeFirstBit;
+        tx_config.data_size = sai::DataSize::Data24;
+        tx_config.frame_length = 64; // 64U * (nbslot / 2U)
+        tx_config.frame_sync_active_level_length = sai::word::U7(32); // 32U * (nbslot / 2U)
+        tx_config.slot_size = sai::SlotSize::Channel32; // sai::SlotSize::DataSize
+
+        tx_config
+    }
+
+    pub fn sai_rx_config(&self) -> sai::Config {
+        // The SAI config used for the B block configured in receive mode.
+        let mut rx_config = self.sai_tx_config();
+        rx_config.mode = sai::Mode::Slave; // slaved to the transmitter block
+        rx_config.tx_rx = sai::TxRx::Receiver; // configure this block as a receiver
+        rx_config.sync_input = sai::SyncInput::Internal; // passes sync to the second block
+        rx_config.sync_output = false; // passes sync to the second block
+        rx_config.clock_strobe = sai::ClockStrobe::Rising; // nac88c22 uses rising edge latching on bclk
+
+        rx_config
+    }
+
+    // Creates a set if SAI blocks using the provided
+    // arrays for the DMA ringbuffer memory.
+    pub async fn create_sai<'c>(
+        &mut self,
+        r: &'c mut CodecSAIResources,
+        audio_tx_buffer: &'c mut [u32],
+        audio_rx_buffer: &'c mut [u32],
+    ) -> (SAITransmitter<'c>, SAIReceiver<'c>) {
+        // The SAI config used for the A block configured in transmit mode.
+        //
+        // Configured for standard I2S.
+        let tx_config = self.sai_tx_config();
+
+        // The SAI config used for the B block configured in receive mode.
+        let rx_config = self.sai_rx_config();
+
+        // Split the SAI periperal into it's two subblocks.
+        let (sub_block_tx, sub_block_rx) = sai::split_subblocks(r.peri.reborrow());
+
+        // Configure the first sub block as the transmitter and the main clock source.
+        //
+        // This also creates an underlying DMA ringbuffer for
+        // the SAI peripheral and manages the transfers.
+        let sai_transmitter = sai::Sai::new_asynchronous_with_mclk(
+            sub_block_tx,
+            r.sck.reborrow(),
+            r.dacdat.reborrow(),
+            r.fs.reborrow(),
+            r.mclk.reborrow(),
+            r.tx_dma.reborrow(),
+            audio_tx_buffer,
+            tx_config,
+        );
+
+        // If this is the first time the SAI transmitter has
+        // been created, then we can initialize the codec.
+        //
+        // This ideally needs to be done here after initializing
+        // the transmitter, because then the MCLK out becomes
+        // active and allows the codec's PLL to stabilize quickly
+        // when configured.
+        if !self.codec_initialized {
+            codec::codec_init(&mut self.codec, self.adjusted_mclk, self.sample_rate)
+                .await
+                .unwrap();
+            self.codec_initialized = true;
+        }
+
+        // Configure the second sub block as a receiver,
+        // syncronous to the mclk of the transmitter block.
+        //
+        // This also creates an underlying DMA ringbuffer for
+        // the SAI peripheral and manages the transfers.
+        let sai_receiver = sai::Sai::new_synchronous(
+            sub_block_rx,
+            r.adcdat.reborrow(),
+            r.rx_dma.reborrow(),
+            audio_rx_buffer,
+            rx_config,
+        );
+
+        (sai_transmitter, sai_receiver)
     }
 }
 

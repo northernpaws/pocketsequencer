@@ -468,13 +468,14 @@ pub struct Hardware<'a> {
     pub power: Power<'a>,
 
     /// SD card filesystem interface.
-    pub sd_card: sd_card::SdCard<'a, CriticalSectionRawMutex>,
+    pub sd_card: sd_card::SdCard<'a>,
 
     /// Internal storage filesystem interface.
     pub internal_storage: internal_storage::InternalStorage,
 
     /// Audio codec controller.
     pub audio: Audio<'a>,
+    pub sai_resources: CodecSAIResources,
 }
 
 /// Initialises all the hardware components and returns
@@ -640,7 +641,7 @@ pub async fn init_hardware<'a>(r: AssignedResources, spawner: Spawner) -> Result
     info!("initializing audio buffers");
 
     info!("initializing audio codec");
-    let audio = get_audio(i2c1_bus, r.codec).await.unwrap();
+    let audio = get_audio(i2c1_bus).await.unwrap();
 
     Ok(Hardware {
         stm6601,
@@ -651,6 +652,7 @@ pub async fn init_hardware<'a>(r: AssignedResources, spawner: Spawner) -> Result
         sd_card,
         internal_storage,
         audio,
+        sai_resources: r.codec,
     })
 }
 
@@ -1074,7 +1076,6 @@ pub async fn get_power<'a>(
 /// Gets a handle to the audio codec.
 pub async fn get_audio<'a>(
     i2c_bus: &'static Mutex<CriticalSectionRawMutex, I2c<'static, Async, i2c::Master>>,
-    codec_sai: CodecSAIResources,
 ) -> Result<Audio<'a>, audio::InitError> {
     // Switches for micbiased mic-in vs aux-in (defaults to aux)
     // let mic_l_en = Output::new(codec_sai.mic_l, Level::Low, Speed::Low);
@@ -1087,7 +1088,7 @@ pub async fn get_audio<'a>(
         I2c<'static, Async, i2c::Master>,
     > = asynch::i2c::I2cDevice::new(i2c_bus);
 
-    Audio::new(device, codec_sai /*sai_rx,*/).await
+    Audio::new(device /*sai_rx,*/).await
 }
 
 /// Gets a handle to the FUSB302B USB-PD controller on I2C2.
@@ -1181,10 +1182,10 @@ pub fn get_sdcard_blocking<'a, DELAY: embedded_hal::delay::DelayNs + core::marke
 }
 
 /// Constructs and initializes a driver for the external SD card SPI interface.
-pub async fn init_sdcard<'a, 'b, M: RawMutex>(
-    spi_bus: &'a Mutex<M, Spi<'static, Async, spi::mode::Master>>,
+pub async fn init_sdcard<'a, 'b>(
+    spi_bus: &'a Mutex<CriticalSectionRawMutex, Spi<'static, Async, spi::mode::Master>>,
     cs: gpio::Output<'a>,
-) -> Result<sd_card::SdCard<'a, M>, sd_card::InitError> {
+) -> Result<sd_card::SdCard<'a>, sd_card::InitError> {
     // Configure the SPI settings for the SD card.
     //
     // Before knowing the SD card's capabilities we need to start with a 400khz clock.
