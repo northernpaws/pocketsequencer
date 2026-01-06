@@ -78,14 +78,22 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     println!("APB2 Timer clock speed: {}", clocks.pclk2_tim);
 
     // After initializing the external SDRAM, we can allocate the heap on it.
-    {
-        info!("initializing heap...");
+    let _sdram: &'static mut [u32] = {
+        info!("initializing heap on SDRAM...");
 
         const HEAP_SIZE: usize = 1024;
 
         // Allocate the heap pointer on the memory-mapped external SDRAM.
-        unsafe { HEAP.init(&raw mut hw.sdram as usize, HEAP_SIZE) }
-    }
+        unsafe { HEAP.init(&raw mut hw.sdram as usize, HEAP_SIZE) };
+
+        // "Resize" the array pointer we have to the SDRAM to avoid the allocated heap block.
+        unsafe {
+            core::slice::from_raw_parts_mut(
+                hw.sdram.as_mut_ptr(),
+                (hw.sdram.len() - HEAP_SIZE) / core::mem::size_of::<u32>(),
+            )
+        }
+    };
 
     info!("starting engine...");
     engine::start_engine(

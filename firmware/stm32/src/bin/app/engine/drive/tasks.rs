@@ -9,7 +9,7 @@ use firmware::hardware::internal_storage::InternalStorage;
 use firmware::hardware::sd_card::{self, SdFilesystem};
 use static_cell::StaticCell;
 
-use crate::engine::drive::CommandReceiver;
+use crate::engine::drive::{CommandID, CommandReceiver, CommandResult, CommandResultPublisher};
 
 static SD_FILESYSTEM: StaticCell<SdFilesystem<'static>> = StaticCell::new();
 
@@ -18,6 +18,7 @@ pub fn spawn_drive(
     internal_storage: InternalStorage,
     spawner: Spawner,
     command_receiver: CommandReceiver<'static>,
+    command_result_publisher: CommandResultPublisher<'static>,
 ) -> Result<(), SpawnError> {
     let sd_fs = SD_FILESYSTEM.init(sd_card);
 
@@ -26,6 +27,7 @@ pub fn spawn_drive(
         sd_fs,
         internal_storage,
         command_receiver,
+        command_result_publisher,
     )?);
 
     Ok(())
@@ -37,9 +39,17 @@ pub async fn drive_task(
     sd_card: &'static mut SdFilesystem<'static>,
     internal_storage: InternalStorage,
     command_receiver: CommandReceiver<'static>,
+    command_result_publisher: CommandResultPublisher<'static>,
 ) -> ! {
     // should never return
-    let err = inner_drive_task(spawner, sd_card, internal_storage, command_receiver).await;
+    let err = inner_drive_task(
+        spawner,
+        sd_card,
+        internal_storage,
+        command_receiver,
+        command_result_publisher,
+    )
+    .await;
     panic!("drive task exited unexpectedly: {:?}", err);
 }
 
@@ -51,10 +61,11 @@ async fn inner_drive_task(
     sd_card: &'static mut sd_card::SdFilesystem<'static>,
     mut internal_storage: InternalStorage,
     command_receiver: CommandReceiver<'static>,
+    command_result_publisher: CommandResultPublisher<'static>,
 ) -> Result<(), Never> {
     loop {
         // Wait for the next drive command to arrive.
-        let command = command_receiver.receive().await;
+        let (command_id, command) = command_receiver.receive().await;
 
         match command {
             // Writes the contents of a provided buffer to the file.
@@ -65,9 +76,15 @@ async fn inner_drive_task(
                 if let Ok(mut file) = sd_card.root_dir().open_file(path.as_str()).await {
                     file.write_all(&buffer).await.unwrap();
                     file.close().await.unwrap();
+
+                    command_result_publisher
+                        .publish((command_id, CommandResult::Ok))
+                        .await;
                 } else {
-                    // TODO: need to signal error somehow..
-                    panic!("write file error!");
+                    error!("error opening file!");
+                    command_result_publisher
+                        .publish((command_id, CommandResult::Error))
+                        .await;
                 }
             }
 
@@ -82,10 +99,17 @@ async fn inner_drive_task(
                 if let Ok(file) = root_dir.open_file(path.as_str()).await {
                     // Spawn the task to handle reading from the file to the pipe.
                     spawner.spawn(unwrap!(read_file_task(file, writer)));
+
+                    command_result_publisher
+                        .publish((command_id, CommandResult::Ok))
+                        .await;
                 } else {
                     // TODO: need to signal closure somehow..
                     // writer.close()
-                    panic!("open file error!");
+                    error!("error opening file!");
+                    command_result_publisher
+                        .publish((command_id, CommandResult::Error))
+                        .await;
                 }
             }
         }

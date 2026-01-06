@@ -2,7 +2,9 @@
 //! and sequencer engine, such as the audio codec and storage.
 
 use embassy_executor::Spawner;
-use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, channel::Channel};
+use embassy_sync::{
+    blocking_mutex::raw::CriticalSectionRawMutex, channel::Channel, pubsub::PubSubChannel,
+};
 use firmware::hardware::{
     CodecSAIResources, audio::Audio, internal_storage::InternalStorage, sd_card::SdFilesystem,
 };
@@ -17,7 +19,17 @@ static MIDI_RX_CHANNEL: Channel<CriticalSectionRawMutex, midi::MIDIEvent, 4> = C
 /// Channel for MIDI events transmitted to a serial port or USB peripheral.
 static MIDI_TX_CHANNEL: Channel<CriticalSectionRawMutex, midi::MIDIEvent, 4> = Channel::new();
 
-static DRIVE_COMMANDS: Channel<CriticalSectionRawMutex, drive::Command, 2> = Channel::new();
+/// Channel for sending commands to the filesystem task.
+static DRIVE_COMMANDS: Channel<CriticalSectionRawMutex, (drive::CommandID, drive::Command), 2> =
+    Channel::new();
+/// Command for receiving results from the filesystem task.
+static DRIVE_RESULTS: PubSubChannel<
+    CriticalSectionRawMutex,
+    (drive::CommandID, drive::CommandResult),
+    5,
+    5,
+    1,
+> = PubSubChannel::new();
 
 pub fn start_engine(
     spawner: Spawner,
@@ -33,6 +45,9 @@ pub fn start_engine(
         internal_storage,
         spawner,
         DRIVE_COMMANDS.receiver(),
+        DRIVE_RESULTS
+            .publisher()
+            .expect("the drive result publisher should only be allocated to the drive task"),
     )
     .unwrap();
 
