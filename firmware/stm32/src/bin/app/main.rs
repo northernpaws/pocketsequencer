@@ -4,11 +4,8 @@
 #[cfg(feature = "alloc")]
 extern crate alloc;
 
-mod audio;
-mod display;
-mod drive;
-
 mod engine;
+mod interface;
 mod project;
 
 use defmt::*;
@@ -30,8 +27,6 @@ use firmware::{
     hardware::{self, preamble::*},
     split_resources,
 };
-
-use crate::display::display_task;
 
 // NOTE: We try to rely on heap allocations as little
 // as possible for core elements of the system.
@@ -83,9 +78,9 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     println!("APB2 Timer clock speed: {}", clocks.pclk2_tim);
 
     // Spawn the primary resource tasks.
-    drive::start(hw.sd_card, hw.internal_storage, spawner).unwrap();
-    audio::start(hw.audio, hw.sai_resources).unwrap();
-    spawner.spawn(display_task(hw.display).unwrap());
+    engine::drive::start(hw.sd_card, hw.internal_storage, spawner).unwrap();
+    engine::audio::start(hw.audio, hw.sai_resources).unwrap();
+    // spawner.spawn(display_task(hw.display).unwrap());
 
     loop {
         info!("main tick");

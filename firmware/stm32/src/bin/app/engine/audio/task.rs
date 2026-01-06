@@ -1,4 +1,4 @@
-use crate::audio::engine::AudioEngine;
+use crate::engine::audio::engine::AudioEngine;
 use crate::hardware::audio::Audio;
 
 use cortex_m_rt::interrupt;

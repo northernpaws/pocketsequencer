@@ -19,7 +19,6 @@ pub mod keypad;
 pub mod mpu;
 pub mod power;
 pub mod sd_card;
-pub mod usb;
 
 use defmt::{error, info, trace};
 use embassy_time::Delay;
@@ -52,6 +51,7 @@ use embassy_stm32::{
         simple_pwm::{PwmPin, SimplePwm},
     },
     usart::{self, Uart, UartRx, UartTx},
+    usb::{self, Driver},
 };
 
 use embassy_sync::{blocking_mutex::raw::RawMutex, mutex::Mutex};
@@ -451,6 +451,9 @@ pub fn init_peripherals() -> Peripherals {
 /// Alias for a display wrapped in a coordinate transform to rotate it upright.
 pub type RotatedDisplay<'a> = CoordinateTransform<Display<'a, Delay>, false, true, true>;
 
+#[unsafe(link_section = ".ram3_d2")]
+static EP_OUT_BUFFER: StaticCell<[u8; 256]> = StaticCell::new();
+
 pub struct Hardware<'a> {
     /// Power button and regulator enable controller.
     pub stm6601: Stm6601<'a, Output<'a>, Input<'a>>,
@@ -476,6 +479,9 @@ pub struct Hardware<'a> {
     /// Audio codec controller.
     pub audio: Audio<'a>,
     pub sai_resources: CodecSAIResources,
+
+    /// Driver for the USB HS peripheral.
+    usb_driver: usb::Driver<'static, embassy_stm32::peripherals::USB_OTG_HS>,
 }
 
 /// Initialises all the hardware components and returns
@@ -635,13 +641,18 @@ pub async fn init_hardware<'a>(r: AssignedResources, spawner: Spawner) -> Result
     //
     // This communicates with the NAU88C22YG Audio Codec,
     // FM SI4703-C19-GMR RX / SI4710-B30-GMR TX.
-    info!("initializing audio i2c1 bus");
+    info!("initializing audio i2c1 bus...");
     let i2c1_bus = I2C1_BUS.init(Mutex::new(get_i2c1(r.i2c1)));
 
-    info!("initializing audio buffers");
+    info!("initializing audio buffers...");
 
-    info!("initializing audio codec");
+    info!("initializing audio codec...");
     let audio = get_audio(i2c1_bus).await.unwrap();
+
+    info!("initializing USB driver...");
+    let ep_out_buffer = EP_OUT_BUFFER.init([0; 256]);
+    let usb_driver: Driver<'static, embassy_stm32::peripherals::USB_OTG_HS> =
+        get_usb_hs_driver(r.usb, ep_out_buffer);
 
     Ok(Hardware {
         stm6601,
@@ -653,6 +664,7 @@ pub async fn init_hardware<'a>(r: AssignedResources, spawner: Spawner) -> Result
         internal_storage,
         audio,
         sai_resources: r.codec,
+        usb_driver,
     })
 }
 
