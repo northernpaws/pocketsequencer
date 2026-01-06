@@ -1,3 +1,4 @@
+use alloc::boxed::Box;
 use defmt::{error, info, unwrap};
 use embassy_executor::{SpawnError, Spawner};
 use embassy_stm32::usb::{Driver, Instance};
@@ -83,7 +84,7 @@ pub fn start_usb_tasks(
     spawner.spawn(usb_task(usb)?);
 
     info!("Spawning MIDI class handler...");
-    spawner.spawn(usb_midi_task(midi_class, midi_events_rx)?);
+    spawner.spawn(usb_midi_task(midi_class, midi_events_rx, midi_events_tx)?);
 
     Ok(())
 }
@@ -126,6 +127,7 @@ async fn usb_task(
 async fn usb_midi_task(
     mut midi_class: MidiClass<'static, Driver<'static, embassy_stm32::peripherals::USB_OTG_HS>>,
     midi_events_rx: MIDIEventSender<'static>,
+    midi_events_tx: MIDIEventReceiver<'static>,
 ) {
     let midi_events_rx = midi_events_rx;
 
@@ -135,6 +137,10 @@ async fn usb_midi_task(
         // and enable the MIDI endpoint.
         midi_class.wait_connection().await;
         info!("Connected");
+
+        // Clear the outgoing events channel so events added to
+        // the channel before a valid connection are discarded.
+        midi_events_tx.clear();
 
         // Start the MIDI handler for the host.
         let _ = midi_handler(&mut midi_class, &midi_events_rx).await;
@@ -173,9 +179,9 @@ async fn midi_handler<'d, T: Instance + 'd>(
                 .try_send(match event {
                     LiveEvent::Midi { channel, message } => MIDIEvent::Midi { channel, message },
                     LiveEvent::Common(system_common) => match system_common {
-                        midly::live::SystemCommon::SysEx(u7s) => MIDIEvent::Common(
-                            SystemCommon::SysEx(heapless::Vec::from_slice(u7s).unwrap()),
-                        ),
+                        midly::live::SystemCommon::SysEx(u7s) => {
+                            MIDIEvent::Common(SystemCommon::SysEx(u7s.to_vec().into_boxed_slice()))
+                        }
                         midly::live::SystemCommon::MidiTimeCodeQuarterFrame(
                             mtc_quarter_frame_message,
                             u4,
@@ -193,7 +199,7 @@ async fn midi_handler<'d, T: Instance + 'd>(
                             MIDIEvent::Common(SystemCommon::TuneRequest)
                         }
                         midly::live::SystemCommon::Undefined(n, u7s) => MIDIEvent::Common(
-                            SystemCommon::Undefined(n, heapless::Vec::from_slice(u7s).unwrap()),
+                            SystemCommon::Undefined(n, u7s.to_vec().into_boxed_slice()),
                         ),
                     },
                     LiveEvent::Realtime(system_realtime) => MIDIEvent::Realtime(system_realtime),

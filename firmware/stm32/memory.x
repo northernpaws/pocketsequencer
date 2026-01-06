@@ -23,16 +23,28 @@ SECTIONS
 
         PROVIDE(__sram1_bss_end__ = _esram1_bss);
     } > RAM_D2
+    
     .ram3_d2 :
     {
         *(.ram3_d2)
     } > RAM3_D2
+    
     .sram4_d3 :
     {
         *(.sram5_d3)
     } > SRAM4_D3
+
     .sdram :
     {
+        . = ALIGN(4);
+        _ssdram = .;
+
+        PROVIDE(__ssdram_start__ = _sdram);
         *(.sdram)
+        *(.sdram*)
+        . = ALIGN(4);
+        _esdram = .;
+
+        PROVIDE(__sdram_end__ = _esdram);
     } > SDRAM
 }

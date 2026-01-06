@@ -4,7 +4,7 @@
 use embassy_executor::Spawner;
 use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, channel::Channel};
 use firmware::hardware::{
-    CodecSAIResources, audio::Audio, internal_storage::InternalStorage, sd_card::SdCard,
+    CodecSAIResources, audio::Audio, internal_storage::InternalStorage, sd_card::SdFilesystem,
 };
 
 pub mod audio;
@@ -13,21 +13,35 @@ pub mod midi;
 pub mod usb;
 
 /// Channel for MIDI events received from a serial port or the USB peripheral.
-static MIDI_RX_CHANNEL: Channel<CriticalSectionRawMutex, midi::MIDIEvent, 25> = Channel::new();
+static MIDI_RX_CHANNEL: Channel<CriticalSectionRawMutex, midi::MIDIEvent, 4> = Channel::new();
 /// Channel for MIDI events transmitted to a serial port or USB peripheral.
-static MIDI_TX_CHANNEL: Channel<CriticalSectionRawMutex, midi::MIDIEvent, 25> = Channel::new();
+static MIDI_TX_CHANNEL: Channel<CriticalSectionRawMutex, midi::MIDIEvent, 4> = Channel::new();
+
+static DRIVE_COMMANDS: Channel<CriticalSectionRawMutex, drive::Command, 2> = Channel::new();
 
 pub fn start_engine(
     spawner: Spawner,
-    sd_card: SdCard<'static>,
+    sd_card: SdFilesystem<'static>,
     internal_storage: InternalStorage,
     audio: Audio<'static>,
     sai_resources: CodecSAIResources,
     usb_driver: embassy_stm32::usb::Driver<'static, embassy_stm32::peripherals::USB_OTG_HS>,
 ) {
-    drive::start(sd_card, internal_storage, spawner).unwrap();
+    // Start the tasks for managing the SD card and internal storage.
+    drive::start(
+        sd_card,
+        internal_storage,
+        spawner,
+        DRIVE_COMMANDS.receiver(),
+    )
+    .unwrap();
+
+    // Start the tasks for managing the audio interface.
     audio::start(audio, sai_resources).unwrap();
 
+    // Start the MIDI processing task.
+    //
+    // This collects and processes MIDI events from USB, UART, etc.
     midi::start(
         spawner,
         // Channel for receiving external MIDI events, i.e. from USB.
@@ -36,6 +50,9 @@ pub fn start_engine(
         MIDI_TX_CHANNEL.sender(),
     );
 
+    // Start the USB handler tasks.
+    //
+    // These handle responding to the USB class connections.
     usb::start(
         spawner,
         usb_driver,

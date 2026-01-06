@@ -471,7 +471,7 @@ pub struct Hardware<'a> {
     pub power: Power<'a>,
 
     /// SD card filesystem interface.
-    pub sd_card: sd_card::SdCard<'a>,
+    pub sd_card: sd_card::SdFilesystem<'a>,
 
     /// Internal storage filesystem interface.
     pub internal_storage: internal_storage::InternalStorage,
@@ -481,7 +481,7 @@ pub struct Hardware<'a> {
     pub sai_resources: CodecSAIResources,
 
     /// Driver for the USB HS peripheral.
-    usb_driver: usb::Driver<'static, embassy_stm32::peripherals::USB_OTG_HS>,
+    pub usb_driver: usb::Driver<'static, embassy_stm32::peripherals::USB_OTG_HS>,
 }
 
 /// Initialises all the hardware components and returns
@@ -1197,7 +1197,7 @@ pub fn get_sdcard_blocking<'a, DELAY: embedded_hal::delay::DelayNs + core::marke
 pub async fn init_sdcard<'a, 'b>(
     spi_bus: &'a Mutex<CriticalSectionRawMutex, Spi<'static, Async, spi::mode::Master>>,
     cs: gpio::Output<'a>,
-) -> Result<sd_card::SdCard<'a>, sd_card::InitError> {
+) -> Result<sd_card::SdFilesystem<'a>, sd_card::InitError> {
     // Configure the SPI settings for the SD card.
     //
     // Before knowing the SD card's capabilities we need to start with a 400khz clock.
@@ -1210,7 +1210,7 @@ pub async fn init_sdcard<'a, 'b>(
     // Initialize the SD-over-SPI wrapper.
     let spi_sd = SdSpi::new(spid, embassy_time::Delay);
 
-    sd_card::SdCard::init(spi_sd).await
+    sd_card::new_filesystem(spi_sd).await
 }
 
 /// Constructs and initializes a driver for the internal SD card SPI interface.

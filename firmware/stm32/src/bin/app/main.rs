@@ -67,7 +67,7 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     let r = split_resources!(p);
 
     // Initialize the hardware components using the segmented resources.
-    let hw = hardware::init_hardware(r, spawner).await?;
+    let mut hw = hardware::init_hardware(r, spawner).await?;
 
     // Debug logging of the current clock configuration.
     let clocks = rcc::clocks(&p.RCC);
@@ -77,11 +77,30 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     println!("APB2  clock speed: {}", clocks.pclk2);
     println!("APB2 Timer clock speed: {}", clocks.pclk2_tim);
 
-    // Spawn the primary resource tasks.
-    engine::drive::start(hw.sd_card, hw.internal_storage, spawner).unwrap();
-    engine::audio::start(hw.audio, hw.sai_resources).unwrap();
-    // spawner.spawn(display_task(hw.display).unwrap());
+    // After initializing the external SDRAM, we can allocate the heap on it.
+    {
+        info!("initializing heap...");
 
+        const HEAP_SIZE: usize = 1024;
+
+        // Allocate the heap pointer on the memory-mapped external SDRAM.
+        unsafe { HEAP.init(&raw mut hw.sdram as usize, HEAP_SIZE) }
+    }
+
+    info!("starting engine...");
+    engine::start_engine(
+        spawner,
+        hw.sd_card,
+        hw.internal_storage,
+        hw.audio,
+        hw.sai_resources,
+        hw.usb_driver,
+    );
+
+    info!("starting interface...");
+    // todo
+
+    info!("starting main loop...");
     loop {
         info!("main tick");
         Timer::after_millis(300).await;

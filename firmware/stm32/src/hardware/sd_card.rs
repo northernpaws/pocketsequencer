@@ -75,131 +75,94 @@ pub type File<'a, 'b> = embedded_fatfs::File<
     embedded_fatfs::LossyOemCpConverter,
 >;
 
-pub struct SdCard<'a> {
-    filesystem: SdFilesystem<'a>,
-}
-
-impl<'a> SdCard<'a> {
-    pub async fn init(
-        mut spi_sd: SdSpi<
-            SpiDeviceWithConfig<
-                'a,
-                CriticalSectionRawMutex,
-                Spi<'static, mode::Async, spi::mode::Master>,
-                embassy_stm32::gpio::Output<'a>,
-            >,
-            embassy_time::Delay,
-            aligned::A4,
+pub async fn new_filesystem<'a>(
+    mut spi_sd: SdSpi<
+        SpiDeviceWithConfig<
+            'a,
+            CriticalSectionRawMutex,
+            Spi<'static, mode::Async, spi::mode::Master>,
+            embassy_stm32::gpio::Output<'a>,
         >,
-    ) -> Result<Self, InitError> {
-        // Initialize the Micro SD card.
-        info!("Configuring SD card...");
+        embassy_time::Delay,
+        aligned::A4,
+    >,
+) -> Result<SdFilesystem<'a>, InitError> {
+    // Initialize the Micro SD card.
+    info!("Configuring SD card...");
 
-        // Attempt to initialize the connected SD card.
+    // Attempt to initialize the connected SD card.
+    //
+    // If this fails, either there's a problem with the
+    // SPI bus or timing, there is an incompatible card
+    // attached, or there is no card attached.
+    info!("Attempting to initialize SD card...");
+    loop {
+        // Attempt to initialize the card.
         //
-        // If this fails, either there's a problem with the
-        // SPI bus or timing, there is an incompatible card
-        // attached, or there is no card attached.
-        info!("Attempting to initialize SD card...");
-        loop {
-            // Attempt to initialize the card.
+        // TODO: This hangs indefinetly waiting for a
+        //  reply on DMA if no SD card is connected!
+        if spi_sd.init(true).await.is_ok() {
+            info!("Initialization succeeded, increasing clock to 25Mhz..");
+
+            // If the initialization succeeds then we can
+            // increase the speed up to the SD max of 25mhz.
             //
-            // TODO: This hangs indefinetly waiting for a
-            //  reply on DMA if no SD card is connected!
-            if spi_sd.init(true).await.is_ok() {
-                info!("Initialization succeeded, increasing clock to 25Mhz..");
+            // TODO: check if higher speed modes are available.
+            let mut config = spi::Config::default();
+            config.frequency = mhz(25);
+            spi_sd.spi().set_config(config);
+            info!("Initialization complete!");
 
-                // If the initialization succeeds then we can
-                // increase the speed up to the SD max of 25mhz.
-                //
-                // TODO: check if higher speed modes are available.
-                let mut config = spi::Config::default();
-                config.frequency = mhz(25);
-                spi_sd.spi().set_config(config);
-                info!("Initialization complete!");
-
-                break;
-            }
-
-            // TODO: at this point, should be displaying a message indicating the lack of SD card?
-            info!("Failed to initialize SD card, retrying...");
-            embassy_time::Delay.delay_ns(5000u32).await;
+            break;
         }
 
-        let size = spi_sd.size().await?;
-        info!("SD card storage size: {}B", size);
-
-        let mut buf_stream = BufStream::new(spi_sd);
-
-        trace!("Attempting to read MBR...");
-        let mut buf = [0; 512];
-        buf_stream.read(&mut buf).await?;
-        let mbr = MasterBootRecord::from_bytes(&buf).unwrap();
-        let mut index = 0;
-        for partition in mbr.partition_table_entries() {
-            trace!("MBR Partition {}:", index);
-            trace!("MBR Partition Sectors {}", partition.sector_count);
-            trace!(
-                "MBR Partition Logical Block Address {}",
-                partition.logical_block_address
-            );
-            index += 1;
-        }
-
-        // Read the first partition table entry from the MBR.
-        let partition = mbr.partition_table_entries()[0];
-        let start_offset = partition.logical_block_address as u64 * 512;
-        let end_offset = start_offset + partition.sector_count as u64 * 512;
-
-        // Make a wrapper around the BufStream that limits the start
-        // and end of reads/writes to within the partition.
-        let inner = StreamSlice::new(buf_stream, start_offset, end_offset)
-            .await
-            .unwrap();
-
-        // Create a filesystem using the stream slice from the partition table.
-        info!("Loading partition 0 as FATFS...");
-        let filesystem = FileSystem::new(inner, FsOptions::new()).await?;
-
-        // info!("Attempting to read from filesystem...");
-        // let root_dir = filesystem.root_dir();
-        // let mut iter = root_dir.iter();
-        // while let Some(r) = iter.next().await {
-        //     let e = r?;
-        //     info!("found file: {}", e.short_file_name_as_bytes());
-        // }
-
-        Ok(Self { filesystem })
+        // TODO: at this point, should be displaying a message indicating the lack of SD card?
+        info!("Failed to initialize SD card, retrying...");
+        embassy_time::Delay.delay_ns(5000u32).await;
     }
 
-    pub async fn list_filesystem(
-        &mut self,
-    ) -> Result<(), embedded_fatfs::Error<StreamSliceError<BufStreamError<sdspi::Error>>>> {
-        info!("Attempting to read from filesystem...");
-        let root_dir = self.filesystem.root_dir();
-        let mut iter = root_dir.iter();
-        while let Some(r) = iter.next().await {
-            let e = r?;
-            info!("found file: {}", e.short_file_name_as_bytes());
-        }
+    let size = spi_sd.size().await?;
+    info!("SD card storage size: {}B", size);
 
-        Ok(())
+    let mut buf_stream = BufStream::new(spi_sd);
+
+    trace!("Attempting to read MBR...");
+    let mut buf = [0; 512];
+    buf_stream.read(&mut buf).await?;
+    let mbr = MasterBootRecord::from_bytes(&buf).unwrap();
+    let mut index = 0;
+    for partition in mbr.partition_table_entries() {
+        trace!("MBR Partition {}:", index);
+        trace!("MBR Partition Sectors {}", partition.sector_count);
+        trace!(
+            "MBR Partition Logical Block Address {}",
+            partition.logical_block_address
+        );
+        index += 1;
     }
 
-    /// Gets a reference to the SD card's filesystem.
-    pub fn filesystem(&mut self) -> &mut SdFilesystem<'a> {
-        &mut self.filesystem
-    }
+    // Read the first partition table entry from the MBR.
+    let partition = mbr.partition_table_entries()[0];
+    let start_offset = partition.logical_block_address as u64 * 512;
+    let end_offset = start_offset + partition.sector_count as u64 * 512;
 
-    // TODO: re-do with MBR
-    // /// Deletes and re-creates the volume information, and then erases the card.
-    // pub async fn format(&mut self) -> Result<(), embedded_fatfs::Error<BufStreamError<sdspi::Error>>> {
-    //     trace!("Formatting SD card...");
-    //     let mut format_inner = BufStream::<_, 512>::new(&mut self.spi_sd);
-    //     let format_options = FormatVolumeOptions::new()
-    //         .volume_id(1)
-    //         .volume_label(*b"sd_card    ");
+    // Make a wrapper around the BufStream that limits the start
+    // and end of reads/writes to within the partition.
+    let inner = StreamSlice::new(buf_stream, start_offset, end_offset)
+        .await
+        .unwrap();
 
-    //     format_volume(&mut format_inner, format_options).await
+    // Create a filesystem using the stream slice from the partition table.
+    info!("Loading partition 0 as FATFS...");
+    let filesystem = FileSystem::new(inner, FsOptions::new()).await?;
+
+    // info!("Attempting to read from filesystem...");
+    // let root_dir = filesystem.root_dir();
+    // let mut iter = root_dir.iter();
+    // while let Some(r) = iter.next().await {
+    //     let e = r?;
+    //     info!("found file: {}", e.short_file_name_as_bytes());
     // }
+
+    Ok(filesystem)
 }

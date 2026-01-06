@@ -1,3 +1,4 @@
+use alloc::boxed::Box;
 use embassy_executor::Spawner;
 use embassy_sync::{
     blocking_mutex::raw::CriticalSectionRawMutex,
@@ -22,7 +23,7 @@ pub enum SystemCommon {
     ///
     /// System Exclusive events start with a `0xF0` byte and finish with a `0xF7` byte, but this
     /// slice does not include either: it only includes data bytes in the `0x00..=0x7F` range.
-    SysEx(heapless::Vec<u7, 64>),
+    SysEx(Box<[u7]>),
 
     /// A MIDI Time Code Quarter Frame message, carrying a tag type and a 4-bit tag value.
     MidiTimeCodeQuarterFrame(MtcQuarterFrameMessage, u4),
@@ -38,7 +39,7 @@ pub enum SystemCommon {
     TuneRequest,
 
     /// An undefined System Common message, with arbitrary data bytes.
-    Undefined(u8, heapless::Vec<u7, 25645>),
+    Undefined(u8, Box<[u7]>),
 }
 
 #[derive(Clone, PartialEq, Eq, Debug, Hash)]
@@ -64,8 +65,8 @@ pub enum MIDIEvent {
     Realtime(SystemRealtime),
 }
 
-pub type MIDIEventReceiver<'a> = Receiver<'a, CriticalSectionRawMutex, MIDIEvent, 25>;
-pub type MIDIEventSender<'a> = Sender<'a, CriticalSectionRawMutex, MIDIEvent, 25>;
+pub type MIDIEventReceiver<'a> = Receiver<'a, CriticalSectionRawMutex, MIDIEvent, 4>;
+pub type MIDIEventSender<'a> = Sender<'a, CriticalSectionRawMutex, MIDIEvent, 4>;
 
 /// Starts the MIDI processing components.
 pub fn start(
