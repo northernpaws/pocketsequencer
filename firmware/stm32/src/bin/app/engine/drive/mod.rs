@@ -17,12 +17,17 @@ pub type CommandReceiver<'a> =
     channel::Receiver<'a, CriticalSectionRawMutex, (CommandID, Command), 2>;
 /// Alias type for the channel sender used by other tasks to send commands to the filesystem task.
 pub type CommandSender<'a> = channel::Sender<'a, CriticalSectionRawMutex, (CommandID, Command), 2>;
+/// Alias type for the channel used to send commands to the filesystem.
+pub type CommandChannel = channel::Channel<CriticalSectionRawMutex, (CommandID, Command), 2>;
 
 // NOTE: Only one pub, the filesystem task!
 pub type CommandResultSubscriber<'a> =
     pubsub::Subscriber<'a, CriticalSectionRawMutex, (CommandID, CommandResult), 12, 6, 1>;
 pub type CommandResultPublisher<'a> =
     pubsub::Publisher<'a, CriticalSectionRawMutex, (CommandID, CommandResult), 12, 6, 1>;
+/// Alias type for the pubsub channel used to send command results back to callers.
+pub type CommandResultChannel =
+    pubsub::PubSubChannel<CriticalSectionRawMutex, (CommandID, CommandResult), 12, 6, 1>;
 
 /// Generated before dispatching a command to the filesystem task,
 /// and used to corrolate that command with the corrosponding result.
@@ -107,13 +112,19 @@ pub enum CommandResult {
 pub struct FileID(u32);
 
 /// Start the drive filesystem subsystem.
-pub fn start(
+pub async fn start<'a>(
     sd_card: SdFilesystem<'static>,
     internal_storage: InternalStorage,
     spawner: Spawner,
-    command_receiver: CommandReceiver<'static>,
-    command_result_publisher: CommandResultPublisher<'static>,
-) -> Result<(), SpawnError> {
+    commands: &'static CommandChannel,
+    results: &'static CommandResultChannel,
+) -> Result<Drive<'a>, SpawnError> {
+    let command_receiver: CommandReceiver<'static> = commands.receiver();
+
+    let command_result_publisher: CommandResultPublisher<'static> = results
+        .publisher()
+        .expect("The only publisher should be the filesystem task");
+
     // Start the async tasks for managing the drive.
     tasks::spawn_drive(
         sd_card,
@@ -123,7 +134,8 @@ pub fn start(
         command_result_publisher,
     )?;
 
-    Ok(())
+    // Return a convenience wrapper around the channels for running drive operations.
+    Ok(Drive { commands, results })
 }
 
 // Fetches the next filesystem command ID.
@@ -135,9 +147,9 @@ pub fn next_command_id() -> CommandID {
 /// Instructs the filesystem task write the provided buffer to the specified path.
 pub async fn write_file(
     // Channel sender for dispatching commands to the filesystem task.
-    command_sender: &'_ CommandSender<'static>,
+    command_sender: &'_ CommandSender<'_>,
     // Pubsub subscriber for getting the command results.
-    command_result_subscriber: &'_ mut CommandResultSubscriber<'static>,
+    command_result_subscriber: &'_ mut CommandResultSubscriber<'_>,
 
     // Path of the file to write.
     path: String,
@@ -180,9 +192,9 @@ pub async fn write_file(
 /// This only works well for fairly small files.
 pub async fn read_file(
     // Channel sender for dispatching commands to the filesystem task.
-    command_sender: &'_ CommandSender<'static>,
+    command_sender: &'_ CommandSender<'_>,
     // Pubsub subscriber for getting the command results.
-    command_result_subscriber: &'_ mut CommandResultSubscriber<'static>,
+    command_result_subscriber: &'_ mut CommandResultSubscriber<'_>,
 
     // Path of the file to write.
     path: String,
@@ -219,9 +231,9 @@ pub async fn read_file(
 /// Instructs the filesystem task to list the contents of a directory at the specified path.
 pub async fn list_directory(
     // Channel sender for dispatching commands to the filesystem task.
-    command_sender: &'_ CommandSender<'static>,
+    command_sender: &'_ CommandSender<'_>,
     // Pubsub subscriber for getting the command results.
-    command_result_subscriber: &'_ mut CommandResultSubscriber<'static>,
+    command_result_subscriber: &'_ mut CommandResultSubscriber<'_>,
 
     // Path of the directory to list.
     path: String,
@@ -260,9 +272,9 @@ pub async fn list_directory(
 /// for subsequent streaming reads and writes.
 pub async fn open_file(
     // Channel sender for dispatching commands to the filesystem task.
-    command_sender: &'_ CommandSender<'static>,
+    command_sender: &'_ CommandSender<'_>,
     // Pubsub subscriber for getting the command results.
-    command_result_subscriber: &'_ mut CommandResultSubscriber<'static>,
+    command_result_subscriber: &'_ mut CommandResultSubscriber<'_>,
 
     // Path of the file to read.
     path: String,
@@ -300,9 +312,9 @@ pub async fn open_file(
 /// Read a buffer of bytes from a previously opened file.
 pub async fn read_from_file(
     // Channel sender for dispatching commands to the filesystem task.
-    command_sender: &'_ CommandSender<'static>,
+    command_sender: &'_ CommandSender<'_>,
     // Pubsub subscriber for getting the command results.
-    command_result_subscriber: &'_ mut CommandResultSubscriber<'static>,
+    command_result_subscriber: &'_ mut CommandResultSubscriber<'_>,
 
     file_id: &FileID,
 
@@ -345,9 +357,9 @@ pub async fn read_from_file(
 /// Close a file that was previously opened.
 pub async fn close_file(
     // Channel sender for dispatching commands to the filesystem task.
-    command_sender: &'_ CommandSender<'static>,
+    command_sender: &'_ CommandSender<'_>,
     // Pubsub subscriber for getting the command results.
-    command_result_subscriber: &'_ mut CommandResultSubscriber<'static>,
+    command_result_subscriber: &'_ mut CommandResultSubscriber<'_>,
 
     file_id: FileID,
 ) -> Result<(), CommandResult> {
@@ -379,15 +391,15 @@ pub async fn close_file(
     }
 }
 
-pub struct FilesystemInterface {
+pub struct FilesystemInterface<'a> {
     // Channel sender for dispatching commands to the filesystem task.
-    command_sender: CommandSender<'static>,
+    command_sender: CommandSender<'a>,
 
     // Pubsub subscriber for getting the command results.
-    command_result_subscriber: CommandResultSubscriber<'static>,
+    command_result_subscriber: CommandResultSubscriber<'a>,
 }
 
-impl FilesystemInterface {
+impl<'a> FilesystemInterface<'a> {
     /// Overwrites or creates a file at the specified path with the contents specified in the buffer.
     async fn write_file(&mut self, path: String, buffer: Box<[u8]>) -> Result<(), CommandResult> {
         write_file(
@@ -420,7 +432,7 @@ impl FilesystemInterface {
     }
 
     /// Opens the specified file for stream reading/writing.
-    async fn open_file<'a>(&'a mut self, path: String) -> Result<FileHandle<'a>, CommandResult> {
+    async fn open_file(&'a mut self, path: String) -> Result<FileHandle<'a>, CommandResult> {
         let file_id = open_file(
             &self.command_sender,
             &mut self.command_result_subscriber,
@@ -434,7 +446,7 @@ impl FilesystemInterface {
 
 /// Wraps a filesystem interfaces and a file ID to reference a file opened in the filesystem.
 pub struct FileHandle<'fs> {
-    fs: &'fs mut FilesystemInterface,
+    fs: &'fs mut FilesystemInterface<'fs>,
     file_id: FileID,
 }
 
@@ -458,5 +470,26 @@ impl<'fs> FileHandle<'fs> {
             self.file_id,
         )
         .await
+    }
+}
+
+/// Returned when initializing the drive.
+pub struct Drive<'a> {
+    commands: &'a CommandChannel,
+    results: &'a CommandResultChannel,
+}
+
+impl<'a> Drive<'a> {
+    /// Constructs a filesystem interface with the nessessary channel interfaces.
+    pub async fn create_interface(&mut self) -> Result<FilesystemInterface<'_>, pubsub::Error> {
+        // Create a channel sender for sending commands to the filesystem task.
+        let command_sender = self.commands.sender();
+        // Create a subscriber for receiving command results from the filesystem task.
+        let command_result_subscriber = self.results.subscriber()?;
+
+        Ok(FilesystemInterface {
+            command_sender,
+            command_result_subscriber,
+        })
     }
 }

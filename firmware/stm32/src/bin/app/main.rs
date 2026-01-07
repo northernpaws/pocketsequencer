@@ -96,14 +96,15 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     };
 
     info!("starting engine...");
-    engine::start_engine(
+    let (drive) = engine::start_engine(
         spawner,
         hw.sd_card,
         hw.internal_storage,
         hw.audio,
         hw.sai_resources,
         hw.usb_driver,
-    );
+    )
+    .await;
 
     info!("starting interface...");
     // todo
