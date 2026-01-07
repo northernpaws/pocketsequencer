@@ -1,20 +1,27 @@
-use alloc::boxed::Box;
+use core::hash::{BuildHasher, BuildHasherDefault, Hash};
+
+use alloc::string::String;
 use alloc::vec::Vec;
 use defmt::{error, info, unwrap};
 use embassy_executor::{SpawnError, Spawner};
 use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
-use embassy_sync::pipe::{self, Pipe};
+use embassy_sync::pipe;
 use embedded_io_async::{Read, Write};
-use heapless::index_map::FnvIndexMap;
 
 use firmware::hardware::internal_storage::InternalStorage;
 use firmware::hardware::sd_card::{self, SdFilesystem};
+use hash32::Hasher;
+use heapless::index_map::FnvIndexMap;
 use static_cell::StaticCell;
 
-use crate::engine::drive::{CommandID, CommandReceiver, CommandResult, CommandResultPublisher};
+use crate::engine::drive::{CommandReceiver, CommandResult, CommandResultPublisher};
 
 static SD_FILESYSTEM: StaticCell<SdFilesystem<'static>> = StaticCell::new();
 
+/// Spawns all the tasks required for the drive.
+///
+/// These include the SD card and internal storage tasks
+/// that handle serving file read/write operation requests.
 pub fn spawn_drive(
     sd_card: SdFilesystem<'static>,
     internal_storage: InternalStorage,
@@ -66,6 +73,11 @@ async fn inner_drive_task(
     command_receiver: CommandReceiver<'static>,
     command_result_publisher: CommandResultPublisher<'static>,
 ) -> Result<(), Never> {
+    let mut file_table = FnvIndexMap::<u32, sd_card::File<'static, 'static>, 16>::new();
+
+    use hash32::FnvHasher;
+    let mut hasher = BuildHasherDefault::<FnvHasher>::new().build_hasher();
+
     loop {
         // Wait for the next drive command to arrive.
         let (command_id, command) = command_receiver.receive().await;
@@ -76,7 +88,13 @@ async fn inner_drive_task(
 
                 // Open a handle to the requested file.
                 if let Ok(mut file) = sd_card.root_dir().open_file(path.as_str()).await {
+                    // Write the buffer to the file, waiting if needed.
                     file.write_all(&buffer).await.unwrap();
+
+                    // Ensure the write buffer is flushed to the file.
+                    file.flush().await.unwrap();
+
+                    // Close the file handle.
                     file.close().await.unwrap();
 
                     command_result_publisher
@@ -84,6 +102,7 @@ async fn inner_drive_task(
                         .await;
                 } else {
                     error!("error opening file!");
+                    // TODO: include error type in error response
                     command_result_publisher
                         .publish((command_id, CommandResult::Error))
                         .await;
@@ -110,7 +129,7 @@ async fn inner_drive_task(
                             }
                             Err(err) => {
                                 error!("error reading file!");
-
+                                // TODO: include error type in error response
                                 command_result_publisher
                                     .publish((command_id, CommandResult::Error))
                                     .await;
@@ -157,6 +176,7 @@ async fn inner_drive_task(
                     }
                 } else {
                     error!("error opening file!");
+                    // TODO: include error type in error response
                     command_result_publisher
                         .publish((command_id, CommandResult::Error))
                         .await;
@@ -167,25 +187,64 @@ async fn inner_drive_task(
                     .publish((command_id, CommandResult::Listing(entries)))
                     .await;
             }
-            super::Command::OpenFile { path, writer } => {
-                info!("drive: open_file path={:?}", path.as_str());
+            super::Command::OpenFile { path } => {
+                info!("drive: open_file path={}", path.as_str());
 
                 // Get a handle to the root directory to start traversal.
                 let root_dir = sd_card.root_dir();
 
                 // Open a handle to the requested file.
                 if let Ok(file) = root_dir.open_file(path.as_str()).await {
-                    // Spawn the task to handle reading from the file to the pipe.
-                    spawner.spawn(unwrap!(open_file_task(file, writer)));
+                    path.hash(&mut hasher);
+                    let hash = hasher.finish32();
+
+                    if let Err(_err) = file_table.insert(hash, file) {
+                        panic!("failed to add file to table: {}", path);
+                    };
 
                     // Inform the caller that the operation started successfully.
                     command_result_publisher
-                        .publish((command_id, CommandResult::Ok))
+                        .publish((command_id, CommandResult::FileOpened { hash }))
                         .await;
                 } else {
                     // TODO: need to signal closure somehow..
                     // writer.close()
                     error!("error opening file!");
+                    // TODO: include error type in error response
+                    command_result_publisher
+                        .publish((command_id, CommandResult::Error))
+                        .await;
+                }
+            }
+            super::Command::ReadFromFile {
+                file_id,
+                mut buffer,
+            } => {
+                if let Some(file) = file_table.get_mut(&file_id) {
+                    info!("drive: read_from_file file_id={}", file_id);
+
+                    file.read_exact(&mut buffer).await.unwrap();
+
+                    command_result_publisher
+                        .publish((command_id, CommandResult::Content(buffer)))
+                        .await;
+                } else {
+                    command_result_publisher
+                        .publish((command_id, CommandResult::Error))
+                        .await;
+                }
+            }
+            super::Command::CloseFile { file_id } => {
+                if let Some(file) = file_table.remove(&file_id) {
+                    info!("drive: close_file file_id={}", file_id);
+
+                    // Close the file handle.
+                    file.close().await.unwrap();
+
+                    command_result_publisher
+                        .publish((command_id, CommandResult::Ok))
+                        .await;
+                } else {
                     command_result_publisher
                         .publish((command_id, CommandResult::Error))
                         .await;
@@ -193,31 +252,4 @@ async fn inner_drive_task(
             }
         }
     }
-}
-
-/// Takes an open file handle and a pipe writer, and
-/// buffers the file into the writer as required.
-#[embassy_executor::task]
-async fn open_file_task(
-    mut file: sd_card::File<'static, 'static>,
-    mut writer: pipe::Writer<'static, CriticalSectionRawMutex, { super::PIPE_SIZE }>,
-) {
-    // Loop to read from the file into the provided cross-task pipe.
-    loop {
-        let mut buf = [0u8; { super::PIPE_SIZE }];
-
-        // Read a block of bytes from the file on the SD card.
-        let _read = file.read(&mut buf).await.unwrap();
-
-        // Write the bytes back to the file opened via the pipe.
-        if let Err(err) = writer.write_all(&buf).await {
-            error!("error writing to pipe: {:?}", err);
-            break;
-        }
-
-        // TODO: there is currently no rewind handling, which we need...
-    }
-
-    // Ensure the file handle is closed.
-    file.close().await.unwrap();
 }

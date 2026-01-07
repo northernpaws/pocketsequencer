@@ -3,20 +3,26 @@ use core::sync::atomic::{AtomicU32, Ordering};
 use alloc::{boxed::Box, string::String, vec::Vec};
 use defmt::error;
 use embassy_executor::{SpawnError, Spawner};
-use embassy_sync::{
-    blocking_mutex::raw::CriticalSectionRawMutex,
-    channel,
-    pipe::{self, Pipe},
-    pubsub,
-};
+use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, channel, pubsub};
 
 use firmware::hardware::{internal_storage::InternalStorage, sd_card::SdFilesystem};
 
 pub mod tasks;
 
-/// Size of the buffer backing file access pipes.
-pub const PIPE_SIZE: usize = 64;
+/// Alias type for the channel receiver used by the filesystem task to receive commands.
+pub type CommandReceiver<'a> =
+    channel::Receiver<'a, CriticalSectionRawMutex, (CommandID, Command), 2>;
+/// Alias type for the channel sender used by other tasks to send commands to the filesystem task.
+pub type CommandSender<'a> = channel::Sender<'a, CriticalSectionRawMutex, (CommandID, Command), 2>;
 
+// NOTE: Only one pub, the filesystem task!
+pub type CommandResultSubscriber<'a> =
+    pubsub::Subscriber<'a, CriticalSectionRawMutex, (CommandID, CommandResult), 12, 6, 1>;
+pub type CommandResultPublisher<'a> =
+    pubsub::Publisher<'a, CriticalSectionRawMutex, (CommandID, CommandResult), 12, 6, 1>;
+
+/// Generated before dispatching a command to the filesystem task,
+/// and used to corrolate that command with the corrosponding result.
 pub type CommandID = u32;
 
 /// A command is send to the drive task to perform a file operation.
@@ -24,7 +30,7 @@ pub enum Command {
     /// Writes the provided contents to the specified file.
     WriteFile {
         /// Path to the file.
-        path: heapless::String<255>,
+        path: String,
 
         /// Byte buffer to write to the file.
         buffer: Box<[u8]>,
@@ -33,23 +39,26 @@ pub enum Command {
     /// Attempts to read the entire contexts of a file.
     ReadFile {
         /// Path to the file.
-        path: heapless::String<255>,
+        path: String,
     },
 
     /// Attempts to list the contents of a directory.
     ListDirectory {
         /// Path to the file.
-        path: heapless::String<255>,
+        path: String,
     },
 
     /// Opens a file for stream reading.
     OpenFile {
         /// Path to the file to open relative to the root of the SD card.
-        path: heapless::String<255>,
-
-        /// Pipe writer held by the command sender to read in the requested file.
-        writer: pipe::Writer<'static, CriticalSectionRawMutex, PIPE_SIZE>,
+        path: String,
     },
+
+    /// Reads from a previously opened file handle.
+    ReadFromFile { file_id: u32, buffer: Box<[u8]> },
+
+    /// Request to close an open file handle.
+    CloseFile { file_id: u32 },
 }
 
 /// Provides information about a file.
@@ -69,7 +78,10 @@ pub enum CommandResult {
     /// Ideally should be `sd_card::FilesystemError`, but it's not clone'able
     /// due to embedded_io::Error not being annotated with Clone.
     Error,
+
+    /// The operation finished successfully.
     Ok,
+
     /// Contents of the file as a result of a read.
     ///
     /// TODO: this is not ideal because the box will
@@ -77,21 +89,19 @@ pub enum CommandResult {
     ///  a filesystem result.
     Content(Box<[u8]>),
 
-    /// A directory listing.
+    /// A vector listing the contents of a directory.
     Listing(Vec<FileInfo>),
+
+    FileOpened {
+        hash: u32,
+    },
 }
 
-/// Alias type for the channel receiver used by the filesystem task to receive commands.
-pub type CommandReceiver<'a> =
-    channel::Receiver<'a, CriticalSectionRawMutex, (CommandID, Command), 2>;
-/// Alias type for the channel sender used by other tasks to send commands to the filesystem task.
-pub type CommandSender<'a> = channel::Sender<'a, CriticalSectionRawMutex, (CommandID, Command), 2>;
-
-// NOTE: Only one pub, the filesystem task!
-pub type CommandResultSubscriber<'a> =
-    pubsub::Subscriber<'a, CriticalSectionRawMutex, (CommandID, CommandResult), 12, 6, 1>;
-pub type CommandResultPublisher<'a> =
-    pubsub::Publisher<'a, CriticalSectionRawMutex, (CommandID, CommandResult), 12, 6, 1>;
+/// A handle for a file opened by the filesystem used to access it.
+///
+/// Returned by the [`open_file`] method, referenced by [`read_from_file`]
+/// and taken and destroyed by [`close_file`].
+pub struct FileID(u32);
 
 /// Start the drive filesystem subsystem.
 pub fn start(
@@ -120,14 +130,14 @@ pub fn next_command_id() -> CommandID {
 }
 
 /// Instructs the filesystem task write the provided buffer to the specified path.
-pub async fn write_file<'r>(
+pub async fn write_file(
     // Channel sender for dispatching commands to the filesystem task.
     command_sender: CommandSender<'static>,
     // Pubsub subscriber for getting the command results.
     mut command_result_subscriber: CommandResultSubscriber<'static>,
 
     // Path of the file to write.
-    path: heapless::String<255>,
+    path: String,
 
     // Byte buffer to write to the file.
     buffer: Box<[u8]>,
@@ -162,14 +172,14 @@ pub async fn write_file<'r>(
 /// Instructs the filesystem task to read a file from the specified path.
 ///
 /// This only works well for fairly small files.
-pub async fn read_file<'r>(
+pub async fn read_file(
     // Channel sender for dispatching commands to the filesystem task.
     command_sender: CommandSender<'static>,
     // Pubsub subscriber for getting the command results.
     mut command_result_subscriber: CommandResultSubscriber<'static>,
 
     // Path of the file to write.
-    path: heapless::String<255>,
+    path: String,
 ) -> CommandResult {
     let command_id = next_command_id();
 
@@ -198,14 +208,14 @@ pub async fn read_file<'r>(
 }
 
 /// Instructs the filesystem task to list the contents of a directory at the specified path.
-pub async fn list_directory<'r>(
+pub async fn list_directory(
     // Channel sender for dispatching commands to the filesystem task.
     command_sender: CommandSender<'static>,
     // Pubsub subscriber for getting the command results.
     mut command_result_subscriber: CommandResultSubscriber<'static>,
 
     // Path of the directory to list.
-    path: heapless::String<255>,
+    path: String,
 ) -> Result<Vec<FileInfo>, CommandResult> {
     let command_id = next_command_id();
 
@@ -245,18 +255,14 @@ pub async fn open_file<'r>(
     mut command_result_subscriber: CommandResultSubscriber<'static>,
 
     // Path of the file to read.
-    path: heapless::String<255>,
-) -> Result<pipe::Reader<'r, CriticalSectionRawMutex, PIPE_SIZE>, CommandResult> {
+    path: String,
+) -> Result<FileID, CommandResult> {
     let command_id = next_command_id();
-
-    // Create a pipe for reading the file back.
-    let mut pipe = Pipe::new();
-    let (reader, writer) = pipe.split();
 
     // Dispatch the filesystem command to open the file, and use
     // the provided writer to stream the file back to the caller.
     command_sender
-        .send((command_id, Command::OpenFile { path, writer }))
+        .send((command_id, Command::OpenFile { path }))
         .await;
 
     // Wait for the filesystem task to awknowledge the request.
@@ -272,14 +278,91 @@ pub async fn open_file<'r>(
                     continue;
                 }
 
-                if result == CommandResult::Error {
-                    return Err(result);
-                }
-
-                break;
+                return match result {
+                    CommandResult::FileOpened { hash } => Ok(FileID(hash)),
+                    _ => Err(result),
+                };
             }
         }
     }
+}
 
-    Ok(reader)
+pub async fn read_from_file<'r>(
+    // Channel sender for dispatching commands to the filesystem task.
+    command_sender: CommandSender<'static>,
+    // Pubsub subscriber for getting the command results.
+    mut command_result_subscriber: CommandResultSubscriber<'static>,
+
+    file_id: &FileID,
+
+    buffer: Box<[u8]>,
+) -> Result<Box<[u8]>, CommandResult> {
+    let command_id = next_command_id();
+
+    command_sender
+        .send((
+            command_id,
+            Command::ReadFromFile {
+                file_id: file_id.0,
+                buffer,
+            },
+        ))
+        .await;
+
+    // Wait for the filesystem task to awknowledge the request.
+    loop {
+        // TODO: need some kind of timeout
+        match command_result_subscriber.next_message().await {
+            pubsub::WaitResult::Lagged(_) => {
+                // TODO: should never occur, but should probably have some type of handling
+                error!("command result lagged!");
+            }
+            pubsub::WaitResult::Message((id, result)) => {
+                if id != command_id {
+                    continue;
+                }
+
+                return match result {
+                    CommandResult::Content(buffer) => Ok(buffer),
+                    _ => Err(result),
+                };
+            }
+        }
+    }
+}
+
+pub async fn close_file<'r>(
+    // Channel sender for dispatching commands to the filesystem task.
+    command_sender: CommandSender<'static>,
+    // Pubsub subscriber for getting the command results.
+    mut command_result_subscriber: CommandResultSubscriber<'static>,
+
+    file_id: FileID,
+) -> Result<(), CommandResult> {
+    let command_id = next_command_id();
+
+    command_sender
+        .send((command_id, Command::CloseFile { file_id: file_id.0 }))
+        .await;
+
+    // Wait for the filesystem task to acknowledge the request.
+    loop {
+        // TODO: need some kind of timeout
+        match command_result_subscriber.next_message().await {
+            pubsub::WaitResult::Lagged(_) => {
+                // TODO: should never occur, but should probably have some type of handling
+                error!("command result lagged!");
+            }
+            pubsub::WaitResult::Message((id, result)) => {
+                if id != command_id {
+                    continue;
+                }
+
+                return match result {
+                    CommandResult::Ok => Ok(()),
+                    _ => Err(result),
+                };
+            }
+        }
+    }
 }
