@@ -2,7 +2,7 @@ use alloc::boxed::Box;
 use embassy_executor::Spawner;
 use embassy_sync::{
     blocking_mutex::raw::CriticalSectionRawMutex,
-    channel::{Receiver, Sender},
+    channel::{Channel, Receiver, Sender},
 };
 use midly::{
     MidiMessage,
@@ -11,6 +11,11 @@ use midly::{
 };
 
 mod tasks;
+
+/// Channel for MIDI events received from a serial port or the USB peripheral.
+pub type MIDIRxChannel = Channel<CriticalSectionRawMutex, MIDIEvent, 4>;
+/// Channel for MIDI events transmitted to a serial port or USB peripheral.
+pub type MIDITxChannel = Channel<CriticalSectionRawMutex, MIDIEvent, 4>;
 
 /// A "system common event", as defined by the MIDI spec.
 ///

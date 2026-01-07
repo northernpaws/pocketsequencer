@@ -2,9 +2,7 @@
 //! and sequencer engine, such as the audio codec and storage.
 
 use embassy_executor::Spawner;
-use embassy_sync::{
-    blocking_mutex::raw::CriticalSectionRawMutex, channel::Channel, pubsub::PubSubChannel,
-};
+use embassy_sync::{channel::Channel, pubsub::PubSubChannel};
 use firmware::hardware::{
     CodecSAIResources, audio::Audio, internal_storage::InternalStorage, sd_card::SdFilesystem,
 };
@@ -15,22 +13,14 @@ pub mod midi;
 pub mod usb;
 
 /// Channel for MIDI events received from a serial port or the USB peripheral.
-static MIDI_RX_CHANNEL: Channel<CriticalSectionRawMutex, midi::MIDIEvent, 4> = Channel::new();
+static MIDI_RX_CHANNEL: midi::MIDIRxChannel = Channel::new();
 /// Channel for MIDI events transmitted to a serial port or USB peripheral.
-static MIDI_TX_CHANNEL: Channel<CriticalSectionRawMutex, midi::MIDIEvent, 4> = Channel::new();
+static MIDI_TX_CHANNEL: midi::MIDITxChannel = Channel::new();
 
 /// Channel for sending commands to the filesystem task.
-static DRIVE_COMMANDS: Channel<CriticalSectionRawMutex, (drive::CommandID, drive::Command), 2> =
-    Channel::new();
-
+static DRIVE_COMMANDS: drive::CommandChannel = Channel::new();
 /// PubSub channel for receiving results from the filesystem task.
-static DRIVE_RESULTS: PubSubChannel<
-    CriticalSectionRawMutex,
-    (drive::CommandID, drive::CommandResult),
-    12,
-    6,
-    1,
-> = PubSubChannel::new();
+static DRIVE_RESULTS: drive::CommandResultChannel = PubSubChannel::new();
 
 /// Spawns all the engine tasks and constructs the required wrappers to operate them.
 pub async fn start_engine(
@@ -42,6 +32,9 @@ pub async fn start_engine(
     usb_driver: embassy_stm32::usb::Driver<'static, embassy_stm32::peripherals::USB_OTG_HS>,
 ) -> drive::Drive<'static> {
     // Start the tasks for managing the SD card and internal storage.
+    //
+    // Returns a wrapper around the drive channels to make creating
+    // interfaces and dispatching drive operations easier.
     let drv = drive::start(
         sd_card,
         internal_storage,
