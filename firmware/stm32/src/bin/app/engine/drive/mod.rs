@@ -1,6 +1,7 @@
 use core::sync::atomic::{AtomicU32, Ordering};
 
 use alloc::boxed::Box;
+use defmt::error;
 use embassy_executor::{SpawnError, Spawner};
 use embassy_sync::{
     blocking_mutex::raw::CriticalSectionRawMutex,
@@ -32,6 +33,12 @@ pub enum Command {
         buffer: Box<[u8]>,
     },
 
+    /// Attempts to read the entire contexts of a file.
+    ReadFile {
+        /// Path to the file.
+        path: heapless::String<255>,
+    },
+
     /// Opens a file for stream reading.
     OpenFile {
         /// Path to the file to open relative to the root of the SD card.
@@ -43,7 +50,7 @@ pub enum Command {
 }
 
 /// Specifies the results of a command exection.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum CommandResult {
     /// There was a filesystem error.
     ///
@@ -51,6 +58,12 @@ pub enum CommandResult {
     /// due to embedded_io::Error not being annotated with Clone.
     Error,
     Ok,
+    /// Contents of the file as a result of a read.
+    ///
+    /// TODO: this is not ideal because the box will
+    ///  be cloned to every subscriber waiting for
+    ///  a filesystem result.
+    Content(Box<[u8]>),
 }
 
 pub type CommandReceiver<'a> =
@@ -102,16 +115,22 @@ pub async fn write_file<'r>(
     // Byte buffer to write to the file.
     buffer: Box<[u8]>,
 ) -> CommandResult {
-    let command_id = next_command_id(); // TODO: generate ID
+    let command_id = next_command_id();
 
     // Dispatch the filesystem command to write the file.
     command_sender
         .send((command_id, Command::WriteFile { path, buffer }))
         .await;
 
+    // Wait for the filesystem task to process the request.
     loop {
+        // TODO: need some kind of timeout
+
         match command_result_subscriber.next_message().await {
-            pubsub::WaitResult::Lagged(_) => {}
+            pubsub::WaitResult::Lagged(_) => {
+                // TODO: should never occur, but should probably have some type of handling
+                error!("command result lagged!");
+            }
             pubsub::WaitResult::Message((id, result)) => {
                 if id != command_id {
                     continue;
@@ -123,24 +142,88 @@ pub async fn write_file<'r>(
     }
 }
 
-// /// Instructs the filesystem task to open the specified file
-// /// path and start reading it into the returned pipe.
-// pub async fn read_file<'r>(
-//     // Channel sender for dispatching commands to the filesystem task.
-//     command_sender: CommandSender<'static>,
+/// Instructs the filesystem task to read a file from the specified path.
+///
+/// This only works well for fairly small files.
+pub async fn read_file<'r>(
+    // Channel sender for dispatching commands to the filesystem task.
+    command_sender: CommandSender<'static>,
+    // Pubsub subscriber for getting the command results.
+    mut command_result_subscriber: CommandResultSubscriber<'static>,
 
-//     // Path of the file to read.
-//     path: heapless::String<255>,
-// ) -> pipe::Reader<'r, CriticalSectionRawMutex, PIPE_SIZE> {
-//     // Create a pipe for reading the file back.
-//     // let mut pipe = Pipe::new();
-//     // let (reader, writer) = pipe.split();
+    // Path of the file to write.
+    path: heapless::String<255>,
+) -> CommandResult {
+    let command_id = next_command_id();
 
-//     // Dispatch the filesystem command to open the file, and use
-//     // the provided writer to stream the file back to the caller.
-//     command_sender
-//         .send(Command::OpenFile { path, writer })
-//         .await;
+    // Dispatch the filesystem command to write the file.
+    command_sender
+        .send((command_id, Command::ReadFile { path }))
+        .await;
 
-//     reader
-// }
+    // Wait for the filesystem task to process the request.
+    loop {
+        // TODO: need some kind of timeout
+        match command_result_subscriber.next_message().await {
+            pubsub::WaitResult::Lagged(_) => {
+                // TODO: should never occur, but should probably have some type of handling
+                error!("command result lagged!");
+            }
+            pubsub::WaitResult::Message((id, result)) => {
+                if id != command_id {
+                    continue;
+                }
+
+                return result;
+            }
+        }
+    }
+}
+
+/// Instructs the filesystem task to open the specified file
+/// path and start reading it into the returned pipe.
+pub async fn open_file<'r>(
+    // Channel sender for dispatching commands to the filesystem task.
+    command_sender: CommandSender<'static>,
+    // Pubsub subscriber for getting the command results.
+    mut command_result_subscriber: CommandResultSubscriber<'static>,
+
+    // Path of the file to read.
+    path: heapless::String<255>,
+) -> Result<pipe::Reader<'r, CriticalSectionRawMutex, PIPE_SIZE>, CommandResult> {
+    let command_id = next_command_id();
+
+    // Create a pipe for reading the file back.
+    let mut pipe = Pipe::new();
+    let (reader, writer) = pipe.split();
+
+    // Dispatch the filesystem command to open the file, and use
+    // the provided writer to stream the file back to the caller.
+    command_sender
+        .send((command_id, Command::OpenFile { path, writer }))
+        .await;
+
+    // Wait for the filesystem task to awknowledge the request.
+    loop {
+        // TODO: need some kind of timeout
+        match command_result_subscriber.next_message().await {
+            pubsub::WaitResult::Lagged(_) => {
+                // TODO: should never occur, but should probably have some type of handling
+                error!("command result lagged!");
+            }
+            pubsub::WaitResult::Message((id, result)) => {
+                if id != command_id {
+                    continue;
+                }
+
+                if result == CommandResult::Error {
+                    return Err(result);
+                }
+
+                break;
+            }
+        }
+    }
+
+    Ok(reader)
+}

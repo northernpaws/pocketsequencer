@@ -1,3 +1,5 @@
+use alloc::boxed::Box;
+use alloc::vec::Vec;
 use defmt::{error, info, unwrap};
 use embassy_executor::{SpawnError, Spawner};
 use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
@@ -68,9 +70,9 @@ async fn inner_drive_task(
         let (command_id, command) = command_receiver.receive().await;
 
         match command {
-            // Writes the contents of a provided buffer to the file.
+            // Writes the contents of a file from the provided buffer.
             super::Command::WriteFile { path, buffer } => {
-                info!("drive: open_file path={:?}", path.as_str());
+                info!("drive: write_file path={:?}", path.as_str());
 
                 // Open a handle to the requested file.
                 if let Ok(mut file) = sd_card.root_dir().open_file(path.as_str()).await {
@@ -87,8 +89,49 @@ async fn inner_drive_task(
                         .await;
                 }
             }
+            // Reads the entire contents of a file. Only use with small files.
+            super::Command::ReadFile { path } => {
+                info!("drive: read_file path={:?}", path.as_str());
 
-            // Opens a file for stream reading.
+                // Open a handle to the requested file.
+                if let Ok(mut file) = sd_card.root_dir().open_file(path.as_str()).await {
+                    let mut buf: Vec<u8> = Vec::new();
+
+                    // Read the file in a loop until we hit EOF.
+                    loop {
+                        let mut buffer = [0u8; 64];
+
+                        match file.read(&mut buffer).await {
+                            Ok(read) => {
+                                if read == 0 {
+                                    break;
+                                } else {
+                                    buf.extend_from_slice(&buffer[0..read])
+                                }
+                            }
+                            Err(err) => {
+                                error!("error reading file!");
+
+                                command_result_publisher
+                                    .publish((command_id, CommandResult::Error))
+                                    .await;
+                            }
+                        }
+                    }
+
+                    file.close().await.unwrap();
+
+                    // Box the vec and send it as the command results.
+                    command_result_publisher
+                        .publish((command_id, CommandResult::Content(buf.into_boxed_slice())))
+                        .await;
+                } else {
+                    error!("error opening file!");
+                    command_result_publisher
+                        .publish((command_id, CommandResult::Error))
+                        .await;
+                }
+            }
             super::Command::OpenFile { path, writer } => {
                 info!("drive: open_file path={:?}", path.as_str());
 
