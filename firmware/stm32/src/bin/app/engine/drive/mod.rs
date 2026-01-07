@@ -1,4 +1,7 @@
-use core::sync::atomic::{AtomicU32, Ordering};
+use core::{
+    mem::ManuallyDrop,
+    sync::atomic::{AtomicU32, Ordering},
+};
 
 use alloc::{boxed::Box, string::String, vec::Vec};
 use defmt::error;
@@ -132,16 +135,16 @@ pub fn next_command_id() -> CommandID {
 /// Instructs the filesystem task write the provided buffer to the specified path.
 pub async fn write_file(
     // Channel sender for dispatching commands to the filesystem task.
-    command_sender: CommandSender<'static>,
+    command_sender: &'_ CommandSender<'static>,
     // Pubsub subscriber for getting the command results.
-    mut command_result_subscriber: CommandResultSubscriber<'static>,
+    command_result_subscriber: &'_ mut CommandResultSubscriber<'static>,
 
     // Path of the file to write.
     path: String,
 
     // Byte buffer to write to the file.
     buffer: Box<[u8]>,
-) -> CommandResult {
+) -> Result<(), CommandResult> {
     let command_id = next_command_id();
 
     // Dispatch the filesystem command to write the file.
@@ -163,7 +166,10 @@ pub async fn write_file(
                     continue;
                 }
 
-                return result;
+                return match result {
+                    CommandResult::Ok => Ok(()),
+                    _ => Err(result),
+                };
             }
         }
     }
@@ -174,13 +180,13 @@ pub async fn write_file(
 /// This only works well for fairly small files.
 pub async fn read_file(
     // Channel sender for dispatching commands to the filesystem task.
-    command_sender: CommandSender<'static>,
+    command_sender: &'_ CommandSender<'static>,
     // Pubsub subscriber for getting the command results.
-    mut command_result_subscriber: CommandResultSubscriber<'static>,
+    command_result_subscriber: &'_ mut CommandResultSubscriber<'static>,
 
     // Path of the file to write.
     path: String,
-) -> CommandResult {
+) -> Result<Box<[u8]>, CommandResult> {
     let command_id = next_command_id();
 
     // Dispatch the filesystem command to write the file.
@@ -201,7 +207,10 @@ pub async fn read_file(
                     continue;
                 }
 
-                return result;
+                return match result {
+                    CommandResult::Content(buffer) => Ok(buffer),
+                    _ => Err(result),
+                };
             }
         }
     }
@@ -210,9 +219,9 @@ pub async fn read_file(
 /// Instructs the filesystem task to list the contents of a directory at the specified path.
 pub async fn list_directory(
     // Channel sender for dispatching commands to the filesystem task.
-    command_sender: CommandSender<'static>,
+    command_sender: &'_ CommandSender<'static>,
     // Pubsub subscriber for getting the command results.
-    mut command_result_subscriber: CommandResultSubscriber<'static>,
+    command_result_subscriber: &'_ mut CommandResultSubscriber<'static>,
 
     // Path of the directory to list.
     path: String,
@@ -247,12 +256,13 @@ pub async fn list_directory(
 }
 
 /// Instructs the filesystem task to open the specified file
-/// path and start reading it into the returned pipe.
-pub async fn open_file<'r>(
+/// and return a file ID that can be used to access the file
+/// for subsequent streaming reads and writes.
+pub async fn open_file(
     // Channel sender for dispatching commands to the filesystem task.
-    command_sender: CommandSender<'static>,
+    command_sender: &'_ CommandSender<'static>,
     // Pubsub subscriber for getting the command results.
-    mut command_result_subscriber: CommandResultSubscriber<'static>,
+    command_result_subscriber: &'_ mut CommandResultSubscriber<'static>,
 
     // Path of the file to read.
     path: String,
@@ -287,11 +297,12 @@ pub async fn open_file<'r>(
     }
 }
 
-pub async fn read_from_file<'r>(
+/// Read a buffer of bytes from a previously opened file.
+pub async fn read_from_file(
     // Channel sender for dispatching commands to the filesystem task.
-    command_sender: CommandSender<'static>,
+    command_sender: &'_ CommandSender<'static>,
     // Pubsub subscriber for getting the command results.
-    mut command_result_subscriber: CommandResultSubscriber<'static>,
+    command_result_subscriber: &'_ mut CommandResultSubscriber<'static>,
 
     file_id: &FileID,
 
@@ -331,11 +342,12 @@ pub async fn read_from_file<'r>(
     }
 }
 
-pub async fn close_file<'r>(
+/// Close a file that was previously opened.
+pub async fn close_file(
     // Channel sender for dispatching commands to the filesystem task.
-    command_sender: CommandSender<'static>,
+    command_sender: &'_ CommandSender<'static>,
     // Pubsub subscriber for getting the command results.
-    mut command_result_subscriber: CommandResultSubscriber<'static>,
+    command_result_subscriber: &'_ mut CommandResultSubscriber<'static>,
 
     file_id: FileID,
 ) -> Result<(), CommandResult> {
@@ -364,5 +376,87 @@ pub async fn close_file<'r>(
                 };
             }
         }
+    }
+}
+
+pub struct FilesystemInterface {
+    // Channel sender for dispatching commands to the filesystem task.
+    command_sender: CommandSender<'static>,
+
+    // Pubsub subscriber for getting the command results.
+    command_result_subscriber: CommandResultSubscriber<'static>,
+}
+
+impl FilesystemInterface {
+    /// Overwrites or creates a file at the specified path with the contents specified in the buffer.
+    async fn write_file(&mut self, path: String, buffer: Box<[u8]>) -> Result<(), CommandResult> {
+        write_file(
+            &self.command_sender,
+            &mut self.command_result_subscriber,
+            path,
+            buffer,
+        )
+        .await
+    }
+
+    /// Reads an entire file into a buffer.
+    async fn read_file(&mut self, path: String) -> Result<Box<[u8]>, CommandResult> {
+        read_file(
+            &self.command_sender,
+            &mut self.command_result_subscriber,
+            path,
+        )
+        .await
+    }
+
+    /// Lists the entries in a specified directory.
+    async fn list_directory(&mut self, path: String) -> Result<Vec<FileInfo>, CommandResult> {
+        list_directory(
+            &self.command_sender,
+            &mut self.command_result_subscriber,
+            path,
+        )
+        .await
+    }
+
+    /// Opens the specified file for stream reading/writing.
+    async fn open_file<'a>(&'a mut self, path: String) -> Result<FileHandle<'a>, CommandResult> {
+        let file_id = open_file(
+            &self.command_sender,
+            &mut self.command_result_subscriber,
+            path,
+        )
+        .await?;
+
+        Ok(FileHandle { fs: self, file_id })
+    }
+}
+
+/// Wraps a filesystem interfaces and a file ID to reference a file opened in the filesystem.
+pub struct FileHandle<'fs> {
+    fs: &'fs mut FilesystemInterface,
+    file_id: FileID,
+}
+
+impl<'fs> FileHandle<'fs> {
+    /// Reads a block of bytes into the provided buffer from the open file.
+    async fn read(&mut self, buffer: Box<[u8]>) -> Result<Box<[u8]>, CommandResult> {
+        read_from_file(
+            &self.fs.command_sender,
+            &mut self.fs.command_result_subscriber,
+            &self.file_id,
+            buffer,
+        )
+        .await
+    }
+
+    /// Closes the open file, consuming the handle and the underlying file reference ID.
+    async fn close(self) -> Result<(), CommandResult> {
+        close_file(
+            &self.fs.command_sender,
+            &mut self.fs.command_result_subscriber,
+            self.file_id,
+        )
+        .await
     }
 }
