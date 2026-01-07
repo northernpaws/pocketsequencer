@@ -1,8 +1,8 @@
 use alloc::boxed::Box;
-use embassy_executor::Spawner;
+use embassy_executor::{SpawnError, Spawner};
 use embassy_sync::{
     blocking_mutex::raw::CriticalSectionRawMutex,
-    channel::{Channel, Receiver, Sender},
+    channel::{self, Channel, Receiver, Sender},
 };
 use midly::{
     MidiMessage,
@@ -12,10 +12,17 @@ use midly::{
 
 mod tasks;
 
+pub const MIDI_EVENT_BUFFER_COUNT: usize = 4;
+
 /// Channel for MIDI events received from a serial port or the USB peripheral.
-pub type MIDIRxChannel = Channel<CriticalSectionRawMutex, MIDIEvent, 4>;
+pub type MIDIRxChannel = Channel<CriticalSectionRawMutex, MIDIEvent, MIDI_EVENT_BUFFER_COUNT>;
 /// Channel for MIDI events transmitted to a serial port or USB peripheral.
-pub type MIDITxChannel = Channel<CriticalSectionRawMutex, MIDIEvent, 4>;
+pub type MIDITxChannel = Channel<CriticalSectionRawMutex, MIDIEvent, MIDI_EVENT_BUFFER_COUNT>;
+
+pub type MIDIEventReceiver<'a> =
+    Receiver<'a, CriticalSectionRawMutex, MIDIEvent, MIDI_EVENT_BUFFER_COUNT>;
+pub type MIDIEventSender<'a> =
+    Sender<'a, CriticalSectionRawMutex, MIDIEvent, MIDI_EVENT_BUFFER_COUNT>;
 
 /// A "system common event", as defined by the MIDI spec.
 ///
@@ -48,7 +55,7 @@ pub enum SystemCommon {
 }
 
 #[derive(Clone, PartialEq, Eq, Debug, Hash)]
-pub enum MIDIEvent {
+pub enum MIDIMessage {
     /// A MIDI message associated with a channel, carrying musical data.
     ///
     /// Status byte in the range `0x80 ..= 0xEF`.
@@ -70,8 +77,42 @@ pub enum MIDIEvent {
     Realtime(SystemRealtime),
 }
 
-pub type MIDIEventReceiver<'a> = Receiver<'a, CriticalSectionRawMutex, MIDIEvent, 4>;
-pub type MIDIEventSender<'a> = Sender<'a, CriticalSectionRawMutex, MIDIEvent, 4>;
+/// Identifies the source of a MIDI message, primarily
+/// used for routing MIDI messages between endpoints.
+#[derive(Clone, PartialEq, Eq, Debug, Hash, defmt::Format)]
+pub enum MIDISource {
+    /// Identifies a MIDI message coming
+    /// from the USB driver.
+    Usb,
+
+    /// Identifiers a MIDI messages coming
+    /// from the hardware MIDI/serial port.
+    Serial,
+}
+
+/// A MIDI event raised by a MIDI interface/endpoint.
+///
+/// Contains the relevant MIDI message, along with some
+/// identifying information for MIDI routing.
+#[derive(Clone, PartialEq, Eq, Debug, Hash)]
+pub struct MIDIEvent {
+    /// Identifies the source of the MIDI event.
+    ///
+    /// Primarily used for routing.
+    pub source: MIDISource,
+
+    /// The MIDI message.
+    pub message: MIDIMessage,
+}
+
+/// Defines the table used for routing incoming and outgoing MIDI messages.
+#[derive(Clone, Debug, PartialEq, Eq, defmt::Format)]
+pub struct MIDIRoutingTable {}
+
+/// Alias type for a channel used to update the MIDI routing table.
+pub type MIDIRoutingChannel = channel::Channel<CriticalSectionRawMutex, MIDIRoutingTable, 2>;
+pub type MIDIRoutingReceiver<'a> =
+    channel::Receiver<'a, CriticalSectionRawMutex, MIDIRoutingTable, 2>;
 
 /// Starts the MIDI processing components.
 pub fn start(
@@ -80,7 +121,31 @@ pub fn start(
     midi_event_rx: MIDIEventReceiver<'static>,
     // Sends external MIDI events.
     midi_event_tx: MIDIEventSender<'static>,
-) {
+
+    // Channel used to update the routing table.
+    routing_channel: &'static MIDIRoutingChannel,
+) -> Result<MIDIManager, SpawnError> {
+    let routing_receiver = routing_channel.receiver();
+
     // Start the tasks for MIDI handling.
-    tasks::start_midi(spawner, midi_event_rx, midi_event_tx).unwrap();
+    tasks::start_midi(spawner, midi_event_rx, midi_event_tx, routing_receiver)?;
+
+    Ok(MIDIManager { routing_channel })
+}
+
+/// Wraps the channels for communicating with the MIDI tasks for convenience.
+pub struct MIDIManager {
+    routing_channel: &'static MIDIRoutingChannel,
+}
+
+impl MIDIManager {
+    /// Manually send a MIDI message into the MIDI task.
+    pub async fn send_message(&mut self, message: MIDIMessage) {
+        todo!()
+    }
+
+    /// Updates the active MIDI routing table with a new table.
+    pub async fn update_routing_table(&mut self, table: MIDIRoutingTable) {
+        self.routing_channel.sender().send(table).await
+    }
 }

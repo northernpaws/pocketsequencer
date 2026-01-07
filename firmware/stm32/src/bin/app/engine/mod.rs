@@ -1,6 +1,7 @@
 //! The engine components consists of module that manage the audio
 //! and sequencer engine, such as the audio codec and storage.
 
+use defmt::info;
 use embassy_executor::Spawner;
 use embassy_sync::{channel::Channel, pubsub::PubSubChannel};
 use firmware::hardware::{
@@ -16,6 +17,8 @@ pub mod usb;
 static MIDI_RX_CHANNEL: midi::MIDIRxChannel = Channel::new();
 /// Channel for MIDI events transmitted to a serial port or USB peripheral.
 static MIDI_TX_CHANNEL: midi::MIDITxChannel = Channel::new();
+/// Channel for MIDI routing table updates.
+static MIDI_ROUTING_CHANNEL: midi::MIDIRoutingChannel = Channel::new();
 
 /// Channel for sending commands to the filesystem task.
 static DRIVE_COMMANDS: drive::CommandChannel = Channel::new();
@@ -30,11 +33,12 @@ pub async fn start_engine(
     audio: Audio<'static>,
     sai_resources: CodecSAIResources,
     usb_driver: embassy_stm32::usb::Driver<'static, embassy_stm32::peripherals::USB_OTG_HS>,
-) -> drive::Drive<'static> {
+) -> (drive::Drive<'static>, midi::MIDIManager) {
     // Start the tasks for managing the SD card and internal storage.
     //
     // Returns a wrapper around the drive channels to make creating
     // interfaces and dispatching drive operations easier.
+    info!("engine: starting drive..");
     let drv = drive::start(
         sd_card,
         internal_storage,
@@ -46,22 +50,30 @@ pub async fn start_engine(
     .unwrap();
 
     // Start the tasks for managing the audio interface.
+    info!("engine: starting audio..");
     audio::start(audio, sai_resources).unwrap();
 
     // Start the MIDI processing task.
     //
     // This collects and processes MIDI events from USB, UART, etc.
-    midi::start(
+    //
+    // Returns a convenince wrapper around the MIDI channels for
+    // managing the MIDI routing table.
+    info!("engine: starting midi..");
+    let midi_manager = midi::start(
         spawner,
         // Channel for receiving external MIDI events, i.e. from USB.
         MIDI_RX_CHANNEL.receiver(),
         // Channel for transmitting MIDI events, i.e. to USB.
         MIDI_TX_CHANNEL.sender(),
-    );
+        &MIDI_ROUTING_CHANNEL,
+    )
+    .unwrap();
 
     // Start the USB handler tasks.
     //
     // These handle responding to the USB class connections.
+    info!("engine: starting usb..");
     usb::start(
         spawner,
         usb_driver,
@@ -71,5 +83,5 @@ pub async fn start_engine(
         MIDI_TX_CHANNEL.receiver(),
     );
 
-    drv
+    (drv, midi_manager)
 }

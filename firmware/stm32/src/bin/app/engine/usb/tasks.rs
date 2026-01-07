@@ -11,7 +11,7 @@ use embassy_usb::{
 use midly::{MidiMessage, live::LiveEvent};
 use static_cell::StaticCell;
 
-use crate::engine::midi::{MIDIEvent, MIDIEventReceiver, MIDIEventSender, SystemCommon};
+use crate::engine::midi::{self, MIDIEventReceiver, MIDIEventSender, MIDIMessage, SystemCommon};
 
 pub fn start_usb_tasks(
     spawner: Spawner,
@@ -176,33 +176,43 @@ async fn midi_handler<'d, T: Instance + 'd>(
             // it's full. We don't want to wait if the channel is full, otherwise
             // we'll stall processing the messages from the USB bus.
             midi_events_rx
-                .try_send(match event {
-                    LiveEvent::Midi { channel, message } => MIDIEvent::Midi { channel, message },
-                    LiveEvent::Common(system_common) => match system_common {
-                        midly::live::SystemCommon::SysEx(u7s) => {
-                            MIDIEvent::Common(SystemCommon::SysEx(u7s.to_vec().into_boxed_slice()))
+                .try_send(midi::MIDIEvent {
+                    // Tag the MIDI event as coming from the USB endpoint.
+                    source: midi::MIDISource::Usb,
+
+                    // Convert the decoded USB MIDI message to the correct format.
+                    message: match event {
+                        LiveEvent::Midi { channel, message } => {
+                            MIDIMessage::Midi { channel, message }
                         }
-                        midly::live::SystemCommon::MidiTimeCodeQuarterFrame(
-                            mtc_quarter_frame_message,
-                            u4,
-                        ) => MIDIEvent::Common(SystemCommon::MidiTimeCodeQuarterFrame(
-                            mtc_quarter_frame_message,
-                            u4,
-                        )),
-                        midly::live::SystemCommon::SongPosition(u14) => {
-                            MIDIEvent::Common(SystemCommon::SongPosition(u14))
+                        LiveEvent::Common(system_common) => match system_common {
+                            midly::live::SystemCommon::SysEx(u7s) => MIDIMessage::Common(
+                                SystemCommon::SysEx(u7s.to_vec().into_boxed_slice()),
+                            ),
+                            midly::live::SystemCommon::MidiTimeCodeQuarterFrame(
+                                mtc_quarter_frame_message,
+                                u4,
+                            ) => MIDIMessage::Common(SystemCommon::MidiTimeCodeQuarterFrame(
+                                mtc_quarter_frame_message,
+                                u4,
+                            )),
+                            midly::live::SystemCommon::SongPosition(u14) => {
+                                MIDIMessage::Common(SystemCommon::SongPosition(u14))
+                            }
+                            midly::live::SystemCommon::SongSelect(u7) => {
+                                MIDIMessage::Common(SystemCommon::SongSelect(u7))
+                            }
+                            midly::live::SystemCommon::TuneRequest => {
+                                MIDIMessage::Common(SystemCommon::TuneRequest)
+                            }
+                            midly::live::SystemCommon::Undefined(n, u7s) => MIDIMessage::Common(
+                                SystemCommon::Undefined(n, u7s.to_vec().into_boxed_slice()),
+                            ),
+                        },
+                        LiveEvent::Realtime(system_realtime) => {
+                            MIDIMessage::Realtime(system_realtime)
                         }
-                        midly::live::SystemCommon::SongSelect(u7) => {
-                            MIDIEvent::Common(SystemCommon::SongSelect(u7))
-                        }
-                        midly::live::SystemCommon::TuneRequest => {
-                            MIDIEvent::Common(SystemCommon::TuneRequest)
-                        }
-                        midly::live::SystemCommon::Undefined(n, u7s) => MIDIEvent::Common(
-                            SystemCommon::Undefined(n, u7s.to_vec().into_boxed_slice()),
-                        ),
                     },
-                    LiveEvent::Realtime(system_realtime) => MIDIEvent::Realtime(system_realtime),
                 })
                 .unwrap();
 
