@@ -118,7 +118,10 @@ embedded-hal-bus = "0.3.0"
 
 # SD card FatFS with async support.
 embedded-fatfs = { version = "0.1.0", default-features = false, features = [
+    # Alloc required to get full file names
     "defmt",
+    "alloc",
+    "lfn",
 ] }
 
 sdspi = { version = "0.1.0", features = [

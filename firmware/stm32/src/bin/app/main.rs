@@ -81,7 +81,7 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     let _sdram: &'static mut [u32] = {
         info!("initializing heap on SDRAM...");
 
-        const HEAP_SIZE: usize = 1024;
+        const HEAP_SIZE: usize = 1024 * 1024 * 16;
 
         // Allocate the heap pointer on the memory-mapped external SDRAM.
         unsafe { HEAP.init(&raw mut hw.sdram as usize, HEAP_SIZE) };

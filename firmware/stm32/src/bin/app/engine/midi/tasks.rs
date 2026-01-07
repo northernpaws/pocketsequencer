@@ -23,7 +23,7 @@ pub async fn midi_task(
 ) -> ! {
     // should never return
     let err = inner_midi_task(midi_event_rx, midi_event_tx).await;
-    panic!("{:?}", err);
+    panic!("midi task exited unexpectedly: {:?}", err);
 }
 
 #[derive(Debug)]

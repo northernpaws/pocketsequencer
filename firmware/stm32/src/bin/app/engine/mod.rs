@@ -22,15 +22,17 @@ static MIDI_TX_CHANNEL: Channel<CriticalSectionRawMutex, midi::MIDIEvent, 4> = C
 /// Channel for sending commands to the filesystem task.
 static DRIVE_COMMANDS: Channel<CriticalSectionRawMutex, (drive::CommandID, drive::Command), 2> =
     Channel::new();
-/// Command for receiving results from the filesystem task.
+
+/// PubSub channel for receiving results from the filesystem task.
 static DRIVE_RESULTS: PubSubChannel<
     CriticalSectionRawMutex,
     (drive::CommandID, drive::CommandResult),
-    5,
-    5,
+    12,
+    6,
     1,
 > = PubSubChannel::new();
 
+/// Spawns all the engine tasks and constructs the required wrappers to operate them.
 pub fn start_engine(
     spawner: Spawner,
     sd_card: SdFilesystem<'static>,

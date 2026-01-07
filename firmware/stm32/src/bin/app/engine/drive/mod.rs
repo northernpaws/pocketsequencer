@@ -1,19 +1,16 @@
 use core::sync::atomic::{AtomicU32, Ordering};
 
-use alloc::boxed::Box;
+use alloc::{boxed::Box, string::String, vec::Vec};
 use defmt::error;
 use embassy_executor::{SpawnError, Spawner};
 use embassy_sync::{
     blocking_mutex::raw::CriticalSectionRawMutex,
-    channel::{self, Receiver, Sender},
+    channel,
     pipe::{self, Pipe},
     pubsub,
 };
 
-use firmware::hardware::{
-    internal_storage::InternalStorage,
-    sd_card::{self, SdFilesystem},
-};
+use firmware::hardware::{internal_storage::InternalStorage, sd_card::SdFilesystem};
 
 pub mod tasks;
 
@@ -39,6 +36,12 @@ pub enum Command {
         path: heapless::String<255>,
     },
 
+    /// Attempts to list the contents of a directory.
+    ListDirectory {
+        /// Path to the file.
+        path: heapless::String<255>,
+    },
+
     /// Opens a file for stream reading.
     OpenFile {
         /// Path to the file to open relative to the root of the SD card.
@@ -47,6 +50,15 @@ pub enum Command {
         /// Pipe writer held by the command sender to read in the requested file.
         writer: pipe::Writer<'static, CriticalSectionRawMutex, PIPE_SIZE>,
     },
+}
+
+/// Provides information about a file.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum FileInfo {
+    /// Provides information about a file entry in a directory.
+    File(String),
+    /// Provides information about a directory entry in a directory.
+    Directory(String),
 }
 
 /// Specifies the results of a command exection.
@@ -64,17 +76,22 @@ pub enum CommandResult {
     ///  be cloned to every subscriber waiting for
     ///  a filesystem result.
     Content(Box<[u8]>),
+
+    /// A directory listing.
+    Listing(Vec<FileInfo>),
 }
 
+/// Alias type for the channel receiver used by the filesystem task to receive commands.
 pub type CommandReceiver<'a> =
     channel::Receiver<'a, CriticalSectionRawMutex, (CommandID, Command), 2>;
+/// Alias type for the channel sender used by other tasks to send commands to the filesystem task.
 pub type CommandSender<'a> = channel::Sender<'a, CriticalSectionRawMutex, (CommandID, Command), 2>;
 
-// Only one pub, the filesystem task!
+// NOTE: Only one pub, the filesystem task!
 pub type CommandResultSubscriber<'a> =
-    pubsub::Subscriber<'a, CriticalSectionRawMutex, (CommandID, CommandResult), 5, 5, 1>;
+    pubsub::Subscriber<'a, CriticalSectionRawMutex, (CommandID, CommandResult), 12, 6, 1>;
 pub type CommandResultPublisher<'a> =
-    pubsub::Publisher<'a, CriticalSectionRawMutex, (CommandID, CommandResult), 5, 5, 1>;
+    pubsub::Publisher<'a, CriticalSectionRawMutex, (CommandID, CommandResult), 12, 6, 1>;
 
 /// Start the drive filesystem subsystem.
 pub fn start(
@@ -175,6 +192,45 @@ pub async fn read_file<'r>(
                 }
 
                 return result;
+            }
+        }
+    }
+}
+
+/// Instructs the filesystem task to list the contents of a directory at the specified path.
+pub async fn list_directory<'r>(
+    // Channel sender for dispatching commands to the filesystem task.
+    command_sender: CommandSender<'static>,
+    // Pubsub subscriber for getting the command results.
+    mut command_result_subscriber: CommandResultSubscriber<'static>,
+
+    // Path of the directory to list.
+    path: heapless::String<255>,
+) -> Result<Vec<FileInfo>, CommandResult> {
+    let command_id = next_command_id();
+
+    // Dispatch the filesystem command to write the file.
+    command_sender
+        .send((command_id, Command::ListDirectory { path }))
+        .await;
+
+    // Wait for the filesystem task to process the request.
+    loop {
+        // TODO: need some kind of timeout
+        match command_result_subscriber.next_message().await {
+            pubsub::WaitResult::Lagged(_) => {
+                // TODO: should never occur, but should probably have some type of handling
+                error!("command result lagged!");
+            }
+            pubsub::WaitResult::Message((id, result)) => {
+                if id != command_id {
+                    continue;
+                }
+
+                return match result {
+                    CommandResult::Listing(file_infos) => Ok(file_infos),
+                    _ => Err(result),
+                };
             }
         }
     }

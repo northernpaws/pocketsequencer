@@ -68,7 +68,7 @@ pub fn start_audio(
 pub async fn audio_task(audio: Audio<'static>, r: CodecSAIResources, engine: AudioEngine) -> ! {
     // should never return
     let err = inner_audio_task(audio, r, engine).await;
-    panic!("{:?}", err);
+    panic!("audio task exited unexpectedly: {:?}", err);
 }
 
 #[derive(Debug)]
