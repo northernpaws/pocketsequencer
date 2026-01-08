@@ -1,11 +1,10 @@
 use core::hash::{BuildHasher, BuildHasherDefault, Hash};
 
+use alloc::boxed::Box;
 use alloc::string::String;
 use alloc::vec::Vec;
-use defmt::{error, info, unwrap};
+use defmt::{error, info};
 use embassy_executor::{SpawnError, Spawner};
-use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
-use embassy_sync::pipe;
 use embedded_io_async::{Read, Write};
 
 use firmware::hardware::internal_storage::InternalStorage;
@@ -82,138 +81,36 @@ async fn inner_drive_task(
         // Wait for the next drive command to arrive.
         let (command_id, command) = command_receiver.receive().await;
 
-        match command {
-            super::Command::WriteFile { path, buffer } => {
-                info!("drive: write_file path={:?}", path.as_str());
-
-                // Open a handle to the requested file.
-                if let Ok(mut file) = sd_card.root_dir().open_file(path.as_str()).await {
-                    // Write the buffer to the file, waiting if needed.
-                    file.write_all(&buffer).await.unwrap();
-
-                    // Ensure the write buffer is flushed to the file.
-                    file.flush().await.unwrap();
-
-                    // Close the file handle.
-                    file.close().await.unwrap();
-
-                    command_result_publisher
-                        .publish((command_id, CommandResult::Ok))
-                        .await;
-                } else {
-                    error!("error opening file!");
-                    // TODO: include error type in error response
-                    command_result_publisher
-                        .publish((command_id, CommandResult::Error))
-                        .await;
-                }
-            }
-            super::Command::ReadFile { path } => {
-                info!("drive: read_file path={:?}", path.as_str());
-
-                // Open a handle to the requested file.
-                if let Ok(mut file) = sd_card.root_dir().open_file(path.as_str()).await {
-                    let mut buf: Vec<u8> = Vec::new();
-
-                    // Read the file in a loop until we hit EOF.
-                    loop {
-                        let mut buffer = [0u8; 64];
-
-                        match file.read(&mut buffer).await {
-                            Ok(read) => {
-                                if read == 0 {
-                                    break;
-                                } else {
-                                    buf.extend_from_slice(&buffer[0..read])
-                                }
-                            }
-                            Err(err) => {
-                                error!("error reading file!");
-                                // TODO: include error type in error response
-                                command_result_publisher
-                                    .publish((command_id, CommandResult::Error))
-                                    .await;
-                            }
-                        }
-                    }
-
-                    file.close().await.unwrap();
-
-                    // Box the vec and send it as the command results.
-                    command_result_publisher
-                        .publish((command_id, CommandResult::Content(buf.into_boxed_slice())))
-                        .await;
-                } else {
-                    error!("error opening file!");
-                    command_result_publisher
-                        .publish((command_id, CommandResult::Error))
-                        .await;
-                }
-            }
-            super::Command::ListDirectory { path } => {
-                info!("drive: list_directory path={:?}", path.as_str());
-
-                // Vec for storing the directory listing.
-                let mut entries: Vec<super::FileInfo> = Vec::new();
-
-                // Open a handle to the requested directory.
-                if let Ok(dir) = sd_card.root_dir().open_dir(path.as_str()).await {
-                    // Open an interator over the directory's contents.
-                    while let Some(r) = dir.iter().next().await {
-                        // Add the entry to the file contents vector depending on the type.
-                        match r {
-                            Ok(entry) => {
-                                if entry.is_dir() {
-                                    entries.push(super::FileInfo::Directory(entry.file_name()));
-                                } else {
-                                    entries.push(super::FileInfo::File(entry.file_name()));
-                                }
-                            }
-                            Err(err) => {
-                                error!("error reading file in iter!");
-                            }
-                        }
-                    }
-                } else {
-                    error!("error opening file!");
-                    // TODO: include error type in error response
-                    command_result_publisher
-                        .publish((command_id, CommandResult::Error))
-                        .await;
-                }
-
-                // Send the directory listing back to the caller.
-                command_result_publisher
-                    .publish((command_id, CommandResult::Listing(entries)))
-                    .await;
-            }
+        // Run the appropriate operation and get the result for the caller.
+        let result = match command {
+            super::Command::WriteFile { path, buffer } => write_file(sd_card, path, buffer).await,
+            super::Command::ReadFile { path } => read_file(sd_card, path).await,
+            super::Command::ListDirectory { path } => list_directory(sd_card, path).await,
             super::Command::OpenFile { path } => {
                 info!("drive: open_file path={}", path.as_str());
 
                 // Get a handle to the root directory to start traversal.
                 let root_dir = sd_card.root_dir();
 
-                // Open a handle to the requested file.
-                if let Ok(file) = root_dir.open_file(path.as_str()).await {
-                    path.hash(&mut hasher);
-                    let hash = hasher.finish32();
+                match root_dir.open_file(path.as_str()).await {
+                    Ok(file) => {
+                        path.hash(&mut hasher);
+                        let hash = hasher.finish32();
 
-                    if let Err(_err) = file_table.insert(hash, file) {
-                        panic!("failed to add file to table: {}", path);
-                    };
+                        if let Err(_err) = file_table.insert(hash, file) {
+                            panic!("failed to add file to table: {}", path);
+                        };
 
-                    // Inform the caller that the operation started successfully.
-                    command_result_publisher
-                        .publish((command_id, CommandResult::FileOpened { hash }))
-                        .await;
-                } else {
-                    // TODO: need to signal closure somehow..
-                    // writer.close()
-                    error!("error opening file!");
-                    // TODO: include error type in error response
-                    command_result_publisher
-                        .publish((command_id, CommandResult::Error))
-                        .await;
+                        // Inform the caller that the operation started successfully.
+                        CommandResult::FileOpened { hash }
+                    }
+                    Err(err) => {
+                        // TODO: need to signal closure somehow..
+                        // writer.close()
+                        error!("error opening file!");
+                        // TODO: include error type in error response
+                        CommandResult::Error(err.into())
+                    }
                 }
             }
             super::Command::ReadFromFile {
@@ -225,13 +122,9 @@ async fn inner_drive_task(
 
                     file.read_exact(&mut buffer).await.unwrap();
 
-                    command_result_publisher
-                        .publish((command_id, CommandResult::Content(buffer)))
-                        .await;
+                    CommandResult::Content(buffer)
                 } else {
-                    command_result_publisher
-                        .publish((command_id, CommandResult::Error))
-                        .await;
+                    CommandResult::Error(super::Error::Filesystem(super::FilesystemError::NotFound))
                 }
             }
             super::Command::CloseFile { file_id } => {
@@ -241,15 +134,116 @@ async fn inner_drive_task(
                     // Close the file handle.
                     file.close().await.unwrap();
 
-                    command_result_publisher
-                        .publish((command_id, CommandResult::Ok))
-                        .await;
+                    CommandResult::Ok
                 } else {
-                    command_result_publisher
-                        .publish((command_id, CommandResult::Error))
-                        .await;
+                    CommandResult::Error(super::Error::Filesystem(super::FilesystemError::NotFound))
+                }
+            }
+        };
+
+        // Send the operation result back to the caller over the pubsub channel.
+        command_result_publisher.publish((command_id, result)).await;
+    }
+}
+
+/// Writes an entire file from a provided buffer.
+async fn write_file(
+    sd_card: &'_ sd_card::SdFilesystem<'static>,
+    path: String,
+    buffer: Box<[u8]>,
+) -> CommandResult {
+    match sd_card.root_dir().open_file(path.as_str()).await {
+        Ok(mut file) => {
+            // Write the buffer to the file, waiting if needed.
+            file.write_all(&buffer).await.unwrap();
+
+            // Ensure the write buffer is flushed to the file.
+            file.flush().await.unwrap();
+
+            // Close the file handle.
+            file.close().await.unwrap();
+
+            CommandResult::Ok
+        }
+        Err(err) => {
+            error!("error opening file!");
+            CommandResult::Error(err.into())
+        }
+    }
+}
+
+/// Reads an entire file from the SD card into a buffer.
+async fn read_file(sd_card: &'_ sd_card::SdFilesystem<'static>, path: String) -> CommandResult {
+    match sd_card.root_dir().open_file(path.as_str()).await {
+        Ok(mut file) => {
+            let mut buf: Vec<u8> = Vec::new();
+
+            // Read the file in a loop until we hit EOF.
+            loop {
+                let mut buffer = [0u8; 64];
+
+                match file.read(&mut buffer).await {
+                    Ok(read) => {
+                        if read == 0 {
+                            break;
+                        } else {
+                            buf.extend_from_slice(&buffer[0..read])
+                        }
+                    }
+                    Err(err) => {
+                        error!("error reading file!");
+                        // TODO: include error type in error response
+                        return CommandResult::Error(err.into());
+                    }
+                }
+            }
+
+            file.close().await.unwrap();
+
+            // Box the vec and send it as the command results.
+            CommandResult::Content(buf.into_boxed_slice())
+        }
+        Err(err) => {
+            error!("error opening file!");
+            CommandResult::Error(err.into())
+        }
+    }
+}
+
+/// Lists the entries in a directory.
+async fn list_directory(
+    sd_card: &'_ sd_card::SdFilesystem<'static>,
+    path: String,
+) -> CommandResult {
+    // Vec for storing the directory listing.
+    let mut entries: Vec<super::FileInfo> = Vec::new();
+
+    match sd_card.root_dir().open_dir(path.as_str()).await {
+        Ok(dir) => {
+            // Open an interator over the directory's contents.
+            while let Some(r) = dir.iter().next().await {
+                // Add the entry to the file contents vector depending on the type.
+                match r {
+                    Ok(entry) => {
+                        if entry.is_dir() {
+                            entries.push(super::FileInfo::Directory(entry.file_name()));
+                        } else {
+                            entries.push(super::FileInfo::File(entry.file_name()));
+                        }
+                    }
+                    Err(err) => {
+                        error!("error reading file in iter!");
+                        return CommandResult::Error(err.into());
+                    }
                 }
             }
         }
+        Err(err) => {
+            error!("error opening file!");
+            return CommandResult::Error(err.into());
+        }
     }
+
+    // Send the directory listing back to the caller.
+    CommandResult::Listing(entries)
 }

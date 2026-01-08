@@ -1,7 +1,7 @@
 use embassy_executor::Spawner;
 use embassy_stm32::usb::Driver;
 
-use crate::engine::midi::{MIDIDestinationReceiver, MIDIEndpoint, MIDISourceSender};
+use crate::engine::midi::MIDIEndpoint;
 
 mod tasks;
 

@@ -12,7 +12,10 @@ use embassy_sync::{
     pubsub::{self, PubSubChannel},
 };
 
-use firmware::hardware::{internal_storage::InternalStorage, sd_card::SdFilesystem};
+use firmware::hardware::{
+    internal_storage::InternalStorage,
+    sd_card::{self, SdFilesystem},
+};
 
 pub mod tasks;
 
@@ -82,6 +85,111 @@ pub enum FileInfo {
     Directory(String),
 }
 
+/// Indicates the type of file access error that occured.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum FilesystemError {
+    UnexpectedEof,
+    WriteZero,
+    InvalidInput,
+    NotFound,
+    AlreadyExists,
+    DirectoryIsNotEmpty,
+    CorruptedFileSystem,
+    NotEnoughSpace,
+    InvalidFileNameLength,
+    UnsupportedFileNameCharacter,
+}
+
+/// Indicates the type of file access error that occured.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum IOError {
+    InvalidSeek(i64),
+    WriteZero,
+    Unknown,
+}
+
+/// Indicates the type of SPI device error that occured trying to access a file.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum DeviceError {
+    ChipSelect,
+    SpiError,
+    Timeout,
+    UnsupportedCard,
+    Cmd58Error,
+    Cmd59Error,
+    RegisterError(u8),
+    CrcMismatch(u16, u16),
+    NotInitialized,
+    WriteError,
+    Unknown,
+}
+
+/// Indicates the type of error that occured while accessing the drive.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Error {
+    Filesystem(FilesystemError),
+    IO(IOError),
+    Device(DeviceError),
+}
+
+/// Converts from an SD card filesystem error to an IO error.
+impl From<sd_card::FilesystemError> for Error {
+    fn from(err: sd_card::FilesystemError) -> Self {
+        match err {
+            embedded_fatfs::Error::Io(err) => match err {
+                block_device_adapters::StreamSliceError::InvalidSeek(i64) => {
+                    Error::IO(IOError::InvalidSeek(i64))
+                }
+                block_device_adapters::StreamSliceError::WriteZero => Error::IO(IOError::WriteZero),
+                block_device_adapters::StreamSliceError::Other(other) => match other {
+                    block_device_adapters::BufStreamError::Io(buf_io) => {
+                        Error::Device(match buf_io {
+                            sdspi::Error::ChipSelect => DeviceError::ChipSelect,
+                            sdspi::Error::SpiError => DeviceError::SpiError,
+                            sdspi::Error::Timeout => DeviceError::Timeout,
+                            sdspi::Error::UnsupportedCard => DeviceError::UnsupportedCard,
+                            sdspi::Error::Cmd58Error => DeviceError::Cmd58Error,
+                            sdspi::Error::Cmd59Error => DeviceError::Cmd59Error,
+                            sdspi::Error::RegisterError(reg) => DeviceError::RegisterError(reg),
+                            sdspi::Error::CrcMismatch(a, b) => DeviceError::CrcMismatch(a, b),
+                            sdspi::Error::NotInitialized => DeviceError::NotInitialized,
+                            sdspi::Error::WriteError => DeviceError::WriteError,
+                            _ => DeviceError::Unknown,
+                        })
+                    }
+                    _ => Error::IO(IOError::Unknown),
+                },
+                _ => Error::IO(IOError::Unknown),
+            },
+            embedded_fatfs::Error::UnexpectedEof => {
+                Error::Filesystem(FilesystemError::UnexpectedEof)
+            }
+            embedded_fatfs::Error::WriteZero => Error::Filesystem(FilesystemError::WriteZero),
+            embedded_fatfs::Error::InvalidInput => Error::Filesystem(FilesystemError::InvalidInput),
+            embedded_fatfs::Error::NotFound => Error::Filesystem(FilesystemError::NotFound),
+            embedded_fatfs::Error::AlreadyExists => {
+                Error::Filesystem(FilesystemError::AlreadyExists)
+            }
+            embedded_fatfs::Error::DirectoryIsNotEmpty => {
+                Error::Filesystem(FilesystemError::DirectoryIsNotEmpty)
+            }
+            embedded_fatfs::Error::CorruptedFileSystem => {
+                Error::Filesystem(FilesystemError::CorruptedFileSystem)
+            }
+            embedded_fatfs::Error::NotEnoughSpace => {
+                Error::Filesystem(FilesystemError::NotEnoughSpace)
+            }
+            embedded_fatfs::Error::InvalidFileNameLength => {
+                Error::Filesystem(FilesystemError::InvalidFileNameLength)
+            }
+            embedded_fatfs::Error::UnsupportedFileNameCharacter => {
+                Error::Filesystem(FilesystemError::UnsupportedFileNameCharacter)
+            }
+            _ => todo!(),
+        }
+    }
+}
+
 /// Specifies the results of a command exection.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum CommandResult {
@@ -89,7 +197,7 @@ pub enum CommandResult {
     ///
     /// Ideally should be `sd_card::FilesystemError`, but it's not clone'able
     /// due to embedded_io::Error not being annotated with Clone.
-    Error,
+    Error(Error),
 
     /// The operation finished successfully.
     Ok,
@@ -485,7 +593,10 @@ impl<'fs> FileHandle<'fs> {
 
 /// Returned when initializing the drive.
 pub struct Drive<'a> {
+    /// Channel for sending commands to the drive task.
     commands: &'a CommandChannel,
+
+    /// Channel for receiving responses from the drive task.
     results: &'a CommandResultChannel,
 }
 
@@ -494,6 +605,7 @@ impl<'a> Drive<'a> {
     pub async fn create_interface(&mut self) -> Result<FilesystemInterface<'_>, pubsub::Error> {
         // Create a channel sender for sending commands to the filesystem task.
         let command_sender = self.commands.sender();
+
         // Create a subscriber for receiving command results from the filesystem task.
         let command_result_subscriber = self.results.subscriber()?;
 

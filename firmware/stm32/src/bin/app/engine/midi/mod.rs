@@ -1,10 +1,12 @@
 use alloc::{boxed::Box, vec::Vec};
+
 use embassy_executor::{SpawnError, Spawner};
 use embassy_futures::select::select;
 use embassy_sync::{
     blocking_mutex::raw::CriticalSectionRawMutex,
     channel::{self, Channel, Receiver, Sender},
 };
+
 use midly::{
     MidiMessage,
     live::{MtcQuarterFrameMessage, SystemRealtime},
