@@ -175,34 +175,36 @@ async fn midi_handler<'d, T: Instance + 'd>(
             // We use publish_immediate to boot the last message off the channel if
             // it's full. We don't want to wait if the channel is full, otherwise
             // we'll stall processing the messages from the USB bus.
-            midi_endpoint.send_message(match event {
-                LiveEvent::Midi { channel, message } => MIDIMessage::Midi { channel, message },
-                LiveEvent::Common(system_common) => match system_common {
-                    midly::live::SystemCommon::SysEx(u7s) => {
-                        MIDIMessage::Common(SystemCommon::SysEx(u7s.to_vec().into_boxed_slice()))
-                    }
-                    midly::live::SystemCommon::MidiTimeCodeQuarterFrame(
-                        mtc_quarter_frame_message,
-                        u4,
-                    ) => MIDIMessage::Common(SystemCommon::MidiTimeCodeQuarterFrame(
-                        mtc_quarter_frame_message,
-                        u4,
-                    )),
-                    midly::live::SystemCommon::SongPosition(u14) => {
-                        MIDIMessage::Common(SystemCommon::SongPosition(u14))
-                    }
-                    midly::live::SystemCommon::SongSelect(u7) => {
-                        MIDIMessage::Common(SystemCommon::SongSelect(u7))
-                    }
-                    midly::live::SystemCommon::TuneRequest => {
-                        MIDIMessage::Common(SystemCommon::TuneRequest)
-                    }
-                    midly::live::SystemCommon::Undefined(n, u7s) => MIDIMessage::Common(
-                        SystemCommon::Undefined(n, u7s.to_vec().into_boxed_slice()),
-                    ),
-                },
-                LiveEvent::Realtime(system_realtime) => MIDIMessage::Realtime(system_realtime),
-            });
+            midi_endpoint
+                .send_message(match event {
+                    LiveEvent::Midi { channel, message } => MIDIMessage::Midi { channel, message },
+                    LiveEvent::Common(system_common) => match system_common {
+                        midly::live::SystemCommon::SysEx(u7s) => MIDIMessage::Common(
+                            SystemCommon::SysEx(u7s.to_vec().into_boxed_slice()),
+                        ),
+                        midly::live::SystemCommon::MidiTimeCodeQuarterFrame(
+                            mtc_quarter_frame_message,
+                            u4,
+                        ) => MIDIMessage::Common(SystemCommon::MidiTimeCodeQuarterFrame(
+                            mtc_quarter_frame_message,
+                            u4,
+                        )),
+                        midly::live::SystemCommon::SongPosition(u14) => {
+                            MIDIMessage::Common(SystemCommon::SongPosition(u14))
+                        }
+                        midly::live::SystemCommon::SongSelect(u7) => {
+                            MIDIMessage::Common(SystemCommon::SongSelect(u7))
+                        }
+                        midly::live::SystemCommon::TuneRequest => {
+                            MIDIMessage::Common(SystemCommon::TuneRequest)
+                        }
+                        midly::live::SystemCommon::Undefined(n, u7s) => MIDIMessage::Common(
+                            SystemCommon::Undefined(n, u7s.to_vec().into_boxed_slice()),
+                        ),
+                    },
+                    LiveEvent::Realtime(system_realtime) => MIDIMessage::Realtime(system_realtime),
+                })
+                .await;
 
             log_event(event);
         } else {
