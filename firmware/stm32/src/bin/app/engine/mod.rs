@@ -8,8 +8,6 @@ use firmware::hardware::{
     CodecSAIResources, audio::Audio, internal_storage::InternalStorage, sd_card::SdFilesystem,
 };
 
-use crate::engine::midi::{MIDIDestinations, MIDIEndpoint, MIDISources};
-
 pub mod audio;
 pub mod drive;
 pub mod midi;
@@ -48,17 +46,6 @@ pub async fn start_engine(
     info!("engine: starting audio..");
     audio::start(audio, sai_resources).unwrap();
 
-    /// Channel for MIDI routing table updates.
-    static MIDI_ROUTING_CHANNEL: midi::MIDIRoutingChannel = Channel::new();
-
-    // Channels for sending MIDI messages to destinations.
-    static MIDI_DEST_SERIAL: midi::MIDIDestinationChannel = Channel::new();
-    static MIDI_DEST_USB: midi::MIDIDestinationChannel = Channel::new();
-
-    // Channels for receiving MIDI messages from sources.
-    static MIDI_SRC_SERIAL: midi::MIDISourceChannel = Channel::new();
-    static MIDI_SRC_USB: midi::MIDISourceChannel = Channel::new();
-
     // Start the MIDI processing task.
     //
     // This collects and processes MIDI events from USB, UART, etc.
@@ -66,16 +53,7 @@ pub async fn start_engine(
     // Returns a convenince wrapper around the MIDI channels for
     // managing the MIDI routing table.
     info!("engine: starting midi..");
-    let midi_manager = midi::start(
-        spawner,
-        // Channel for receiving external MIDI events, i.e. from USB.
-        MIDISources::new(MIDI_SRC_USB.receiver(), MIDI_SRC_SERIAL.receiver()),
-        // Channels for routing MIDI messages to their destinations.
-        MIDIDestinations::new(MIDI_DEST_USB.sender(), MIDI_DEST_SERIAL.sender()),
-        // Channel for updating the MIDI routing table.
-        &MIDI_ROUTING_CHANNEL,
-    )
-    .unwrap();
+    let midi_manager = midi::start(spawner).unwrap();
 
     // Start the USB handler tasks.
     //
@@ -84,7 +62,7 @@ pub async fn start_engine(
     usb::start(
         spawner,
         usb_driver,
-        MIDIEndpoint::new(MIDI_DEST_USB.receiver(), MIDI_SRC_USB.sender()),
+        midi_manager.make_endpoint(midi::MIDISource::Usb),
     );
 
     (drv, midi_manager)

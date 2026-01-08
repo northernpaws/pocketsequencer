@@ -6,11 +6,14 @@ use crate::engine::midi::{
     MIDIDestination, MIDIDestinations, MIDIRoutingReceiver, MIDIRoutingTable, MIDISources,
 };
 
-pub fn start_midi(
+/// Spawns the MIDI handling task.
+pub fn spawn(
     spawner: Spawner,
 
     routing_receiver: MIDIRoutingReceiver<'static>,
+    // Table of channel receivers for receiving messages from MIDI endpoints.
     sources: MIDISources,
+    // Table of channel senders to send MIDI messages over endpoints.
     destinations: MIDIDestinations,
 ) -> Result<(), SpawnError> {
     info!("spawning MIDI task...");

@@ -211,7 +211,12 @@ impl MIDISources {
 
 /// Container for the two channels used by MIDI endpoints to manage their messages.
 pub struct MIDIEndpoint {
+    /// Channel receiver used by the endpoint to
+    /// receive MIDI messages it should transmit.
     sink: MIDIDestinationReceiver<'static>,
+
+    /// Channel sender used by the endpoint to send messages
+    /// it received that the MIDI subsystem should handle.
     source: MIDISourceSender<'static>,
 }
 
@@ -237,30 +242,100 @@ impl MIDIEndpoint {
     }
 }
 
+/// High-level container struct for initializing the various channel
+/// senders and receivers needed by the MIDI task and MIDI endpoints.
+struct MIDIChannels {
+    /// Channel for MIDI routing table updates.
+    routing: &'static MIDIRoutingChannel,
+
+    // Channels for sending MIDI messages to destinations.
+    dest_serial: &'static MIDIDestinationChannel,
+    dest_usb: &'static MIDIDestinationChannel,
+
+    // Channels for receiving MIDI messages from sources.
+    src_serial: &'static MIDISourceChannel,
+    src_usb: &'static MIDISourceChannel,
+}
+
+impl MIDIChannels {
+    fn new() -> Self {
+        // Initiaizing the channels here as statics isn't exactly the most
+        // trasparent thing to the caller, but it significantly cleans up
+        // the messy-ness of constructing them all.
+
+        /// Channel for MIDI routing table updates.
+        static MIDI_ROUTING_CHANNEL: MIDIRoutingChannel = Channel::new();
+
+        // Channels for sending MIDI messages to destinations.
+        static MIDI_DEST_SERIAL: MIDIDestinationChannel = Channel::new();
+        static MIDI_DEST_USB: MIDIDestinationChannel = Channel::new();
+
+        // Channels for receiving MIDI messages from sources.
+        static MIDI_SRC_SERIAL: MIDISourceChannel = Channel::new();
+        static MIDI_SRC_USB: MIDISourceChannel = Channel::new();
+
+        Self {
+            routing: &MIDI_ROUTING_CHANNEL,
+            dest_serial: &MIDI_DEST_SERIAL,
+            dest_usb: &MIDI_DEST_USB,
+            src_serial: &MIDI_SRC_SERIAL,
+            src_usb: &MIDI_SRC_USB,
+        }
+    }
+
+    /// Construct a set of channel accessors for allowing an endpoint access to the MIDI task.
+    fn make_endpoint(&self, source: MIDISource) -> MIDIEndpoint {
+        match source {
+            MIDISource::Usb => MIDIEndpoint {
+                sink: self.dest_usb.receiver(),
+                source: self.src_usb.sender(),
+            },
+            MIDISource::Serial => todo!(),
+        }
+    }
+
+    /// Makes a set of MIDI sources used by the MIDI task to source messages from endpoints.
+    fn make_sources(&self) -> MIDISources {
+        MIDISources {
+            usb: self.src_usb.receiver(),
+            serial: self.src_serial.receiver(),
+        }
+    }
+
+    /// Makes a set of MIDI destinations used by the MIDI task to route messages to endpoints.
+    fn make_destinations(&self) -> MIDIDestinations {
+        MIDIDestinations {
+            usb: self.dest_usb.sender(),
+            serial: self.dest_serial.sender(),
+        }
+    }
+
+    fn make_table_updater(&self) -> MIDIRoutingReceiver<'static> {
+        self.routing.receiver()
+    }
+}
+
 /// Starts the MIDI processing components.
-pub fn start(
-    spawner: Spawner,
+pub fn start(spawner: Spawner) -> Result<MIDIManager, SpawnError> {
+    // Container that initializations the static channels used by the MIDI task.
+    let midi_channels = MIDIChannels::new();
 
-    // Channels for routing MIDI messages from various sources..
-    sources: MIDISources,
+    // Spawn the tasks for MIDI handling.
+    tasks::spawn(
+        spawner,
+        midi_channels.make_table_updater(),
+        midi_channels.make_sources(),
+        midi_channels.make_destinations(),
+    )?;
 
-    // Channels for routing MIDI messages to various destinations.
-    destinations: MIDIDestinations,
-
-    // Channel used to update the routing table.
-    routing_channel: &'static MIDIRoutingChannel,
-) -> Result<MIDIManager, SpawnError> {
-    let routing_receiver = routing_channel.receiver();
-
-    // Start the tasks for MIDI handling.
-    tasks::start_midi(spawner, routing_receiver, sources, destinations)?;
-
-    Ok(MIDIManager { routing_channel })
+    Ok(MIDIManager {
+        channels: midi_channels,
+    })
 }
 
 /// Wraps the channels for communicating with the MIDI tasks for convenience.
 pub struct MIDIManager {
-    routing_channel: &'static MIDIRoutingChannel,
+    channels: MIDIChannels,
 }
 
 impl MIDIManager {
@@ -271,6 +346,11 @@ impl MIDIManager {
 
     /// Updates the active MIDI routing table with a new table.
     pub async fn update_routing_table(&mut self, table: MIDIRoutingTable) {
-        self.routing_channel.sender().send(table).await
+        self.channels.routing.send(table).await
+    }
+
+    /// Construct a set of channel accessors for allowing an endpoint access to the MIDI task.
+    pub fn make_endpoint(&self, source: MIDISource) -> MIDIEndpoint {
+        self.channels.make_endpoint(source)
     }
 }
