@@ -1,5 +1,6 @@
-use alloc::boxed::Box;
+use alloc::{boxed::Box, vec::Vec};
 use embassy_executor::{SpawnError, Spawner};
+use embassy_futures::select::select;
 use embassy_sync::{
     blocking_mutex::raw::CriticalSectionRawMutex,
     channel::{self, Channel, Receiver, Sender},
@@ -14,15 +15,20 @@ mod tasks;
 
 pub const MIDI_EVENT_BUFFER_COUNT: usize = 4;
 
-/// Channel for MIDI events received from a serial port or the USB peripheral.
-pub type MIDIRxChannel = Channel<CriticalSectionRawMutex, MIDIEvent, MIDI_EVENT_BUFFER_COUNT>;
-/// Channel for MIDI events transmitted to a serial port or USB peripheral.
-pub type MIDITxChannel = Channel<CriticalSectionRawMutex, MIDIEvent, MIDI_EVENT_BUFFER_COUNT>;
+/// Channel for MIDI messages transmitted to a serial port or USB peripheral.
+pub type MIDIDestinationChannel =
+    Channel<CriticalSectionRawMutex, MIDIMessage, MIDI_EVENT_BUFFER_COUNT>;
+pub type MIDIDestinationReceiver<'a> =
+    Receiver<'a, CriticalSectionRawMutex, MIDIMessage, MIDI_EVENT_BUFFER_COUNT>;
+pub type MIDIDestinationSender<'a> =
+    Sender<'a, CriticalSectionRawMutex, MIDIMessage, MIDI_EVENT_BUFFER_COUNT>;
 
-pub type MIDIEventReceiver<'a> =
-    Receiver<'a, CriticalSectionRawMutex, MIDIEvent, MIDI_EVENT_BUFFER_COUNT>;
-pub type MIDIEventSender<'a> =
-    Sender<'a, CriticalSectionRawMutex, MIDIEvent, MIDI_EVENT_BUFFER_COUNT>;
+/// Channel for MIDI events received from a serial port or USB peripheral.
+pub type MIDISourceChannel = Channel<CriticalSectionRawMutex, MIDIMessage, MIDI_EVENT_BUFFER_COUNT>;
+pub type MIDISourceReceiver<'a> =
+    Receiver<'a, CriticalSectionRawMutex, MIDIMessage, MIDI_EVENT_BUFFER_COUNT>;
+pub type MIDISourceSender<'a> =
+    Sender<'a, CriticalSectionRawMutex, MIDIMessage, MIDI_EVENT_BUFFER_COUNT>;
 
 /// A "system common event", as defined by the MIDI spec.
 ///
@@ -105,22 +111,113 @@ pub struct MIDIEvent {
     pub message: MIDIMessage,
 }
 
-/// Defines the table used for routing incoming and outgoing MIDI messages.
+/// Filter for the MIDI routing table.
 #[derive(Clone, Debug, PartialEq, Eq, defmt::Format)]
-pub struct MIDIRoutingTable {}
+pub enum MIDIMessageFilter {
+    /// Filter MIDI messages based on their channel.
+    Channel(u8),
+}
+
+/// Specifies the destination for a routed MIDI message.
+#[derive(Clone, Debug, PartialEq, Eq, defmt::Format)]
+pub enum MIDIDestination {
+    /// Writes the routed MIDI messages to the USB interface.
+    Usb { channel: u8 },
+    /// Writes the routed MIDI messages to the serial/hardware MIDI interface.
+    Serial { channel: u8 },
+}
+
+/// A route in the MIDI routing table.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct MIDIRoute {
+    /// Filters to apply to the MIDI route.
+    filters: Vec<MIDIMessageFilter>,
+    /// Specifies the destination for the route.
+    destination: MIDIDestination,
+}
+
+/// Defines the table used for routing incoming and outgoing MIDI messages.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct MIDIRoutingTable {
+    routes: Vec<MIDIRoute>,
+}
+
+/// Used to initialize a default routing table.
+impl Default for MIDIRoutingTable {
+    fn default() -> Self {
+        Self {
+            routes: Default::default(),
+        }
+    }
+}
 
 /// Alias type for a channel used to update the MIDI routing table.
 pub type MIDIRoutingChannel = channel::Channel<CriticalSectionRawMutex, MIDIRoutingTable, 2>;
 pub type MIDIRoutingReceiver<'a> =
     channel::Receiver<'a, CriticalSectionRawMutex, MIDIRoutingTable, 2>;
 
+/// Container struct holding the channels for routing
+/// MIDI messages to various destinations.
+pub struct MIDIDestinations {
+    /// Channel to send MIDI messages to the USB interface.
+    usb: MIDIDestinationSender<'static>,
+    /// Channel to send MIDI messages to the hardware/serial interface.
+    serial: MIDIDestinationSender<'static>,
+}
+
+impl MIDIDestinations {
+    pub fn new(
+        usb: MIDIDestinationSender<'static>,
+        serial: MIDIDestinationSender<'static>,
+    ) -> Self {
+        Self { usb, serial }
+    }
+
+    /// Routes a messages to the appropriate destination channel.
+    pub async fn route_message(&mut self, message: MIDIMessage, destination: MIDIDestination) {
+        match destination {
+            MIDIDestination::Usb { channel } => self.usb.send(message).await,
+            MIDIDestination::Serial { channel } => self.serial.send(message).await,
+        }
+    }
+}
+
+/// Container for holding the channels used to receive MIDI messages from various sources.
+pub struct MIDISources {
+    usb: MIDISourceReceiver<'static>,
+    serial: MIDISourceReceiver<'static>,
+}
+
+impl MIDISources {
+    pub fn new(usb: MIDISourceReceiver<'static>, serial: MIDISourceReceiver<'static>) -> Self {
+        Self { usb, serial }
+    }
+
+    /// Wait for the next message from any of the channels,
+    /// and tag it with the source it came from for routing.
+    pub async fn next(&mut self) -> MIDIEvent {
+        match select(self.usb.receive(), self.serial.receive()).await {
+            embassy_futures::select::Either::First(message) => MIDIEvent {
+                source: MIDISource::Usb,
+                message,
+            },
+            embassy_futures::select::Either::Second(message) => MIDIEvent {
+                source: MIDISource::Serial,
+                message,
+            },
+        }
+    }
+}
+
 /// Starts the MIDI processing components.
 pub fn start(
     spawner: Spawner,
-    // Receives external MIDI events.
-    midi_event_rx: MIDIEventReceiver<'static>,
-    // Sends external MIDI events.
-    midi_event_tx: MIDIEventSender<'static>,
+
+    // Channels for routing MIDI messages from various sources..
+    sources: MIDISources,
+
+    // Channels for routing MIDI messages to various destinations.
+    destinations: MIDIDestinations,
 
     // Channel used to update the routing table.
     routing_channel: &'static MIDIRoutingChannel,
@@ -128,7 +225,7 @@ pub fn start(
     let routing_receiver = routing_channel.receiver();
 
     // Start the tasks for MIDI handling.
-    tasks::start_midi(spawner, midi_event_rx, midi_event_tx, routing_receiver)?;
+    tasks::start_midi(spawner, routing_receiver, sources, destinations)?;
 
     Ok(MIDIManager { routing_channel })
 }

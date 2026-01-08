@@ -11,13 +11,13 @@ use embassy_usb::{
 use midly::{MidiMessage, live::LiveEvent};
 use static_cell::StaticCell;
 
-use crate::engine::midi::{self, MIDIEventReceiver, MIDIEventSender, MIDIMessage, SystemCommon};
+use crate::engine::midi::{MIDIDestinationReceiver, MIDIMessage, MIDISourceSender, SystemCommon};
 
 pub fn start_usb_tasks(
     spawner: Spawner,
     usb_driver: Driver<'static, embassy_stm32::peripherals::USB_OTG_HS>,
-    midi_events_rx: MIDIEventSender<'static>,
-    midi_events_tx: MIDIEventReceiver<'static>,
+    midi_source: MIDISourceSender<'static>,
+    midi_sink: MIDIDestinationReceiver<'static>,
 ) -> Result<(), SpawnError> {
     // Create embassy-usb Config
     let mut usb_config = embassy_usb::Config::new(0xc0de, 0xcafe);
@@ -84,7 +84,7 @@ pub fn start_usb_tasks(
     spawner.spawn(usb_task(usb)?);
 
     info!("Spawning MIDI class handler...");
-    spawner.spawn(usb_midi_task(midi_class, midi_events_rx, midi_events_tx)?);
+    spawner.spawn(usb_midi_task(midi_class, midi_source, midi_sink)?);
 
     Ok(())
 }
@@ -126,10 +126,10 @@ async fn usb_task(
 #[embassy_executor::task]
 async fn usb_midi_task(
     mut midi_class: MidiClass<'static, Driver<'static, embassy_stm32::peripherals::USB_OTG_HS>>,
-    midi_events_rx: MIDIEventSender<'static>,
-    midi_events_tx: MIDIEventReceiver<'static>,
+    midi_source: MIDISourceSender<'static>,
+    midi_sink: MIDIDestinationReceiver<'static>,
 ) {
-    let midi_events_rx = midi_events_rx;
+    let midi_sink = midi_sink;
 
     info!("Starting MIDI Class handler...");
     loop {
@@ -140,10 +140,10 @@ async fn usb_midi_task(
 
         // Clear the outgoing events channel so events added to
         // the channel before a valid connection are discarded.
-        midi_events_tx.clear();
+        midi_sink.clear();
 
         // Start the MIDI handler for the host.
-        let _ = midi_handler(&mut midi_class, &midi_events_rx).await;
+        let _ = midi_handler(&mut midi_class, &midi_source, &midi_sink).await;
         info!("Disconnected");
     }
 }
@@ -151,7 +151,8 @@ async fn usb_midi_task(
 /// Handler for an incoming MIDI connection over USB.
 async fn midi_handler<'d, T: Instance + 'd>(
     class: &mut MidiClass<'d, Driver<'d, T>>,
-    midi_events_rx: &'_ MIDIEventSender<'_>,
+    midi_source: &'_ MIDISourceSender<'static>,
+    midi_sink: &'_ MIDIDestinationReceiver<'_>,
 ) -> Result<(), Disconnected> {
     let mut buf = [0; 64];
     loop {
@@ -175,44 +176,34 @@ async fn midi_handler<'d, T: Instance + 'd>(
             // We use publish_immediate to boot the last message off the channel if
             // it's full. We don't want to wait if the channel is full, otherwise
             // we'll stall processing the messages from the USB bus.
-            midi_events_rx
-                .try_send(midi::MIDIEvent {
-                    // Tag the MIDI event as coming from the USB endpoint.
-                    source: midi::MIDISource::Usb,
-
-                    // Convert the decoded USB MIDI message to the correct format.
-                    message: match event {
-                        LiveEvent::Midi { channel, message } => {
-                            MIDIMessage::Midi { channel, message }
+            midi_source
+                .try_send(match event {
+                    LiveEvent::Midi { channel, message } => MIDIMessage::Midi { channel, message },
+                    LiveEvent::Common(system_common) => match system_common {
+                        midly::live::SystemCommon::SysEx(u7s) => MIDIMessage::Common(
+                            SystemCommon::SysEx(u7s.to_vec().into_boxed_slice()),
+                        ),
+                        midly::live::SystemCommon::MidiTimeCodeQuarterFrame(
+                            mtc_quarter_frame_message,
+                            u4,
+                        ) => MIDIMessage::Common(SystemCommon::MidiTimeCodeQuarterFrame(
+                            mtc_quarter_frame_message,
+                            u4,
+                        )),
+                        midly::live::SystemCommon::SongPosition(u14) => {
+                            MIDIMessage::Common(SystemCommon::SongPosition(u14))
                         }
-                        LiveEvent::Common(system_common) => match system_common {
-                            midly::live::SystemCommon::SysEx(u7s) => MIDIMessage::Common(
-                                SystemCommon::SysEx(u7s.to_vec().into_boxed_slice()),
-                            ),
-                            midly::live::SystemCommon::MidiTimeCodeQuarterFrame(
-                                mtc_quarter_frame_message,
-                                u4,
-                            ) => MIDIMessage::Common(SystemCommon::MidiTimeCodeQuarterFrame(
-                                mtc_quarter_frame_message,
-                                u4,
-                            )),
-                            midly::live::SystemCommon::SongPosition(u14) => {
-                                MIDIMessage::Common(SystemCommon::SongPosition(u14))
-                            }
-                            midly::live::SystemCommon::SongSelect(u7) => {
-                                MIDIMessage::Common(SystemCommon::SongSelect(u7))
-                            }
-                            midly::live::SystemCommon::TuneRequest => {
-                                MIDIMessage::Common(SystemCommon::TuneRequest)
-                            }
-                            midly::live::SystemCommon::Undefined(n, u7s) => MIDIMessage::Common(
-                                SystemCommon::Undefined(n, u7s.to_vec().into_boxed_slice()),
-                            ),
-                        },
-                        LiveEvent::Realtime(system_realtime) => {
-                            MIDIMessage::Realtime(system_realtime)
+                        midly::live::SystemCommon::SongSelect(u7) => {
+                            MIDIMessage::Common(SystemCommon::SongSelect(u7))
                         }
+                        midly::live::SystemCommon::TuneRequest => {
+                            MIDIMessage::Common(SystemCommon::TuneRequest)
+                        }
+                        midly::live::SystemCommon::Undefined(n, u7s) => MIDIMessage::Common(
+                            SystemCommon::Undefined(n, u7s.to_vec().into_boxed_slice()),
+                        ),
                     },
+                    LiveEvent::Realtime(system_realtime) => MIDIMessage::Realtime(system_realtime),
                 })
                 .unwrap();
 

@@ -2,30 +2,31 @@ use defmt::{info, trace};
 use embassy_executor::{SpawnError, Spawner};
 use embassy_futures::select::{Either, select};
 
-use crate::engine::midi::{MIDIEventSender, MIDIRoutingChannel, MIDIRoutingReceiver};
-
-use super::MIDIEventReceiver;
+use crate::engine::midi::{
+    MIDIDestination, MIDIDestinations, MIDIRoutingReceiver, MIDIRoutingTable, MIDISources,
+};
 
 pub fn start_midi(
     spawner: Spawner,
-    midi_event_rx: MIDIEventReceiver<'static>,
-    midi_event_tx: MIDIEventSender<'static>,
+
     routing_receiver: MIDIRoutingReceiver<'static>,
+    sources: MIDISources,
+    destinations: MIDIDestinations,
 ) -> Result<(), SpawnError> {
     info!("spawning MIDI task...");
-    spawner.spawn(midi_task(midi_event_rx, midi_event_tx, routing_receiver)?);
+    spawner.spawn(midi_task(routing_receiver, sources, destinations)?);
 
     Ok(())
 }
 
 #[embassy_executor::task]
 pub async fn midi_task(
-    midi_event_rx: MIDIEventReceiver<'static>,
-    midi_event_tx: MIDIEventSender<'static>,
     routing_receiver: MIDIRoutingReceiver<'static>,
+    sources: MIDISources,
+    destinations: MIDIDestinations,
 ) -> ! {
     // should never return
-    let err = inner_midi_task(midi_event_rx, midi_event_tx, routing_receiver).await;
+    let err = inner_midi_task(routing_receiver, sources, destinations).await;
     panic!("midi task exited unexpectedly: {:?}", err);
 }
 
@@ -33,23 +34,37 @@ pub async fn midi_task(
 enum Never {}
 
 async fn inner_midi_task(
-    midi_event_rx: MIDIEventReceiver<'_>,
-    midi_event_tx: MIDIEventSender<'_>,
-
     // Receives routing table updates.
     routing_receiver: MIDIRoutingReceiver<'static>,
+
+    // Receives messages from their sources.
+    mut sources: MIDISources,
+
+    // Routes messages to their appropriate destination interface.
+    mut destinations: MIDIDestinations,
 ) -> Result<(), Never> {
+    // Holds the currently active MIDI routing table.
+    let mut table = MIDIRoutingTable::default();
+
     loop {
         // Wait for the next MIDI event.
-        let event = midi_event_rx.receive();
-        let table = routing_receiver.receive();
-
-        match select(event, table).await {
+        match select(sources.next(), routing_receiver.receive()).await {
             Either::First(event) => {
                 trace!("midi: received event from {}", event.source);
+
+                // TODO: route the MIDI message
+
+                // Determine the destination from the routing table.
+                let destination: MIDIDestination = MIDIDestination::Usb { channel: 0 };
+
+                // Route the message to it's destination.
+                destinations.route_message(event.message, destination);
             }
-            Either::Second(table) => {
+            Either::Second(new_table) => {
                 trace!("midi: received routing table update");
+
+                // Apply the new MIDI routing table.
+                table = new_table;
             }
         }
     }
