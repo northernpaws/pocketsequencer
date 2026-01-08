@@ -101,6 +101,7 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
         hw.sd_card,
         hw.internal_storage,
         hw.audio,
+        hw.audio_codec,
         hw.sai_resources,
         hw.usb_driver,
     )

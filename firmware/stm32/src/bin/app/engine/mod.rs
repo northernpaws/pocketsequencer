@@ -5,7 +5,8 @@ use defmt::info;
 use embassy_executor::Spawner;
 use embassy_sync::{channel::Channel, pubsub::PubSubChannel};
 use firmware::hardware::{
-    CodecSAIResources, audio::Audio, internal_storage::InternalStorage, sd_card::SdFilesystem,
+    AudioCodec, CodecSAIResources, audio::Audio, internal_storage::InternalStorage,
+    sd_card::SdFilesystem,
 };
 
 pub mod audio;
@@ -18,7 +19,8 @@ pub async fn start_engine(
     spawner: Spawner,
     sd_card: SdFilesystem<'static>,
     internal_storage: InternalStorage,
-    audio: Audio<'static>,
+    audio: Audio,
+    audio_codec: AudioCodec,
     sai_resources: CodecSAIResources,
     usb_driver: embassy_stm32::usb::Driver<'static, embassy_stm32::peripherals::USB_OTG_HS>,
 ) -> (drive::Drive<'static>, midi::MIDIManager) {
@@ -33,7 +35,7 @@ pub async fn start_engine(
 
     // Start the tasks for managing the audio interface.
     info!("engine: starting audio..");
-    audio::start(audio, sai_resources).unwrap();
+    audio::start(spawner, audio_codec, audio, sai_resources).unwrap();
 
     // Start the MIDI processing task.
     //

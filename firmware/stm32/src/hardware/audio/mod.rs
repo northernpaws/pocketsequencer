@@ -1,24 +1,12 @@
-mod codec;
-
 use defmt::{error, info};
 use derive_more::{Display, Error};
 
-use grounded::uninit::GroundedArrayCell;
-
 use embassy_embedded_hal::shared_bus::I2cDeviceError;
 use embassy_embedded_hal::shared_bus::asynch::{self};
-use embassy_executor::{InterruptExecutor, SpawnError};
-use embassy_stm32::i2c::{self, I2c};
-use embassy_stm32::interrupt::{InterruptExt, Priority};
+use embassy_executor::SpawnError;
+
 use embassy_stm32::sai::MasterClockDivider;
 use embassy_stm32::{interrupt, mode, peripherals, rcc, sai};
-use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
-use embassy_time::Timer;
-
-use catalina::engine::{
-    audio::oscillator::{self, Oscillator},
-    core::Hertz,
-};
 
 use crate::hardware::CodecSAIResources;
 
@@ -35,19 +23,25 @@ pub const SAMPLE_RATE: u32 = 48000;
 pub type SAITransmitter<'a> = sai::Sai<'a, peripherals::SAI1, u32>;
 pub type SAIReceiver<'a> = sai::Sai<'a, peripherals::SAI1, u32>;
 
-pub struct Audio<'a> {
+pub struct AudioParameters {
     /// The divider applied to the SAI1 clock to get
     /// it close to the desired 48kHz sampling rate.
-    mclk_div: MasterClockDivider,
+    pub mclk_div: MasterClockDivider,
+    pub desired_sample_rate: f32,
     /// The actual sample rate derived from the clock in hertz.
-    sample_rate: f32,
+    pub actual_sample_rate: f32,
     /// The value of the SAI MCLK with the calculated sample rate divisor applied.
-    adjusted_mclk: u32,
+    pub adjusted_mclk: u32,
+}
 
-    codec: nau88c22_rs::Nau88c22<
-        asynch::i2c::I2cDevice<'a, CriticalSectionRawMutex, I2c<'static, mode::Async, i2c::Master>>,
-    >,
-    codec_initialized: bool,
+pub struct Audio {
+    /// The divider applied to the SAI1 clock to get
+    /// it close to the desired 48kHz sampling rate.
+    pub mclk_div: MasterClockDivider,
+    /// The actual sample rate derived from the clock in hertz.
+    pub sample_rate: f32,
+    /// The value of the SAI MCLK with the calculated sample rate divisor applied.
+    pub adjusted_mclk: u32,
 }
 
 /// Errors the happen when initializing the audio component.
@@ -93,16 +87,9 @@ fn mclk_div_from_u8(v: u8) -> MasterClockDivider {
     MasterClockDivider::from_bits(v)
 }
 
-impl<'a> Audio<'a> {
+impl Audio {
     /// Constructs a new instance of the audio controller.
-    pub async fn new(
-        // I2C device for the audio codec.
-        device: asynch::i2c::I2cDevice<
-            'static,
-            CriticalSectionRawMutex,
-            I2c<'static, mode::Async, i2c::Master>,
-        >,
-    ) -> Result<Self, InitError> {
+    pub async fn new() -> Result<Self, InitError> {
         // Calculate the SAI master clock divisor and derrived codec master clock divisor and PLL.
         let kernel_clock = rcc::frequency::<peripherals::SAI1>().0;
         let mclk_div: MasterClockDivider =
@@ -124,17 +111,20 @@ impl<'a> Audio<'a> {
 
         info!("initializing audio codec...");
 
-        // After the transmitter has been configured, mclk goes active.
-        // Now we can configure our codec to run off the mclk signal.
-        let mut codec = nau88c22_rs::Nau88c22::new(device);
-
         Ok(Self {
             mclk_div,
             sample_rate: actual_sample_rate,
             adjusted_mclk,
-            codec,
-            codec_initialized: false,
         })
+    }
+
+    pub const fn params(&self) -> AudioParameters {
+        AudioParameters {
+            mclk_div: self.mclk_div,
+            desired_sample_rate: SAMPLE_RATE as f32,
+            actual_sample_rate: self.sample_rate,
+            adjusted_mclk: self.adjusted_mclk,
+        }
     }
 
     pub const fn get_sample_rate(&self) -> f32 {
@@ -223,20 +213,6 @@ impl<'a> Audio<'a> {
             audio_tx_buffer,
             tx_config,
         );
-
-        // If this is the first time the SAI transmitter has
-        // been created, then we can initialize the codec.
-        //
-        // This ideally needs to be done here after initializing
-        // the transmitter, because then the MCLK out becomes
-        // active and allows the codec's PLL to stabilize quickly
-        // when configured.
-        if !self.codec_initialized {
-            codec::codec_init(&mut self.codec, self.adjusted_mclk, self.sample_rate)
-                .await
-                .unwrap();
-            self.codec_initialized = true;
-        }
 
         // Configure the second sub block as a receiver,
         // syncronous to the mclk of the transmitter block.

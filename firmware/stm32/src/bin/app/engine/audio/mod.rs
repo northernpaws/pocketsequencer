@@ -1,15 +1,27 @@
-use embassy_executor::SpawnError;
-use firmware::hardware::{CodecSAIResources, audio::Audio};
-
-pub mod engine;
-pub mod instrument;
-pub mod task;
+use embassy_executor::{SpawnError, Spawner};
+use firmware::hardware::{self, CodecSAIResources, audio::Audio};
 
 use engine::AudioEngine;
 
+pub mod codec;
+pub mod engine;
+pub mod instrument;
+pub mod render;
+
 /// Start the audio subsystem.
-pub fn start(audio: Audio<'static>, r: CodecSAIResources) -> Result<(), SpawnError> {
+pub fn start(
+    spawner: Spawner,
+    codec: hardware::AudioCodec,
+    audio: Audio,
+    r: CodecSAIResources,
+) -> Result<(), SpawnError> {
     let engine = AudioEngine::new();
 
-    task::start_audio(audio, r, engine)
+    // Starts the codec management task.
+    codec::start(spawner, codec, audio.params())?;
+
+    // Starts the audio rendering task.
+    render::spawn_task(audio, r, engine)?;
+
+    Ok(())
 }

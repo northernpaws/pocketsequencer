@@ -84,6 +84,14 @@ use crate::hardware::{
 };
 use crate::hardware::{drivers::stm6601::Stm6601, mpu::RegionAttributeSizeRegister};
 
+pub type AudioCodec = nau88c22_rs::Nau88c22<
+    asynch::i2c::I2cDevice<
+        'static,
+        CriticalSectionRawMutex,
+        I2c<'static, mode::Async, i2c::Master>,
+    >,
+>;
+
 assign_resources! {
     // For debug logging via Black Magic Probe's alternate pins 9/7.
     // see: https://black-magic.org/knowledge/pinouts.html
@@ -477,7 +485,8 @@ pub struct Hardware<'a> {
     pub internal_storage: internal_storage::InternalStorage,
 
     /// Audio codec controller.
-    pub audio: Audio<'a>,
+    pub audio: Audio,
+    pub audio_codec: AudioCodec,
     pub sai_resources: CodecSAIResources,
 
     /// Driver for the USB HS peripheral.
@@ -647,7 +656,7 @@ pub async fn init_hardware<'a>(r: AssignedResources, spawner: Spawner) -> Result
     info!("initializing audio buffers...");
 
     info!("initializing audio codec...");
-    let audio = get_audio(i2c1_bus).await.unwrap();
+    let (audio_codec, audio) = get_audio(i2c1_bus).await.unwrap();
 
     info!("initializing USB driver...");
     let ep_out_buffer = EP_OUT_BUFFER.init([0; 256]);
@@ -663,6 +672,7 @@ pub async fn init_hardware<'a>(r: AssignedResources, spawner: Spawner) -> Result
         sd_card,
         internal_storage,
         audio,
+        audio_codec,
         sai_resources: r.codec,
         usb_driver,
     })
@@ -1088,10 +1098,12 @@ pub async fn get_power<'a>(
 /// Gets a handle to the audio codec.
 pub async fn get_audio<'a>(
     i2c_bus: &'static Mutex<CriticalSectionRawMutex, I2c<'static, Async, i2c::Master>>,
-) -> Result<Audio<'a>, audio::InitError> {
+) -> Result<(AudioCodec, Audio), audio::InitError> {
     // Switches for micbiased mic-in vs aux-in (defaults to aux)
     // let mic_l_en = Output::new(codec_sai.mic_l, Level::Low, Speed::Low);
     // let mic_r_en = Output::new(codec_sai.mic_r, Level::Low, Speed::Low);
+
+    let a = Audio::new().await?;
 
     // Create the I2C device for the audio codec.
     let device: asynch::i2c::I2cDevice<
@@ -1100,7 +1112,11 @@ pub async fn get_audio<'a>(
         I2c<'static, Async, i2c::Master>,
     > = asynch::i2c::I2cDevice::new(i2c_bus);
 
-    Audio::new(device /*sai_rx,*/).await
+    // After the transmitter has been configured, mclk goes active.
+    // Now we can configure our codec to run off the mclk signal.
+    let c = nau88c22_rs::Nau88c22::new(device);
+
+    Ok((c, a))
 }
 
 /// Gets a handle to the FUSB302B USB-PD controller on I2C2.

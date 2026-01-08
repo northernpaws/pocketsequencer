@@ -51,8 +51,8 @@ unsafe fn SAI1() {
 /// We opt for using an interrupt executor over the standard Embassy task executor
 /// so we can run the audio at a higher priority. If the audio task gets starved it
 /// is very audibly noticable vs starving something like input or display.
-pub fn start_audio(
-    audio: Audio<'static>,
+pub fn spawn_task(
+    audio: Audio,
     r: CodecSAIResources,
     engine: AudioEngine,
 ) -> Result<(), SpawnError> {
@@ -65,7 +65,7 @@ pub fn start_audio(
 }
 
 #[embassy_executor::task]
-pub async fn audio_task(audio: Audio<'static>, r: CodecSAIResources, engine: AudioEngine) -> ! {
+pub async fn audio_task(audio: Audio, r: CodecSAIResources, engine: AudioEngine) -> ! {
     // should never return
     let err = inner_audio_task(audio, r, engine).await;
     panic!("audio task exited unexpectedly: {:?}", err);
@@ -75,7 +75,7 @@ pub async fn audio_task(audio: Audio<'static>, r: CodecSAIResources, engine: Aud
 enum Never {}
 
 async fn inner_audio_task(
-    mut audio: Audio<'static>,
+    mut audio: Audio,
     mut r: CodecSAIResources,
     mut engine: AudioEngine,
 ) -> Result<(), Never> {

@@ -105,10 +105,7 @@ async fn inner_drive_task(
                         CommandResult::FileOpened { hash }
                     }
                     Err(err) => {
-                        // TODO: need to signal closure somehow..
-                        // writer.close()
                         error!("error opening file!");
-                        // TODO: include error type in error response
                         CommandResult::Error(err.into())
                     }
                 }
@@ -152,6 +149,8 @@ async fn write_file(
     path: String,
     buffer: Box<[u8]>,
 ) -> CommandResult {
+    error!("drive: write_file path={}", path.as_str());
+
     match sd_card.root_dir().open_file(path.as_str()).await {
         Ok(mut file) => {
             // Write the buffer to the file, waiting if needed.
@@ -174,6 +173,8 @@ async fn write_file(
 
 /// Reads an entire file from the SD card into a buffer.
 async fn read_file(sd_card: &'_ sd_card::SdFilesystem<'static>, path: String) -> CommandResult {
+    error!("drive: read_file path={}", path.as_str());
+
     match sd_card.root_dir().open_file(path.as_str()).await {
         Ok(mut file) => {
             let mut buf: Vec<u8> = Vec::new();
@@ -215,6 +216,8 @@ async fn list_directory(
     sd_card: &'_ sd_card::SdFilesystem<'static>,
     path: String,
 ) -> CommandResult {
+    error!("drive: list_directory path={}", path.as_str());
+
     // Vec for storing the directory listing.
     let mut entries: Vec<super::FileInfo> = Vec::new();
 

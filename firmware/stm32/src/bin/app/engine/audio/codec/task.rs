@@ -1,26 +1,46 @@
-use defmt::{error, info};
-use derive_more::{Display, Error};
+use defmt::info;
+use embassy_executor::{SpawnError, Spawner};
 
-use embassy_embedded_hal::shared_bus::{I2cDeviceError, asynch};
-use embassy_stm32::{
-    i2c::{self, I2c},
-    mode,
-};
-use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
-
+use firmware::hardware::{self, audio::AudioParameters};
 use nau88c22_rs::{
     AudioConfig, Aux1OutputConfig, Aux2OutputConfig, ClockConfig, DACChannelConfig, DACConfig,
-    InitError, InitializationConfig,
+    InitializationConfig,
 };
 
-/// https://www.nuvoton.com/export/resource-files/en-us--DS_NAU88C22_DataSheet_EN_Rev2.2.pdf
-pub async fn codec_init(
-    codec: &'_ mut nau88c22_rs::Nau88c22<
-        asynch::i2c::I2cDevice<'_, CriticalSectionRawMutex, I2c<'static, mode::Async, i2c::Master>>,
-    >,
-    adjusted_mclk: u32,
-    sample_rate: f32,
-) -> Result<(), InitError<I2cDeviceError<i2c::Error>>> {
+pub fn spawn(
+    spawner: Spawner,
+    codec: hardware::AudioCodec,
+    command_receiver: super::AudioCommandReceiver,
+    params: AudioParameters,
+) -> Result<(), SpawnError> {
+    spawner.spawn(task(codec, command_receiver, params)?);
+
+    Ok(())
+}
+
+#[embassy_executor::task]
+pub async fn task(
+    codec: hardware::AudioCodec,
+    command_receiver: super::AudioCommandReceiver,
+    params: AudioParameters,
+) -> ! {
+    // should never return
+    let err = inner_task(codec, command_receiver, params).await;
+    panic!("audio codec task exited unexpectedly: {:?}", err);
+}
+
+#[derive(Debug)]
+enum Never {}
+
+async fn inner_task(
+    mut codec: hardware::AudioCodec,
+    command_receiver: super::AudioCommandReceiver,
+    params: AudioParameters,
+) -> Result<(), Never> {
+    let mut routing_rable: super::AudioRoutingTable = Default::default();
+
+    // Perform the initial codec initialization.
+    info!("initializing codec");
     codec
         .initialize(
             InitializationConfig {
@@ -62,11 +82,25 @@ pub async fn codec_init(
                 // SAI1 clock is close enough to sample rate
                 // to work without needing the codec's PLL.
                 clock: Some(ClockConfig {
-                    mclk: adjusted_mclk as f32,
-                    sample_rate,
+                    mclk: params.adjusted_mclk as f32,
+                    sample_rate: params.actual_sample_rate,
                 }),
             },
             embassy_time::Delay,
         )
         .await
+        .unwrap();
+
+    loop {
+        let command = command_receiver.receive().await;
+
+        match command {
+            super::AudioCommand::UpdateRoutingTable(audio_routing_table) => {
+                routing_rable = audio_routing_table;
+
+                // TODO: put in retry loop instead
+                routing_rable.apply(&mut codec).await.unwrap();
+            }
+        }
+    }
 }
