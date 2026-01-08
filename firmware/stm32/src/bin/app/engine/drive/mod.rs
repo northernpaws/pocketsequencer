@@ -6,7 +6,11 @@ use core::{
 use alloc::{boxed::Box, string::String, vec::Vec};
 use defmt::error;
 use embassy_executor::{SpawnError, Spawner};
-use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, channel, pubsub};
+use embassy_sync::{
+    blocking_mutex::raw::CriticalSectionRawMutex,
+    channel,
+    pubsub::{self, PubSubChannel},
+};
 
 use firmware::hardware::{internal_storage::InternalStorage, sd_card::SdFilesystem};
 
@@ -116,12 +120,15 @@ pub async fn start<'a>(
     sd_card: SdFilesystem<'static>,
     internal_storage: InternalStorage,
     spawner: Spawner,
-    commands: &'static CommandChannel,
-    results: &'static CommandResultChannel,
 ) -> Result<Drive<'a>, SpawnError> {
-    let command_receiver: CommandReceiver<'static> = commands.receiver();
+    /// Channel for sending commands to the filesystem task.
+    static DRIVE_COMMANDS: CommandChannel = channel::Channel::new();
+    /// PubSub channel for receiving results from the filesystem task.
+    static DRIVE_RESULTS: CommandResultChannel = PubSubChannel::new();
 
-    let command_result_publisher: CommandResultPublisher<'static> = results
+    let command_receiver: CommandReceiver<'static> = DRIVE_COMMANDS.receiver();
+
+    let command_result_publisher: CommandResultPublisher<'static> = DRIVE_RESULTS
         .publisher()
         .expect("The only publisher should be the filesystem task");
 
@@ -135,7 +142,10 @@ pub async fn start<'a>(
     )?;
 
     // Return a convenience wrapper around the channels for running drive operations.
-    Ok(Drive { commands, results })
+    Ok(Drive {
+        commands: &DRIVE_COMMANDS,
+        results: &DRIVE_RESULTS,
+    })
 }
 
 // Fetches the next filesystem command ID.

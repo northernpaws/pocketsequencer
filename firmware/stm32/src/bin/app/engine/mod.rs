@@ -22,25 +22,14 @@ pub async fn start_engine(
     sai_resources: CodecSAIResources,
     usb_driver: embassy_stm32::usb::Driver<'static, embassy_stm32::peripherals::USB_OTG_HS>,
 ) -> (drive::Drive<'static>, midi::MIDIManager) {
-    /// Channel for sending commands to the filesystem task.
-    static DRIVE_COMMANDS: drive::CommandChannel = Channel::new();
-    /// PubSub channel for receiving results from the filesystem task.
-    static DRIVE_RESULTS: drive::CommandResultChannel = PubSubChannel::new();
-
     // Start the tasks for managing the SD card and internal storage.
     //
     // Returns a wrapper around the drive channels to make creating
     // interfaces and dispatching drive operations easier.
     info!("engine: starting drive..");
-    let drv = drive::start(
-        sd_card,
-        internal_storage,
-        spawner,
-        &DRIVE_COMMANDS,
-        &DRIVE_RESULTS,
-    )
-    .await
-    .unwrap();
+    let drv = drive::start(sd_card, internal_storage, spawner)
+        .await
+        .unwrap();
 
     // Start the tasks for managing the audio interface.
     info!("engine: starting audio..");
