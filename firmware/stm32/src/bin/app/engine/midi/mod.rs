@@ -209,6 +209,34 @@ impl MIDISources {
     }
 }
 
+/// Container for the two channels used by MIDI endpoints to manage their messages.
+pub struct MIDIEndpoint {
+    sink: MIDIDestinationReceiver<'static>,
+    source: MIDISourceSender<'static>,
+}
+
+impl MIDIEndpoint {
+    pub fn new(sink: MIDIDestinationReceiver<'static>, source: MIDISourceSender<'static>) -> Self {
+        Self { sink, source }
+    }
+
+    /// Sends a MIDI message from the endpoint to the MIDI processing task.
+    pub async fn send_message(&self, message: MIDIMessage) {
+        self.source.send(message).await
+    }
+
+    /// Receives the next MIDI message for the endpoint to sink.
+    pub async fn receive_message(&self) -> MIDIMessage {
+        self.sink.receive().await
+    }
+
+    /// Clears both the message channels of any backlog.
+    pub fn clear(&self) {
+        self.source.clear();
+        self.sink.clear();
+    }
+}
+
 /// Starts the MIDI processing components.
 pub fn start(
     spawner: Spawner,
