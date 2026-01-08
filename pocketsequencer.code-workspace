@@ -4,16 +4,16 @@
 			"path": "."
 		},
 		{
-			"path": "firmware/stm32"
+			"path": "firmware/mainboard"
 		},
 		{
-			"path": "firmware/stm32/crates/graphics"
+			"path": "firmware/mainboard/crates/graphics"
 		}
 	],
 	"settings": {
 		"rust-analyzer.cargo.target": "thumbv7em-none-eabihf",
 		"rust-analyzer.linkedProjects": [
-			"firmware/stm32/Cargo.toml"
+			"firmware/mainboard/Cargo.toml"
 		],
 		"files.associations": {
 			"uart_async_adapter.h": "c",

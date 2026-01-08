@@ -2,16 +2,16 @@
     "rust-analyzer.cargo.target": "thumbv7em-none-eabihf",
     // "rust-analyzer.checkOnSave": false,
     "rust-analyzer.linkedProjects": [
-        "firmware/stm32/Cargo.toml",
-        "firmware/stm32/crates/graphics/Cargo.toml",
-        "firmware/stm32/tools/graphics-simulator/Cargo.toml"
+        "firmware/mainboard/Cargo.toml",
+        "firmware/mainboard/crates/graphics/Cargo.toml",
+        "firmware/mainboard/tools/graphics-simulator/Cargo.toml"
     ],
-    "cmake.sourceDirectory": "${workspaceRoot}/firmware/nrf5340",
+    "cmake.sourceDirectory": "${workspaceRoot}/firmware/wireless",
     "nrf-connect.applications": [
-        "${workspaceFolder}/firmware/nrf5340"
+        "${workspaceFolder}/firmware/wireless"
     ],
     "nrf-connect.boardRoots": [
-        "${workspaceFolder}/firmware/nrf5340"
+        "${workspaceFolder}/firmware/wireless"
     ],
     "files.associations": {
         "uart_async_adapter.h": "c",

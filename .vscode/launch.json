@@ -19,7 +19,7 @@
             "coreConfigs": [
                 {
                     "coreIndex": 0,
-                    "programBinary": "./firmware/stm32/target/thumbv7em-none-eabihf/debug/app"
+                    "programBinary": "./firmware/mainboard/target/thumbv7em-none-eabihf/debug/app"
                 }
             ]
         },
@@ -30,7 +30,7 @@
             "request": "attach",
             "cwd": "${workspaceRoot}",
             "preLaunchTask": "BMP Serial Output",
-            "executable": "${workspaceRoot}/firmware/stm32/target/thumbv7em-none-eabihf/debug/app", // replace with your executable
+            "executable": "${workspaceRoot}/firmware/mainboard/target/thumbv7em-none-eabihf/debug/app", // replace with your executable
             "interface": "swd",
             "device": "STM32H743",
             "BMPGDBSerialPort": "/dev/cu.usbmodemBEEF9ADE1", // Use whatever serial port makes sense for your OS and BMP setup
@@ -46,7 +46,7 @@
             "servertype": "bmp",
             "request": "launch",
             "cwd": "${workspaceRoot}",
-            "executable": "${workspaceRoot}/firmware/stm32/target/thumbv7em-none-eabihf/debug/app", // replace with your executable
+            "executable": "${workspaceRoot}/firmware/mainboard/target/thumbv7em-none-eabihf/debug/app", // replace with your executable
             "preLaunchTask": "BMP Launch", // using stm32-for-vscode extension, this is the build task
             "interface": "swd",
             "device": "STM32H743",
@@ -78,7 +78,7 @@
             "servertype": "bmp",
             "request": "launch",
             "cwd": "${workspaceRoot}",
-            "executable": "${workspaceRoot}/firmware/stm32/target/thumbv7em-none-eabihf/debug/audio", // replace with your executable
+            "executable": "${workspaceRoot}/firmware/mainboard/target/thumbv7em-none-eabihf/debug/audio", // replace with your executable
             "preLaunchTask": "BMP Launch audio", // using stm32-for-vscode extension, this is the build task
             "interface": "swd",
             "device": "STM32H743",
@@ -110,7 +110,7 @@
             "servertype": "bmp",
             "request": "launch",
             "cwd": "${workspaceRoot}",
-            "executable": "${workspaceRoot}/firmware/stm32/target/thumbv7em-none-eabihf/release/app", // replace with your executable
+            "executable": "${workspaceRoot}/firmware/mainboard/target/thumbv7em-none-eabihf/release/app", // replace with your executable
             "preLaunchTask": "BMP Launch Release", // using stm32-for-vscode extension, this is the build task
             "interface": "swd",
             "device": "STM32H743",
