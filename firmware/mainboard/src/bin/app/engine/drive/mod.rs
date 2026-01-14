@@ -77,7 +77,7 @@ pub enum Command {
 }
 
 /// Provides information about a file.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, defmt::Format)]
 pub enum FileInfo {
     /// Provides information about a file entry in a directory.
     File(String),
@@ -86,7 +86,7 @@ pub enum FileInfo {
 }
 
 /// Indicates the type of file access error that occured.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, defmt::Format)]
 pub enum FilesystemError {
     UnexpectedEof,
     WriteZero,
@@ -101,7 +101,7 @@ pub enum FilesystemError {
 }
 
 /// Indicates the type of file access error that occured.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, defmt::Format)]
 pub enum IOError {
     InvalidSeek(i64),
     WriteZero,
@@ -109,7 +109,7 @@ pub enum IOError {
 }
 
 /// Indicates the type of SPI device error that occured trying to access a file.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, defmt::Format)]
 pub enum DeviceError {
     ChipSelect,
     SpiError,
@@ -125,7 +125,7 @@ pub enum DeviceError {
 }
 
 /// Indicates the type of error that occured while accessing the drive.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, defmt::Format)]
 pub enum Error {
     Filesystem(FilesystemError),
     IO(IOError),
@@ -191,7 +191,7 @@ impl From<sd_card::FilesystemError> for Error {
 }
 
 /// Specifies the results of a command exection.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, defmt::Format)]
 pub enum CommandResult {
     /// There was a filesystem error.
     ///
@@ -519,7 +519,11 @@ pub struct FilesystemInterface<'a> {
 
 impl<'a> FilesystemInterface<'a> {
     /// Overwrites or creates a file at the specified path with the contents specified in the buffer.
-    async fn write_file(&mut self, path: String, buffer: Box<[u8]>) -> Result<(), CommandResult> {
+    pub async fn write_file(
+        &mut self,
+        path: String,
+        buffer: Box<[u8]>,
+    ) -> Result<(), CommandResult> {
         write_file(
             &self.command_sender,
             &mut self.command_result_subscriber,
@@ -530,7 +534,7 @@ impl<'a> FilesystemInterface<'a> {
     }
 
     /// Reads an entire file into a buffer.
-    async fn read_file(&mut self, path: String) -> Result<Box<[u8]>, CommandResult> {
+    pub async fn read_file(&mut self, path: String) -> Result<Box<[u8]>, CommandResult> {
         read_file(
             &self.command_sender,
             &mut self.command_result_subscriber,
@@ -540,7 +544,7 @@ impl<'a> FilesystemInterface<'a> {
     }
 
     /// Lists the entries in a specified directory.
-    async fn list_directory(&mut self, path: String) -> Result<Vec<FileInfo>, CommandResult> {
+    pub async fn list_directory(&mut self, path: String) -> Result<Vec<FileInfo>, CommandResult> {
         list_directory(
             &self.command_sender,
             &mut self.command_result_subscriber,
@@ -550,7 +554,7 @@ impl<'a> FilesystemInterface<'a> {
     }
 
     /// Opens the specified file for stream reading/writing.
-    async fn open_file(&'a mut self, path: String) -> Result<FileHandle<'a>, CommandResult> {
+    pub async fn open_file(&'a mut self, path: String) -> Result<FileHandle<'a>, CommandResult> {
         let file_id = open_file(
             &self.command_sender,
             &mut self.command_result_subscriber,
@@ -570,7 +574,7 @@ pub struct FileHandle<'fs> {
 
 impl<'fs> FileHandle<'fs> {
     /// Reads a block of bytes into the provided buffer from the open file.
-    async fn read(&mut self, buffer: Box<[u8]>) -> Result<Box<[u8]>, CommandResult> {
+    pub async fn read(&mut self, buffer: Box<[u8]>) -> Result<Box<[u8]>, CommandResult> {
         read_from_file(
             &self.fs.command_sender,
             &mut self.fs.command_result_subscriber,
@@ -581,7 +585,7 @@ impl<'fs> FileHandle<'fs> {
     }
 
     /// Closes the open file, consuming the handle and the underlying file reference ID.
-    async fn close(self) -> Result<(), CommandResult> {
+    pub async fn close(self) -> Result<(), CommandResult> {
         close_file(
             &self.fs.command_sender,
             &mut self.fs.command_result_subscriber,

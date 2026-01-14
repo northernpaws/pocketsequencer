@@ -229,6 +229,11 @@ impl MIDIEndpoint {
 
     /// Sends a MIDI message from the endpoint to the MIDI processing task.
     pub async fn send_message(&self, message: MIDIMessage) {
+        // We may want to use send_immediate to boot the last message off the channel
+        // if it's full, otherwise we'll stall processing the messages from the USB bus.
+        //
+        // It's a tradeoff between the side of the USB buffers, and if we can tollerate
+        // missing messages and causing issues like a stuck note.
         self.source.send(message).await
     }
 
@@ -241,6 +246,16 @@ impl MIDIEndpoint {
     pub fn clear(&self) {
         self.source.clear();
         self.sink.clear();
+    }
+
+    /// Splits the endpoint into it's sink and source channels.
+    pub fn split(
+        self,
+    ) -> (
+        MIDIDestinationReceiver<'static>,
+        MIDIDestinationSender<'static>,
+    ) {
+        (self.sink, self.source)
     }
 }
 

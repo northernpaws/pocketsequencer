@@ -2,12 +2,14 @@
 //! and sequencer engine, such as the audio codec and storage.
 
 use defmt::info;
-use embassy_executor::Spawner;
-use embassy_sync::{channel::Channel, pubsub::PubSubChannel};
+use embassy_executor::{SpawnError, Spawner};
+
 use firmware::hardware::{
     AudioCodec, CodecSAIResources, audio::Audio, internal_storage::InternalStorage,
     sd_card::SdFilesystem,
 };
+
+use crate::engine::{audio::AudioManager, drive::Drive, midi::MIDIManager};
 
 pub mod audio;
 pub mod drive;
@@ -23,19 +25,17 @@ pub async fn start_engine(
     audio_codec: AudioCodec,
     sai_resources: CodecSAIResources,
     usb_driver: embassy_stm32::usb::Driver<'static, embassy_stm32::peripherals::USB_OTG_HS>,
-) -> (drive::Drive<'static>, midi::MIDIManager) {
+) -> Result<Engine, SpawnError> {
     // Start the tasks for managing the SD card and internal storage.
     //
     // Returns a wrapper around the drive channels to make creating
     // interfaces and dispatching drive operations easier.
     info!("engine: starting drive..");
-    let drv = drive::start(sd_card, internal_storage, spawner)
-        .await
-        .unwrap();
+    let drv = drive::start(sd_card, internal_storage, spawner).await?;
 
     // Start the tasks for managing the audio interface.
     info!("engine: starting audio..");
-    audio::start(spawner, audio_codec, audio, sai_resources).unwrap();
+    let audio_manager = audio::start(spawner, audio_codec, audio, sai_resources)?;
 
     // Start the MIDI processing task.
     //
@@ -44,7 +44,7 @@ pub async fn start_engine(
     // Returns a convenince wrapper around the MIDI channels for
     // managing the MIDI routing table.
     info!("engine: starting midi..");
-    let midi_manager = midi::start(spawner).unwrap();
+    let midi_manager = midi::start(spawner)?;
 
     // Start the USB handler tasks.
     //
@@ -56,5 +56,22 @@ pub async fn start_engine(
         midi_manager.make_endpoint(midi::MIDISource::Usb),
     );
 
-    (drv, midi_manager)
+    Ok(Engine::new(drv, midi_manager, audio_manager))
+}
+
+/// Wraps the components of the engine into a convinent struct.
+pub struct Engine {
+    /// Wraps the channels required for communicating with the drive task.
+    pub drive: Drive<'static>,
+    /// Wraps the channels required for communication with the MIDI tasks.
+    pub midi: MIDIManager,
+    /// Wraps the channels required for communication with the audio tasks.
+    pub audio: AudioManager,
+}
+
+impl Engine {
+    /// Constructs a new engine.
+    fn new(drive: Drive<'static>, midi: MIDIManager, audio: AudioManager) -> Self {
+        Self { drive, midi, audio }
+    }
 }

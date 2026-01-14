@@ -40,6 +40,11 @@ async fn inner_task(
     let mut routing_rable: super::AudioRoutingTable = Default::default();
 
     // Perform the initial codec initialization.
+    //
+    // This configures the audio paths and routing
+    // to go to all the places that we expect and
+    // make assumptions about when changing the
+    // audio routing settings.
     info!("initializing codec");
     codec
         .initialize(

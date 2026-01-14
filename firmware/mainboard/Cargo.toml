@@ -60,7 +60,7 @@ alloc = []
 engine = { path = "../../engine", features = ["defmt"] }
 
 # Debug logging from the firmware by defmt via an RTT channel.
-defmt = "1.0.1"
+defmt = { version = "1.0.1", features = ["alloc"] }
 defmt-rtt = "1.0.0"
 
 # Provides a panic handler for `probe-run`.
@@ -147,7 +147,7 @@ sdio-host = "0.9.0"
 embedded-io-async = "0.7"
 
 # MIDI Decoding and Encoding support.
-midly = { version = "0.5.3", default-features = false }
+midly = { version = "0.5.3", default-features = false, features = ["alloc"] }
 grounded = "0.2.0"
 display-interface-parallel-gpio = "0.7.0"
 lcd-async = "0.1.1"

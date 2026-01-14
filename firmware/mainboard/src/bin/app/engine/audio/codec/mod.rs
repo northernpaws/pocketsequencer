@@ -66,11 +66,11 @@ pub fn start(
     spawner: Spawner,
     codec: hardware::AudioCodec,
     params: AudioParameters,
-) -> Result<(), SpawnError> {
+) -> Result<AudioCommandSender, SpawnError> {
     static AUDIO_COMMAND_CHANNEL: AudioCommandChannel = Channel::new();
 
     // Manages the codec over it's i2c control interface.
     task::spawn(spawner, codec, AUDIO_COMMAND_CHANNEL.receiver(), params)?;
 
-    Ok(())
+    Ok(AUDIO_COMMAND_CHANNEL.sender())
 }

@@ -1,23 +1,29 @@
-use alloc::boxed::Box;
-use defmt::{error, info, unwrap};
+use alloc::vec::Vec;
+use defmt::{error, info};
 use embassy_executor::{SpawnError, Spawner};
-use embassy_stm32::usb::{Driver, Instance};
+use embassy_stm32::{
+    peripherals::USB_OTG_HS,
+    usb::{self, Driver, Instance},
+};
 
 use embassy_usb::{
     Builder, UsbDevice,
-    class::{cdc_acm::CdcAcmClass, midi::MidiClass},
+    class::{
+        cdc_acm::CdcAcmClass,
+        midi::{self, MidiClass},
+    },
     driver::EndpointError,
 };
-use midly::{MidiMessage, live::LiveEvent};
+use midly::{MidiMessage, io::WriteResult, live::LiveEvent, num::u7};
 use static_cell::StaticCell;
 
 use crate::engine::midi::{
-    MIDIDestinationReceiver, MIDIEndpoint, MIDIMessage, MIDISourceSender, SystemCommon,
+    MIDIDestinationReceiver, MIDIDestinationSender, MIDIEndpoint, MIDIMessage, SystemCommon,
 };
 
 pub fn start_usb_tasks(
     spawner: Spawner,
-    usb_driver: Driver<'static, embassy_stm32::peripherals::USB_OTG_HS>,
+    usb_driver: usb::Driver<'static, embassy_stm32::peripherals::USB_OTG_HS>,
     midi_endpoint: MIDIEndpoint,
 ) -> Result<(), SpawnError> {
     // Create embassy-usb Config
@@ -56,36 +62,26 @@ pub fn start_usb_tasks(
         control_buf,
     );
 
-    // Create classes on the builder.
-    // let mut midi_class: MidiClass<'_, Driver<'_, embassy_stm32::peripherals::USB_OTG_HS>> = MidiClass::new(&mut builder, 1, 1, 64);
-    // The `MidiClass` can be split into `Sender` and `Receiver`, to be used in separate tasks.
-    // let (sender, receiver) = midi_class.split();
-
     // let mut midi_class: &'static mut MidiClass<'static, Driver<'static, embassy_stm32::peripherals::USB_OTG_HS>> = USB_MIDI_CLASS.init(MidiClass::new(&mut builder, 1, 1, 64));
     let midi_class = MidiClass::new(&mut builder, 1, 1, 64);
 
+    // Split the endpoint channels into:
+    //  sink - receiver for sending messages to the MIDI host from the MIDI task
+    //  source - sender for receing message from the MIDI host to the MIDI task
+    let (midi_sink, midi_source) = midi_endpoint.split();
+
+    // The `MidiClass` can be split into `Sender` and `Receiver`, to be used in separate tasks.
+    let (midi_sender, midi_receiver) = midi_class.split();
+
     // Build the builder.
-    // let mut usb = USB_DEVICE.init(builder.build());
     let usb = builder.build();
-
-    // Run the USB device.
-    // let usb_fut = usb.run();
-
-    // Use the Midi class!
-    // let midi_fut = async {
-    //     loop {
-    //         midi_class.wait_connection().await;
-    //         info!("Connected");
-    //         let _ = midi_echo(&mut midi_class).await;
-    //         info!("Disconnected");
-    //     }
-    // };
 
     info!("Spawning USB handler...");
     spawner.spawn(usb_task(usb)?);
 
-    info!("Spawning MIDI class handler...");
-    spawner.spawn(usb_midi_task(midi_class, midi_endpoint)?);
+    info!("Spawning MIDI class tasks...");
+    spawner.spawn(usb_midi_receiver_task(midi_receiver, midi_source)?);
+    spawner.spawn(usb_midi_sender_task(midi_sender, midi_sink)?);
 
     Ok(())
 }
@@ -115,9 +111,7 @@ async fn echo<'d, T: Instance + 'd>(
 
 /// Task for running the USB peripheral routines.
 #[embassy_executor::task]
-async fn usb_task(
-    mut usb_device: UsbDevice<'static, Driver<'static, embassy_stm32::peripherals::USB_OTG_HS>>,
-) {
+async fn usb_task(mut usb_device: UsbDevice<'static, Driver<'static, USB_OTG_HS>>) {
     info!("Starting USB handler...");
     usb_device.run().await;
 }
@@ -125,13 +119,12 @@ async fn usb_task(
 /// Task that waits for the USB host to enable the MIDI
 /// endpoint, and the starts the MIDI event handler.
 #[embassy_executor::task]
-async fn usb_midi_task(
-    mut midi_class: MidiClass<'static, Driver<'static, embassy_stm32::peripherals::USB_OTG_HS>>,
-    midi_endpoint: MIDIEndpoint,
+async fn usb_midi_receiver_task(
+    // Receives MIDI messages from the USB host.
+    mut midi_class: midi::Receiver<'static, usb::Driver<'static, USB_OTG_HS>>,
+    midi_source: MIDIDestinationSender<'static>,
 ) {
-    let midi_endpoint = midi_endpoint;
-
-    info!("Starting MIDI Class handler...");
+    info!("Starting MIDI Class receiver handler...");
     loop {
         // Wait for a USB host to acknowledge
         // and enable the MIDI endpoint.
@@ -140,77 +133,161 @@ async fn usb_midi_task(
 
         // Clear the outgoing events channel so events added to
         // the channel before a valid connection are discarded.
-        midi_endpoint.clear();
+        midi_source.clear();
 
         // Start the MIDI handler for the host.
-        let _ = midi_handler(&mut midi_class, &midi_endpoint).await;
+        let _ = midi_receiver_handler(&mut midi_class, &midi_source).await;
         info!("Disconnected");
     }
 }
 
-/// Handler for an incoming MIDI connection over USB.
-async fn midi_handler<'d, T: Instance + 'd>(
-    class: &mut MidiClass<'d, Driver<'d, T>>,
-    midi_endpoint: &'_ MIDIEndpoint,
+/// Handler for receiving and processing MIDI events incoming over USB.
+async fn midi_receiver_handler<'d>(
+    midi_receiver: &mut midi::Receiver<'static, usb::Driver<'static, USB_OTG_HS>>,
+    midi_source: &'_ MIDIDestinationSender<'static>,
 ) -> Result<(), Disconnected> {
+    // Buffer for reading MIDI packets from the USB endpoint.
     let mut buf = [0; 64];
     loop {
-        let n = class.read_packet(&mut buf).await?;
+        let n = midi_receiver.read_packet(&mut buf).await?;
         info!(
             "received MIDI packet {=[u8]:b} {=[u8]:X} {}",
             &buf[..n],
             &buf[..n],
             &buf[..n]
         );
-        // class.write_packet(&buf[..n]).await?;
 
         // Throw away the first byte that's the MIDI Code Index Number (CIN):
+        //
         // "The first byte in each 32-bit USB-MIDI Event Packet is a Packet Header
         //  contains a Cable Number (4 bits) followed by a Code Index Number (4 bits)."
+        //
         // See: TODO add USB MIDI10 spec link
         //
         // Packet format see:
         //  https://www.usb.org/sites/default/files/USB%20MIDI%20v2_0.pdf (p.g. 16)
         if let Ok(event) = LiveEvent::parse(&buf[1..n]) {
-            // We use publish_immediate to boot the last message off the channel if
-            // it's full. We don't want to wait if the channel is full, otherwise
-            // we'll stall processing the messages from the USB bus.
-            midi_endpoint
-                .send_message(match event {
-                    LiveEvent::Midi { channel, message } => MIDIMessage::Midi { channel, message },
-                    LiveEvent::Common(system_common) => match system_common {
-                        midly::live::SystemCommon::SysEx(u7s) => MIDIMessage::Common(
-                            SystemCommon::SysEx(u7s.to_vec().into_boxed_slice()),
-                        ),
-                        midly::live::SystemCommon::MidiTimeCodeQuarterFrame(
-                            mtc_quarter_frame_message,
-                            u4,
-                        ) => MIDIMessage::Common(SystemCommon::MidiTimeCodeQuarterFrame(
-                            mtc_quarter_frame_message,
-                            u4,
-                        )),
-                        midly::live::SystemCommon::SongPosition(u14) => {
-                            MIDIMessage::Common(SystemCommon::SongPosition(u14))
-                        }
-                        midly::live::SystemCommon::SongSelect(u7) => {
-                            MIDIMessage::Common(SystemCommon::SongSelect(u7))
-                        }
-                        midly::live::SystemCommon::TuneRequest => {
-                            MIDIMessage::Common(SystemCommon::TuneRequest)
-                        }
-                        midly::live::SystemCommon::Undefined(n, u7s) => MIDIMessage::Common(
-                            SystemCommon::Undefined(n, u7s.to_vec().into_boxed_slice()),
-                        ),
-                    },
-                    LiveEvent::Realtime(system_realtime) => MIDIMessage::Realtime(system_realtime),
-                })
-                .await;
+            midi_source.send(decode_midi_message(event)).await;
 
             log_event(event);
         } else {
             error!("failed to parse midi message");
         }
     }
+}
+
+/// Task that waits for the USB host to enable the MIDI
+/// endpoint, and the starts the MIDI event handler.
+#[embassy_executor::task]
+async fn usb_midi_sender_task(
+    // Receives MIDI messages from the USB host.
+    mut midi_class: midi::Sender<'static, usb::Driver<'static, USB_OTG_HS>>,
+    midi_sink: MIDIDestinationReceiver<'static>,
+) {
+    info!("Starting MIDI Class sender handler...");
+    loop {
+        // Wait for a USB host to acknowledge
+        // and enable the MIDI endpoint.
+        midi_class.wait_connection().await;
+        info!("Connected");
+
+        // Clear the outgoing events channel so events added to
+        // the channel before a valid connection are discarded.
+        midi_sink.clear();
+
+        // Start the MIDI handler for the host.
+        let _ = midi_sender_handler(&mut midi_class, &midi_sink).await;
+        info!("Disconnected");
+    }
+}
+
+/// Handler for receiving and processing MIDI events incoming over USB.
+async fn midi_sender_handler<'d>(
+    midi_sender: &mut midi::Sender<'static, usb::Driver<'static, USB_OTG_HS>>,
+    midi_source: &'_ MIDIDestinationReceiver<'static>,
+) -> Result<(), Disconnected> {
+    loop {
+        // Wait for the next message produced by the MIDI
+        // task that should be sent to the USB host.
+        let message = midi_source.receive().await;
+
+        // Encode the received message into MIDI formatting.
+        if let Ok(buf) = encode_midi_message(message) {
+            // Write the encoded packet to the USB host.
+            midi_sender.write_packet(&buf).await?;
+
+            info!("sent MIDI packet {=[u8]:b} {=[u8]:X} {}", &buf, &buf, &buf);
+        } else {
+            error!("error encoding MIDI message!");
+        }
+    }
+}
+
+/// Converts a midly event into a MIDI message that's compatible with our channel format.
+///
+/// We can't use midly's type directly because it relies on lifetimes we can't fulfill ovr pubsub channels.
+fn decode_midi_message(event: LiveEvent<'_>) -> MIDIMessage {
+    match event {
+        LiveEvent::Midi { channel, message } => MIDIMessage::Midi { channel, message },
+        LiveEvent::Common(system_common) => match system_common {
+            midly::live::SystemCommon::SysEx(u7s) => {
+                MIDIMessage::Common(SystemCommon::SysEx(u7s.to_vec().into_boxed_slice()))
+            }
+            midly::live::SystemCommon::MidiTimeCodeQuarterFrame(mtc_quarter_frame_message, u4) => {
+                MIDIMessage::Common(SystemCommon::MidiTimeCodeQuarterFrame(
+                    mtc_quarter_frame_message,
+                    u4,
+                ))
+            }
+            midly::live::SystemCommon::SongPosition(u14) => {
+                MIDIMessage::Common(SystemCommon::SongPosition(u14))
+            }
+            midly::live::SystemCommon::SongSelect(a) => {
+                MIDIMessage::Common(SystemCommon::SongSelect(a))
+            }
+            midly::live::SystemCommon::TuneRequest => {
+                MIDIMessage::Common(SystemCommon::TuneRequest)
+            }
+            midly::live::SystemCommon::Undefined(n, u7s) => {
+                MIDIMessage::Common(SystemCommon::Undefined(n, u7s.to_vec().into_boxed_slice()))
+            }
+        },
+        LiveEvent::Realtime(system_realtime) => MIDIMessage::Realtime(system_realtime),
+    }
+}
+
+/// Converts a MIDI message into a Midly event that can be written as a MIDI packet.
+fn encode_midi_message<'a>(
+    message: MIDIMessage,
+) -> Result<Vec<u8>, <Vec<u8> as midly::io::Write>::Error> {
+    let mut data: Vec<u7> = Vec::new();
+    let event: LiveEvent<'_> = match message {
+        MIDIMessage::Midi { channel, message } => LiveEvent::Midi { channel, message },
+        MIDIMessage::Common(system_common) => LiveEvent::Common(match system_common {
+            SystemCommon::SysEx(u7s) => {
+                data.resize(u7s.len(), 0.into());
+                data.copy_from_slice(&u7s);
+                midly::live::SystemCommon::SysEx(data.as_slice())
+            }
+            SystemCommon::MidiTimeCodeQuarterFrame(mtc_quarter_frame_message, u4) => {
+                midly::live::SystemCommon::MidiTimeCodeQuarterFrame(mtc_quarter_frame_message, u4)
+            }
+            SystemCommon::SongPosition(u14) => midly::live::SystemCommon::SongPosition(u14),
+            SystemCommon::SongSelect(a) => midly::live::SystemCommon::SongSelect(a),
+            SystemCommon::TuneRequest => midly::live::SystemCommon::TuneRequest,
+            SystemCommon::Undefined(a, u7s) => {
+                data.resize(u7s.len(), 0.into());
+                data.copy_from_slice(&u7s);
+                midly::live::SystemCommon::Undefined(a, data.as_slice())
+            }
+        }),
+        MIDIMessage::Realtime(system_realtime) => todo!(),
+    };
+
+    let mut buf: Vec<u8> = Vec::new();
+    event.write(&mut buf)?;
+
+    Ok(buf)
 }
 
 /// Logs a decoded MIDI event.
@@ -260,8 +337,8 @@ fn log_event(event: LiveEvent<'_>) {
             midly::live::SystemCommon::SongPosition(u14) => {
                 info!("MIDI: SYS: song position: {}", u14.as_int())
             }
-            midly::live::SystemCommon::SongSelect(u7) => {
-                info!("MIDI: SYS: song select: {}", u7.as_int())
+            midly::live::SystemCommon::SongSelect(a) => {
+                info!("MIDI: SYS: song select: {}", a.as_int())
             }
             midly::live::SystemCommon::TuneRequest => info!("MIDI: SYS: tune request"),
             midly::live::SystemCommon::Undefined(_, _) => info!("MIDI: SYS: undefined"),
@@ -283,50 +360,3 @@ fn log_event(event: LiveEvent<'_>) {
         },
     }
 }
-
-/// Rust's `!` is unstable.  This is a locally-defined equivalent which is stable.
-#[derive(Debug)]
-pub enum Never {}
-
-// struct Disconnected {}
-
-// impl From<EndpointError> for Disconnected {
-//     fn from(val: EndpointError) -> Self {
-//         match val {
-//             EndpointError::BufferOverflow => defmt::panic!("Buffer overflow"),
-//             EndpointError::Disabled => Disconnected {},
-//         }
-//     }
-// }
-
-// async fn echo<'d, T: usb::Instance + 'd>(class: &mut CdcAcmClass<'d, Driver<'d, T>>) -> Result<(), Disconnected> {
-//     let mut buf = [0; 64];
-//     loop {
-//         let n = class.read_packet(&mut buf).await?;
-//         let data = &buf[..n];
-//         info!("data: {:x}", data);
-//         class.write_packet(data).await?;
-//     }
-// }
-
-// async fn midi_echo<'d, T: usb::Instance + 'd>(class: &mut MidiClass<'d, usb::Driver<'d, T>>) -> Result<(), Disconnected> {
-//     let mut buf = [0; 64];
-//     loop {
-//         let n = class.read_packet(&mut buf).await?;
-//         let data = &buf[..n];
-//         info!("data: {:x}", data);
-//         class.write_packet(data).await?;
-//     }
-// }
-
-// #[embassy_executor::task]
-// async fn usb_midi(
-//     mut midi_class: &'static mut MidiClass<'static, Driver<'static, embassy_stm32::peripherals::USB_OTG_HS>>
-// ) {
-//     loop {
-//         midi_class.wait_connection().await;
-//         info!("Connected");
-//         let _ = midi_echo(&mut midi_class).await;
-//         info!("Disconnected");
-//     }
-// }

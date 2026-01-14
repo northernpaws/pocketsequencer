@@ -6,7 +6,7 @@ extern crate alloc;
 
 mod engine;
 mod interface;
-mod project;
+mod program;
 
 use defmt::*;
 
@@ -95,8 +95,16 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
         }
     };
 
+    // Start the engine.
+    //
+    // These are the primary tasks that manage hardware
+    // components such as the audio, SD card, USB, etc.
+    //
+    // Engine start-up is pretty fast as it's fairly quick
+    // initialization of the periperals, and spawning a few
+    // tasks for managing them.
     info!("starting engine...");
-    let (drive) = engine::start_engine(
+    let engine = engine::start_engine(
         spawner,
         hw.sd_card,
         hw.internal_storage,
@@ -105,16 +113,21 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
         hw.sai_resources,
         hw.usb_driver,
     )
-    .await;
+    .await
+    .expect("engine to start");
 
     info!("starting interface...");
     // todo
 
-    info!("starting main loop...");
-    loop {
-        info!("main tick");
-        Timer::after_millis(300).await;
-    }
+    // Starts the actual "program" for the device.
+    //
+    // This works with the engine and interface tasks to
+    // manage the main interface for the device, while
+    // running the audio and hardware management tasks.
+    info!("starting program...");
+    program::start(spawner, engine)
+        .await
+        .expect("program to start");
 
     Ok(())
 }
