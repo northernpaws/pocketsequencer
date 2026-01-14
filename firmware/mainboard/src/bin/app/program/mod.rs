@@ -1,8 +1,7 @@
 use alloc::string::ToString;
 use defmt::info;
 use embassy_executor::{SpawnError, Spawner};
-
-mod riff;
+use wavv::{Data, Wav};
 
 use crate::engine::Engine;
 
@@ -14,17 +13,25 @@ pub async fn start(spawner: Spawner, mut engine: Engine) -> Result<(), SpawnErro
     // Attempt to read a startup sound.
     //
     // This reads the sound into the SDRAM on the heap.
-    info!("searching for startup.wav");
-    if let Ok(start_sound) = drive.read_file("startup.wav".to_string()).await {
+    let path = "startup.wav".to_string();
+    info!("searching for {}", path);
+    if let Ok(start_sound) = drive.read_file(path).await {
         info!("found startup.wav, decoding {} bytes", start_sound.len());
 
-        // Attempt to decode the WAVE header.
-        match riff::read_header(start_sound[0..44].try_into().unwrap()).await {
-            Ok(_) => {
-                info!("decoded valid WAV file");
-            }
+        match Wav::from_bytes(&start_sound) {
+            Ok(wav) => match wav.data {
+                Data::BitDepth8(samples) => {
+                    info!("decoded valid 8 bit WAV file");
+                }
+                Data::BitDepth16(samples) => {
+                    info!("decoded valid 16 bit WAV file");
+                }
+                Data::BitDepth24(samples) => {
+                    info!("decoded valid 24 bit WAV file");
+                }
+            },
             Err(err) => {
-                info!("WAV file appears invalid: {}", err);
+                info!("WAV file appears invalid: {}", defmt::Debug2Format(&err));
             }
         }
 

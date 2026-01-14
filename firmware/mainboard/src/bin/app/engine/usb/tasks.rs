@@ -14,7 +14,7 @@ use embassy_usb::{
     },
     driver::EndpointError,
 };
-use midly::{MidiMessage, io::WriteResult, live::LiveEvent, num::u7};
+use midly::{MidiMessage, live::LiveEvent, num::u7};
 use static_cell::StaticCell;
 
 use crate::engine::midi::{

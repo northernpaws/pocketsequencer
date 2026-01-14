@@ -67,7 +67,7 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     let r = split_resources!(p);
 
     // Initialize the hardware components using the segmented resources.
-    let mut hw = hardware::init_hardware(r, spawner).await?;
+    let hw = hardware::init_hardware(r, spawner).await?;
 
     // Debug logging of the current clock configuration.
     let clocks = rcc::clocks(&p.RCC);
@@ -81,16 +81,39 @@ async fn inner_main(spawner: Spawner) -> Result<(), ()> {
     let _sdram: &'static mut [u32] = {
         info!("initializing heap on SDRAM...");
 
-        const HEAP_SIZE: usize = 1024 * 1024 * 16;
+        const HEAP_SIZE: usize = 1024 * 1024 * 16; // 16MB
+
+        info!(
+            "sdram_addr={:X} sdram_size={}b heap_size={}b usize::MAX={}",
+            hw.sdram.as_ptr() as usize,
+            hw.sdram.len(),
+            HEAP_SIZE,
+            usize::MAX
+        );
+
+        if hw.sdram.as_ptr() as usize != 0xC000_0000usize {
+            defmt::panic!("invalid SDRAM memory pointer address");
+        }
 
         // Allocate the heap pointer on the memory-mapped external SDRAM.
-        unsafe { HEAP.init(&raw mut hw.sdram as usize, HEAP_SIZE) };
+        unsafe { HEAP.init(hw.sdram.as_ptr() as usize, HEAP_SIZE) };
 
-        // "Resize" the array pointer we have to the SDRAM to avoid the allocated heap block.
         unsafe {
+            let remaining_sdram = hw.sdram.len() - HEAP_SIZE;
+
+            info!(
+                "Adjusting SDRAM available memory based on heap. original_sdram_addr={:X} original_sdram_size={}b heap_size={}b new_sdram_size={}b new_sdram_addr={:X}",
+                hw.sdram.as_ptr() as usize,
+                hw.sdram.len(),
+                HEAP_SIZE,
+                remaining_sdram,
+                hw.sdram.as_mut_ptr().add(HEAP_SIZE) as usize,
+            );
+
+            // "Resize" the array pointer we have to the SDRAM to avoid the allocated heap block.
             core::slice::from_raw_parts_mut(
-                hw.sdram.as_mut_ptr(),
-                (hw.sdram.len() - HEAP_SIZE) / core::mem::size_of::<u32>(),
+                hw.sdram.as_mut_ptr().add(HEAP_SIZE),
+                remaining_sdram / core::mem::size_of::<u32>(),
             )
         }
     };

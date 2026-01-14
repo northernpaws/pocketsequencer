@@ -118,14 +118,14 @@ embedded-hal-bus = "0.3.0"
 
 # SD card FatFS with async support.
 embedded-fatfs = { version = "0.1.0", default-features = false, features = [
+    # "defmt",
     # Alloc required to get full file names
-    "defmt",
     "alloc",
     "lfn",
 ] }
 
 sdspi = { version = "0.1.0", features = [
-    "defmt",
+    #"defmt",
 ] } # defmt feature seems to cause issue
 block-device-adapters = { version = "0.2.0" }
 
@@ -185,6 +185,7 @@ nau88c22-rs = "0.2.0"
 libm = "0.2.15"
 catalina = { version = "0.0.1", features = ["engine"] }
 hash32 = "1.0.0"
+wavv = "0.2.1"
 
 [patch.crates-io]
 # Adds additional FMC constructors.. requires patching ALL embassy packages for compatability to work correctly.

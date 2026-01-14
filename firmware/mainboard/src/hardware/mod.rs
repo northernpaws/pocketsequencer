@@ -831,7 +831,10 @@ pub async fn get_memory_devices<
             // 256MB
 
             const REGION_NUMBER1: u32 = 0x01;
-            const REGION_BASE_ADDRESS: u32 = 0xD000_0000;
+
+            // SDRAM Region 1: 0xC000_0000
+            // SDRAM Region 2: 0xD000_0000
+            const REGION_BASE_ADDRESS: u32 = 0xC000_0000;
 
             const REGION_FULL_ACCESS: u32 = 0x03;
             const REGION_CACHEABLE: u32 = 0x01;
