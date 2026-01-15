@@ -134,6 +134,8 @@ async fn inner_audio_task(
         // Make sure we're not carrying over audio from the last set of buffer frames.
         buf.fill(0);
 
+        let system_audio = system_audio_receiver.try_receive();
+
         // Loop over each frame in the buffer and render
         // the samples for the left and right channels.
         for (frame_index, frame) in buf.chunks_mut(OUTPUT_CHANNEL_COUNT).enumerate() {
@@ -163,16 +165,21 @@ async fn inner_audio_task(
             // and mix it in if some was available.
             //
             // This is used for system sound effects such as alerts.
-            if let Some(system_audio) = system_audio_receiver.try_receive() {
-                for (channel_index, channel_sample) in frame.iter_mut().enumerate() {
-                    // Convert the sample to u24 encoded as u32 frames.
-                    *channel_sample = (((system_audio[frame_index][channel_index] + 2.0)
-                        * (0xFFFFFF as f32 / 2.0))
-                        * AMPLITUDE) as u32;
+            if let Some(system_audio) = &system_audio {
+                // The frame index will stop short of the chunk index if there wasn't a full block of audio data.
+                if frame_index < system_audio.len() {
+                    for (channel_index, channel_sample) in frame.iter_mut().enumerate() {
+                        // Convert the sample to u24 encoded as u32 frames.
+                        *channel_sample = (((system_audio[frame_index][channel_index] + 2.0)
+                            * (0xFFFFFF as f32 / 2.0))
+                            * AMPLITUDE) as u32;
+                    }
                 }
-
-                system_audio_receiver.receive_done();
             }
+        }
+
+        if system_audio.is_some() {
+            system_audio_receiver.receive_done();
         }
 
         // Write the rendered buffer to the larger ring buffer for DMA.

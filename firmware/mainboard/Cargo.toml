@@ -19,7 +19,7 @@ codegen-units = 1
 debug = 2               # 2 = full debug info
 debug-assertions = true # <-
 incremental = false
-opt-level = 0           # <-
+opt-level = 1           # <-
 overflow-checks = true  # <-
 
 # cargo test

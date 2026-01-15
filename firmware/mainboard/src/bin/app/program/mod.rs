@@ -78,19 +78,19 @@ pub async fn start(spawner: Spawner, mut engine: Engine) -> Result<(), SpawnErro
         }
 
         // Zero out both buffers.
-        let buffer = engine.audio.system_audio.send().await;
-        buffer.clear();
-        for _i in 0..buffer.capacity() {
-            buffer.push([f32::EQUILIBRIUM, f32::EQUILIBRIUM]).unwrap();
-        }
-        engine.audio.system_audio.send_done();
+        // let buffer = engine.audio.system_audio.send().await;
+        // buffer.clear();
+        // for _i in 0..buffer.capacity() {
+        //     buffer.push([f32::EQUILIBRIUM, f32::EQUILIBRIUM]).unwrap();
+        // }
+        // engine.audio.system_audio.send_done();
 
-        let buffer = engine.audio.system_audio.send().await;
-        buffer.clear();
-        for _i in 0..buffer.capacity() {
-            buffer.push([f32::EQUILIBRIUM, f32::EQUILIBRIUM]).unwrap();
-        }
-        engine.audio.system_audio.send_done();
+        // let buffer = engine.audio.system_audio.send().await;
+        // buffer.clear();
+        // for _i in 0..buffer.capacity() {
+        //     buffer.push([f32::EQUILIBRIUM, f32::EQUILIBRIUM]).unwrap();
+        // }
+        // engine.audio.system_audio.send_done();
 
         info!("startup sound finished");
     } else {
