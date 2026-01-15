@@ -1,3 +1,4 @@
+use crate::engine::audio::SystemAudioReceiver;
 use crate::engine::audio::engine::AudioEngine;
 use crate::hardware::audio::Audio;
 
@@ -16,7 +17,7 @@ use catalina::engine::{
 
 // Note that the block size needs to be big enough to where the DMA/SAI
 // has enough to work with before the next cycle to generate more.
-pub const BLOCK_LENGTH: usize = 128; // samples
+pub const BLOCK_LENGTH: usize = 128 * 2; // samples
 const OUTPUT_CHANNEL_COUNT: usize = 2; // stereo
 pub const HALF_DMA_BUFFER_LENGTH: usize = (BLOCK_LENGTH) * OUTPUT_CHANNEL_COUNT; //  2 channels
 pub const DMA_BUFFER_LENGTH: usize = HALF_DMA_BUFFER_LENGTH * 2; //  2 half-blocks
@@ -55,19 +56,25 @@ pub fn spawn_task(
     audio: Audio,
     r: CodecSAIResources,
     engine: AudioEngine,
+    system_audio_receiver: SystemAudioReceiver,
 ) -> Result<(), SpawnError> {
     // Use an interrupt executor to run the audio task at a higher priority.
-    interrupt::SAI1.set_priority(Priority::P6);
+    interrupt::SAI1.set_priority(Priority::P2);
     let spawner = AUDIO_EXECUTOR.start(interrupt::SAI1);
-    spawner.spawn(audio_task(audio, r, engine)?);
+    spawner.spawn(audio_task(audio, r, engine, system_audio_receiver)?);
 
     Ok(())
 }
 
 #[embassy_executor::task]
-pub async fn audio_task(audio: Audio, r: CodecSAIResources, engine: AudioEngine) -> ! {
+pub async fn audio_task(
+    audio: Audio,
+    r: CodecSAIResources,
+    engine: AudioEngine,
+    system_audio_receiver: SystemAudioReceiver,
+) -> ! {
     // should never return
-    let err = inner_audio_task(audio, r, engine).await;
+    let err = inner_audio_task(audio, r, engine, system_audio_receiver).await;
     panic!("audio task exited unexpectedly: {:?}", err);
 }
 
@@ -78,6 +85,7 @@ async fn inner_audio_task(
     mut audio: Audio,
     mut r: CodecSAIResources,
     mut engine: AudioEngine,
+    mut system_audio_receiver: SystemAudioReceiver,
 ) -> Result<(), Never> {
     info!("starting audio task");
 
@@ -125,7 +133,7 @@ async fn inner_audio_task(
     loop {
         // Loop over each frame in the buffer and render
         // the samples for the left and right channels.
-        for frame in buf.chunks_mut(OUTPUT_CHANNEL_COUNT) {
+        for (frame_index, frame) in buf.chunks_mut(OUTPUT_CHANNEL_COUNT).enumerate() {
             // Output is 24-bit I2S data, so format
             // the oscillator sample to U24 sizes.
             // let value: f32 = osc.sample(); // U24
@@ -140,11 +148,29 @@ async fn inner_audio_task(
             //     *sample = (((value + 2.0) * (0xFFFFFF as f32 / 2.0)) * AMPLITUDE) as u32;
             // }
 
-            let value = engine.render();
-            for (i, sample) in frame.iter_mut().enumerate() {
-                // Convert the sample to u24 encoded as u32 frames.
-                *sample =
-                    (((value[i % value.len()] + 2.0) * (0xFFFFFF as f32 / 2.0)) * AMPLITUDE) as u32;
+            // Render out any output from the mixer.
+            // let value = engine.render();
+            // for (channel_index, sample) in frame.iter_mut().enumerate() {
+            //     // Convert the sample to u24 encoded as u32 frames.
+            //     *sample = (((value[channel_index % value.len()] + 2.0) * (0xFFFFFF as f32 / 2.0))
+            //         * AMPLITUDE) as u32;
+            // }
+
+            // Try to receive from the system audio buffer
+            // and mix it in if some was available.
+            //
+            // This is used for system sound effects such as alerts.
+            if let Some(system_audio) = system_audio_receiver.try_receive() {
+                if !system_audio.is_empty() {
+                    for (channel_index, sample) in frame.iter_mut().enumerate() {
+                        // Convert the sample to u24 encoded as u32 frames.
+                        *sample = (((system_audio[frame_index][channel_index] + 2.0)
+                            * (0xFFFFFF as f32 / 2.0))
+                            * AMPLITUDE) as u32;
+                    }
+                }
+
+                system_audio_receiver.receive_done();
             }
         }
 

@@ -1,9 +1,10 @@
 use alloc::string::ToString;
+use catalina::engine::audio::Sample;
 use defmt::info;
 use embassy_executor::{SpawnError, Spawner};
 use wavv::{Data, Wav};
 
-use crate::engine::Engine;
+use crate::engine::{Engine, audio::render::HALF_DMA_BUFFER_LENGTH};
 
 /// Starts the main program for running the device.
 pub async fn start(spawner: Spawner, mut engine: Engine) -> Result<(), SpawnError> {
@@ -25,6 +26,35 @@ pub async fn start(spawner: Spawner, mut engine: Engine) -> Result<(), SpawnErro
                 }
                 Data::BitDepth16(samples) => {
                     info!("decoded valid 16 bit WAV file");
+
+                    // Chunk the audio file based on the buffer size of the transfer channel.
+                    for chunk in samples.chunks(HALF_DMA_BUFFER_LENGTH) {
+                        // Wait for the next free audio transfer buffer.
+                        let buffer = engine.audio.system_audio.send().await;
+
+                        // Clear the previous items.
+                        buffer.clear();
+
+                        // Break the samples chunk into alternating channels,
+                        // and write the to the transfer buffer.
+                        // TODO: could probably be a memcpy instead
+                        for (frame_index, frame) in chunk.chunks(2).enumerate() {
+                            // .to_sample() handles the conversion from the source
+                            // sample type to the destination sample type, including
+                            // scalining based on the ranges.
+                            buffer
+                                .push([frame[0].to_sample(), frame[1].to_sample()])
+                                .unwrap();
+                        }
+
+                        // Signal that the buffer has been filled and can be played.
+                        engine.audio.system_audio.send_done();
+
+                        // info!(
+                        //     "sent {} samples to system audio channel",
+                        //     HALF_DMA_BUFFER_LENGTH
+                        // );
+                    }
                 }
                 Data::BitDepth24(samples) => {
                     info!("decoded valid 24 bit WAV file");
@@ -35,7 +65,7 @@ pub async fn start(spawner: Spawner, mut engine: Engine) -> Result<(), SpawnErro
             }
         }
 
-        // TODO: play the startup sound
+        info!("startup sound finished");
     } else {
         info!("didn't find startup.wav, skipping");
     }

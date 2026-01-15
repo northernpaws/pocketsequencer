@@ -33,10 +33,6 @@ pub async fn start_engine(
     info!("engine: starting drive..");
     let drv = drive::start(sd_card, internal_storage, spawner).await?;
 
-    // Start the tasks for managing the audio interface.
-    info!("engine: starting audio..");
-    let audio_manager = audio::start(spawner, audio_codec, audio, sai_resources)?;
-
     // Start the MIDI processing task.
     //
     // This collects and processes MIDI events from USB, UART, etc.
@@ -55,6 +51,14 @@ pub async fn start_engine(
         usb_driver,
         midi_manager.make_endpoint(midi::MIDISource::Usb),
     );
+
+    // Start the tasks for managing the audio interface.
+    //
+    // Initialize the audio towards the end, some parts of
+    // the filesystem and USB setup will cause the ringbuffer
+    // to overrun otherwise.
+    info!("engine: starting audio..");
+    let audio_manager = audio::start(spawner, audio_codec, audio, sai_resources)?;
 
     Ok(Engine::new(drv, midi_manager, audio_manager))
 }

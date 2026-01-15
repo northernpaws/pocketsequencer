@@ -459,7 +459,7 @@ pub fn init_peripherals() -> Peripherals {
 /// Alias for a display wrapped in a coordinate transform to rotate it upright.
 pub type RotatedDisplay<'a> = CoordinateTransform<Display<'a, Delay>, false, true, true>;
 
-#[unsafe(link_section = ".ram3_d2")]
+#[unsafe(link_section = ".sram1_bss")]
 static EP_OUT_BUFFER: StaticCell<[u8; 256]> = StaticCell::new();
 
 pub struct Hardware<'a> {

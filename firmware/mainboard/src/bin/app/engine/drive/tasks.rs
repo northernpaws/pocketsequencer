@@ -5,6 +5,7 @@ use alloc::string::String;
 use alloc::vec::Vec;
 use defmt::{error, info};
 use embassy_executor::{SpawnError, Spawner};
+use embassy_futures::yield_now;
 use embedded_io_async::{Read, Write};
 
 use firmware::hardware::internal_storage::InternalStorage;
@@ -197,12 +198,16 @@ async fn read_file(sd_card: &'_ sd_card::SdFilesystem<'static>, path: String) ->
                         return CommandResult::Error(err.into());
                     }
                 }
+
+                // IDeally we shouldn't have this, but sometimes the read file
+                // runs so fast that it starves the audio task.
+                yield_now().await;
             }
 
             file.close().await.unwrap();
 
             // Box the vec and send it as the command results.
-            CommandResult::Content(buf.into_boxed_slice())
+            CommandResult::Content(buf)
         }
         Err(err) => {
             error!("error opening file!");

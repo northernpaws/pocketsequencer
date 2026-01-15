@@ -61,7 +61,7 @@ async fn inner_midi_task(
                 let destination: MIDIDestination = MIDIDestination::Usb { channel: 0 };
 
                 // Route the message to it's destination.
-                destinations.route_message(event.message, destination);
+                destinations.route_message(event.message, destination).await;
             }
             Either::Second(new_table) => {
                 trace!("midi: received routing table update");

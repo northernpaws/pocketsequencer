@@ -5,6 +5,8 @@ use crate::engine::midi::MIDIEndpoint;
 
 mod tasks;
 
+mod midi;
+
 /// Starts the USB component tasks.
 pub fn start(
     spawner: Spawner,

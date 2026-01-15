@@ -70,7 +70,7 @@ pub enum Command {
     },
 
     /// Reads from a previously opened file handle.
-    ReadFromFile { file_id: u32, buffer: Box<[u8]> },
+    ReadFromFile { file_id: u32, buffer: Vec<u8> },
 
     /// Request to close an open file handle.
     CloseFile { file_id: u32 },
@@ -207,7 +207,7 @@ pub enum CommandResult {
     /// TODO: this is not ideal because the box will
     ///  be cloned to every subscriber waiting for
     ///  a filesystem result.
-    Content(Box<[u8]>),
+    Content(Vec<u8>),
 
     /// A vector listing the contents of a directory.
     Listing(Vec<FileInfo>),
@@ -316,7 +316,7 @@ pub async fn read_file(
 
     // Path of the file to write.
     path: String,
-) -> Result<Box<[u8]>, CommandResult> {
+) -> Result<Vec<u8>, CommandResult> {
     let command_id = next_command_id();
 
     // Dispatch the filesystem command to write the file.
@@ -436,8 +436,8 @@ pub async fn read_from_file(
 
     file_id: &FileID,
 
-    buffer: Box<[u8]>,
-) -> Result<Box<[u8]>, CommandResult> {
+    buffer: Vec<u8>,
+) -> Result<Vec<u8>, CommandResult> {
     let command_id = next_command_id();
 
     command_sender
@@ -534,7 +534,7 @@ impl<'a> FilesystemInterface<'a> {
     }
 
     /// Reads an entire file into a buffer.
-    pub async fn read_file(&mut self, path: String) -> Result<Box<[u8]>, CommandResult> {
+    pub async fn read_file(&mut self, path: String) -> Result<Vec<u8>, CommandResult> {
         read_file(
             &self.command_sender,
             &mut self.command_result_subscriber,
@@ -574,7 +574,7 @@ pub struct FileHandle<'fs> {
 
 impl<'fs> FileHandle<'fs> {
     /// Reads a block of bytes into the provided buffer from the open file.
-    pub async fn read(&mut self, buffer: Box<[u8]>) -> Result<Box<[u8]>, CommandResult> {
+    pub async fn read(&mut self, buffer: Vec<u8>) -> Result<Vec<u8>, CommandResult> {
         read_from_file(
             &self.fs.command_sender,
             &mut self.fs.command_result_subscriber,
