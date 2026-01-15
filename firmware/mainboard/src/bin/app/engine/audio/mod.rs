@@ -19,6 +19,11 @@ pub type SystemAudioSender =
 pub type SystemAudioReceiver =
     zerocopy_channel::Receiver<'static, CriticalSectionRawMutex, SampleBlock>;
 
+static SYSTEM_SAMPLE_BLOCKS: StaticCell<[SampleBlock; 2]> = StaticCell::new();
+static SYSTEM_CHANNEL: StaticCell<
+    zerocopy_channel::Channel<'_, CriticalSectionRawMutex, SampleBlock>,
+> = StaticCell::new();
+
 /// Start the audio subsystem.
 pub fn start(
     spawner: Spawner,
@@ -32,14 +37,11 @@ pub fn start(
     let command_sender = codec::start(spawner, codec, audio.params())?;
 
     // Allocate two alternating buffers for the sample transfers.
-    static SYSTEM_SAMPLE_BLOCKS: StaticCell<[SampleBlock; 2]> = StaticCell::new();
     let system_sample_blocks =
         SYSTEM_SAMPLE_BLOCKS.init([heapless::Vec::new(), heapless::Vec::new()]);
 
     // Establish a zero-copy channel for transferring received audio samples between tasks.
-    static SYSTEM_CHANNEL: StaticCell<
-        zerocopy_channel::Channel<'_, CriticalSectionRawMutex, SampleBlock>,
-    > = StaticCell::new();
+
     let system_channel = SYSTEM_CHANNEL.init(zerocopy_channel::Channel::new(system_sample_blocks));
     let (system_sender, system_receiver) = system_channel.split();
 

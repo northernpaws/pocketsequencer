@@ -16,10 +16,10 @@ bench = false
 # cargo build/run
 [profile.dev]
 codegen-units = 1
-debug = 2
+debug = 2               # 2 = full debug info
 debug-assertions = true # <-
 incremental = false
-opt-level = 1           # <-
+opt-level = 0           # <-
 overflow-checks = true  # <-
 
 # cargo test

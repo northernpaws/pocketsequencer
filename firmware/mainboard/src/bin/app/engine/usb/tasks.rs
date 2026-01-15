@@ -39,15 +39,15 @@ pub fn start_usb_tasks(
 
     // Create embassy-usb DeviceBuilder using the driver and config.
     // It needs some buffers for building the descriptors.
-    #[unsafe(link_section = ".ram3_d2")]
+    // #[unsafe(link_section = ".sram1_bss")]
     static USB_CONFIG_DESCRIPTOR: StaticCell<[u8; 256]> = StaticCell::new();
     let config_descriptor = USB_CONFIG_DESCRIPTOR.init([0; 256]);
 
-    #[unsafe(link_section = ".ram3_d2")]
+    // #[unsafe(link_section = ".sram1_bss")]
     static USB_BOS_DESCIRPTOR: StaticCell<[u8; 256]> = StaticCell::new();
     let bos_descriptor = USB_BOS_DESCIRPTOR.init([0; 256]);
 
-    #[unsafe(link_section = ".ram3_d2")]
+    // #[unsafe(link_section = ".sram1_bss")]
     static USB_CONTROL_BUF: StaticCell<[u8; 64]> = StaticCell::new();
     let control_buf = USB_CONTROL_BUF.init([0; 64]);
 

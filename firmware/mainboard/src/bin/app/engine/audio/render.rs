@@ -131,6 +131,9 @@ async fn inner_audio_task(
 
     const AMPLITUDE: f32 = 0.25;
     loop {
+        // Make sure we're not carrying over audio from the last set of buffer frames.
+        buf.fill(0);
+
         // Loop over each frame in the buffer and render
         // the samples for the left and right channels.
         for (frame_index, frame) in buf.chunks_mut(OUTPUT_CHANNEL_COUNT).enumerate() {
@@ -161,13 +164,11 @@ async fn inner_audio_task(
             //
             // This is used for system sound effects such as alerts.
             if let Some(system_audio) = system_audio_receiver.try_receive() {
-                if !system_audio.is_empty() {
-                    for (channel_index, sample) in frame.iter_mut().enumerate() {
-                        // Convert the sample to u24 encoded as u32 frames.
-                        *sample = (((system_audio[frame_index][channel_index] + 2.0)
-                            * (0xFFFFFF as f32 / 2.0))
-                            * AMPLITUDE) as u32;
-                    }
+                for (channel_index, channel_sample) in frame.iter_mut().enumerate() {
+                    // Convert the sample to u24 encoded as u32 frames.
+                    *channel_sample = (((system_audio[frame_index][channel_index] + 2.0)
+                        * (0xFFFFFF as f32 / 2.0))
+                        * AMPLITUDE) as u32;
                 }
 
                 system_audio_receiver.receive_done();
