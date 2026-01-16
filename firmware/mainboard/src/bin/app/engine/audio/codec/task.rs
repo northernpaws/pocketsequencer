@@ -1,10 +1,12 @@
 use defmt::info;
 use embassy_executor::{SpawnError, Spawner};
 
+use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, signal::Signal};
 use firmware::hardware::{self, audio::AudioParameters};
 use nau88c22_rs::{
-    AudioConfig, Aux1OutputConfig, Aux2OutputConfig, ClockConfig, DACChannelConfig, DACConfig,
-    InitializationConfig,
+    AudioConfig, AudioFormat, Aux1OutputConfig, Aux2OutputConfig, ClockConfig, DACChannelConfig,
+    DACConfig, InitializationConfig,
+    registers::{AudioInterfaceDataFormat, WordLength},
 };
 
 pub fn spawn(
@@ -12,8 +14,9 @@ pub fn spawn(
     codec: hardware::AudioCodec,
     command_receiver: super::AudioCommandReceiver,
     params: AudioParameters,
+    audio_ready: &'static Signal<CriticalSectionRawMutex, bool>,
 ) -> Result<(), SpawnError> {
-    spawner.spawn(task(codec, command_receiver, params)?);
+    spawner.spawn(task(codec, command_receiver, params, audio_ready)?);
 
     Ok(())
 }
@@ -23,9 +26,10 @@ pub async fn task(
     codec: hardware::AudioCodec,
     command_receiver: super::AudioCommandReceiver,
     params: AudioParameters,
+    audio_ready: &'static Signal<CriticalSectionRawMutex, bool>,
 ) -> ! {
     // should never return
-    let err = inner_task(codec, command_receiver, params).await;
+    let err = inner_task(codec, command_receiver, params, audio_ready).await;
     panic!("audio codec task exited unexpectedly: {:?}", err);
 }
 
@@ -36,6 +40,7 @@ async fn inner_task(
     mut codec: hardware::AudioCodec,
     command_receiver: super::AudioCommandReceiver,
     params: AudioParameters,
+    audio_ready: &'static Signal<CriticalSectionRawMutex, bool>,
 ) -> Result<(), Never> {
     let mut routing_rable: super::AudioRoutingTable = Default::default();
 
@@ -81,7 +86,10 @@ async fn inner_task(
                         dac_left: Some(DACChannelConfig { gain: 0xFF }),
                         dac_right: Some(DACChannelConfig { gain: 0xFF }),
                     }),
-                    format: Default::default(),
+                    format: AudioFormat {
+                        word_length: WordLength::Word32Bit,
+                        data_format: AudioInterfaceDataFormat::StandardI2S,
+                    },
                 },
 
                 // SAI1 clock is close enough to sample rate
@@ -95,6 +103,25 @@ async fn inner_task(
         )
         .await
         .unwrap();
+
+    // Start with in softmute, and then transition out of it to help reduce pops.
+    codec
+        .modify_daccontrol(|reg| reg.with_automt(true).with_softmt(true))
+        .await
+        .unwrap();
+
+    // Wait for the audio task to be ready and have sent some
+    // initial frames, and then move the DAC out of softmute.
+    loop {
+        if audio_ready.wait().await {
+            codec
+                .modify_daccontrol(|reg| reg.with_softmt(false))
+                .await
+                .unwrap();
+
+            break;
+        }
+    }
 
     loop {
         let command = command_receiver.receive().await;

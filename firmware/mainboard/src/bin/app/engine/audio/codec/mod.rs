@@ -4,6 +4,7 @@ use embassy_stm32::i2c;
 use embassy_sync::{
     blocking_mutex::raw::CriticalSectionRawMutex,
     channel::{Channel, Receiver, Sender},
+    signal::Signal,
 };
 use firmware::hardware::{self, audio::AudioParameters};
 
@@ -66,11 +67,18 @@ pub fn start(
     spawner: Spawner,
     codec: hardware::AudioCodec,
     params: AudioParameters,
+    audio_ready: &'static Signal<CriticalSectionRawMutex, bool>,
 ) -> Result<AudioCommandSender, SpawnError> {
     static AUDIO_COMMAND_CHANNEL: AudioCommandChannel = Channel::new();
 
     // Manages the codec over it's i2c control interface.
-    task::spawn(spawner, codec, AUDIO_COMMAND_CHANNEL.receiver(), params)?;
+    task::spawn(
+        spawner,
+        codec,
+        AUDIO_COMMAND_CHANNEL.receiver(),
+        params,
+        audio_ready,
+    )?;
 
     Ok(AUDIO_COMMAND_CHANNEL.sender())
 }

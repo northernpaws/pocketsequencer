@@ -160,7 +160,7 @@ impl Audio {
         tx_config.first_bit_offset = sai::word::U5(0);
         tx_config.frame_sync_polarity = sai::FrameSyncPolarity::ActiveLow;
         tx_config.frame_sync_offset = sai::FrameSyncOffset::BeforeFirstBit;
-        tx_config.data_size = sai::DataSize::Data24;
+        tx_config.data_size = sai::DataSize::Data32;
         tx_config.frame_length = 64; // 64U * (nbslot / 2U)
         tx_config.frame_sync_active_level_length = sai::word::U7(32); // 32U * (nbslot / 2U)
         tx_config.slot_size = sai::SlotSize::Channel32; // sai::SlotSize::DataSize

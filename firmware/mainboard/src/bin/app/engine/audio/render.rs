@@ -1,12 +1,20 @@
+use core::u32;
+
 use crate::engine::audio::SystemAudioReceiver;
 use crate::engine::audio::engine::AudioEngine;
 use crate::hardware::audio::Audio;
 
+use catalina::engine::audio::sample::types::i24;
+use catalina::engine::audio::sample::{I24, types};
+use catalina::engine::audio::{Frame, Sample};
 use cortex_m_rt::interrupt;
 use defmt::{error, info};
 use embassy_executor::{InterruptExecutor, SpawnError};
 use embassy_stm32::interrupt::InterruptExt;
 use embassy_stm32::interrupt::{self, Priority};
+use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
+use embassy_sync::signal::Signal;
+use embassy_time::Timer;
 use firmware::hardware::CodecSAIResources;
 use grounded::uninit::GroundedArrayCell;
 
@@ -57,11 +65,12 @@ pub fn spawn_task(
     r: CodecSAIResources,
     engine: AudioEngine,
     system_audio_receiver: SystemAudioReceiver,
+    ready: &'static Signal<CriticalSectionRawMutex, bool>,
 ) -> Result<(), SpawnError> {
     // Use an interrupt executor to run the audio task at a higher priority.
     interrupt::SAI1.set_priority(Priority::P2);
     let spawner = AUDIO_EXECUTOR.start(interrupt::SAI1);
-    spawner.spawn(audio_task(audio, r, engine, system_audio_receiver)?);
+    spawner.spawn(audio_task(audio, r, engine, system_audio_receiver, ready)?);
 
     Ok(())
 }
@@ -72,9 +81,10 @@ pub async fn audio_task(
     r: CodecSAIResources,
     engine: AudioEngine,
     system_audio_receiver: SystemAudioReceiver,
+    ready: &'static Signal<CriticalSectionRawMutex, bool>,
 ) -> ! {
     // should never return
-    let err = inner_audio_task(audio, r, engine, system_audio_receiver).await;
+    let err = inner_audio_task(audio, r, engine, system_audio_receiver, ready).await;
     panic!("audio task exited unexpectedly: {:?}", err);
 }
 
@@ -86,6 +96,7 @@ async fn inner_audio_task(
     mut r: CodecSAIResources,
     mut engine: AudioEngine,
     mut system_audio_receiver: SystemAudioReceiver,
+    ready: &'static Signal<CriticalSectionRawMutex, bool>,
 ) -> Result<(), Never> {
     info!("starting audio task");
 
@@ -112,6 +123,10 @@ async fn inner_audio_task(
         .create_sai(&mut r, audio_tx_buffer, audio_rx_buffer)
         .await;
 
+    // The NAU88C22 coded needs at least 250 seconds from MCLK being enabled before I2S data is written
+    // to allow the slow-charge delays to gradually power the outputs and prevent popping.
+    Timer::after_millis(250).await;
+
     // Dummy audio source for testing
     let mut osc = oscillator::RuntimeOscillator::new(
         oscillator::OscillatorType::Sine,
@@ -129,10 +144,25 @@ async fn inner_audio_task(
         core::slice::from_raw_parts_mut(ptr, len)
     };
 
-    const AMPLITUDE: f32 = 0.25;
+    // Make sure we're not carrying over audio
+    // from the last set of buffer frames.
+    buf.fill(8_388_608);
+
+    match sai_transmitter.write(&buf).await {
+        Ok(_) => {}
+        Err(err) => {
+            error!("initialization audio transmit error: {}", err);
+        }
+    }
+
+    // Signal that the audio task is ready - i.e. the SAI clocks have started, and some initial data cycles have been written.
+    ready.signal(true);
+
+    const AMPLITUDE: f32 = 1.0;
     loop {
-        // Make sure we're not carrying over audio from the last set of buffer frames.
-        buf.fill(0);
+        // Make sure we're not carrying over audio
+        // from the last set of buffer frames.
+        buf.fill(0); // 8_388_608);
 
         let system_audio = system_audio_receiver.try_receive();
 
@@ -170,9 +200,9 @@ async fn inner_audio_task(
                 if frame_index < system_audio.len() {
                     for (channel_index, channel_sample) in frame.iter_mut().enumerate() {
                         // Convert the sample to u24 encoded as u32 frames.
-                        *channel_sample = (((system_audio[frame_index][channel_index] + 2.0)
-                            * (0xFFFFFF as f32 / 2.0))
-                            * AMPLITUDE) as u32;
+                        *channel_sample = ((system_audio[frame_index][channel_index]
+                            * i32::MAX as f32) as i32)
+                            .cast_unsigned(); // as u32
                     }
                 }
             }
@@ -181,6 +211,8 @@ async fn inner_audio_task(
         if system_audio.is_some() {
             system_audio_receiver.receive_done();
         }
+
+        info!("first sample: {}", buf[0]);
 
         // Write the rendered buffer to the larger ring buffer for DMA.
         //

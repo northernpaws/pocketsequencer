@@ -2,6 +2,7 @@ use catalina::engine::audio::frame;
 use embassy_executor::{SpawnError, Spawner};
 use embassy_sync::{
     blocking_mutex::raw::{CriticalSectionRawMutex, NoopRawMutex},
+    signal::Signal,
     zerocopy_channel,
 };
 use firmware::hardware::{self, CodecSAIResources, audio::Audio};
@@ -33,8 +34,11 @@ pub fn start(
 ) -> Result<AudioManager, SpawnError> {
     let engine = AudioEngine::new();
 
+    // Used to syncronize the I2S interface being ready with the codec control task.
+    static AUDIO_READY: Signal<CriticalSectionRawMutex, bool> = Signal::new();
+
     // Starts the codec management task.
-    let command_sender = codec::start(spawner, codec, audio.params())?;
+    let command_sender = codec::start(spawner, codec, audio.params(), &AUDIO_READY)?;
 
     // Allocate two alternating buffers for the sample transfers.
     let system_sample_blocks =
@@ -47,7 +51,7 @@ pub fn start(
 
     // Starts the audio rendering task that manages the
     // ringbuffer and DMA transfer to the SAI peripheral.
-    render::spawn_task(audio, r, engine, system_receiver)?;
+    render::spawn_task(audio, r, engine, system_receiver, &AUDIO_READY)?;
 
     Ok(AudioManager::new(command_sender, system_sender))
 }
