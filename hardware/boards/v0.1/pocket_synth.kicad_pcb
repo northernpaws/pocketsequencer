@@ -2159,7 +2159,7 @@
 			(net 153 "/Keypad/SW_ROW0")
 			(pinfunction "1")
 			(pintype "passive")
-			(uuid "7dc71689-ec4b-4991-80bc-0687e0b2ba5b")
+			(uuid "e93213b7-c299-40bd-b808-725391524e03")
 		)
 		(pad "2" thru_hole circle
 			(at 5 -3.8 180)
@@ -2180,7 +2180,7 @@
 			(net 4 "Net-(D1-K)")
 			(pinfunction "2")
 			(pintype "passive")
-			(uuid "c79ade39-8fa0-4b72-a1a5-bfabdbb249be")
+			(uuid "bebb7e5a-fb51-4ea5-9687-97bd5e8ddd3a")
 		)
 		(pad "3" smd circle
 			(at -7.6 2.35 180)
@@ -2320,7 +2320,7 @@
 					(width 0.1)
 				)
 			)
-			(uuid "679c1159-79fa-490b-94e0-cc63e723cd29")
+			(uuid "ec01de1c-2f64-4101-bc3b-ce25bb0dfae6")
 		)
 		(pad "4" smd circle
 			(at -7.7 7.6 180)
@@ -2438,7 +2438,7 @@
 					(width 0.1)
 				)
 			)
-			(uuid "e91a8ca8-4bd0-4fc2-b94e-991a4c805e66")
+			(uuid "4ce29ed3-fc3a-4cbe-b134-1bcd896f9c0d")
 		)
 		(zone
 			(net 0)
@@ -4447,7 +4447,7 @@
 			(net 1 "/Keypad/SW_ROW1")
 			(pinfunction "1")
 			(pintype "passive")
-			(uuid "f77e2a48-bec8-44ca-a494-dc01499aeabc")
+			(uuid "d408cebf-a5ff-44c9-83ec-71ead0fc7f8f")
 		)
 		(pad "2" thru_hole circle
 			(at 5 -3.8 180)
@@ -4468,7 +4468,7 @@
 			(net 12 "Net-(D7-K)")
 			(pinfunction "2")
 			(pintype "passive")
-			(uuid "908d87c3-778a-4048-903c-f1997f25946d")
+			(uuid "c8455494-9289-4265-b6a7-ef2da2948492")
 		)
 		(pad "3" smd circle
 			(at -7.6 2.35 180)
@@ -4608,7 +4608,7 @@
 					(width 0.1)
 				)
 			)
-			(uuid "7e146b47-5990-4149-b2c1-bcee2312ed7a")
+			(uuid "3d8fdc8c-bbfa-4c04-bef3-295696850569")
 		)
 		(pad "4" smd circle
 			(at -7.7 7.6 180)
@@ -4726,7 +4726,7 @@
 					(width 0.1)
 				)
 			)
-			(uuid "836be7af-70e6-429b-b68e-339308ce4873")
+			(uuid "d8531f62-da3c-4729-9386-c00cf9622749")
 		)
 		(zone
 			(net 0)
@@ -6240,7 +6240,7 @@
 			(net 153 "/Keypad/SW_ROW0")
 			(pinfunction "1")
 			(pintype "passive")
-			(uuid "cd6bd1b5-68f5-49c3-8e49-d3fda5629ecd")
+			(uuid "dbe2fa37-0a5b-4ba8-981f-cb2de0bfa078")
 		)
 		(pad "2" thru_hole circle
 			(at 5 -3.8 180)
@@ -6261,7 +6261,7 @@
 			(net 8 "Net-(D4-K)")
 			(pinfunction "2")
 			(pintype "passive")
-			(uuid "53f78ea7-9b53-49a7-8385-329f775b7808")
+			(uuid "f82366d2-5e0b-4bab-ab09-8278fea83387")
 		)
 		(pad "3" smd circle
 			(at -7.6 2.35 180)
@@ -6401,7 +6401,7 @@
 					(width 0.1)
 				)
 			)
-			(uuid "e3e89555-4b5e-449f-accd-1defaf599b5b")
+			(uuid "4009660b-ba49-42f5-8b03-efbb1a884d72")
 		)
 		(pad "4" smd circle
 			(at -7.7 7.6 180)
@@ -6519,7 +6519,7 @@
 					(width 0.1)
 				)
 			)
-			(uuid "72947e50-6bdd-4917-98cb-f7de127d26a6")
+			(uuid "1dc3edb2-86ca-4d2c-9983-0ffd0e4703e5")
 		)
 		(zone
 			(net 0)
@@ -8097,7 +8097,7 @@
 			(net 2 "/Keypad/SW_ROW2")
 			(pinfunction "1")
 			(pintype "passive")
-			(uuid "688734bc-5bae-4b38-9d25-e4a648c6181d")
+			(uuid "3f5a89d3-85e5-408d-9139-5e8c9f56d772")
 		)
 		(pad "2" thru_hole circle
 			(at 5 -3.8 180)
@@ -8118,7 +8118,7 @@
 			(net 44 "Net-(D12-K)")
 			(pinfunction "2")
 			(pintype "passive")
-			(uuid "745750be-7ad2-4db5-9b94-f082b8aa392e")
+			(uuid "aad0cdee-2c0f-411b-94a0-2b7a4600f132")
 		)
 		(pad "3" smd circle
 			(at -7.6 2.35 180)
@@ -8258,7 +8258,7 @@
 					(width 0.1)
 				)
 			)
-			(uuid "12b49852-51e0-4a09-9421-d0822cb425fe")
+			(uuid "f8e9da88-ca20-4c57-8717-31e22f34f213")
 		)
 		(pad "4" smd circle
 			(at -7.7 7.6 180)
@@ -8376,7 +8376,7 @@
 					(width 0.1)
 				)
 			)
-			(uuid "0af1d934-0184-43c3-8ff8-d1c194f8229a")
+			(uuid "1872863d-9968-40bf-9efb-8abc25f12249")
 		)
 		(zone
 			(net 0)
@@ -10138,7 +10138,7 @@
 			(net 1 "/Keypad/SW_ROW1")
 			(pinfunction "1")
 			(pintype "passive")
-			(uuid "13ea30bd-ef85-4b26-9773-aed9fe18f85b")
+			(uuid "0456d043-f249-4003-94d2-440d0a8fcc6d")
 		)
 		(pad "2" thru_hole circle
 			(at 5 -3.8 180)
@@ -10159,7 +10159,7 @@
 			(net 13 "Net-(D8-K)")
 			(pinfunction "2")
 			(pintype "passive")
-			(uuid "99ea46a5-f76b-4aa7-9a13-a868e6f76251")
+			(uuid "7e8c066d-a12d-4a8a-b930-dec97068eb0f")
 		)
 		(pad "3" smd circle
 			(at -7.6 2.35 180)
@@ -10299,7 +10299,7 @@
 					(width 0.1)
 				)
 			)
-			(uuid "76b465f2-7281-4236-8a61-475300f86ae2")
+			(uuid "9b6a10ba-0ef6-4ff4-b258-ea46ec170055")
 		)
 		(pad "4" smd circle
 			(at -7.7 7.6 180)
@@ -10417,7 +10417,7 @@
 					(width 0.1)
 				)
 			)
-			(uuid "67da7a31-25e2-4459-bf96-cdad37b53790")
+			(uuid "90980d63-a341-49d4-87a9-431a926103a0")
 		)
 		(zone
 			(net 0)
@@ -13112,7 +13112,7 @@
 			(net 5 "/Keypad/SW_ROW3")
 			(pinfunction "1")
 			(pintype "passive")
-			(uuid "58cb09b9-6836-4ca5-8ad7-90c08a9933a2")
+			(uuid "47d37bca-5540-4d52-876b-a149f11a163b")
 		)
 		(pad "2" thru_hole circle
 			(at 5 -3.8 180)
@@ -13133,7 +13133,7 @@
 			(net 59 "Net-(D13-K)")
 			(pinfunction "2")
 			(pintype "passive")
-			(uuid "d644965b-6cb8-420b-ab61-bfd49123e92c")
+			(uuid "73b63960-15e1-4ce5-bad3-e484605c6b69")
 		)
 		(pad "3" smd circle
 			(at -7.6 2.35 180)
@@ -13273,7 +13273,7 @@
 					(width 0.1)
 				)
 			)
-			(uuid "ebf232d7-940b-4652-8099-a12f8a275de5")
+			(uuid "d3c24391-f3a5-424c-94e1-84640d67428b")
 		)
 		(pad "4" smd circle
 			(at -7.7 7.6 180)
@@ -13391,7 +13391,7 @@
 					(width 0.1)
 				)
 			)
-			(uuid "a7515c3a-3426-46ed-a936-0452ec4b1bf0")
+			(uuid "90392b80-d6f5-47e2-8898-94827a54e99d")
 		)
 		(zone
 			(net 0)
@@ -14865,7 +14865,7 @@
 			(net 5 "/Keypad/SW_ROW3")
 			(pinfunction "1")
 			(pintype "passive")
-			(uuid "e426711d-1004-4602-ae27-7958f40a935b")
+			(uuid "88b687b6-f0b0-4785-94bd-692417e75d77")
 		)
 		(pad "2" thru_hole circle
 			(at 5 -3.8 180)
@@ -14886,7 +14886,7 @@
 			(net 84 "Net-(D16-K)")
 			(pinfunction "2")
 			(pintype "passive")
-			(uuid "13c328e0-519e-448e-852f-027c8fb91960")
+			(uuid "fc54739c-0f19-4837-8793-297e9e8f6177")
 		)
 		(pad "3" smd circle
 			(at -7.6 2.35 180)
@@ -15026,7 +15026,7 @@
 					(width 0.1)
 				)
 			)
-			(uuid "5a3000d8-aa3b-434d-a732-eca7d301448d")
+			(uuid "3fa7d305-c322-4d3b-a4e3-4ecff06cba54")
 		)
 		(pad "4" smd circle
 			(at -7.7 7.6 180)
@@ -15144,7 +15144,7 @@
 					(width 0.1)
 				)
 			)
-			(uuid "f7ccbfff-4d97-4f61-b201-becd9ec7dfec")
+			(uuid "909a756b-2184-4381-ba1a-b5e422008ffb")
 		)
 		(zone
 			(net 0)
@@ -17829,7 +17829,7 @@
 			(net 1 "/Keypad/SW_ROW1")
 			(pinfunction "1")
 			(pintype "passive")
-			(uuid "d974f2b9-eac3-4111-b832-2283f7bfd5bd")
+			(uuid "cbf8ea28-6ee7-4b01-a4a6-f008762208c9")
 		)
 		(pad "2" thru_hole circle
 			(at 5 -3.8 180)
@@ -17850,7 +17850,7 @@
 			(net 9 "Net-(D5-K)")
 			(pinfunction "2")
 			(pintype "passive")
-			(uuid "46b0bf85-64c0-4e6b-bceb-e797210f0e5d")
+			(uuid "d85f25d3-aaf1-42bb-9f26-91d80004f9b6")
 		)
 		(pad "3" smd circle
 			(at -7.6 2.35 180)
@@ -17990,7 +17990,7 @@
 					(width 0.1)
 				)
 			)
-			(uuid "9cf62c64-b084-4d60-8f45-8b8f48a355c4")
+			(uuid "1042cd18-b843-4985-ac5e-a8af9d4e8e63")
 		)
 		(pad "4" smd circle
 			(at -7.7 7.6 180)
@@ -18108,7 +18108,7 @@
 					(width 0.1)
 				)
 			)
-			(uuid "6d1895c5-5419-49a6-9666-4001d7148782")
+			(uuid "3cce71ac-e973-49f5-9ff3-1bb0987ef62a")
 		)
 		(zone
 			(net 0)
@@ -19452,7 +19452,7 @@
 			(net 2 "/Keypad/SW_ROW2")
 			(pinfunction "1")
 			(pintype "passive")
-			(uuid "d23830b7-27ce-4c99-98ca-f615aa5a7483")
+			(uuid "2f56b7bc-c11d-4e62-8c80-3e66fae46657")
 		)
 		(pad "2" thru_hole circle
 			(at 5 -3.8 180)
@@ -19473,7 +19473,7 @@
 			(net 15 "Net-(D9-K)")
 			(pinfunction "2")
 			(pintype "passive")
-			(uuid "87c19156-cc76-458a-beb0-c788a154e34a")
+			(uuid "319964f8-c94d-4f0f-a654-2dab837ab7c3")
 		)
 		(pad "3" smd circle
 			(at -7.6 2.35 180)
@@ -19613,7 +19613,7 @@
 					(width 0.1)
 				)
 			)
-			(uuid "6fbc860a-4b14-4b2c-bf79-84a70caa8356")
+			(uuid "6453723b-3949-431e-8bb4-ce0eb657f504")
 		)
 		(pad "4" smd circle
 			(at -7.7 7.6 180)
@@ -19731,7 +19731,7 @@
 					(width 0.1)
 				)
 			)
-			(uuid "0c9abde0-a8ea-4b8d-be48-d00c9f637fa2")
+			(uuid "8bcb2784-b676-4036-a45a-8eaa2195cbb0")
 		)
 		(zone
 			(net 0)
@@ -23183,7 +23183,7 @@
 			(net 153 "/Keypad/SW_ROW0")
 			(pinfunction "1")
 			(pintype "passive")
-			(uuid "1048e816-770e-457c-a8f5-28195fcce9f9")
+			(uuid "5ccbed5a-df31-4d1b-a392-16794debd401")
 		)
 		(pad "2" thru_hole circle
 			(at 5 -3.8 180)
@@ -23204,7 +23204,7 @@
 			(net 7 "Net-(D3-K)")
 			(pinfunction "2")
 			(pintype "passive")
-			(uuid "97fc6628-3d64-4ddf-9efe-1fb6d1411253")
+			(uuid "3cc74fe6-fcc4-4e93-8a79-cddfaca8f2e2")
 		)
 		(pad "3" smd circle
 			(at -7.6 2.35 180)
@@ -23344,7 +23344,7 @@
 					(width 0.1)
 				)
 			)
-			(uuid "77296d11-2254-432e-ad3f-7c0234d383c7")
+			(uuid "8cfad8a5-bb21-465c-9386-b262bd5f561d")
 		)
 		(pad "4" smd circle
 			(at -7.7 7.6 180)
@@ -23462,7 +23462,7 @@
 					(width 0.1)
 				)
 			)
-			(uuid "eb634952-6af2-4f33-9664-d07157615948")
+			(uuid "5fc6481a-8ace-4cd7-8068-50cfbfbf028b")
 		)
 		(zone
 			(net 0)
@@ -25767,7 +25767,7 @@
 			(net 1 "/Keypad/SW_ROW1")
 			(pinfunction "1")
 			(pintype "passive")
-			(uuid "d01e65e9-f7f5-4a5d-abb1-43ac6f77ac7a")
+			(uuid "7646f41a-82aa-4690-a87e-f584481a045d")
 		)
 		(pad "2" thru_hole circle
 			(at 5 -3.8 180)
@@ -25788,7 +25788,7 @@
 			(net 11 "Net-(D6-K)")
 			(pinfunction "2")
 			(pintype "passive")
-			(uuid "e0e85a1b-df06-40ef-af06-52b52b129e6d")
+			(uuid "f8e8813d-6e13-48fd-879b-0157ec1149f9")
 		)
 		(pad "3" smd circle
 			(at -7.6 2.35 180)
@@ -25928,7 +25928,7 @@
 					(width 0.1)
 				)
 			)
-			(uuid "963b575a-b793-4d44-9a56-27defec4bca1")
+			(uuid "efca4bdb-abab-4bdd-9411-ab37f46bc1a7")
 		)
 		(pad "4" smd circle
 			(at -7.7 7.6 180)
@@ -26046,7 +26046,7 @@
 					(width 0.1)
 				)
 			)
-			(uuid "b0e1e047-de15-49a7-8b57-271679812546")
+			(uuid "d6cddc8f-e149-43df-b7e1-9205b4a974ff")
 		)
 		(zone
 			(net 0)
@@ -28518,7 +28518,7 @@
 			(net 5 "/Keypad/SW_ROW3")
 			(pinfunction "1")
 			(pintype "passive")
-			(uuid "fbe71bc7-d133-4b08-a982-bea36d958d29")
+			(uuid "3979d5e1-3fec-42ee-8cb2-bae32111b283")
 		)
 		(pad "2" thru_hole circle
 			(at 5 -3.8 180)
@@ -28539,7 +28539,7 @@
 			(net 83 "Net-(D15-K)")
 			(pinfunction "2")
 			(pintype "passive")
-			(uuid "de9618fe-da83-4295-abb6-f4227f8b637e")
+			(uuid "d445fbf5-bf6c-4fd1-a335-cbb1f4b088f4")
 		)
 		(pad "3" smd circle
 			(at -7.6 2.35 180)
@@ -28679,7 +28679,7 @@
 					(width 0.1)
 				)
 			)
-			(uuid "baba9a50-377e-47a3-bc8a-876bfdf72c3d")
+			(uuid "e67928ec-2745-4f48-ba63-4b8cf0ddba3b")
 		)
 		(pad "4" smd circle
 			(at -7.7 7.6 180)
@@ -28797,7 +28797,7 @@
 					(width 0.1)
 				)
 			)
-			(uuid "e42bd061-0d6f-46a4-8046-0883f84adb4d")
+			(uuid "dc5d2939-5bcb-49ab-a088-2c64b66c588f")
 		)
 		(zone
 			(net 0)
@@ -33511,7 +33511,7 @@
 			(net 153 "/Keypad/SW_ROW0")
 			(pinfunction "1")
 			(pintype "passive")
-			(uuid "9169b107-0a85-4afd-8579-42c4dc0f0d57")
+			(uuid "b8e740cf-c7ee-4496-aa6b-d4a983d06b55")
 		)
 		(pad "2" thru_hole circle
 			(at 5 -3.8 180)
@@ -33532,7 +33532,7 @@
 			(net 6 "Net-(D2-K)")
 			(pinfunction "2")
 			(pintype "passive")
-			(uuid "6f63091d-dc94-4a02-a2c3-e2f2c5d8fbf9")
+			(uuid "760df58e-c5f7-4c3e-9ea0-04cb27b7bb68")
 		)
 		(pad "3" smd circle
 			(at -7.6 2.35 180)
@@ -33672,7 +33672,7 @@
 					(width 0.1)
 				)
 			)
-			(uuid "cf8b340a-e182-450f-a033-4d54ecec5595")
+			(uuid "965ee505-0f1b-4564-8f93-1e57bfb00a51")
 		)
 		(pad "4" smd circle
 			(at -7.7 7.6 180)
@@ -33790,7 +33790,7 @@
 					(width 0.1)
 				)
 			)
-			(uuid "6bcc4777-6707-4168-9a67-98bf3f8834c5")
+			(uuid "33306691-9398-4167-81fa-bdf5b56acf06")
 		)
 		(zone
 			(net 0)
@@ -37320,7 +37320,7 @@
 			(net 2 "/Keypad/SW_ROW2")
 			(pinfunction "1")
 			(pintype "passive")
-			(uuid "4f2cfa14-59b6-4c6b-bc63-f21804c75e50")
+			(uuid "bfc01f3d-2803-4e67-85fd-734c125c0925")
 		)
 		(pad "2" thru_hole circle
 			(at 5 -3.8 180)
@@ -37341,7 +37341,7 @@
 			(net 34 "Net-(D10-K)")
 			(pinfunction "2")
 			(pintype "passive")
-			(uuid "7c0cc9c5-04d3-4b49-b057-7daee16f6afe")
+			(uuid "cf647ef1-5d05-4765-bcff-2d0606714356")
 		)
 		(pad "3" smd circle
 			(at -7.6 2.35 180)
@@ -37481,7 +37481,7 @@
 					(width 0.1)
 				)
 			)
-			(uuid "26620b6f-e708-4772-9f43-4952fecdb6d8")
+			(uuid "35ed65d2-f79a-4b3c-86ad-cd5c576a7ee7")
 		)
 		(pad "4" smd circle
 			(at -7.7 7.6 180)
@@ -37599,7 +37599,7 @@
 					(width 0.1)
 				)
 			)
-			(uuid "afa8124e-fea0-4f53-a187-1bddba4b2997")
+			(uuid "beffbb8c-8fa2-486d-8c1c-46e19254fbde")
 		)
 		(zone
 			(net 0)
@@ -41073,7 +41073,7 @@
 			(net 5 "/Keypad/SW_ROW3")
 			(pinfunction "1")
 			(pintype "passive")
-			(uuid "7bb6bbea-fe0f-4f5c-b8df-9287bd43bea3")
+			(uuid "9969815c-eaf7-4979-80bb-d683584cba75")
 		)
 		(pad "2" thru_hole circle
 			(at 5 -3.8 180)
@@ -41094,7 +41094,7 @@
 			(net 68 "Net-(D14-K)")
 			(pinfunction "2")
 			(pintype "passive")
-			(uuid "e4ca7963-c348-4eee-9283-a6fdbda8b305")
+			(uuid "9390d896-b99d-49bd-9d89-fb311cbe757e")
 		)
 		(pad "3" smd circle
 			(at -7.6 2.35 180)
@@ -41234,7 +41234,7 @@
 					(width 0.1)
 				)
 			)
-			(uuid "e3ba6e29-10db-407f-9e24-062123689b7a")
+			(uuid "85a76c74-153c-446e-a61c-f704f4ea9fb3")
 		)
 		(pad "4" smd circle
 			(at -7.7 7.6 180)
@@ -41352,7 +41352,7 @@
 					(width 0.1)
 				)
 			)
-			(uuid "c9e4bc5c-590d-44a7-807a-3ee083e6dedd")
+			(uuid "26e7c8b3-6bdf-4efb-a0c4-8306a6d7ecc0")
 		)
 		(zone
 			(net 0)
@@ -44834,7 +44834,7 @@
 			(net 2 "/Keypad/SW_ROW2")
 			(pinfunction "1")
 			(pintype "passive")
-			(uuid "6778e899-0816-42c5-a808-9fd9fab2ef23")
+			(uuid "ef8ea3bd-c370-4c21-a6f6-031a1b26fc24")
 		)
 		(pad "2" thru_hole circle
 			(at 5 -3.8 180)
@@ -44855,7 +44855,7 @@
 			(net 38 "Net-(D11-K)")
 			(pinfunction "2")
 			(pintype "passive")
-			(uuid "6b417d3a-01b6-416e-8c2f-99fb975fa95a")
+			(uuid "80b7e1fc-fd24-46a8-99b3-202a07724ca8")
 		)
 		(pad "3" smd circle
 			(at -7.6 2.35 180)
@@ -44995,7 +44995,7 @@
 					(width 0.1)
 				)
 			)
-			(uuid "3c1314ea-ac83-42c8-83db-3011164620bc")
+			(uuid "ef5b27bf-46ad-4e0e-b5ed-2a18a7e4a5a1")
 		)
 		(pad "4" smd circle
 			(at -7.7 7.6 180)
@@ -45113,7 +45113,7 @@
 					(width 0.1)
 				)
 			)
-			(uuid "e65575ee-edd8-4613-805e-64170f257505")
+			(uuid "d9256299-8c1b-4c46-a507-1c5d65c0cef1")
 		)
 		(zone
 			(net 0)
@@ -136293,6 +136293,975 @@
 		)
 	)
 	(table
+		(column_count 4)
+		(layer "F.SilkS")
+		(border
+			(external yes)
+			(header yes)
+			(stroke
+				(width 0.1)
+				(type solid)
+			)
+		)
+		(separators
+			(rows yes)
+			(cols yes)
+			(stroke
+				(width 0.1)
+				(type solid)
+			)
+		)
+		(column_widths 4.225 3.375 4.4 4.35)
+		(row_heights 1.875 1.95 1.95)
+		(cells
+			(table_cell "CLK"
+				(start 79.05 80.83)
+				(end 83.275 82.705)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "2c684684-51ed-41a8-abbe-deca046fa269")
+				(effects
+					(font
+						(size 1 1)
+						(bold yes)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "PA5"
+				(start 83.275 80.83)
+				(end 86.65 82.705)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "9c63f058-bd66-48cf-9b0e-6cf155694e9c")
+				(effects
+					(font
+						(size 1 1)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "SDCS"
+				(start 86.65 80.83)
+				(end 91.05 82.705)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "b6d221e1-c9ef-40ee-a194-c41c51c0a6ac")
+				(effects
+					(font
+						(size 1 1)
+						(bold yes)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "PA4"
+				(start 91.05 80.83)
+				(end 95.4 82.705)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "63bd3f41-21bc-4ae0-bf32-19511df413a1")
+				(effects
+					(font
+						(size 1 1)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "POCI"
+				(start 79.05 82.705)
+				(end 83.275 84.655)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "bbf47911-e029-43fd-979b-b74d961537be")
+				(effects
+					(font
+						(size 1 1)
+						(bold yes)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "PA6"
+				(start 83.275 82.705)
+				(end 86.65 84.655)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "44f61d5b-f364-41f6-84d7-4165e63988f3")
+				(effects
+					(font
+						(size 1 1)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "XTCS"
+				(start 86.65 82.705)
+				(end 91.05 84.655)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "74726124-0586-4080-92a5-b1e21b13f28d")
+				(effects
+					(font
+						(size 1 1)
+						(bold yes)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "PC13"
+				(start 91.05 82.705)
+				(end 95.4 84.655)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "84271300-7adc-4605-853d-2bdda14337f8")
+				(effects
+					(font
+						(size 1 1)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "PICO"
+				(start 79.05 84.655)
+				(end 83.275 86.605)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "e746c3f9-bf0d-41b4-a2d7-28dcb876099b")
+				(effects
+					(font
+						(size 1 1)
+						(bold yes)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "PA7"
+				(start 83.275 84.655)
+				(end 86.65 86.605)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "de208083-4a74-4798-a257-4885c9e7fa87")
+				(effects
+					(font
+						(size 1 1)
+					)
+					(justify left)
+				)
+			)
+			(table_cell ""
+				(start 86.65 84.655)
+				(end 91.05 86.605)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "8cc69281-fc40-49a4-bc0b-fb3a83ea24c8")
+				(effects
+					(font
+						(size 1 1)
+					)
+					(justify left)
+				)
+			)
+			(table_cell ""
+				(start 91.05 84.655)
+				(end 95.4 86.605)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "5c35d594-bc8a-4fda-a84d-9d2d9419fc1f")
+				(effects
+					(font
+						(size 1 1)
+					)
+					(justify left)
+				)
+			)
+		)
+	)
+	(table
+		(column_count 4)
+		(layer "F.SilkS")
+		(border
+			(external yes)
+			(header yes)
+			(stroke
+				(width 0.1)
+				(type solid)
+			)
+		)
+		(separators
+			(rows yes)
+			(cols yes)
+			(stroke
+				(width 0.1)
+				(type solid)
+			)
+		)
+		(column_widths 2.4 4.6 3.65 4.525)
+		(row_heights 1.875 1.875 1.775 1.825 1.95 1.9 1.9 1.95)
+		(cells
+			(table_cell "D0"
+				(start 87.15 64.375)
+				(end 89.55 66.25)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "2c684684-51ed-41a8-abbe-deca046fa269")
+				(effects
+					(font
+						(size 1 1)
+						(bold yes)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "PD14"
+				(start 89.55 64.375)
+				(end 94.15 66.25)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "9c63f058-bd66-48cf-9b0e-6cf155694e9c")
+				(effects
+					(font
+						(size 1 1)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "D8"
+				(start 94.15 64.375)
+				(end 97.8 66.25)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "b6d221e1-c9ef-40ee-a194-c41c51c0a6ac")
+				(effects
+					(font
+						(size 1 1)
+						(bold yes)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "PE11"
+				(start 97.8 64.375)
+				(end 102.325 66.25)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "63bd3f41-21bc-4ae0-bf32-19511df413a1")
+				(effects
+					(font
+						(size 1 1)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "D1"
+				(start 87.15 66.25)
+				(end 89.55 68.125)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "bbf47911-e029-43fd-979b-b74d961537be")
+				(effects
+					(font
+						(size 1 1)
+						(bold yes)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "PD15"
+				(start 89.55 66.25)
+				(end 94.15 68.125)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "44f61d5b-f364-41f6-84d7-4165e63988f3")
+				(effects
+					(font
+						(size 1 1)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "D9"
+				(start 94.15 66.25)
+				(end 97.8 68.125)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "74726124-0586-4080-92a5-b1e21b13f28d")
+				(effects
+					(font
+						(size 1 1)
+						(bold yes)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "PE12"
+				(start 97.8 66.25)
+				(end 102.325 68.125)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "84271300-7adc-4605-853d-2bdda14337f8")
+				(effects
+					(font
+						(size 1 1)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "D2"
+				(start 87.15 68.125)
+				(end 89.55 69.9)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "e746c3f9-bf0d-41b4-a2d7-28dcb876099b")
+				(effects
+					(font
+						(size 1 1)
+						(bold yes)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "PD0"
+				(start 89.55 68.125)
+				(end 94.15 69.9)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "de208083-4a74-4798-a257-4885c9e7fa87")
+				(effects
+					(font
+						(size 1 1)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "D10"
+				(start 94.15 68.125)
+				(end 97.8 69.9)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "8cc69281-fc40-49a4-bc0b-fb3a83ea24c8")
+				(effects
+					(font
+						(size 1 1)
+						(bold yes)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "PE13"
+				(start 97.8 68.125)
+				(end 102.325 69.9)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "5c35d594-bc8a-4fda-a84d-9d2d9419fc1f")
+				(effects
+					(font
+						(size 1 1)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "D3"
+				(start 87.15 69.9)
+				(end 89.55 71.725)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "14cc7210-b47a-4403-8631-e6adfc53e9c7")
+				(effects
+					(font
+						(size 1 1)
+						(bold yes)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "PD1"
+				(start 89.55 69.9)
+				(end 94.15 71.725)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "41479445-90e9-454e-a34f-a72802c4a45a")
+				(effects
+					(font
+						(size 1 1)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "D11"
+				(start 94.15 69.9)
+				(end 97.8 71.725)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "5f208eee-0d33-4a39-80db-a705aa18c269")
+				(effects
+					(font
+						(size 1 1)
+						(bold yes)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "PE14"
+				(start 97.8 69.9)
+				(end 102.325 71.725)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "632cbf49-7362-41d7-b245-e9432dced085")
+				(effects
+					(font
+						(size 1 1)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "D4"
+				(start 87.15 71.725)
+				(end 89.55 73.675)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "b0e92b82-873a-4843-ab40-bbba5234450d")
+				(effects
+					(font
+						(size 1 1)
+						(bold yes)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "PE7"
+				(start 89.55 71.725)
+				(end 94.15 73.675)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "8b199b79-10a9-405f-b894-d54fa214cc0a")
+				(effects
+					(font
+						(size 1 1)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "D12"
+				(start 94.15 71.725)
+				(end 97.8 73.675)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "2507e924-766b-4aa1-af74-f07a19f890e0")
+				(effects
+					(font
+						(size 1 1)
+						(bold yes)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "PE15"
+				(start 97.8 71.725)
+				(end 102.325 73.675)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "516032bc-a8f7-4345-a6ba-262ed44a679e")
+				(effects
+					(font
+						(size 1 1)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "D5"
+				(start 87.15 73.675)
+				(end 89.55 75.575)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "ad0d394c-3716-4eee-b58e-a82e81902600")
+				(effects
+					(font
+						(size 1 1)
+						(bold yes)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "PE8"
+				(start 89.55 73.675)
+				(end 94.15 75.575)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "39dd2bbd-d176-4477-90f2-359838042be3")
+				(effects
+					(font
+						(size 1 1)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "D13"
+				(start 94.15 73.675)
+				(end 97.8 75.575)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "72ed302b-0188-49e8-b600-1397cf231441")
+				(effects
+					(font
+						(size 1 1)
+						(bold yes)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "PD8"
+				(start 97.8 73.675)
+				(end 102.325 75.575)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "ab4e8ecc-5d28-4ab9-9982-2bcf7d23b17d")
+				(effects
+					(font
+						(size 1 1)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "D6"
+				(start 87.15 75.575)
+				(end 89.55 77.475)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "41030544-8a6a-4c12-8a46-a91c30d3f542")
+				(effects
+					(font
+						(size 1 1)
+						(bold yes)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "PE9"
+				(start 89.55 75.575)
+				(end 94.15 77.475)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "7dfc8235-d21a-4665-b97b-63cb970cb156")
+				(effects
+					(font
+						(size 1 1)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "D14"
+				(start 94.15 75.575)
+				(end 97.8 77.475)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "26f09167-cb13-4efd-8520-02261f7b08e7")
+				(effects
+					(font
+						(size 1 1)
+						(bold yes)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "PD9"
+				(start 97.8 75.575)
+				(end 102.325 77.475)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "9e6c1a48-5d04-4c27-bba9-23fd370a3aef")
+				(effects
+					(font
+						(size 1 1)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "D7"
+				(start 87.15 77.475)
+				(end 89.55 79.425)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "e6fdc45b-6c31-46c9-9c8f-8a1c4f3c6238")
+				(effects
+					(font
+						(size 1 1)
+						(bold yes)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "PE10"
+				(start 89.55 77.475)
+				(end 94.15 79.425)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "a4d5b279-1157-4e49-9630-31fae5c17e3f")
+				(effects
+					(font
+						(size 1 1)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "D15"
+				(start 94.15 77.475)
+				(end 97.8 79.425)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "7f9b30a8-f12e-45ae-98b8-af9b7e864bb8")
+				(effects
+					(font
+						(size 1 1)
+						(bold yes)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "PD10"
+				(start 97.8 77.475)
+				(end 102.325 79.425)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "86201a8d-c22c-4858-a14f-3a799aedf85e")
+				(effects
+					(font
+						(size 1 1)
+					)
+					(justify left)
+				)
+			)
+		)
+	)
+	(table
+		(column_count 3)
+		(layer "F.SilkS")
+		(border
+			(external yes)
+			(header yes)
+			(stroke
+				(width 0.1)
+				(type solid)
+			)
+		)
+		(separators
+			(rows yes)
+			(cols yes)
+			(stroke
+				(width 0.1)
+				(type solid)
+			)
+		)
+		(column_widths 5.325 4.35 3.575)
+		(row_heights 1.875 1.95 1.95 1.95 1.95 1.95)
+		(cells
+			(table_cell "SAI"
+				(start 54.425 52.049562)
+				(end 59.75 53.924562)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "2c684684-51ed-41a8-abbe-deca046fa269")
+				(effects
+					(font
+						(size 1 1)
+						(italic yes)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "1A/B"
+				(start 59.75 52.049562)
+				(end 64.1 53.924562)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "9c63f058-bd66-48cf-9b0e-6cf155694e9c")
+				(effects
+					(font
+						(size 1 1)
+						(italic yes)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "4B"
+				(start 64.1 52.049562)
+				(end 67.675 53.924562)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "2af86986-d5bc-4b85-b2f1-6820ffd475dd")
+				(effects
+					(font
+						(size 1 1)
+						(italic yes)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "MCLK"
+				(start 54.425 53.924562)
+				(end 59.75 55.874562)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "bbf47911-e029-43fd-979b-b74d961537be")
+				(effects
+					(font
+						(size 1 1)
+						(bold yes)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "PG7"
+				(start 59.75 53.924562)
+				(end 64.1 55.874562)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "44f61d5b-f364-41f6-84d7-4165e63988f3")
+				(effects
+					(font
+						(size 1 1)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "PF7"
+				(start 64.1 53.924562)
+				(end 67.675 55.874562)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "1c7311dd-c1d7-4e7b-9ab3-e248e189438e")
+				(effects
+					(font
+						(size 1 1)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "BLCK"
+				(start 54.425 55.874562)
+				(end 59.75 57.824562)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "e746c3f9-bf0d-41b4-a2d7-28dcb876099b")
+				(effects
+					(font
+						(size 1 1)
+						(bold yes)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "PE5"
+				(start 59.75 55.874562)
+				(end 64.1 57.824562)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "de208083-4a74-4798-a257-4885c9e7fa87")
+				(effects
+					(font
+						(size 1 1)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "PF8"
+				(start 64.1 55.874562)
+				(end 67.675 57.824562)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "76e34400-4c84-47d9-a78a-ce087e92c1ba")
+				(effects
+					(font
+						(size 1 1)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "LRCLK"
+				(start 54.425 57.824562)
+				(end 59.75 59.774562)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "d64095f7-76df-400a-9aa6-f8d14d64bf8a")
+				(effects
+					(font
+						(size 1 1)
+						(bold yes)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "PE4"
+				(start 59.75 57.824562)
+				(end 64.1 59.774562)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "d90b50d3-6ee9-44b7-8766-aa9bc4f08544")
+				(effects
+					(font
+						(size 1 1)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "PF9"
+				(start 64.1 57.824562)
+				(end 67.675 59.774562)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "c9a89f7e-57d8-4bf7-b964-2c73b369e489")
+				(effects
+					(font
+						(size 1 1)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "DAC"
+				(start 54.425 59.774562)
+				(end 59.75 61.724562)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "460263ac-b6e1-4b7c-a7b6-7c8c81a3dbb6")
+				(effects
+					(font
+						(size 1 1)
+						(bold yes)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "PE6"
+				(start 59.75 59.774562)
+				(end 64.1 61.724562)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "4240caa8-9b9c-43b8-a477-0cff1b44b0ef")
+				(effects
+					(font
+						(size 1 1)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "PF6"
+				(start 64.1 59.774562)
+				(end 67.675 61.724562)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "fc90f996-be42-4117-89d8-40b408609cfc")
+				(effects
+					(font
+						(size 1 1)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "ADC"
+				(start 54.425 61.724562)
+				(end 59.75 63.674562)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "ad9db2d8-9c04-4f36-911d-55b8538020bb")
+				(effects
+					(font
+						(size 1 1)
+						(bold yes)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "PE3"
+				(start 59.75 61.724562)
+				(end 64.1 63.674562)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "07be55c8-42c0-45e9-997e-0990e4a4a0de")
+				(effects
+					(font
+						(size 1 1)
+					)
+					(justify left)
+				)
+			)
+			(table_cell "-"
+				(start 64.1 61.724562)
+				(end 67.675 63.674562)
+				(margins 0.25 0.25 0.25 0.25)
+				(span 1 1)
+				(layer "F.SilkS")
+				(uuid "ff3c1170-9694-4d2d-a1e9-6c82e2c6b626")
+				(effects
+					(font
+						(size 1 1)
+					)
+					(justify left)
+				)
+			)
+		)
+	)
+	(table
 		(column_count 3)
 		(layer "F.SilkS")
 		(border
@@ -136755,12 +137724,12 @@
 				(type solid)
 			)
 		)
-		(column_widths 3.85 3.425 3.55)
-		(row_heights 1.825 2.175 2.125 2.175)
+		(column_widths 1.825 4.6 3.55)
+		(row_heights 2.175 2.125 2.175)
 		(cells
-			(table_cell "PB*"
-				(start 32.4 78.575)
-				(end 36.25 80.4)
+			(table_cell "#"
+				(start 57.775 44.725)
+				(end 59.6 46.9)
 				(margins 0.25 0.25 0.25 0.25)
 				(span 1 1)
 				(layer "F.SilkS")
@@ -136773,9 +137742,9 @@
 					(justify left)
 				)
 			)
-			(table_cell "SCL"
-				(start 36.25 78.575)
-				(end 39.675 80.4)
+			(table_cell "TX"
+				(start 59.6 44.725)
+				(end 64.2 46.9)
 				(margins 0.25 0.25 0.25 0.25)
 				(span 1 1)
 				(layer "F.SilkS")
@@ -136788,9 +137757,9 @@
 					(justify left)
 				)
 			)
-			(table_cell "SDA"
-				(start 39.675 78.575)
-				(end 43.225 80.4)
+			(table_cell "RX"
+				(start 64.2 44.725)
+				(end 67.75 46.9)
 				(margins 0.25 0.25 0.25 0.25)
 				(span 1 1)
 				(layer "F.SilkS")
@@ -136803,9 +137772,9 @@
 					(justify left)
 				)
 			)
-			(table_cell "I2C1"
-				(start 32.4 80.4)
-				(end 36.25 82.575)
+			(table_cell "4"
+				(start 57.775 46.9)
+				(end 59.6 49.025)
 				(margins 0.25 0.25 0.25 0.25)
 				(span 1 1)
 				(layer "F.SilkS")
@@ -136817,9 +137786,9 @@
 					(justify left)
 				)
 			)
-			(table_cell "7"
-				(start 36.25 80.4)
-				(end 39.675 82.575)
+			(table_cell "PA0"
+				(start 59.6 46.9)
+				(end 64.2 49.025)
 				(margins 0.25 0.25 0.25 0.25)
 				(span 1 1)
 				(layer "F.SilkS")
@@ -136831,9 +137800,9 @@
 					(justify left)
 				)
 			)
-			(table_cell "8"
-				(start 39.675 80.4)
-				(end 43.225 82.575)
+			(table_cell "PA1"
+				(start 64.2 46.9)
+				(end 67.75 49.025)
 				(margins 0.25 0.25 0.25 0.25)
 				(span 1 1)
 				(layer "F.SilkS")
@@ -136845,9 +137814,9 @@
 					(justify left)
 				)
 			)
-			(table_cell "I2C2"
-				(start 32.4 82.575)
-				(end 36.25 84.7)
+			(table_cell "5"
+				(start 57.775 49.025)
+				(end 59.6 51.2)
 				(margins 0.25 0.25 0.25 0.25)
 				(span 1 1)
 				(layer "F.SilkS")
@@ -136859,9 +137828,9 @@
 					(justify left)
 				)
 			)
-			(table_cell "10"
-				(start 36.25 82.575)
-				(end 39.675 84.7)
+			(table_cell "PC12"
+				(start 59.6 49.025)
+				(end 64.2 51.2)
 				(margins 0.25 0.25 0.25 0.25)
 				(span 1 1)
 				(layer "F.SilkS")
@@ -136873,55 +137842,13 @@
 					(justify left)
 				)
 			)
-			(table_cell "11"
-				(start 39.675 82.575)
-				(end 43.225 84.7)
+			(table_cell "PD2"
+				(start 64.2 49.025)
+				(end 67.75 51.2)
 				(margins 0.25 0.25 0.25 0.25)
 				(span 1 1)
 				(layer "F.SilkS")
 				(uuid "2e12a969-71e3-4df7-a2cd-0f329f01039c")
-				(effects
-					(font
-						(size 1 1)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "I2C4"
-				(start 32.4 84.7)
-				(end 36.25 86.875)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "5af2d758-ac96-43a4-b7e3-bacee87717a5")
-				(effects
-					(font
-						(size 1 1)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "8"
-				(start 36.25 84.7)
-				(end 39.675 86.875)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "cab1d522-9ff2-490f-a10b-a2cd15e884a2")
-				(effects
-					(font
-						(size 1 1)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "9"
-				(start 39.675 84.7)
-				(end 43.225 86.875)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "1fc24884-db4b-4614-a9ec-52866ad7f734")
 				(effects
 					(font
 						(size 1 1)
@@ -137549,16 +138476,16 @@
 				(type solid)
 			)
 		)
-		(column_widths 5.325 4.35 3.575)
-		(row_heights 1.875 1.95 1.95 1.95 1.95 1.95)
+		(column_widths 3.85 3.425 3.55)
+		(row_heights 1.825 2.175 2.125 2.175)
 		(cells
-			(table_cell "SAI"
-				(start 54.425 52.049562)
-				(end 59.75 53.924562)
+			(table_cell "PB*"
+				(start 32.4 78.575)
+				(end 36.25 80.4)
 				(margins 0.25 0.25 0.25 0.25)
 				(span 1 1)
 				(layer "F.SilkS")
-				(uuid "2c684684-51ed-41a8-abbe-deca046fa269")
+				(uuid "2332bd4e-9870-49b5-bd7a-21319b320cd2")
 				(effects
 					(font
 						(size 1 1)
@@ -137567,58 +138494,43 @@
 					(justify left)
 				)
 			)
-			(table_cell "1A/B"
-				(start 59.75 52.049562)
-				(end 64.1 53.924562)
+			(table_cell "SCL"
+				(start 36.25 78.575)
+				(end 39.675 80.4)
 				(margins 0.25 0.25 0.25 0.25)
 				(span 1 1)
 				(layer "F.SilkS")
-				(uuid "9c63f058-bd66-48cf-9b0e-6cf155694e9c")
+				(uuid "03fcd341-76ef-4500-9de6-a67e3b0063a1")
 				(effects
 					(font
 						(size 1 1)
-						(italic yes)
+						(thickness 0.25)
 					)
 					(justify left)
 				)
 			)
-			(table_cell "4B"
-				(start 64.1 52.049562)
-				(end 67.675 53.924562)
+			(table_cell "SDA"
+				(start 39.675 78.575)
+				(end 43.225 80.4)
 				(margins 0.25 0.25 0.25 0.25)
 				(span 1 1)
 				(layer "F.SilkS")
-				(uuid "2af86986-d5bc-4b85-b2f1-6820ffd475dd")
+				(uuid "590ec025-a148-4319-b1bc-a8e7215660f1")
 				(effects
 					(font
 						(size 1 1)
-						(italic yes)
+						(thickness 0.25)
 					)
 					(justify left)
 				)
 			)
-			(table_cell "MCLK"
-				(start 54.425 53.924562)
-				(end 59.75 55.874562)
+			(table_cell "I2C1"
+				(start 32.4 80.4)
+				(end 36.25 82.575)
 				(margins 0.25 0.25 0.25 0.25)
 				(span 1 1)
 				(layer "F.SilkS")
-				(uuid "bbf47911-e029-43fd-979b-b74d961537be")
-				(effects
-					(font
-						(size 1 1)
-						(bold yes)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "PG7"
-				(start 59.75 53.924562)
-				(end 64.1 55.874562)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "44f61d5b-f364-41f6-84d7-4165e63988f3")
+				(uuid "7300d318-46c0-4f9f-a5e2-894aa20bb69c")
 				(effects
 					(font
 						(size 1 1)
@@ -137626,13 +138538,13 @@
 					(justify left)
 				)
 			)
-			(table_cell "PF7"
-				(start 64.1 53.924562)
-				(end 67.675 55.874562)
+			(table_cell "7"
+				(start 36.25 80.4)
+				(end 39.675 82.575)
 				(margins 0.25 0.25 0.25 0.25)
 				(span 1 1)
 				(layer "F.SilkS")
-				(uuid "1c7311dd-c1d7-4e7b-9ab3-e248e189438e")
+				(uuid "f22d30d4-9bda-4adb-83b7-1c3b7f52aa19")
 				(effects
 					(font
 						(size 1 1)
@@ -137640,28 +138552,13 @@
 					(justify left)
 				)
 			)
-			(table_cell "BLCK"
-				(start 54.425 55.874562)
-				(end 59.75 57.824562)
+			(table_cell "8"
+				(start 39.675 80.4)
+				(end 43.225 82.575)
 				(margins 0.25 0.25 0.25 0.25)
 				(span 1 1)
 				(layer "F.SilkS")
-				(uuid "e746c3f9-bf0d-41b4-a2d7-28dcb876099b")
-				(effects
-					(font
-						(size 1 1)
-						(bold yes)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "PE5"
-				(start 59.75 55.874562)
-				(end 64.1 57.824562)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "de208083-4a74-4798-a257-4885c9e7fa87")
+				(uuid "304561b1-2e7c-4cad-b5c6-e3e93c00fedd")
 				(effects
 					(font
 						(size 1 1)
@@ -137669,13 +138566,13 @@
 					(justify left)
 				)
 			)
-			(table_cell "PF8"
-				(start 64.1 55.874562)
-				(end 67.675 57.824562)
+			(table_cell "I2C2"
+				(start 32.4 82.575)
+				(end 36.25 84.7)
 				(margins 0.25 0.25 0.25 0.25)
 				(span 1 1)
 				(layer "F.SilkS")
-				(uuid "76e34400-4c84-47d9-a78a-ce087e92c1ba")
+				(uuid "8f00ceec-d6e8-4db8-88e6-fd7a4f79a68a")
 				(effects
 					(font
 						(size 1 1)
@@ -137683,28 +138580,13 @@
 					(justify left)
 				)
 			)
-			(table_cell "LRCLK"
-				(start 54.425 57.824562)
-				(end 59.75 59.774562)
+			(table_cell "10"
+				(start 36.25 82.575)
+				(end 39.675 84.7)
 				(margins 0.25 0.25 0.25 0.25)
 				(span 1 1)
 				(layer "F.SilkS")
-				(uuid "d64095f7-76df-400a-9aa6-f8d14d64bf8a")
-				(effects
-					(font
-						(size 1 1)
-						(bold yes)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "PE4"
-				(start 59.75 57.824562)
-				(end 64.1 59.774562)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "d90b50d3-6ee9-44b7-8766-aa9bc4f08544")
+				(uuid "13727aba-7461-44af-b918-3ff3a35b5ef7")
 				(effects
 					(font
 						(size 1 1)
@@ -137712,13 +138594,13 @@
 					(justify left)
 				)
 			)
-			(table_cell "PF9"
-				(start 64.1 57.824562)
-				(end 67.675 59.774562)
+			(table_cell "11"
+				(start 39.675 82.575)
+				(end 43.225 84.7)
 				(margins 0.25 0.25 0.25 0.25)
 				(span 1 1)
 				(layer "F.SilkS")
-				(uuid "c9a89f7e-57d8-4bf7-b964-2c73b369e489")
+				(uuid "2e12a969-71e3-4df7-a2cd-0f329f01039c")
 				(effects
 					(font
 						(size 1 1)
@@ -137726,28 +138608,13 @@
 					(justify left)
 				)
 			)
-			(table_cell "DAC"
-				(start 54.425 59.774562)
-				(end 59.75 61.724562)
+			(table_cell "I2C4"
+				(start 32.4 84.7)
+				(end 36.25 86.875)
 				(margins 0.25 0.25 0.25 0.25)
 				(span 1 1)
 				(layer "F.SilkS")
-				(uuid "460263ac-b6e1-4b7c-a7b6-7c8c81a3dbb6")
-				(effects
-					(font
-						(size 1 1)
-						(bold yes)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "PE6"
-				(start 59.75 59.774562)
-				(end 64.1 61.724562)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "4240caa8-9b9c-43b8-a477-0cff1b44b0ef")
+				(uuid "5af2d758-ac96-43a4-b7e3-bacee87717a5")
 				(effects
 					(font
 						(size 1 1)
@@ -137755,13 +138622,13 @@
 					(justify left)
 				)
 			)
-			(table_cell "PF6"
-				(start 64.1 59.774562)
-				(end 67.675 61.724562)
+			(table_cell "8"
+				(start 36.25 84.7)
+				(end 39.675 86.875)
 				(margins 0.25 0.25 0.25 0.25)
 				(span 1 1)
 				(layer "F.SilkS")
-				(uuid "fc90f996-be42-4117-89d8-40b408609cfc")
+				(uuid "cab1d522-9ff2-490f-a10b-a2cd15e884a2")
 				(effects
 					(font
 						(size 1 1)
@@ -137769,42 +138636,13 @@
 					(justify left)
 				)
 			)
-			(table_cell "ADC"
-				(start 54.425 61.724562)
-				(end 59.75 63.674562)
+			(table_cell "9"
+				(start 39.675 84.7)
+				(end 43.225 86.875)
 				(margins 0.25 0.25 0.25 0.25)
 				(span 1 1)
 				(layer "F.SilkS")
-				(uuid "ad9db2d8-9c04-4f36-911d-55b8538020bb")
-				(effects
-					(font
-						(size 1 1)
-						(bold yes)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "PE3"
-				(start 59.75 61.724562)
-				(end 64.1 63.674562)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "07be55c8-42c0-45e9-997e-0990e4a4a0de")
-				(effects
-					(font
-						(size 1 1)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "-"
-				(start 64.1 61.724562)
-				(end 67.675 63.674562)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "ff3c1170-9694-4d2d-a1e9-6c82e2c6b626")
+				(uuid "1fc24884-db4b-4614-a9ec-52866ad7f734")
 				(effects
 					(font
 						(size 1 1)
@@ -138235,844 +139073,6 @@
 				(span 1 1)
 				(layer "F.SilkS")
 				(uuid "9e6c1a48-5d04-4c27-bba9-23fd370a3aef")
-				(effects
-					(font
-						(size 1 1)
-					)
-					(justify left)
-				)
-			)
-		)
-	)
-	(table
-		(column_count 4)
-		(layer "F.SilkS")
-		(border
-			(external yes)
-			(header yes)
-			(stroke
-				(width 0.1)
-				(type solid)
-			)
-		)
-		(separators
-			(rows yes)
-			(cols yes)
-			(stroke
-				(width 0.1)
-				(type solid)
-			)
-		)
-		(column_widths 2.4 4.6 3.65 4.525)
-		(row_heights 1.875 1.875 1.775 1.825 1.95 1.9 1.9 1.95)
-		(cells
-			(table_cell "D0"
-				(start 87.15 64.375)
-				(end 89.55 66.25)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "2c684684-51ed-41a8-abbe-deca046fa269")
-				(effects
-					(font
-						(size 1 1)
-						(bold yes)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "PD14"
-				(start 89.55 64.375)
-				(end 94.15 66.25)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "9c63f058-bd66-48cf-9b0e-6cf155694e9c")
-				(effects
-					(font
-						(size 1 1)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "D8"
-				(start 94.15 64.375)
-				(end 97.8 66.25)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "b6d221e1-c9ef-40ee-a194-c41c51c0a6ac")
-				(effects
-					(font
-						(size 1 1)
-						(bold yes)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "PE11"
-				(start 97.8 64.375)
-				(end 102.325 66.25)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "63bd3f41-21bc-4ae0-bf32-19511df413a1")
-				(effects
-					(font
-						(size 1 1)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "D1"
-				(start 87.15 66.25)
-				(end 89.55 68.125)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "bbf47911-e029-43fd-979b-b74d961537be")
-				(effects
-					(font
-						(size 1 1)
-						(bold yes)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "PD15"
-				(start 89.55 66.25)
-				(end 94.15 68.125)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "44f61d5b-f364-41f6-84d7-4165e63988f3")
-				(effects
-					(font
-						(size 1 1)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "D9"
-				(start 94.15 66.25)
-				(end 97.8 68.125)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "74726124-0586-4080-92a5-b1e21b13f28d")
-				(effects
-					(font
-						(size 1 1)
-						(bold yes)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "PE12"
-				(start 97.8 66.25)
-				(end 102.325 68.125)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "84271300-7adc-4605-853d-2bdda14337f8")
-				(effects
-					(font
-						(size 1 1)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "D2"
-				(start 87.15 68.125)
-				(end 89.55 69.9)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "e746c3f9-bf0d-41b4-a2d7-28dcb876099b")
-				(effects
-					(font
-						(size 1 1)
-						(bold yes)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "PD0"
-				(start 89.55 68.125)
-				(end 94.15 69.9)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "de208083-4a74-4798-a257-4885c9e7fa87")
-				(effects
-					(font
-						(size 1 1)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "D10"
-				(start 94.15 68.125)
-				(end 97.8 69.9)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "8cc69281-fc40-49a4-bc0b-fb3a83ea24c8")
-				(effects
-					(font
-						(size 1 1)
-						(bold yes)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "PE13"
-				(start 97.8 68.125)
-				(end 102.325 69.9)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "5c35d594-bc8a-4fda-a84d-9d2d9419fc1f")
-				(effects
-					(font
-						(size 1 1)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "D3"
-				(start 87.15 69.9)
-				(end 89.55 71.725)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "14cc7210-b47a-4403-8631-e6adfc53e9c7")
-				(effects
-					(font
-						(size 1 1)
-						(bold yes)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "PD1"
-				(start 89.55 69.9)
-				(end 94.15 71.725)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "41479445-90e9-454e-a34f-a72802c4a45a")
-				(effects
-					(font
-						(size 1 1)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "D11"
-				(start 94.15 69.9)
-				(end 97.8 71.725)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "5f208eee-0d33-4a39-80db-a705aa18c269")
-				(effects
-					(font
-						(size 1 1)
-						(bold yes)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "PE14"
-				(start 97.8 69.9)
-				(end 102.325 71.725)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "632cbf49-7362-41d7-b245-e9432dced085")
-				(effects
-					(font
-						(size 1 1)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "D4"
-				(start 87.15 71.725)
-				(end 89.55 73.675)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "b0e92b82-873a-4843-ab40-bbba5234450d")
-				(effects
-					(font
-						(size 1 1)
-						(bold yes)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "PE7"
-				(start 89.55 71.725)
-				(end 94.15 73.675)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "8b199b79-10a9-405f-b894-d54fa214cc0a")
-				(effects
-					(font
-						(size 1 1)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "D12"
-				(start 94.15 71.725)
-				(end 97.8 73.675)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "2507e924-766b-4aa1-af74-f07a19f890e0")
-				(effects
-					(font
-						(size 1 1)
-						(bold yes)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "PE15"
-				(start 97.8 71.725)
-				(end 102.325 73.675)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "516032bc-a8f7-4345-a6ba-262ed44a679e")
-				(effects
-					(font
-						(size 1 1)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "D5"
-				(start 87.15 73.675)
-				(end 89.55 75.575)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "ad0d394c-3716-4eee-b58e-a82e81902600")
-				(effects
-					(font
-						(size 1 1)
-						(bold yes)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "PE8"
-				(start 89.55 73.675)
-				(end 94.15 75.575)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "39dd2bbd-d176-4477-90f2-359838042be3")
-				(effects
-					(font
-						(size 1 1)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "D13"
-				(start 94.15 73.675)
-				(end 97.8 75.575)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "72ed302b-0188-49e8-b600-1397cf231441")
-				(effects
-					(font
-						(size 1 1)
-						(bold yes)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "PD8"
-				(start 97.8 73.675)
-				(end 102.325 75.575)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "ab4e8ecc-5d28-4ab9-9982-2bcf7d23b17d")
-				(effects
-					(font
-						(size 1 1)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "D6"
-				(start 87.15 75.575)
-				(end 89.55 77.475)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "41030544-8a6a-4c12-8a46-a91c30d3f542")
-				(effects
-					(font
-						(size 1 1)
-						(bold yes)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "PE9"
-				(start 89.55 75.575)
-				(end 94.15 77.475)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "7dfc8235-d21a-4665-b97b-63cb970cb156")
-				(effects
-					(font
-						(size 1 1)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "D14"
-				(start 94.15 75.575)
-				(end 97.8 77.475)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "26f09167-cb13-4efd-8520-02261f7b08e7")
-				(effects
-					(font
-						(size 1 1)
-						(bold yes)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "PD9"
-				(start 97.8 75.575)
-				(end 102.325 77.475)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "9e6c1a48-5d04-4c27-bba9-23fd370a3aef")
-				(effects
-					(font
-						(size 1 1)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "D7"
-				(start 87.15 77.475)
-				(end 89.55 79.425)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "e6fdc45b-6c31-46c9-9c8f-8a1c4f3c6238")
-				(effects
-					(font
-						(size 1 1)
-						(bold yes)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "PE10"
-				(start 89.55 77.475)
-				(end 94.15 79.425)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "a4d5b279-1157-4e49-9630-31fae5c17e3f")
-				(effects
-					(font
-						(size 1 1)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "D15"
-				(start 94.15 77.475)
-				(end 97.8 79.425)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "7f9b30a8-f12e-45ae-98b8-af9b7e864bb8")
-				(effects
-					(font
-						(size 1 1)
-						(bold yes)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "PD10"
-				(start 97.8 77.475)
-				(end 102.325 79.425)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "86201a8d-c22c-4858-a14f-3a799aedf85e")
-				(effects
-					(font
-						(size 1 1)
-					)
-					(justify left)
-				)
-			)
-		)
-	)
-	(table
-		(column_count 3)
-		(layer "F.SilkS")
-		(border
-			(external yes)
-			(header yes)
-			(stroke
-				(width 0.1)
-				(type solid)
-			)
-		)
-		(separators
-			(rows yes)
-			(cols yes)
-			(stroke
-				(width 0.1)
-				(type solid)
-			)
-		)
-		(column_widths 1.825 4.6 3.55)
-		(row_heights 2.175 2.125 2.175)
-		(cells
-			(table_cell "#"
-				(start 57.775 44.725)
-				(end 59.6 46.9)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "2332bd4e-9870-49b5-bd7a-21319b320cd2")
-				(effects
-					(font
-						(size 1 1)
-						(italic yes)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "TX"
-				(start 59.6 44.725)
-				(end 64.2 46.9)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "03fcd341-76ef-4500-9de6-a67e3b0063a1")
-				(effects
-					(font
-						(size 1 1)
-						(thickness 0.25)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "RX"
-				(start 64.2 44.725)
-				(end 67.75 46.9)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "590ec025-a148-4319-b1bc-a8e7215660f1")
-				(effects
-					(font
-						(size 1 1)
-						(thickness 0.25)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "4"
-				(start 57.775 46.9)
-				(end 59.6 49.025)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "7300d318-46c0-4f9f-a5e2-894aa20bb69c")
-				(effects
-					(font
-						(size 1 1)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "PA0"
-				(start 59.6 46.9)
-				(end 64.2 49.025)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "f22d30d4-9bda-4adb-83b7-1c3b7f52aa19")
-				(effects
-					(font
-						(size 1 1)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "PA1"
-				(start 64.2 46.9)
-				(end 67.75 49.025)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "304561b1-2e7c-4cad-b5c6-e3e93c00fedd")
-				(effects
-					(font
-						(size 1 1)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "5"
-				(start 57.775 49.025)
-				(end 59.6 51.2)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "8f00ceec-d6e8-4db8-88e6-fd7a4f79a68a")
-				(effects
-					(font
-						(size 1 1)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "PC12"
-				(start 59.6 49.025)
-				(end 64.2 51.2)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "13727aba-7461-44af-b918-3ff3a35b5ef7")
-				(effects
-					(font
-						(size 1 1)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "PD2"
-				(start 64.2 49.025)
-				(end 67.75 51.2)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "2e12a969-71e3-4df7-a2cd-0f329f01039c")
-				(effects
-					(font
-						(size 1 1)
-					)
-					(justify left)
-				)
-			)
-		)
-	)
-	(table
-		(column_count 4)
-		(layer "F.SilkS")
-		(border
-			(external yes)
-			(header yes)
-			(stroke
-				(width 0.1)
-				(type solid)
-			)
-		)
-		(separators
-			(rows yes)
-			(cols yes)
-			(stroke
-				(width 0.1)
-				(type solid)
-			)
-		)
-		(column_widths 4.225 3.375 4.4 4.35)
-		(row_heights 1.875 1.95 1.95)
-		(cells
-			(table_cell "CLK"
-				(start 79.05 80.83)
-				(end 83.275 82.705)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "2c684684-51ed-41a8-abbe-deca046fa269")
-				(effects
-					(font
-						(size 1 1)
-						(bold yes)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "PA5"
-				(start 83.275 80.83)
-				(end 86.65 82.705)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "9c63f058-bd66-48cf-9b0e-6cf155694e9c")
-				(effects
-					(font
-						(size 1 1)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "SDCS"
-				(start 86.65 80.83)
-				(end 91.05 82.705)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "b6d221e1-c9ef-40ee-a194-c41c51c0a6ac")
-				(effects
-					(font
-						(size 1 1)
-						(bold yes)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "PA4"
-				(start 91.05 80.83)
-				(end 95.4 82.705)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "63bd3f41-21bc-4ae0-bf32-19511df413a1")
-				(effects
-					(font
-						(size 1 1)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "POCI"
-				(start 79.05 82.705)
-				(end 83.275 84.655)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "bbf47911-e029-43fd-979b-b74d961537be")
-				(effects
-					(font
-						(size 1 1)
-						(bold yes)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "PA6"
-				(start 83.275 82.705)
-				(end 86.65 84.655)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "44f61d5b-f364-41f6-84d7-4165e63988f3")
-				(effects
-					(font
-						(size 1 1)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "XTCS"
-				(start 86.65 82.705)
-				(end 91.05 84.655)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "74726124-0586-4080-92a5-b1e21b13f28d")
-				(effects
-					(font
-						(size 1 1)
-						(bold yes)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "PC13"
-				(start 91.05 82.705)
-				(end 95.4 84.655)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "84271300-7adc-4605-853d-2bdda14337f8")
-				(effects
-					(font
-						(size 1 1)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "PICO"
-				(start 79.05 84.655)
-				(end 83.275 86.605)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "e746c3f9-bf0d-41b4-a2d7-28dcb876099b")
-				(effects
-					(font
-						(size 1 1)
-						(bold yes)
-					)
-					(justify left)
-				)
-			)
-			(table_cell "PA7"
-				(start 83.275 84.655)
-				(end 86.65 86.605)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "de208083-4a74-4798-a257-4885c9e7fa87")
-				(effects
-					(font
-						(size 1 1)
-					)
-					(justify left)
-				)
-			)
-			(table_cell ""
-				(start 86.65 84.655)
-				(end 91.05 86.605)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "8cc69281-fc40-49a4-bc0b-fb3a83ea24c8")
-				(effects
-					(font
-						(size 1 1)
-					)
-					(justify left)
-				)
-			)
-			(table_cell ""
-				(start 91.05 84.655)
-				(end 95.4 86.605)
-				(margins 0.25 0.25 0.25 0.25)
-				(span 1 1)
-				(layer "F.SilkS")
-				(uuid "5c35d594-bc8a-4fda-a84d-9d2d9419fc1f")
 				(effects
 					(font
 						(size 1 1)
