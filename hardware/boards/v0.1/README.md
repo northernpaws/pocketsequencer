@@ -51,3 +51,5 @@
   - LEDs need a power enable switch tied to the main regulator, they never shut off.
   - Either attach power enable pin to the BMP's Vref so the BMP can assert it high, or have a flashing/development jumper on the back.
   - TCA8418 doesn't provide a way to query the matrix state after an active reset. The TAC8418 only emits keypress events when they happen, so we can't check on power on if a key is held from before a reset.
+  - The filtering capacitors on the audio line in and out are too small, they should be at least 47uF. In their current 1uF value, they cut out large parts of the low-end.
+  - The filter capacitors on the audio line in and out where acidentally changed from film to ceramics during BOM selections, causing extra signal noise.
