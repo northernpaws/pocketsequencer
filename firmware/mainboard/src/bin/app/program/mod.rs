@@ -63,48 +63,6 @@ pub async fn start(spawner: Spawner, mut engine: Engine) -> Result<(), SpawnErro
 
                             // Signal that the buffer has been filled and can be played.
                             engine.audio.system_audio.send_done();
-
-                            // info!(
-                            //     "sent {} samples to system audio channel",
-                            //     HALF_DMA_BUFFER_LENGTH
-                            // );
-                        }
-
-                        Timer::after_secs(1).await;
-
-                        // Chunk the audio file based on the buffer size of the transfer channel.
-                        for chunk in samples.chunks(HALF_DMA_BUFFER_LENGTH) {
-                            // Wait for the next free audio transfer buffer.
-                            let buffer = engine.audio.system_audio.send().await;
-
-                            // Clear the previous items.
-                            buffer.clear();
-
-                            // Break the samples chunk into alternating channels,
-                            // and write the to the transfer buffer.
-                            // TODO: could probably be a memcpy instead
-                            for frame in chunk.chunks(2) {
-                                let l_sample_int: i16 = frame[0];
-                                let l_sample_float: f32 = l_sample_int as f32;
-                                let l_sample: f32 = l_sample_float / 32_768.0f32;
-
-                                let r_sample_int: i16 = frame[1];
-                                let r_sample_float: f32 = r_sample_int as f32;
-                                let r_sample: f32 = r_sample_float / 32_768.0f32;
-
-                                // .to_sample() handles the conversion from the source
-                                // sample type to the destination sample type, including
-                                // scalining based on the ranges.
-                                buffer.push([l_sample, r_sample]).unwrap();
-                            }
-
-                            // Signal that the buffer has been filled and can be played.
-                            engine.audio.system_audio.send_done();
-
-                            // info!(
-                            //     "sent {} samples to system audio channel",
-                            //     HALF_DMA_BUFFER_LENGTH
-                            // );
                         }
                     }
                     Data::BitDepth24(samples) => {

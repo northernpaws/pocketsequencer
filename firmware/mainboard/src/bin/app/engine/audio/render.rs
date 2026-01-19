@@ -200,7 +200,7 @@ async fn inner_audio_task(
                 if frame_index < system_audio.len() {
                     for (channel_index, channel_sample) in frame.iter_mut().enumerate() {
                         // Convert the sample to u24 encoded as u32 frames.
-                        *channel_sample = ((system_audio[frame_index][channel_index]
+                        *channel_sample = (((system_audio[frame_index][channel_index])
                             * i32::MAX as f32) as i32)
                             .cast_unsigned(); // as u32
                     }
@@ -211,8 +211,6 @@ async fn inner_audio_task(
         if system_audio.is_some() {
             system_audio_receiver.receive_done();
         }
-
-        info!("first sample: {}", buf[0]);
 
         // Write the rendered buffer to the larger ring buffer for DMA.
         //

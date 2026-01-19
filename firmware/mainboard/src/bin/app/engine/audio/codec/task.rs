@@ -4,8 +4,9 @@ use embassy_executor::{SpawnError, Spawner};
 use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, signal::Signal};
 use firmware::hardware::{self, audio::AudioParameters};
 use nau88c22_rs::{
-    AudioConfig, AudioFormat, Aux1OutputConfig, Aux2OutputConfig, ClockConfig, DACChannelConfig,
-    DACConfig, InitializationConfig,
+    ADCConfig, AudioConfig, AudioFormat, Aux1OutputConfig, Aux2OutputConfig, ClockConfig,
+    DACChannelConfig, DACConfig, InitializationConfig, LeftOutputMixerConfig,
+    RightOutputMixerConfig,
     registers::{AudioInterfaceDataFormat, WordLength},
 };
 
@@ -61,30 +62,50 @@ async fn inner_task(
                         left_mixer_input: false,
                         left_dac_input: false,
                         right_adc_mixer_input: false,
-                        right_mixer_input: false,
-                        right_dac_input: true,
+                        right_mixer_input: true,
+                        right_dac_input: false,
                     }),
                     aux2_output: Some(Aux2OutputConfig {
                         muted: false,
                         aux1_interconnect_input: false,
                         left_adc_mix_input: false,
-                        left_mixer_input: false,
-                        left_dac_input: true,
+                        left_mixer_input: true,
+                        left_dac_input: false,
                     }),
                     enable_micbias: false,
                     enable_headphone_right: false,
                     enable_headphone_left: false,
                     input_mixer_right: None,
                     input_mixer_left: None,
-                    output_mixer_right: None,
-                    output_mixer_left: None,
+                    output_mixer_right: Some(RightOutputMixerConfig {
+                        aux_gain: Default::default(),
+                        aux_input: false,
+                        adc_input_gain: Default::default(),
+                        adc_input: false,
+                        dac_input: true,
+                    }),
+                    output_mixer_left: Some(LeftOutputMixerConfig {
+                        aux_gain: Default::default(),
+                        aux_input: false,
+                        adc_input_gain: Default::default(),
+                        adc_input: false,
+                        dac_input: true,
+                    }),
                     enable_speaker_right: false,
                     enable_speaker_left: false,
-                    adc: None,
-                    dac: Some(DACConfig {
+                    adc: Some(ADCConfig {
                         oversample_128: false,
-                        dac_left: Some(DACChannelConfig { gain: 0xFF }),
-                        dac_right: Some(DACChannelConfig { gain: 0xFF }),
+                        adc_left: Some(nau88c22_rs::ADCChannelConfig {
+                            gain: Default::default(),
+                        }),
+                        adc_right: Some(nau88c22_rs::ADCChannelConfig {
+                            gain: Default::default(),
+                        }),
+                    }),
+                    dac: Some(DACConfig {
+                        oversample_128: true,
+                        dac_left: Some(DACChannelConfig { gain: 0xFF - 20 }),
+                        dac_right: Some(DACChannelConfig { gain: 0xFF - 20 }), // 1 = 0.5dB attenuation
                     }),
                     format: AudioFormat {
                         word_length: WordLength::Word32Bit,
@@ -104,11 +125,22 @@ async fn inner_task(
         .await
         .unwrap();
 
-    // Start with in softmute, and then transition out of it to help reduce pops.
     codec
-        .modify_daccontrol(|reg| reg.with_automt(true).with_softmt(true))
+        .modify_eq1highcutoff(|reg| reg.with_eqm(false))
         .await
         .unwrap();
+
+    // Start with in softmute, and then transition out of it to help reduce pops.
+    codec
+        .modify_daccontrol(|reg| reg.with_automt(false).with_softmt(true))
+        .await
+        .unwrap();
+
+    // DAC -> DAC loopback.
+    // codec
+    //     .modify_companding(|reg| reg.with_addap(true))
+    //     .await
+    //     .unwrap();
 
     // Wait for the audio task to be ready and have sent some
     // initial frames, and then move the DAC out of softmute.
@@ -122,6 +154,16 @@ async fn inner_task(
             break;
         }
     }
+
+    codec
+        .modify_daccontrol(|reg| reg.with_ldacpl(false).with_rdacpl(false))
+        .await
+        .unwrap();
+
+    codec
+        .modify_dacdither(|reg| reg.with_analog_dither(0b00000).with_mod_dither(0b00000))
+        .await
+        .unwrap();
 
     loop {
         let command = command_receiver.receive().await;
