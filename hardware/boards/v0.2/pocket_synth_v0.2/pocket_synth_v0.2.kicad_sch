@@ -16174,6 +16174,18 @@
 		(uuid 93194f5a-c454-41d6-8c12-96c76be62cf9)
 	)
 	(rectangle
+		(start 269.24 257.81)
+		(end 284.48 278.13)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(fill
+			(type none)
+		)
+		(uuid bbf6639a-88aa-46b5-a5a8-75ebe905b667)
+	)
+	(rectangle
 		(start 269.24 58.42)
 		(end 439.42 208.28)
 		(stroke
@@ -16184,6 +16196,18 @@
 			(type none)
 		)
 		(uuid e7e831fa-113d-4fd4-bdc7-91c4370a423c)
+	)
+	(rectangle
+		(start 269.24 278.13)
+		(end 284.48 298.45)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(fill
+			(type none)
+		)
+		(uuid fdf5d9a4-2a83-4571-9d46-f76a2e86a4e3)
 	)
 	(text "Audio Board"
 		(exclude_from_sim no)
@@ -21012,7 +21036,7 @@
 		(uuid "2d91bd34-985a-4fe2-877d-559479b8e096")
 	)
 	(label "FMC_D15"
-		(at 273.05 297.18 0)
+		(at 273.05 294.64 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21162,7 +21186,7 @@
 		(uuid "4017ab79-a65a-4858-850e-9a803a0a2045")
 	)
 	(label "FMC_D11"
-		(at 273.05 287.02 0)
+		(at 273.05 284.48 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21342,7 +21366,7 @@
 		(uuid "5a90b6a5-6fa3-488a-a575-400ff64237b6")
 	)
 	(label "FMC_D8"
-		(at 273.05 279.4 0)
+		(at 273.05 281.94 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21892,7 +21916,7 @@
 		(uuid "a3da7505-3758-4a3c-9758-6065dbff30f6")
 	)
 	(label "FMC_D9"
-		(at 273.05 281.94 0)
+		(at 273.05 279.4 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21942,7 +21966,7 @@
 		(uuid "a72f7ece-99a4-4408-ad58-5988686f7197")
 	)
 	(label "FMC_D10"
-		(at 273.05 284.48 0)
+		(at 273.05 287.02 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22052,7 +22076,7 @@
 		(uuid "b60146b5-5b35-4ec3-b8a8-58f783d09f95")
 	)
 	(label "FMC_D14"
-		(at 273.05 294.64 0)
+		(at 273.05 297.18 0)
 		(effects
 			(font
 				(size 1.27 1.27)
