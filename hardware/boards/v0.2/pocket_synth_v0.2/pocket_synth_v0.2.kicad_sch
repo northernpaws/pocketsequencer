@@ -26832,7 +26832,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Connector_FFC-FPC:Amphenol_F32Q-1A7x1-11053_1x53-1MP_P0.5mm_Horizontal"
+		(property "Footprint" "Connector_FFC-FPC:Amphenol_F32Q-1A7x1-11054_1x54-1MP_P0.5mm_Horizontal"
 			(at -12.7 151.13 0)
 			(effects
 				(font
@@ -26841,7 +26841,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "~"
+		(property "Datasheet" "https://www.buydisplay.com/3-5-inch-ips-tft-display-optl-capacitive-touch-lq035nc111-lq035nc211"
 			(at -12.7 151.13 0)
 			(effects
 				(font
