@@ -47,3 +47,8 @@
 	#(constraint length (min 37mm) (max 45mm))
 	(constraint skew (opt 0.5mm))
 )
+
+(rule "lcd-skew"
+	(condition  "A.NetClass == 'LCD'")
+	(constraint skew (opt 20mm))
+)

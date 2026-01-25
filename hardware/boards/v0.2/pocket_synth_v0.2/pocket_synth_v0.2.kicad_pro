@@ -514,15 +514,21 @@
         "wire_width": 6
       },
       {
-        "name": "QSPI",
+        "name": "LCD",
         "pcb_color": "rgba(0, 0, 0, 0.000)",
         "priority": 0,
+        "schematic_color": "rgba(0, 0, 0, 0.000)"
+      },
+      {
+        "name": "QSPI",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "priority": 1,
         "schematic_color": "rgb(208, 85, 255)"
       },
       {
         "name": "SDCARD",
         "pcb_color": "rgb(255, 132, 44)",
-        "priority": 1,
+        "priority": 2,
         "schematic_color": "rgb(255, 132, 44)"
       }
     ],
@@ -539,6 +545,10 @@
       {
         "netclass": "QSPI",
         "pattern": "/QSPI*"
+      },
+      {
+        "netclass": "LCD",
+        "pattern": "/LCD_*"
       }
     ]
   },
