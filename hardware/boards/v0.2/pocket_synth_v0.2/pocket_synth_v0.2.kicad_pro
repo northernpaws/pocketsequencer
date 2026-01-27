@@ -486,8 +486,12 @@
     }
   },
   "libraries": {
-    "pinned_footprint_libs": [],
-    "pinned_symbol_libs": []
+    "pinned_footprint_libs": [
+      "Northernpaws_RF"
+    ],
+    "pinned_symbol_libs": [
+      "Northernpaws_RF"
+    ]
   },
   "meta": {
     "filename": "pocket_synth_v0.2.kicad_pro",
